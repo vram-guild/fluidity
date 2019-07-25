@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.2.2-SNAPSHOT'
+	id 'fabric-loom' version '0.2.5-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -13,6 +13,23 @@ group = project.maven_group
 minecraft {
 }
 
+repositories {
+    maven { url "https://tehnut.info/maven"}
+    maven { url "http://maven.sargunv.s3-website-us-west-2.amazonaws.com/" }
+    maven { url "https://minecraft.curseforge.com/api/maven" }
+    maven { url "https://maven.fabricmc.net/io/github/prospector/modmenu/ModMenu/" }
+    maven { url "https://maven.jamieswhiteshirt.com/libs-release/"}
+    
+ 	maven {
+    	name = "grondag"
+    	url = "https://grondag-repo.appspot.com"
+    	credentials {
+            username "guest"
+            password ""
+		}
+    }
+}
+
 dependencies {
 	//to change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -21,9 +38,9 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modCompile "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-
-	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
-	// You may need to force-disable transitiveness on them.
+	
+	compile "org.apiguardian:apiguardian-api:1.0.0"
+	compile "com.google.code.findbugs:jsr305:3.0.2"
 }
 
 processResources {
@@ -77,4 +94,18 @@ publishing {
 		// uncomment to publish to the local maven
 		// mavenLocal()
 	}
+	
+    repositories {
+	    maven {
+	        url "https://grondag-repo.appspot.com"
+	        credentials {
+	        	if (project.hasProperty('maven_user')){
+					username = project.getProperty('maven_user')
+				}
+				if (project.hasProperty('maven_password')){
+					password = project.getProperty('maven_password')
+				}
+			}
+	    }
+    }
 }

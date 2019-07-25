@@ -1,4 +1,4 @@
-package net.fabricmc.example;
+package grondag.fluidity.transact;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
@@ -7,7 +7,6 @@ import org.apache.commons.lang3.ObjectUtils;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.InventoryListener;
@@ -23,6 +22,7 @@ import net.minecraft.util.math.MathHelper;
  */
 public class StorageSketch {
 
+    @SuppressWarnings("unused")
     public static void runTests() {
         final SimpleInventory inv1 = new SimpleInventory(1);
         final SimpleInventory inv3 = new SimpleInventory(3);
@@ -34,9 +34,9 @@ public class StorageSketch {
         
         storeAllOrNone(inv3, lapis, cactus, cobble);
         
-        assert inv3.getInvAmountOf(Items.LAPIS_LAZULI) == 32;
-        assert inv3.getInvAmountOf(Items.CACTUS) == 32;
-        assert inv3.getInvAmountOf(Items.COBBLESTONE) == 32;
+        assert inv3.countInInv(Items.LAPIS_LAZULI) == 32;
+        assert inv3.countInInv(Items.CACTUS) == 32;
+        assert inv3.countInInv(Items.COBBLESTONE) == 32;
         assert lapis.isEmpty();
         assert cactus.isEmpty();
         assert cobble.isEmpty();
