@@ -76,24 +76,4 @@ public interface RationalNumberView  extends Comparable<RationalNumberView> {
         // Egregious hack because this implementation will not be sticking around
         return Double.compare(this.toDouble(1), o.toDouble(1));
     }
-    
-    default boolean isGreater(RationalNumberView o) {
-        // Egregious hack because this implementation will not be sticking around
-        return toDouble(1) > o.toDouble(1);
-    }
-    
-    default boolean isGreaterOrEqual(RationalNumberView o) {
-        // Egregious hack because this implementation will not be sticking around
-        return toDouble(1) >= o.toDouble(1);
-    }
-    
-    default boolean isLess(RationalNumberView o) {
-        // Egregious hack because this implementation will not be sticking around
-        return toDouble(1) < o.toDouble(1);
-    }
-    
-    default boolean isLessOrEqual(RationalNumberView o) {
-        // Egregious hack because this implementation will not be sticking around
-        return toDouble(1) <= o.toDouble(1);
-    }
 }
