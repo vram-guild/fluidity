@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package net.fabricmc.fabric.api.fluids.v1;
+package net.fabricmc.fabric.api.fluids.v1.container;
 
-public interface MutableFluidVolume extends FluidVolume, MutableRationalNumber {
+import net.fabricmc.fabric.api.fluids.v1.fraction.RationalNumber;
+
+public interface MutableFluidVolume extends SubstanceVolume {
     /**
      * Sets max fill volume and base units for this instance.<p>
      * 
@@ -25,7 +27,29 @@ public interface MutableFluidVolume extends FluidVolume, MutableRationalNumber {
      * @param capacity  Max fill volume in given unit.
      * @param units Fraction of one bucket that becomes the base unit for this instance. Must be >= 1.
      */
-    MutableFluidVolume setCapacity(long capacity, long baseUnits);
+    default MutableFluidVolume setCapacity(long capacity, long baseUnits) {
+        final long whole = capacity / baseUnits;
+        final long fraction = capacity - whole * baseUnits;
+        return setCapacity(whole, fraction, baseUnits);
+    }
+    
+    /**
+     * Version of {@link #setCapacity(long, long, long)} that accepts a RationalNumber value.
+     */
+    default MutableFluidVolume setCapacity(RationalNumber val) {
+        return setCapacity(val.wholeUnits(), val.numerator(), val.divisor());
+    }
+    
+    /**
+     * Sets max fill volume and base units for this instance.<p>
+     * 
+     * See {@link #getBaseUnit()} and {@link #getCapacity()}.
+     * 
+     * @param buckets Whole-bucket portion of fill volume.
+     * @param fraction Fractional part of fill volume in given base unit.
+     * @param units Fraction of one bucket that becomes the base unit for this instance. Must be >= 1.
+     */
+    MutableFluidVolume setCapacity(long buckets, long fraction, long baseUnits);
     
     /**
      * Sets volume exactly.  Must be less than {@link #getMaxBuckets()} or
@@ -34,7 +58,28 @@ public interface MutableFluidVolume extends FluidVolume, MutableRationalNumber {
      * @param volume New volume to be set. Must be <= capacity.
      * @param units Fraction of one bucket that counts as 1 in the result. Must be >= 1.
      */
-    MutableFluidVolume setVolume(long volume, long units);
+    default MutableFluidVolume set(long volume, long units) {
+        final long whole = volume / units;
+        final long fraction = volume - whole * units;
+        return set(whole, fraction, units);
+    }
+    
+    /**
+     * Version of {@link #set(long, long, long)} that accepts a RationalNumber value.
+     */
+    default MutableFluidVolume set(RationalNumber val) {
+        return set(val.wholeUnits(), val.numerator(), val.divisor());
+    }
+    
+    /**
+     * Sets volume exactly.  Must be less than {@link #getCapacity()} or
+     * an exception will be thrown.
+     * 
+     * @param buckets Whole-bucket portion of volume to be set. Must be <= capacity.
+     * @param fraction Fractional part of new volume in given base unit. Must be <= capacity.
+     * @param units Fraction of one bucket that counts as 1 in the fraction parameter. Must be >= 1.
+     */
+    MutableFluidVolume set(long buckets, long fraction, long baseUnits);
     
     /**
      * Removes up to the given number of units and returns that number.

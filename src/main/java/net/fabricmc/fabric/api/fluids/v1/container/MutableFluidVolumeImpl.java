@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package net.fabricmc.fabric.impl.fluids;
+package net.fabricmc.fabric.api.fluids.v1.container;
 
-import net.fabricmc.fabric.api.fluids.v1.ImmutableFluidVolume;
-import net.fabricmc.fabric.api.fluids.v1.MutableFluidVolume;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -46,7 +44,7 @@ public class MutableFluidVolumeImpl extends AbstractMutableFluidVolume implement
         super(fluid);
         this.capacity = capacity;
         this.baseUnit = units;
-        this.setVolume(volume, units);
+        this.set(volume, units);
     }
     
     protected MutableFluidVolumeImpl(PacketByteBuf buf) {

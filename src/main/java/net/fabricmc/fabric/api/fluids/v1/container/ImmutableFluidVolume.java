@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package net.fabricmc.fabric.impl.fluids;
+package net.fabricmc.fabric.api.fluids.v1.container;
 
-import net.fabricmc.fabric.api.fluids.v1.ImmutableFluidVolume;
-import net.fabricmc.fabric.api.fluids.v1.MutableFluidVolume;
 
-public class ImmutableFluidVolumeImpl extends AbstractFluidVolume implements ImmutableFluidVolume {
-    protected ImmutableFluidVolumeImpl(AbstractFluidVolume template) {
-        super(template);
-    }
-
+/**
+ * Unambiguous version of {@link FluidVolume.}  
+ */
+public interface ImmutableFluidVolume extends SubstanceVolume {
     @Override
-    public MutableFluidVolume mutableCopy() {
-        return new MutableFluidVolumeImpl(this);
+    default ImmutableFluidVolume toImmutable() {
+        return this;
     }
 }

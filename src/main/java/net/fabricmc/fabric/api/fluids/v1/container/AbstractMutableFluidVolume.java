@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package net.fabricmc.fabric.impl.fluids;
+package net.fabricmc.fabric.api.fluids.v1.container;
 
-import net.fabricmc.fabric.api.fluids.v1.MutableFluidVolume;
+import net.fabricmc.fabric.api.fluids.v1.fraction.RationalNumber;
 import net.minecraft.fluid.Fluid;
 
 public abstract class AbstractMutableFluidVolume extends AbstractFluidVolume implements MutableFluidVolume {
@@ -29,23 +29,23 @@ public abstract class AbstractMutableFluidVolume extends AbstractFluidVolume imp
         super(template);
     }
     
-    public MutableFluidVolume setCapacity(long capacity, long baseUnits) {
-        this.capacity = capacity;
-        this.baseUnit = baseUnits;
+    @Override
+    public AbstractMutableFluidVolume setCapacity(long whole, long fraction, long baseUnits) {
+        this.capacity.set(whole, fraction, baseUnits);
         return this;
     }
 
-    public MutableFluidVolume setVolume(long volume, long units) {
-        final long whole = volume / units;
-        final long num = volume - whole * units;
-        set(whole, num, units);
-        return this;
+    @Override
+    public AbstractMutableFluidVolume set(long whole, long fraction, long units) {
+        //TODO: add capacity check
+        super.set(whole, fraction, units);
     }
 
     protected long computeDrainResult(long volume, long units) {
         return Math.max(0, Math.min(volume, scaleTo(units)));
     }
     
+    @Override
     public long drain(long volume, long units, boolean simulate) {
         final long result = computeDrainResult(volume, units);
         if(!simulate) {
@@ -54,6 +54,7 @@ public abstract class AbstractMutableFluidVolume extends AbstractFluidVolume imp
         return result;
     }
 
+    @Override
     public boolean drainExactly(long volume, long units, boolean simulate) {
         final long result = computeDrainResult(volume, units);
         if(result == volume) {
@@ -74,6 +75,7 @@ public abstract class AbstractMutableFluidVolume extends AbstractFluidVolume imp
         return Math.max(0, Math.min(scaledVolume, availableSpace));
     }
     
+    @Override
     public long fill(long volume, long units, boolean simulate) {
         final long result = computeFillResult(volume, units);
         if(!simulate) {
@@ -82,6 +84,7 @@ public abstract class AbstractMutableFluidVolume extends AbstractFluidVolume imp
         return result;
     }
 
+    @Override
     public boolean fillExactly(long volume, long units, boolean simulate) {
         final long result = computeFillResult(volume, units);
         if(result == volume) {
@@ -92,5 +95,11 @@ public abstract class AbstractMutableFluidVolume extends AbstractFluidVolume imp
         } else {
             return false;
         }
+    }
+
+    @Override
+    public MutableFluidVolume set(RationalNumber val) {
+        // TODO Auto-generated method stub
+        return MutableFluidVolume.super.set(val);
     }
 }
