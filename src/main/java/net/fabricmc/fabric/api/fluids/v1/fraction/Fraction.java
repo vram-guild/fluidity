@@ -20,32 +20,42 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.PacketByteBuf;
 
-public final class RationalNumber extends AbstractRationalNumber {
-    public RationalNumber() {
+public final class Fraction extends AbstractFraction {
+    public static final Fraction ZERO = new Fraction(0, 0, 1);
+    
+    public static Fraction of(long whole, long numerator, long divisor) {
+        return new Fraction(whole, numerator, divisor);
+    }
+    
+    public static Fraction of(long numerator, long divisor) {
+        return new Fraction(numerator, divisor);
+    }
+    
+    public Fraction() {
         super();
     }
     
-    public RationalNumber(long whole) {
+    public Fraction(long whole) {
         super(whole, 0, 0);
     }
     
-    public RationalNumber(long numerator, long divisor) {
+    public Fraction(long numerator, long divisor) {
         super(numerator, divisor);
     }
     
-    public RationalNumber(long whole, long numerator, long divisor) {
+    public Fraction(long whole, long numerator, long divisor) {
         super(whole, numerator, divisor);
     }
     
-    public RationalNumber(RationalNumberView template) {
+    public Fraction(FractionView template) {
         super(template.whole(), template.numerator(), template.divisor());
     }
     
-    public RationalNumber(Tag tag) {
+    public Fraction(Tag tag) {
         readTag((CompoundTag) tag);
     }
     
-    public RationalNumber(PacketByteBuf buf) {
+    public Fraction(PacketByteBuf buf) {
         readBuffer(buf);
     }
 }

@@ -20,7 +20,7 @@ package net.fabricmc.fabric.api.fluids.v1.fraction;
  * To be exposed by containers that may not rely on a concrete rational number
  * implementation internally or to prevent external mutation of mutable internals.
  */
-public interface RationalNumberView  extends Comparable<RationalNumberView> {
+public interface FractionView  extends Comparable<FractionView> {
     long whole();
     
     long numerator();
@@ -52,7 +52,7 @@ public interface RationalNumberView  extends Comparable<RationalNumberView> {
      * @param units Fraction of one bucket that counts as 1 in the result. Must be >= 1.
      * @return Number of units within current volume.
      */
-    default long scaleTo(long divisor) {
+    default long toLong(long divisor) {
         if(divisor < 1) {
             throw new IllegalArgumentException("RationalNumber divisor must be >= 1");
         }
@@ -72,8 +72,12 @@ public interface RationalNumberView  extends Comparable<RationalNumberView> {
     }
     
     @Override
-    default int compareTo(RationalNumberView o) {
+    default int compareTo(FractionView o) {
         // Egregious hack because this implementation will not be sticking around
         return Double.compare(this.toDouble(1), o.toDouble(1));
+    }
+    
+    default Fraction toImmutable() {
+        return Fraction.of(whole(), numerator(), divisor());
     }
 }

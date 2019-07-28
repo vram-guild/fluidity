@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.fabricmc.fabric.api.fluids.v1.substance;
+package net.fabricmc.fabric.api.fluids.v1.fluid;
 
 
 import net.minecraft.fluid.Fluid;
@@ -22,13 +22,15 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.util.Identifier;
 
 /**
- * Purely a stub at this point - represents a game resource measured by volume.
+ * Purely a WIP stub at this point - represents a game resource measured by volume.
  * Could be a gas, liquid, or flowable solid (powders, dusts, etc.)
- * May or may not have an associated in-world fluid.
+ * May or may not have an associated in-world fluid.<p>
+ * 
+ * This will be a concrete, final type when finished, not an interface.
  */
-public interface VolumetricSubstance {
+public interface FluidVariant {
     
-    public static final VolumetricSubstance MOCK = new VolumetricSubstance() {
+    public static final FluidVariant MOCK = new FluidVariant() {
         @Override
         public int rawId() {
             return 0;
@@ -40,13 +42,8 @@ public interface VolumetricSubstance {
         }
     };
     
-    //@Nullable
-    default Fluid fluid() {
+    default Fluid toFluid() {
         return null;
-    }
-    
-    default boolean hasFluid() {
-        return fluid() != null;
     }
     
     default Tag tag() {
@@ -61,11 +58,11 @@ public interface VolumetricSubstance {
     
     Identifier id();
     
-    static VolumetricSubstance fromRawId(int rawId) {
+    static FluidVariant fromRawId(int rawId) {
         return MOCK;
     }
     
-    static VolumetricSubstance fromId(Identifier id) {
+    static FluidVariant fromId(Identifier id) {
         return MOCK;
     }
 }

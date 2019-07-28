@@ -21,25 +21,29 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.PacketByteBuf;
 
-public abstract class AbstractRationalNumber implements RationalNumberView {
+public abstract class AbstractFraction implements FractionView {
     long whole;
     long numerator;
     long divisor;
     
-    AbstractRationalNumber() {
+    AbstractFraction() {
         this(0, 0, 1);
     }
     
-    AbstractRationalNumber(long whole, long numerator, long divisor) {
+    AbstractFraction(long whole, long numerator, long divisor) {
+        validate(whole, numerator, divisor);
         this.whole = whole;
         this.numerator = numerator;
         this.divisor = divisor;
+        normalize();
     }
     
-    AbstractRationalNumber(long numerator, long divisor) {
+    AbstractFraction(long numerator, long divisor) {
+        validate(0, numerator, divisor);
         this.whole = numerator / divisor;
         this.numerator = numerator - whole * divisor;
         this.divisor = divisor;
+        normalize();
     }
     
     @Override
@@ -57,14 +61,14 @@ public abstract class AbstractRationalNumber implements RationalNumberView {
         return divisor;
     }
     
-    public final void toBuffer(PacketByteBuf buf) {
-        buf.writeVarLong(whole);
-        buf.writeVarLong(numerator);
-        buf.writeVarLong(divisor);
+    public final void writeBuffer(PacketByteBuf buffer) {
+        buffer.writeVarLong(whole);
+        buffer.writeVarLong(numerator);
+        buffer.writeVarLong(divisor);
     }
 
     public final void writeTag(CompoundTag tag) {
-        tag.putLong("wholeUnits", whole);
+        tag.putLong("whole", whole);
         tag.putLong("numerator", numerator);
         tag.putLong("denominator", divisor);
     }
@@ -79,20 +83,22 @@ public abstract class AbstractRationalNumber implements RationalNumberView {
         whole = buf.readVarLong();
         numerator = buf.readVarLong();
         divisor = buf.readVarLong();
+        normalize();
     }
     
     void readTag(CompoundTag tag) {
-        whole = tag.getLong("wholeUnits");
+        whole = tag.getLong("whole");
         numerator = tag.getLong("numerator");
         divisor = tag.getLong("denominator");
+        normalize();
     }
     
     @Override
     public final boolean equals(Object val) {
-        if(val == null || !(val instanceof AbstractRationalNumber)) {
+        if(val == null || !(val instanceof AbstractFraction)) {
             return false;
         }
-        AbstractRationalNumber other = (AbstractRationalNumber)val;
+        AbstractFraction other = (AbstractFraction)val;
         return other.whole() == this.whole
                 && other.numerator() == this.numerator
                 && other.divisor() == this.divisor;
@@ -101,5 +107,65 @@ public abstract class AbstractRationalNumber implements RationalNumberView {
     @Override
     public final int hashCode() {
         return (int) (HashCommon.mix(whole) ^ HashCommon.mix(numerator ^ divisor));
+    }
+    
+    protected final void validate(long whole, long numerator, long divisor) {
+        if(divisor < 1) {
+            throw new IllegalArgumentException("Fraction divisor must be >= 1");
+        }
+    }
+    
+    @Override
+    public final String toString() {
+        return String.format("%d and %d / %d, approx: %f", whole, numerator, divisor, toDouble());
+    }
+    
+    protected final void normalize() {
+        if(Math.abs(numerator) >= divisor) {
+            final long w = numerator / divisor;
+            whole += w;
+            numerator -= w * divisor;
+        }
+        
+        if(numerator == 0) {
+            divisor = 1;
+            return;
+        }
+        
+        // keep signs consistent
+        if(whole < 0) {
+            if(numerator > 0) {
+                whole += 1;
+                numerator -= divisor;
+            }
+        } else if (numerator < 0) {
+            if(whole > 0) {
+                whole -= 1;
+                numerator += divisor;
+            }
+        }
+        
+        // remove powers of two bitwise
+        final int twos = Long.numberOfTrailingZeros(numerator | divisor);
+        if(twos > 0) {
+            numerator >>= twos;
+            divisor >>= twos;
+        }
+        
+        // use conventional gcd for rest
+        long gcd = gcd(Math.abs(numerator), divisor);
+        if(gcd != divisor) {
+            numerator /= gcd;
+            divisor /= gcd;
+        }
+    }
+    
+    protected final long gcd(long a, long b) {
+        while(b != 0) {
+           long t = b; 
+           b = a % b; 
+           a = t; 
+        }
+        return a;
     }
 }

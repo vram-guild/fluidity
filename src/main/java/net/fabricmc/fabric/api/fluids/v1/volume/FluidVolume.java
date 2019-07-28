@@ -16,13 +16,13 @@
 
 package net.fabricmc.fabric.api.fluids.v1.volume;
 
-import net.fabricmc.fabric.api.fluids.v1.fraction.AbstractRationalNumber;
-import net.fabricmc.fabric.api.fluids.v1.substance.VolumetricSubstance;
+import net.fabricmc.fabric.api.fluids.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.fluids.v1.fraction.AbstractFraction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.PacketByteBuf;
 
-public abstract class SubstanceVolume {
+public abstract class FluidVolume implements FluidVolumeView {
     // Common units
     public static final int BUCKET = 1;
     public static final int KILOLITER = 1;
@@ -34,13 +34,15 @@ public abstract class SubstanceVolume {
     public static final int INGOT = 9;
     public static final int NUGGET = 81;
     
-    protected VolumetricSubstance substance;
+    protected FluidVariant substance;
     
-    public final VolumetricSubstance getSubstance() {
+    @Override
+    public final FluidVariant getFluid() {
         return substance;
     }
     
-    public abstract AbstractRationalNumber volume();
+    @Override
+    public abstract AbstractFraction volume();
 
     /**
      * Serializes content to buffer. Recreate instance with {@link #fromBuffer(PacketByteBuf)}.
@@ -48,9 +50,9 @@ public abstract class SubstanceVolume {
      * 
      * @param buf
      */
-    public final void toBuffer(PacketByteBuf buf) {
+    public final void writeBuffer(PacketByteBuf buf) {
         buf.writeVarInt(substance.rawId());
-        volume().toBuffer(buf);
+        volume().writeBuffer(buf);
     }
 
     public final void writeTag(CompoundTag tag) {
@@ -64,7 +66,7 @@ public abstract class SubstanceVolume {
      * 
      * @return NBT tag with contents of instance.
      */
-    public final Tag toTag() {
+    public final CompoundTag toTag() {
         CompoundTag result = new CompoundTag();
         writeTag(result);
         return result;
@@ -73,12 +75,14 @@ public abstract class SubstanceVolume {
     /**
      * @return Self if already immutable, otherwise an immutable, exact and complete copy.
      */
-    public abstract ImmutableSubstanceVolume toImmutable();
+    @Override
+    public abstract ImmutableFluidVolume toImmutable();
     
     /**
      * @return New mutable instance that is an exact and complete copy of the current instance.
      */
-    public final MutableSubstanceVolume mutableCopy() {
-        return new MutableSubstanceVolume(this);
+    @Override
+    public final MutableFluidVolume mutableCopy() {
+        return new MutableFluidVolume(this);
     }
 }

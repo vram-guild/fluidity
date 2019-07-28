@@ -14,15 +14,25 @@
  * limitations under the License.
  */
 
-package net.fabricmc.fabric.api.fluids.v1.container;
+package net.fabricmc.fabric.api.fluids.v1.volume;
 
+import net.fabricmc.fabric.api.fluids.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.fluids.v1.fraction.FractionView;
 
 /**
- * Unambiguous version of {@link FluidVolume.}  
+ * For views and queries.  Transactions should use concrete types.
  */
-public interface ImmutableFluidVolume extends SubstanceVolume {
-    @Override
+public interface FluidVolumeView {
+
+    FluidVariant getFluid();
+
+    FractionView volume();
+
     default ImmutableFluidVolume toImmutable() {
-        return this;
+        return ImmutableFluidVolume.of(getFluid(), volume());
+    }
+
+    default MutableFluidVolume mutableCopy() {
+        return MutableFluidVolume.of(getFluid(), volume());
     }
 }
