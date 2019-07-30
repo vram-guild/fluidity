@@ -1,8 +1,12 @@
 package net.fabricmc.fabric.api.fluids.v1.transact;
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.IdentityHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
+
+import net.minecraft.server.MinecraftServer;
 
 /**
  * Global transaction manager for fluid containers.
@@ -22,14 +26,9 @@ import java.util.function.Consumer;
  *       }
  *   }</pre></blockquote>
  *   
- *   TODO: Consider locking mechanism for use by non-main threads.  Main thread would
- *   have priority and hold the lock during all server-thread transactions. Containers
- *   that exploit this may still need to synchronize internally for single-call, 
- *   atomic operations that don't rely on the transaction manager.
- *   The commit stack would have to be empty when a lock is obtained.
  */
 public final class FluidTx implements AutoCloseable {
-
+    
     public final class Context {
         private Context() {}
         
@@ -72,11 +71,15 @@ public final class FluidTx implements AutoCloseable {
     }
     
     private void validate() {
+        // TODO: consider custom exceptions or at least revist these
         if(!isOpen) {
             throw new IllegalStateException("Encountered transaction operation for closed transaction.");
         }
         if(STACK.get(stackPointer) != this) {
             throw new IndexOutOfBoundsException("Transaction operations must apply to most recent open transaction.");
+        }
+        if(!innerLock.isHeldByCurrentThread()) {
+            throw new ConcurrentModificationException("Attempt to modify transaction status from foreign thread");
         }
     }
     
@@ -96,6 +99,17 @@ public final class FluidTx implements AutoCloseable {
             r.accept(context);
         });
         clear();
+        
+        final boolean root = --stackPointer == -1;
+        
+        final Thread myThread = Thread.currentThread();
+        innerLock.unlock();
+        if(myThread != serverThread) {
+            outerLock.unlock();
+            if(root) {
+                Thread.yield();
+            }
+        }
     }
     
     public <T extends FluidTxActor> T enlist(T container) {
@@ -114,12 +128,25 @@ public final class FluidTx implements AutoCloseable {
     
     
     ///// STATIC MEMBERS FOLLOW /////
+    public static void setThread(MinecraftServer server) {
+        serverThread = Thread.currentThread();
+    }
     
+    private static Thread serverThread;
+    
+    static final ReentrantLock innerLock = new ReentrantLock();
+    static final ReentrantLock outerLock = new ReentrantLock();
     
     private static final ArrayList<FluidTx> STACK = new ArrayList<>();
     private static int stackPointer = -1;
     
     public static FluidTx open() {
+        final Thread myThread = Thread.currentThread();
+        if(myThread != serverThread) {
+            outerLock.lock();
+        }
+        innerLock.lock();
+        
         final FluidTx result;
         if(STACK.size() > ++stackPointer) {
             result = STACK.get(stackPointer);
