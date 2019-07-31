@@ -14,19 +14,36 @@
  * limitations under the License.
  */
 
-package net.fabricmc.fabric.api.fluids.v1.volume;
+package net.fabricmc.fabric.api.fluids.v1.container;
 
 import net.fabricmc.fabric.api.fluids.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.fluids.v1.fraction.FractionView;
+import net.fabricmc.fabric.api.fluids.v1.volume.ImmutableFluidVolume;
+import net.fabricmc.fabric.api.fluids.v1.volume.MutableFluidVolume;
+import net.fabricmc.fabric.api.fluids.v1.volume.fraction.Fraction;
+import net.fabricmc.fabric.api.fluids.v1.volume.fraction.FractionView;
 
 /**
- * For views and queries.  Transactions should use concrete types.
+ * For container views and queries.  Volumes outside containers should use concrete types.
  */
-public interface FluidVolumeView {
+public interface ContainerFluidVolume {
 
-    FluidVariant getFluid();
+    ContainerFluidVolume EMPTY = new ContainerFluidVolume() {};
 
-    FractionView volume();
+    default FluidVariant getFluid() {
+        return FluidVariant.AIR;
+    }
+
+    default FractionView volume() {
+        return Fraction.ZERO;
+    }
+    
+    default FractionView capacity() {
+        return volume();
+    }
+    
+    default int slot() {
+        return 0;
+    }
 
     default ImmutableFluidVolume toImmutable() {
         return ImmutableFluidVolume.of(getFluid(), volume());

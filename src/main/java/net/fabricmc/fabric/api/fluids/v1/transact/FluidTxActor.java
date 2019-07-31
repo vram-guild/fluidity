@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 /**
  * For objects that can participate in fluid transactions.
  */
+@FunctionalInterface
 public interface FluidTxActor {
     /**
      * Consumer can save state in the context if it needs to

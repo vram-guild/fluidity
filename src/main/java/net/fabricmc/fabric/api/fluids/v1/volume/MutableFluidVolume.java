@@ -18,16 +18,19 @@ package net.fabricmc.fabric.api.fluids.v1.volume;
 
 import java.util.function.Consumer;
 
+import net.fabricmc.fabric.api.fluids.v1.container.ContainerFluidVolume;
 import net.fabricmc.fabric.api.fluids.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.fluids.v1.fraction.FractionView;
-import net.fabricmc.fabric.api.fluids.v1.fraction.MutableFraction;
 import net.fabricmc.fabric.api.fluids.v1.transact.FluidTx.Context;
 import net.fabricmc.fabric.api.fluids.v1.transact.FluidTxActor;
+import net.fabricmc.fabric.api.fluids.v1.volume.fraction.Fraction;
+import net.fabricmc.fabric.api.fluids.v1.volume.fraction.FractionView;
+import net.fabricmc.fabric.api.fluids.v1.volume.fraction.MutableFraction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 
 public final class MutableFluidVolume extends FluidVolume implements FluidTxActor {
+    
     private final MutableFraction volume;
     
     public MutableFluidVolume(CompoundTag tag) {
@@ -69,7 +72,7 @@ public final class MutableFluidVolume extends FluidVolume implements FluidTxActo
         this.substance = substance;
     }
  
-    public final void set(FluidVolumeView template) {
+    public final void set(ContainerFluidVolume template) {
         setFluid(template.getFluid());
         volume().set(template.volume());
     }
@@ -109,4 +112,10 @@ public final class MutableFluidVolume extends FluidVolume implements FluidTxActo
             this.set(context.getState());
         }
     }
+
+    @Override
+    public final FractionView capacity() {
+        return Fraction.MAX_VALUE;
+    }
+
 }

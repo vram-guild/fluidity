@@ -30,7 +30,7 @@ import net.minecraft.util.Identifier;
  */
 public interface FluidVariant {
     
-    public static final FluidVariant MOCK = new FluidVariant() {
+    public static final FluidVariant AIR = new FluidVariant() {
         @Override
         public int rawId() {
             return 0;
@@ -59,10 +59,10 @@ public interface FluidVariant {
     Identifier id();
     
     static FluidVariant fromRawId(int rawId) {
-        return MOCK;
+        return AIR;
     }
     
     static FluidVariant fromId(Identifier id) {
-        return MOCK;
+        return AIR;
     }
 }

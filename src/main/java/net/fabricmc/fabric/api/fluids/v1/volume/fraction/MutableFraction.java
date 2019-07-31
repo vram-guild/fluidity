@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.fabricmc.fabric.api.fluids.v1.fraction;
+package net.fabricmc.fabric.api.fluids.v1.volume.fraction;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;

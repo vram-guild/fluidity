@@ -16,13 +16,16 @@
 
 package net.fabricmc.fabric.api.fluids.v1.volume;
 
+import java.util.function.Predicate;
+
+import net.fabricmc.fabric.api.fluids.v1.container.ContainerFluidVolume;
 import net.fabricmc.fabric.api.fluids.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.fluids.v1.fraction.AbstractFraction;
+import net.fabricmc.fabric.api.fluids.v1.volume.fraction.AbstractFraction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.PacketByteBuf;
 
-public abstract class FluidVolume implements FluidVolumeView {
+public abstract class FluidVolume implements ContainerFluidVolume, Predicate<ContainerFluidVolume> {
     // Common units
     public static final int BUCKET = 1;
     public static final int KILOLITER = 1;
@@ -84,5 +87,15 @@ public abstract class FluidVolume implements FluidVolumeView {
     @Override
     public final MutableFluidVolume mutableCopy() {
         return new MutableFluidVolume(this);
+    }
+    
+    @Override
+    public final int slot() {
+        return 0;
+    }
+    
+    @Override
+    public final boolean test(ContainerFluidVolume view) {
+        return view.getFluid().equals(this.getFluid());
     }
 }

@@ -7,8 +7,8 @@ import org.apache.commons.lang3.ObjectUtils;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.fabricmc.fabric.api.fluids.v1.transact.FluidContainer;
-import net.fabricmc.fabric.api.fluids.v1.transact.FluidPort;
+import net.fabricmc.fabric.api.fluids.v1.container.FluidContainer;
+import net.fabricmc.fabric.api.fluids.v1.container.FluidPort;
 import net.fabricmc.fabric.api.fluids.v1.transact.FluidTx;
 import net.fabricmc.fabric.api.fluids.v1.volume.MutableFluidVolume;
 import net.minecraft.entity.player.PlayerEntity;
@@ -76,7 +76,7 @@ public class StorageSketch {
         try (FluidTx tx = FluidTx.open()) {
             tx.enlist(fluid);
             for(FluidContainer target : targets) {
-                tx.enlist(target).input().applyAndSubtract(fluid, FluidPort.NORMAL);
+                tx.enlist(target).input(fluid).applyAndSubtract(fluid, FluidPort.NORMAL);
                 if(fluid.volume().isZero()) {
                     tx.commit();
                     return;

@@ -52,16 +52,11 @@ class LockTest {
     private static class Locker {
         final Thread mainThread = Thread.currentThread();
         
-        final ReentrantLock innerLock = new ReentrantLock();
-        
-        final ReentrantLock outerLock = new ReentrantLock();
+        static final ReentrantLock innerLock = new ReentrantLock();
+        static final ReentrantLock outerLock = new ReentrantLock();
         
         void open() {
-            final Thread myThread = Thread.currentThread();
-            if(myThread != mainThread) {
-                outerLock.lock();
-            }
-            innerLock.lock();
+            
         }
         
         void close() {

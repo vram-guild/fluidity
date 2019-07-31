@@ -2,7 +2,7 @@ package grondag.fluidity.test;
 
 import org.junit.jupiter.api.Test;
 
-import net.fabricmc.fabric.api.fluids.v1.fraction.MutableFraction;
+import net.fabricmc.fabric.api.fluids.v1.volume.fraction.MutableFraction;
 
 class FractionTest {
 

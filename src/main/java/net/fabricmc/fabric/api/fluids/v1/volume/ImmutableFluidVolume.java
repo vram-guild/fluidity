@@ -17,8 +17,8 @@
 package net.fabricmc.fabric.api.fluids.v1.volume;
 
 import net.fabricmc.fabric.api.fluids.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.fluids.v1.fraction.Fraction;
-import net.fabricmc.fabric.api.fluids.v1.fraction.FractionView;
+import net.fabricmc.fabric.api.fluids.v1.volume.fraction.Fraction;
+import net.fabricmc.fabric.api.fluids.v1.volume.fraction.FractionView;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
@@ -73,5 +73,10 @@ public final class ImmutableFluidVolume extends FluidVolume {
     
     public static ImmutableFluidVolume of(FluidVariant substance, FractionView volume) {
         return new ImmutableFluidVolume(substance, volume);
+    }
+
+    @Override
+    public FractionView capacity() {
+        return volume();
     }
 }
