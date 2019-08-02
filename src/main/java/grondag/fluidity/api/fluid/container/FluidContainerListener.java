@@ -13,15 +13,21 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity;
+package grondag.fluidity.api.fluid.container;
 
-import grondag.fluidity.api.fluid.transact.FluidTx;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.server.ServerStartCallback;
-
-public class Fluidity implements ModInitializer {
-	@Override
-	public void onInitialize() {
-	   ServerStartCallback.EVENT.register(FluidTx::setThread);
-	}
+@FunctionalInterface
+public interface FluidContainerListener {
+    public static enum Operation {
+        ADD,
+        REMOVE,
+        UPDATE,
+        DISCONNECT
+    }
+    
+    void accept(ContainerFluidVolume fluidVolume, Operation op);
+    
+    @FunctionalInterface
+    public static interface StopNotifier {
+        void stopListening();
+    }
 }

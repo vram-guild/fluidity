@@ -1,17 +1,32 @@
-package grondag.fluidity.transact;
+/*******************************************************************************
+ * Copyright 2019 grondag
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License.  You may obtain a copy
+ * of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ ******************************************************************************/
+package grondag.fluidity;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
 
 import org.apache.commons.lang3.ObjectUtils;
 
+import grondag.fluidity.api.fluid.container.FluidContainer;
+import grondag.fluidity.api.fluid.container.FluidPort;
+import grondag.fluidity.api.fluid.container.PortFilter;
+import grondag.fluidity.api.fluid.transact.FluidTx;
+import grondag.fluidity.api.fluid.volume.MutableFluidVolume;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.fabricmc.fabric.api.fluids.v1.container.FluidContainer;
-import net.fabricmc.fabric.api.fluids.v1.container.FluidPort;
-import net.fabricmc.fabric.api.fluids.v1.container.PortFilter;
-import net.fabricmc.fabric.api.fluids.v1.transact.FluidTx;
-import net.fabricmc.fabric.api.fluids.v1.volume.MutableFluidVolume;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.InventoryListener;
