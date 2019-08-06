@@ -1,19 +1,33 @@
 plugins {
 	id 'fabric-loom' version '0.2.5-SNAPSHOT'
 	id 'maven-publish'
+	id "org.ajoberstar.grgit" version "3.1.1"
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-archivesBaseName = project.archives_base_name
-version = project.mod_version
-group = project.maven_group
+archivesBaseName = 'fluidity'
+group = 'grondag'
+def version_tag = 'fluidity_version'
+
+if (grgit == null) {
+	version = '99.0.0-nogit'
+} else if (project.hasProperty(version_tag)) {
+	if(grgit.status().isClean()) {
+		version = project.getProperty(version_tag) + '.' + grgit.log().size() + '+' + project.minecraft_version
+	} else {
+		version = project.getProperty(version_tag) + '.' + (grgit.log().size() + 1) + '-snapshot+' + project.minecraft_version
+	}
+} else {
+	version = '99.0.0-local'
+}
 
 minecraft {
 }
 
 repositories {
+	mavenLocal()
     maven { url "https://tehnut.info/maven"}
     maven { url "http://maven.sargunv.s3-website-us-west-2.amazonaws.com/" }
     maven { url "https://minecraft.curseforge.com/api/maven" }
@@ -31,12 +45,9 @@ repositories {
 }
 
 dependencies {
-	//to change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}"
 	modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
-
-	// Fabric API. This is technically optional, but you probably want it anyway.
 	modCompile "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	
 	compile "org.apiguardian:apiguardian-api:1.0.0"
@@ -75,12 +86,10 @@ jar {
 	from "LICENSE"
 }
 
-// configure the maven publication
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
-			// add all the jars that should be included when publishing to maven
-			artifact(jar) {
+			artifact(remapJar) {
 				builtBy remapJar
 			}
 			artifact(sourcesJar) {
@@ -89,23 +98,18 @@ publishing {
 		}
 	}
 
-	// select the repositories you want to publish to
 	repositories {
-		// uncomment to publish to the local maven
-		// mavenLocal()
-	}
-	
-    repositories {
-	    maven {
-	        url "https://grondag-repo.appspot.com"
-	        credentials {
-	        	if (project.hasProperty('maven_user')){
+		mavenLocal()
+		maven {
+            url "https://grondag-repo.appspot.com"
+            credentials {
+				if (project.hasProperty('maven_user')){
 					username = project.getProperty('maven_user')
 				}
 				if (project.hasProperty('maven_password')){
 					password = project.getProperty('maven_password')
 				}
 			}
-	    }
-    }
+        }
+	}
 }
