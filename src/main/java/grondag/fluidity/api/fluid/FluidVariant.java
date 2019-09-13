@@ -31,20 +31,20 @@
 
 package grondag.fluidity.api.fluid;
 
-
 import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Identifier;
 
 /**
- * Purely a WIP stub at this point - represents a game resource measured by volume.
- * Could be a gas, liquid, or flowable solid (powders, dusts, etc.)
- * May or may not have an associated in-world fluid.<p>
+ * Purely a WIP stub at this point - represents a game resource measured by
+ * volume. Could be a gas, liquid, or flowable solid (powders, dusts, etc.) May
+ * or may not have an associated in-world fluid.
+ * <p>
  * 
  * This will be a concrete, final type when finished, not an interface.
  */
 public interface FluidVariant {
-    
+
     public static final FluidVariant AIR = new FluidVariant() {
         @Override
         public int rawId() {
@@ -56,27 +56,27 @@ public interface FluidVariant {
             return new Identifier("mock");
         }
     };
-    
+
     default Fluid toFluid() {
         return null;
     }
-    
+
     default Tag tag() {
         return null;
     }
-    
+
     default boolean hasTag() {
         return tag() == null;
     }
-    
+
     int rawId();
-    
+
     Identifier id();
-    
+
     static FluidVariant fromRawId(int rawId) {
         return AIR;
     }
-    
+
     static FluidVariant fromId(Identifier id) {
         return AIR;
     }

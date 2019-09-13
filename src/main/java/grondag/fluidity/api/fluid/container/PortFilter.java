@@ -23,11 +23,11 @@ import net.minecraft.util.math.Direction;
 
 public interface PortFilter extends Predicate<FluidPort> {
     Set<Direction> sides();
-    
+
     boolean includeFill();
-    
+
     boolean includeDrain();
-    
+
     static PortFilter ALL = builder().build();
     static PortFilter UP = builder().includeSide(Direction.UP).build();
     static PortFilter DOWN = builder().includeSide(Direction.DOWN).build();
@@ -37,16 +37,16 @@ public interface PortFilter extends Predicate<FluidPort> {
     static PortFilter WEST = builder().includeSide(Direction.WEST).build();
     static PortFilter ALL_FILL = builder().excludeDrain().build();
     static PortFilter ALL_DRAIN = builder().excludeFill().build();
-    
+
     static interface Builder {
         Builder includeSide(Direction side);
-        
+
         Builder excludeSide(Direction side);
 
         Builder excludeFill();
-        
+
         Builder excludeDrain();
-        
+
         PortFilter build();
     }
 

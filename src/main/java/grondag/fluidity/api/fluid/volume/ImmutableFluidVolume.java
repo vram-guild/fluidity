@@ -40,42 +40,42 @@ import net.minecraft.util.PacketByteBuf;
 
 public final class ImmutableFluidVolume extends FluidVolume {
     private final Fraction volume;
-    
+
     public ImmutableFluidVolume(CompoundTag tag) {
         this.substance = FluidVariant.fromId(new Identifier(tag.getString("substance")));
         this.volume = new Fraction(tag);
     }
-    
+
     public ImmutableFluidVolume(PacketByteBuf buffer) {
         this.substance = FluidVariant.fromRawId(buffer.readVarInt());
         this.volume = new Fraction(buffer);
     }
-    
+
     public ImmutableFluidVolume(FluidVariant substance, FractionView volume) {
         this.substance = substance;
         this.volume = new Fraction(volume);
     }
-    
+
     public ImmutableFluidVolume(FluidVolume template) {
         this.substance = template.substance;
         this.volume = new Fraction(template.volume());
     }
-    
+
     public ImmutableFluidVolume(FluidVariant substance, long buckets) {
         this.substance = substance;
         this.volume = new Fraction(buckets);
     }
-    
+
     public ImmutableFluidVolume(FluidVariant substance, long numerator, long divisor) {
         this.substance = substance;
         this.volume = new Fraction(numerator, divisor);
     }
-    
+
     public ImmutableFluidVolume(FluidVariant substance, long buckets, long numerator, long divisor) {
         this.substance = substance;
         this.volume = new Fraction(buckets, numerator, divisor);
     }
-    
+
     @Override
     public final Fraction volume() {
         return volume;
@@ -85,7 +85,7 @@ public final class ImmutableFluidVolume extends FluidVolume {
     public final ImmutableFluidVolume toImmutable() {
         return this;
     }
-    
+
     public static ImmutableFluidVolume of(FluidVariant substance, FractionView volume) {
         return new ImmutableFluidVolume(substance, volume);
     }

@@ -38,33 +38,35 @@ import grondag.fluidity.api.fluid.volume.fraction.Fraction;
 import grondag.fluidity.api.fluid.volume.fraction.FractionView;
 
 /**
- * For container views and queries.  Volumes outside containers should use concrete types.
+ * For container views and queries. Volumes outside containers should use
+ * concrete types.
  */
 public interface ContainerFluidVolume {
 
-    ContainerFluidVolume EMPTY = new ContainerFluidVolume() {};
+    ContainerFluidVolume EMPTY = new ContainerFluidVolume() {
+    };
 
-    default FluidVariant getFluid() {
+    default FluidVariant fluid() {
         return FluidVariant.AIR;
     }
 
     default FractionView volume() {
         return Fraction.ZERO;
     }
-    
+
     default FractionView capacity() {
         return volume();
     }
-    
+
     default int slot() {
         return 0;
     }
 
     default ImmutableFluidVolume toImmutable() {
-        return ImmutableFluidVolume.of(getFluid(), volume());
+        return ImmutableFluidVolume.of(fluid(), volume());
     }
 
     default MutableFluidVolume mutableCopy() {
-        return MutableFluidVolume.of(getFluid(), volume());
+        return MutableFluidVolume.of(fluid(), volume());
     }
 }

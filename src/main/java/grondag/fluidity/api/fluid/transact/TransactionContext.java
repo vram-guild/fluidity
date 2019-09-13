@@ -13,18 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.mixin;
+package grondag.fluidity.api.fluid.transact;
 
-import net.minecraft.client.MinecraftClient;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+public interface TransactionContext {
+    <T> void setState(T state);
 
-@Mixin(MinecraftClient.class)
-public class ExampleMixin {
-	@Inject(at = @At("HEAD"), method = "init()V")
-	private void init(CallbackInfo info) {
-		System.out.println("This line is printed by an example mod mixin!");
-	}
+    <T> T getState();
+
+    boolean isCommited();
 }

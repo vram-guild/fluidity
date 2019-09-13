@@ -37,25 +37,25 @@ import java.util.function.Predicate;
 import com.google.common.base.Predicates;
 
 import grondag.fluidity.api.fluid.container.FluidContainerListener.StopNotifier;
-import grondag.fluidity.api.fluid.transact.FluidTxActor;
+import grondag.fluidity.api.fluid.transact.Transactor;
 import grondag.fluidity.api.fluid.volume.fraction.FractionView;
 import net.minecraft.util.Identifier;
 
-public interface FluidContainer extends FluidTxActor {
+public interface FluidContainer extends Transactor {
     Identifier ANONYMOUS_ID = new Identifier("fabric:anon");
     int NO_SLOT = -1;
-    
+
     boolean isEmpty();
-    
+
     FractionView totalCapacity();
-    
+
     /**
      * True when can contain more than one fluid.
      */
     default boolean isCompound() {
         return false;
     }
-    
+
     /**
      * True when has ports that can only be accessed from certain sides.
      */
@@ -64,32 +64,34 @@ public interface FluidContainer extends FluidTxActor {
     }
 
     /**
-     * True when container is a view of other containers. This means the 
-     * contents of this container could be visible in other containers.
+     * True when container is a view of other containers. This means the contents of
+     * this container could be visible in other containers.
      */
     default boolean isVirtual() {
         return false;
     }
-    
+
     Iterable<FluidPort> ports(PortFilter portFilter);
 
     default Iterable<FluidPort> ports() {
         return ports(PortFilter.ALL);
     }
-    
+
     default FluidPort firstPort(PortFilter portFilter) {
         Iterator<FluidPort> it = ports(portFilter).iterator();
         return it.hasNext() ? it.next() : FluidPort.VOID;
     }
-  
+
     default FluidPort firstPort() {
         return firstPort(PortFilter.ALL);
     }
 
     /**
      * For containers with named slots, finds slot using named-spaced identifier.
+     * 
      * @param id
-     * @return integer identifier of first matching slot found or {@code NO_SLOT} if no match
+     * @return integer identifier of first matching slot found or {@code NO_SLOT} if
+     *         no match
      * @implNote Should be overridden if container has named slots
      * @see ContainerFluidVolume#slot()
      */
@@ -100,11 +102,11 @@ public interface FluidContainer extends FluidTxActor {
     default Identifier idForSlot(int slot) {
         return ANONYMOUS_ID;
     }
-    
+
     Iterable<ContainerFluidVolume> volumes(PortFilter portFilter, Predicate<ContainerFluidVolume> fluidFilter);
 
     ContainerFluidVolume volumeForSlot(int slot);
-    
+
     default ContainerFluidVolume volumeForId(Identifier id) {
         final int slot = slotFromId(id);
         return slot >= 0 ? volumeForSlot(slot) : ContainerFluidVolume.EMPTY;
@@ -113,7 +115,7 @@ public interface FluidContainer extends FluidTxActor {
     default Iterable<ContainerFluidVolume> volumes(PortFilter portFilter) {
         return volumes(portFilter, Predicates.alwaysTrue());
     }
-    
+
     default Iterable<ContainerFluidVolume> volumes(Predicate<ContainerFluidVolume> fluidFilter) {
         return volumes(PortFilter.ALL, fluidFilter);
     }
@@ -126,11 +128,11 @@ public interface FluidContainer extends FluidTxActor {
         Iterator<ContainerFluidVolume> it = volumes(portFilter, fluidFilter).iterator();
         return it.hasNext() ? it.next() : null;
     }
-    
+
     default ContainerFluidVolume firstVolume(PortFilter portFilter) {
         return firstVolume(portFilter, Predicates.alwaysTrue());
     }
-    
+
     default ContainerFluidVolume firstVolume(Predicate<ContainerFluidVolume> fluidFilter) {
         return firstVolume(PortFilter.ALL, fluidFilter);
     }
@@ -138,6 +140,6 @@ public interface FluidContainer extends FluidTxActor {
     default ContainerFluidVolume firstVolume() {
         return firstVolume(PortFilter.ALL, Predicates.alwaysTrue());
     }
-    
+
     StopNotifier startListening(FluidContainerListener listener, PortFilter portFilter, Predicate<ContainerFluidVolume> filter);
 }

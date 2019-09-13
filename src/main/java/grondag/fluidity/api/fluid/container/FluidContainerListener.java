@@ -23,9 +23,9 @@ public interface FluidContainerListener {
         UPDATE,
         DISCONNECT
     }
-    
+
     void accept(ContainerFluidVolume fluidVolume, Operation op);
-    
+
     @FunctionalInterface
     public static interface StopNotifier {
         void stopListening();

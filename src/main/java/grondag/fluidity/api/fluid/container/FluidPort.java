@@ -47,37 +47,37 @@ public interface FluidPort {
     static int NORMAL = 0;
     static int EXACT = 1;
     static int SIMULATE = 2;
-    
+
     default Identifier id() {
         return FluidContainer.ANONYMOUS_ID;
     }
-    
+
     default Direction side() {
         return null;
     }
-    
+
     default boolean canFill() {
         return true;
     }
-    
+
     default boolean canDrain() {
         return true;
     }
-    
+
     FractionView fill(FluidVariant fluid, FractionView volume, int flags);
-    
+
     default long fill(FluidVariant fluid, long volume, long units, int flags) {
         return fill(fluid, Fraction.of(volume, units), flags).toLong(units);
     }
-    
+
     default ImmutableFluidVolume fill(FluidVolume volume, int flags) {
-        return ImmutableFluidVolume.of(volume.getFluid(), fill(volume.getFluid(), volume.volume(), flags));
+        return ImmutableFluidVolume.of(volume.fluid(), fill(volume.fluid(), volume.volume(), flags));
     }
-    
+
     default boolean fillFrom(FluidVariant fluid, FractionView volume, int flags, MutableFluidVolume target) {
-        if(target.getFluid().equals(fluid) || target.volume().isZero()) {
+        if (target.fluid().equals(fluid) || target.volume().isZero()) {
             final FractionView result = fill(fluid, volume, flags);
-            if(result.isZero()) {
+            if (result.isZero()) {
                 return false;
             } else {
                 target.volume().subtract(result);
@@ -88,13 +88,13 @@ public interface FluidPort {
             return false;
         }
     }
-    
+
     default boolean fillFrom(MutableFluidVolume target, int flags) {
-        if(target.volume().isZero()) {
+        if (target.volume().isZero()) {
             return false;
         } else {
-            final FractionView result = fill(target.getFluid(), target.volume(), flags);
-            if(result.isZero()) {
+            final FractionView result = fill(target.fluid(), target.volume(), flags);
+            if (result.isZero()) {
                 return false;
             } else {
                 target.volume().subtract(result);
@@ -102,22 +102,21 @@ public interface FluidPort {
             }
         }
     }
-    
-    
+
     FractionView drain(FluidVariant fluid, FractionView volume, int flags);
-    
+
     default long drain(FluidVariant fluid, long volume, long units, int flags) {
         return drain(fluid, Fraction.of(volume, units), flags).toLong(units);
     }
-    
+
     default ImmutableFluidVolume drain(FluidVolume volume, int flags) {
-        return ImmutableFluidVolume.of(volume.getFluid(), drain(volume.getFluid(), volume.volume(), flags));
+        return ImmutableFluidVolume.of(volume.fluid(), drain(volume.fluid(), volume.volume(), flags));
     }
-    
+
     default boolean drainTo(FluidVariant fluid, FractionView volume, int flags, MutableFluidVolume target) {
-        if(target.getFluid().equals(fluid) || target.volume().isZero()) {
+        if (target.fluid().equals(fluid) || target.volume().isZero()) {
             final FractionView result = drain(fluid, volume, flags);
-            if(result.isZero()) {
+            if (result.isZero()) {
                 return false;
             } else {
                 target.volume().add(result);
@@ -128,8 +127,7 @@ public interface FluidPort {
             return false;
         }
     }
-    
-    
+
     static FluidPort VOID = new FluidPort() {
         @Override
         public FractionView fill(FluidVariant fluid, FractionView volume, int flags) {

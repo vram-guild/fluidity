@@ -37,18 +37,19 @@ import java.util.function.Consumer;
  * For objects that can participate in fluid transactions.
  */
 @FunctionalInterface
-public interface FluidTxActor {
+public interface Transactor {
     /**
-     * Consumer can save state in the context if it needs to
-     * and retrieve it on rollback.<p>
+     * Consumer can save state in the context if it needs to and retrieve it on
+     * rollback.
+     * <p>
      * 
-     * Consumer is called for both commit and rollback events
-     * just in case some implementation need to lock or store
-     * resources internally during a transaction and need notification
-     * when one ends.<p>
+     * Consumer is called for both commit and rollback events just in case some
+     * implementation need to lock or store resources internally during a
+     * transaction and need notification when one ends.
+     * <p>
      * 
      * @param context
      * @return
      */
-    Consumer<FluidTx.Context> prepareTx(FluidTx.Context context);
+    Consumer<TransactionContext> prepareTx(TransactionContext context);
 }

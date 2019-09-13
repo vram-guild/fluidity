@@ -35,8 +35,8 @@ import java.util.function.Consumer;
 
 import grondag.fluidity.api.fluid.FluidVariant;
 import grondag.fluidity.api.fluid.container.ContainerFluidVolume;
-import grondag.fluidity.api.fluid.transact.FluidTxActor;
-import grondag.fluidity.api.fluid.transact.FluidTx.Context;
+import grondag.fluidity.api.fluid.transact.TransactionContext;
+import grondag.fluidity.api.fluid.transact.Transactor;
 import grondag.fluidity.api.fluid.volume.fraction.Fraction;
 import grondag.fluidity.api.fluid.volume.fraction.FractionView;
 import grondag.fluidity.api.fluid.volume.fraction.MutableFraction;
@@ -44,54 +44,54 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 
-public final class MutableFluidVolume extends FluidVolume implements FluidTxActor {
-    
+public final class MutableFluidVolume extends FluidVolume implements Transactor {
+
     private final MutableFraction volume;
-    
+
     public MutableFluidVolume(CompoundTag tag) {
         this.substance = FluidVariant.fromId(new Identifier(tag.getString("substance")));
         this.volume = new MutableFraction(tag);
     }
-    
+
     public MutableFluidVolume(PacketByteBuf buffer) {
         this.substance = FluidVariant.fromRawId(buffer.readVarInt());
         this.volume = new MutableFraction(buffer);
     }
-    
+
     public MutableFluidVolume(FluidVariant substance, FractionView volume) {
         this.substance = substance;
         this.volume = new MutableFraction(volume);
     }
-    
+
     public MutableFluidVolume(FluidVolume template) {
         this.substance = template.substance;
         this.volume = new MutableFraction(template.volume());
     }
-    
+
     public MutableFluidVolume(FluidVariant substance, long buckets) {
         this.substance = substance;
         this.volume = new MutableFraction(buckets);
     }
-    
+
     public MutableFluidVolume(FluidVariant substance, long numerator, long divisor) {
         this.substance = substance;
         this.volume = new MutableFraction(numerator, divisor);
     }
-    
+
     public MutableFluidVolume(FluidVariant substance, long buckets, long numerator, long divisor) {
         this.substance = substance;
         this.volume = new MutableFraction(buckets, numerator, divisor);
     }
-    
+
     public final void setFluid(FluidVariant substance) {
         this.substance = substance;
     }
- 
+
     public final void set(ContainerFluidVolume template) {
-        setFluid(template.getFluid());
+        setFluid(template.fluid());
         volume().set(template.volume());
     }
-    
+
     @Override
     public final MutableFraction volume() {
         return volume;
@@ -106,24 +106,24 @@ public final class MutableFluidVolume extends FluidVolume implements FluidTxActo
         this.substance = FluidVariant.fromId(new Identifier(tag.getString("substance")));
         this.volume.readTag(tag);
     }
-    
+
     public final void readBuffer(PacketByteBuf buffer) {
         this.substance = FluidVariant.fromRawId(buffer.readVarInt());
         this.volume.readBuffer(buffer);
     }
-    
+
     public static MutableFluidVolume of(FluidVariant substance, FractionView volume) {
         return new MutableFluidVolume(substance, volume);
     }
 
     @Override
-    public Consumer<Context> prepareTx(Context context) {
+    public Consumer<TransactionContext> prepareTx(TransactionContext context) {
         context.setState(this.toImmutable());
         return this::handleTx;
     }
-    
-    private void handleTx(Context context) {
-        if(!context.isCommited()) {
+
+    private void handleTx(TransactionContext context) {
+        if (!context.isCommited()) {
             this.set(context.getState());
         }
     }
@@ -132,5 +132,4 @@ public final class MutableFluidVolume extends FluidVolume implements FluidTxActo
     public final FractionView capacity() {
         return Fraction.MAX_VALUE;
     }
-
 }

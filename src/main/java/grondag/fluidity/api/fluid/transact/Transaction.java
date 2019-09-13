@@ -13,15 +13,21 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity;
+package grondag.fluidity.api.fluid.transact;
 
 import grondag.fluidity.transact.TransactionImpl;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.server.ServerStartCallback;
 
-public class Fluidity implements ModInitializer {
+public interface Transaction extends AutoCloseable {
+    void rollback();
+
+    void commit();
+
+    <T extends Transactor> T enlist(T container);
+
     @Override
-    public void onInitialize() {
-        ServerStartCallback.EVENT.register(TransactionImpl::setServerThread);
+    void close();
+
+    static Transaction open() {
+        return TransactionImpl.open();
     }
 }

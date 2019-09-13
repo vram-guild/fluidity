@@ -51,20 +51,21 @@ public abstract class FluidVolume implements ContainerFluidVolume, Predicate<Con
     public static final int QUARTER = 4;
     public static final int INGOT = 9;
     public static final int NUGGET = 81;
-    
+
     protected FluidVariant substance;
-    
+
     @Override
-    public final FluidVariant getFluid() {
+    public final FluidVariant fluid() {
         return substance;
     }
-    
+
     @Override
     public abstract AbstractFraction volume();
 
     /**
-     * Serializes content to buffer. Recreate instance with {@link #fromBuffer(PacketByteBuf)}.
-     * Suitable only for network traffic - assumes raw fluid ID's match on both sides.
+     * Serializes content to buffer. Recreate instance with
+     * {@link #fromBuffer(PacketByteBuf)}. Suitable only for network traffic -
+     * assumes raw fluid ID's match on both sides.
      * 
      * @param buf
      */
@@ -77,7 +78,7 @@ public abstract class FluidVolume implements ContainerFluidVolume, Predicate<Con
         tag.putString("substance", substance.id().toString());
         volume().writeTag(tag);
     }
-    
+
     /**
      * Serializes content to NBT tag. Recreate instance with {@link #fromTag(Tag)}.
      * Suitable for world saves. Fluid is serialized as an identifier.
@@ -89,28 +90,30 @@ public abstract class FluidVolume implements ContainerFluidVolume, Predicate<Con
         writeTag(result);
         return result;
     }
-    
+
     /**
-     * @return Self if already immutable, otherwise an immutable, exact and complete copy.
+     * @return Self if already immutable, otherwise an immutable, exact and complete
+     *         copy.
      */
     @Override
     public abstract ImmutableFluidVolume toImmutable();
-    
+
     /**
-     * @return New mutable instance that is an exact and complete copy of the current instance.
+     * @return New mutable instance that is an exact and complete copy of the
+     *         current instance.
      */
     @Override
     public final MutableFluidVolume mutableCopy() {
         return new MutableFluidVolume(this);
     }
-    
+
     @Override
     public final int slot() {
         return 0;
     }
-    
+
     @Override
     public final boolean test(ContainerFluidVolume view) {
-        return view.getFluid().equals(this.getFluid());
+        return view.fluid().equals(this.fluid());
     }
 }

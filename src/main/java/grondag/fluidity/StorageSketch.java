@@ -23,7 +23,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import grondag.fluidity.api.fluid.container.FluidContainer;
 import grondag.fluidity.api.fluid.container.FluidPort;
 import grondag.fluidity.api.fluid.container.PortFilter;
-import grondag.fluidity.api.fluid.transact.FluidTx;
+import grondag.fluidity.api.fluid.transact.Transaction;
 import grondag.fluidity.api.fluid.volume.MutableFluidVolume;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -37,8 +37,8 @@ import net.minecraft.recipe.RecipeInputProvider;
 import net.minecraft.util.math.MathHelper;
 
 /**
- * Draft of interface patterns for tanks and item inventories.
- * Uses inventories for brevity. (Fluids will require more new classes.)
+ * Draft of interface patterns for tanks and item inventories. Uses inventories
+ * for brevity. (Fluids will require more new classes.)
  */
 public class StorageSketch {
 
@@ -51,9 +51,9 @@ public class StorageSketch {
         ItemStack lapis = new ItemStack(Items.LAPIS_LAZULI, 32);
         ItemStack cactus = new ItemStack(Items.CACTUS, 32);
         ItemStack cobble = new ItemStack(Items.COBBLESTONE, 32);
-        
+
         storeAllOrNone(inv3, lapis, cactus, cobble);
-        
+
         assert inv3.countInInv(Items.LAPIS_LAZULI) == 32;
         assert inv3.countInInv(Items.CACTUS) == 32;
         assert inv3.countInInv(Items.COBBLESTONE) == 32;
@@ -61,8 +61,8 @@ public class StorageSketch {
         assert cactus.isEmpty();
         assert cobble.isEmpty();
     }
-    
-    static boolean fetchIngredients(SimpleInventory inv, ItemStack... stacks) { 
+
+    static boolean fetchIngredients(SimpleInventory inv, ItemStack... stacks) {
         try (InventoryTx tx = InventoryTx.open()) {
             for (ItemStack stack : stacks) {
                 if (!inv.takeExactly(stack)) {
@@ -74,26 +74,26 @@ public class StorageSketch {
             return true;
         }
     }
-    
+
     static void storeAllOrNone(SimpleInventory target, ItemStack... stacks) {
         try (InventoryTx tx = InventoryTx.open()) {
-            for(ItemStack stack : stacks) {
+            for (ItemStack stack : stacks) {
                 InventoryTx.enlist(stack);
                 if (!target.add(stack).isEmpty()) {
-                   tx.rollback();
-                   return;
+                    tx.rollback();
+                    return;
                 }
             }
             tx.commit();
         }
     }
-    
+
     static void storeAllOrNone(MutableFluidVolume fluid, FluidContainer... targets) {
-        try (FluidTx tx = FluidTx.open()) {
+        try (Transaction tx = Transaction.open()) {
             tx.enlist(fluid);
-            for(FluidContainer target : targets) {
+            for (FluidContainer target : targets) {
                 tx.enlist(target).firstPort(PortFilter.ALL_FILL).fill(fluid, FluidPort.NORMAL);
-                if(fluid.volume().isZero()) {
+                if (fluid.volume().isZero()) {
                     tx.commit();
                     return;
                 }
@@ -101,23 +101,26 @@ public class StorageSketch {
             tx.rollback();
         }
     }
-    
+
     public static final int MASK_32 = (1 << 31) - 1;
-    
+
     public static final int BLEND_MODE_COUNT = 5;
     public static final int BLEND_MODE_MASK = (1 << MathHelper.smallestEncompassingPowerOfTwo(BLEND_MODE_COUNT)) - 1;
-    
+
     public static interface Transactor {
         void commit();
+
         void rollback();
     }
 
     static class InventoryTx implements AutoCloseable {
-        private InventoryTx() {};
+        private InventoryTx() {
+        };
 
         @Override
         public void close() {
-            if (isOpen) handleRollback();
+            if (isOpen)
+                handleRollback();
         }
 
         public void rollback() {
@@ -133,7 +136,7 @@ public class StorageSketch {
         private static final ObjectOpenHashSet<Transactor> participants = new ObjectOpenHashSet<>();
 
         public static InventoryTx open() {
-            if(isOpen) {
+            if (isOpen) {
                 throw new IllegalStateException("Request to start inventory transaction when already started.");
             } else {
                 isOpen = true;
@@ -146,9 +149,9 @@ public class StorageSketch {
             enlist(result);
             return result;
         }
-        
+
         public static boolean enlistIfOpen(Transactor participant) {
-            if(isOpen) {
+            if (isOpen) {
                 enlist(participant);
                 return true;
             } else {
@@ -186,12 +189,12 @@ public class StorageSketch {
     private static class ItemStackTx implements Supplier<ItemStack>, Transactor {
         private ItemStack stack;
         private ItemStack copy;
-       
+
         private ItemStackTx(ItemStack stackIn) {
             stack = stackIn;
             copy = stackIn;
         }
-        
+
         @Override
         public ItemStack get() {
             return stack;
@@ -209,7 +212,7 @@ public class StorageSketch {
             stack.setTag(copy.getTag());
         }
     }
-    
+
     /** Transactional variant of BasicInventory */
     public static class SimpleInventory implements Inventory, RecipeInputProvider, Transactor {
         protected final int size;
@@ -217,7 +220,7 @@ public class StorageSketch {
         protected ObjectArrayList<InventoryListener> listeners;
         protected boolean hasRollback = false;
         protected boolean needsNotify = false;
-        
+
         public SimpleInventory(int size) {
             this.size = size;
             stacks = new ItemStack[size * 2];
@@ -226,10 +229,10 @@ public class StorageSketch {
         public boolean takeExactly(ItemStack stackIn) {
             prepareRollback();
             int remaining = stackIn.getCount();
-            for(int i = 0; i < size; i++) {
+            for (int i = 0; i < size; i++) {
                 ItemStack s = stacks[i];
-                if(stackIn.isItemEqual(s) && ItemStack.areTagsEqual(stackIn, s)) {
-                    //TODO
+                if (stackIn.isItemEqual(s) && ItemStack.areTagsEqual(stackIn, s)) {
+                    // TODO
                 }
             }
             return remaining == 0;
@@ -261,7 +264,7 @@ public class StorageSketch {
         public ItemStack takeInvStack(int slot, int count) {
             prepareRollback();
             ItemStack result = getInvStack(slot);
-            if(!result.isEmpty()) {
+            if (!result.isEmpty()) {
                 result = result.split(count);
                 markDirty();
             }
@@ -272,7 +275,7 @@ public class StorageSketch {
             prepareRollback();
             ItemStack stack = stackIn.copy();
 
-            for(int i = 0; i < size; ++i) {
+            for (int i = 0; i < size; ++i) {
                 ItemStack existing = this.getInvStack(i);
                 if (existing.isEmpty()) {
                     this.setInvStack(i, stack);
@@ -332,15 +335,16 @@ public class StorageSketch {
 
         @Override
         public boolean isInvEmpty() {
-            for(int i = 0; i < size; i++) {
-                if (!(stacks[i] == null || stacks[i].isEmpty())) return false;
+            for (int i = 0; i < size; i++) {
+                if (!(stacks[i] == null || stacks[i].isEmpty()))
+                    return false;
             }
             return true;
         }
 
         @Override
         public void markDirty() {
-            if(hasRollback) {
+            if (hasRollback) {
                 needsNotify = true;
             } else {
                 notifyListeners();
@@ -352,7 +356,7 @@ public class StorageSketch {
                 listeners.forEach(l -> l.onInvChange(this));
             }
         }
-        
+
         @Override
         public boolean canPlayerUseInv(PlayerEntity player) {
             return true;
@@ -367,26 +371,27 @@ public class StorageSketch {
 
         @Override
         public void provideRecipeInputs(RecipeFinder finder) {
-            for(int i = 0; i < size; i++) {
+            for (int i = 0; i < size; i++) {
                 final ItemStack stack = stacks[i];
-                if(stack != null && !stack.isEmpty()) finder.addItem(stack);
+                if (stack != null && !stack.isEmpty())
+                    finder.addItem(stack);
             }
         }
 
         protected void prepareRollback() {
-            if(!hasRollback && InventoryTx.enlistIfOpen(this)) {
-                for(int i = 0; i < size; i++) {
+            if (!hasRollback && InventoryTx.enlistIfOpen(this)) {
+                for (int i = 0; i < size; i++) {
                     ItemStack stack = stacks[i];
                     stacks[i + size] = stack == null ? null : stack.copy();
                 }
                 hasRollback = true;
             }
         }
-        
+
         @Override
         public void commit() {
             hasRollback = false;
-            if(needsNotify) {
+            if (needsNotify) {
                 notifyListeners();
                 needsNotify = false;
             }
@@ -394,7 +399,7 @@ public class StorageSketch {
 
         @Override
         public void rollback() {
-            if(hasRollback) {
+            if (hasRollback) {
                 System.arraycopy(stacks, size, stacks, 0, size);
                 hasRollback = false;
             }

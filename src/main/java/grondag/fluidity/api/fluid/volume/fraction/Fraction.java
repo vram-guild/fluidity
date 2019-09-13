@@ -38,39 +38,39 @@ import net.minecraft.util.PacketByteBuf;
 public final class Fraction extends AbstractFraction {
     public static final Fraction ZERO = Fraction.of(0, 0, 1);
     public static final Fraction MAX_VALUE = Fraction.of(Long.MAX_VALUE, 0, 1);
-    
+
     public static Fraction of(long whole, long numerator, long divisor) {
         return new Fraction(whole, numerator, divisor);
     }
-    
+
     public static Fraction of(long numerator, long divisor) {
         return new Fraction(numerator, divisor);
     }
-    
+
     public Fraction() {
         super();
     }
-    
+
     public Fraction(long whole) {
         super(whole, 0, 0);
     }
-    
+
     public Fraction(long numerator, long divisor) {
         super(numerator, divisor);
     }
-    
+
     public Fraction(long whole, long numerator, long divisor) {
         super(whole, numerator, divisor);
     }
-    
+
     public Fraction(FractionView template) {
         super(template.whole(), template.numerator(), template.divisor());
     }
-    
+
     public Fraction(Tag tag) {
         readTag((CompoundTag) tag);
     }
-    
+
     public Fraction(PacketByteBuf buf) {
         readBuffer(buf);
     }

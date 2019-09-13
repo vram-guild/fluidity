@@ -40,11 +40,11 @@ public abstract class AbstractFraction implements FractionView {
     long whole;
     long numerator;
     long divisor;
-    
+
     AbstractFraction() {
         this(0, 0, 1);
     }
-    
+
     AbstractFraction(long whole, long numerator, long divisor) {
         validate(whole, numerator, divisor);
         this.whole = whole;
@@ -52,7 +52,7 @@ public abstract class AbstractFraction implements FractionView {
         this.divisor = divisor;
         normalize();
     }
-    
+
     AbstractFraction(long numerator, long divisor) {
         validate(0, numerator, divisor);
         this.whole = numerator / divisor;
@@ -60,22 +60,22 @@ public abstract class AbstractFraction implements FractionView {
         this.divisor = divisor;
         normalize();
     }
-    
+
     @Override
     public final long whole() {
         return whole;
     }
-    
+
     @Override
     public final long numerator() {
         return numerator;
     }
-    
+
     @Override
     public final long divisor() {
         return divisor;
     }
-    
+
     public final void writeBuffer(PacketByteBuf buffer) {
         buffer.writeVarLong(whole);
         buffer.writeVarLong(numerator);
@@ -87,99 +87,97 @@ public abstract class AbstractFraction implements FractionView {
         tag.putLong("numerator", numerator);
         tag.putLong("denominator", divisor);
     }
-    
+
     public final Tag toTag() {
         CompoundTag result = new CompoundTag();
         writeTag(result);
         return result;
     }
-    
+
     void readBuffer(PacketByteBuf buf) {
         whole = buf.readVarLong();
         numerator = buf.readVarLong();
         divisor = buf.readVarLong();
         normalize();
     }
-    
+
     void readTag(CompoundTag tag) {
         whole = tag.getLong("whole");
         numerator = tag.getLong("numerator");
         divisor = tag.getLong("denominator");
         normalize();
     }
-    
+
     @Override
     public final boolean equals(Object val) {
-        if(val == null || !(val instanceof AbstractFraction)) {
+        if (val == null || !(val instanceof AbstractFraction)) {
             return false;
         }
-        AbstractFraction other = (AbstractFraction)val;
-        return other.whole() == this.whole
-                && other.numerator() == this.numerator
-                && other.divisor() == this.divisor;
+        AbstractFraction other = (AbstractFraction) val;
+        return other.whole() == this.whole && other.numerator() == this.numerator && other.divisor() == this.divisor;
     }
-    
+
     @Override
     public final int hashCode() {
         return (int) (HashCommon.mix(whole) ^ HashCommon.mix(numerator ^ divisor));
     }
-    
+
     protected final void validate(long whole, long numerator, long divisor) {
-        if(divisor < 1) {
+        if (divisor < 1) {
             throw new IllegalArgumentException("Fraction divisor must be >= 1");
         }
     }
-    
+
     @Override
     public final String toString() {
         return String.format("%d and %d / %d, approx: %f", whole, numerator, divisor, toDouble());
     }
-    
+
     protected final void normalize() {
-        if(Math.abs(numerator) >= divisor) {
+        if (Math.abs(numerator) >= divisor) {
             final long w = numerator / divisor;
             whole += w;
             numerator -= w * divisor;
         }
-        
-        if(numerator == 0) {
+
+        if (numerator == 0) {
             divisor = 1;
             return;
         }
-        
+
         // keep signs consistent
-        if(whole < 0) {
-            if(numerator > 0) {
+        if (whole < 0) {
+            if (numerator > 0) {
                 whole += 1;
                 numerator -= divisor;
             }
         } else if (numerator < 0) {
-            if(whole > 0) {
+            if (whole > 0) {
                 whole -= 1;
                 numerator += divisor;
             }
         }
-        
+
         // remove powers of two bitwise
         final int twos = Long.numberOfTrailingZeros(numerator | divisor);
-        if(twos > 0) {
+        if (twos > 0) {
             numerator >>= twos;
             divisor >>= twos;
         }
-        
+
         // use conventional gcd for rest
         long gcd = gcd(Math.abs(numerator), divisor);
-        if(gcd != divisor) {
+        if (gcd != divisor) {
             numerator /= gcd;
             divisor /= gcd;
         }
     }
-    
+
     protected final long gcd(long a, long b) {
-        while(b != 0) {
-           long t = b; 
-           b = a % b; 
-           a = t; 
+        while (b != 0) {
+            long t = b;
+            b = a % b;
+            a = t;
         }
         return a;
     }
