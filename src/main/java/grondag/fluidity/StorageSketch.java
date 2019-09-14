@@ -20,11 +20,11 @@ import java.util.function.Supplier;
 
 import org.apache.commons.lang3.ObjectUtils;
 
-import grondag.fluidity.api.fluid.container.FluidContainer;
-import grondag.fluidity.api.fluid.container.FluidPort;
-import grondag.fluidity.api.fluid.container.PortFilter;
-import grondag.fluidity.api.fluid.transact.Transaction;
-import grondag.fluidity.api.fluid.volume.MutableFluidVolume;
+import grondag.fluidity.api.bulk.BulkPort;
+import grondag.fluidity.api.bulk.BulkStorage;
+import grondag.fluidity.api.bulk.MutableBulkVolume;
+import grondag.fluidity.api.storage.PortFilter;
+import grondag.fluidity.api.transact.Transaction;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.entity.player.PlayerEntity;
@@ -88,11 +88,11 @@ public class StorageSketch {
         }
     }
 
-    static void storeAllOrNone(MutableFluidVolume fluid, FluidContainer... targets) {
+    static void storeAllOrNone(MutableBulkVolume fluid, BulkStorage... targets) {
         try (Transaction tx = Transaction.open()) {
             tx.enlist(fluid);
-            for (FluidContainer target : targets) {
-                tx.enlist(target).firstPort(PortFilter.ALL_FILL).fill(fluid, FluidPort.NORMAL);
+            for (BulkStorage target : targets) {
+                tx.enlist(target).firstPort(PortFilter.ALL_SUPPLY).accept(fluid, BulkPort.NORMAL);
                 if (fluid.volume().isZero()) {
                     tx.commit();
                     return;

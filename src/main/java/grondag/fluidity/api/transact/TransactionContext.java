@@ -13,21 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.fluid.transact;
+package grondag.fluidity.api.transact;
 
-import grondag.fluidity.transact.TransactionImpl;
+public interface TransactionContext {
+    <T> void setState(T state);
 
-public interface Transaction extends AutoCloseable {
-    void rollback();
+    <T> T getState();
 
-    void commit();
-
-    <T extends Transactor> T enlist(T container);
-
-    @Override
-    void close();
-
-    static Transaction open() {
-        return TransactionImpl.open();
-    }
+    boolean isCommited();
 }

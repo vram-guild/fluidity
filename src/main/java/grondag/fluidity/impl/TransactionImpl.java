@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.transact;
+package grondag.fluidity.impl;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -21,9 +21,9 @@ import java.util.IdentityHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
-import grondag.fluidity.api.fluid.transact.Transaction;
-import grondag.fluidity.api.fluid.transact.TransactionContext;
-import grondag.fluidity.api.fluid.transact.Transactor;
+import grondag.fluidity.api.transact.Transaction;
+import grondag.fluidity.api.transact.TransactionContext;
+import grondag.fluidity.api.transact.Transactor;
 import net.minecraft.server.MinecraftServer;
 
 public final class TransactionImpl implements Transaction {

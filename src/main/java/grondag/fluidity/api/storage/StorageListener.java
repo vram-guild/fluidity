@@ -13,21 +13,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.fluid.container;
+package grondag.fluidity.api.storage;
+
+import grondag.fluidity.api.storage.StorageOperation;
 
 @FunctionalInterface
-public interface FluidContainerListener {
-    public static enum Operation {
-        ADD,
-        REMOVE,
-        UPDATE,
-        DISCONNECT
-    }
-
-    void accept(ContainerFluidVolume fluidVolume, Operation op);
-
-    @FunctionalInterface
-    public static interface StopNotifier {
-        void stopListening();
-    }
+public interface StorageListener<R extends StoredResourceView> {
+    void accept(R resource, StorageOperation op);
 }

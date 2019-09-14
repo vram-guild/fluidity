@@ -13,12 +13,31 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.fluid.transact;
 
-public interface TransactionContext {
-    <T> void setState(T state);
+package grondag.fluidity.api.storage;
 
-    <T> T getState();
+import grondag.fluidity.api.bulk.BulkStorage;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 
-    boolean isCommited();
+public interface Port {
+    static int NORMAL = 0;
+    static int EXACT = 1;
+    static int SIMULATE = 2;
+
+    default Identifier id() {
+        return BulkStorage.ANONYMOUS_ID;
+    }
+
+    default Direction side() {
+        return null;
+    }
+
+    default boolean canAccept() {
+        return true;
+    }
+
+    default boolean canSupply() {
+        return true;
+    }
 }

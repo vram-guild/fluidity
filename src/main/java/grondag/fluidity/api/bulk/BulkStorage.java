@@ -29,55 +29,22 @@
  * limitations under the License.
  */
 
-package grondag.fluidity.api.fluid;
+package grondag.fluidity.api.bulk;
 
-import net.minecraft.fluid.Fluid;
-import net.minecraft.nbt.Tag;
-import net.minecraft.util.Identifier;
+import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.transact.Transactor;
 
-/**
- * Purely a WIP stub at this point - represents a game resource measured by
- * volume. Could be a gas, liquid, or flowable solid (powders, dusts, etc.) May
- * or may not have an associated in-world fluid.
- * <p>
- * 
- * This will be a concrete, final type when finished, not an interface.
- */
-public interface FluidVariant {
+public interface BulkStorage extends Storage<BulkPort, BulkVolumeView>, Transactor {
+    FractionView totalCapacity();
 
-    public static final FluidVariant AIR = new FluidVariant() {
-        @Override
-        public int rawId() {
-            return 0;
-        }
-
-        @Override
-        public Identifier id() {
-            return new Identifier("mock");
-        }
-    };
-
-    default Fluid toFluid() {
-        return null;
+    @Override
+    default BulkPort voidPort() {
+    	return BulkPort.VOID;
     }
-
-    default Tag tag() {
-        return null;
-    }
-
-    default boolean hasTag() {
-        return tag() == null;
-    }
-
-    int rawId();
-
-    Identifier id();
-
-    static FluidVariant fromRawId(int rawId) {
-        return AIR;
-    }
-
-    static FluidVariant fromId(Identifier id) {
-        return AIR;
+    
+    @Override
+    default BulkVolumeView emptyResource() {
+    	return BulkVolumeView.EMPTY;
     }
 }

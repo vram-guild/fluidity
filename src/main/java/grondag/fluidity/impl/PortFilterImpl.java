@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.impl.fluid;
+package grondag.fluidity.impl;
 
 import java.util.HashSet;
 import java.util.List;
@@ -22,27 +22,27 @@ import java.util.Set;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
-import grondag.fluidity.api.fluid.container.FluidPort;
-import grondag.fluidity.api.fluid.container.PortFilter;
+import grondag.fluidity.api.storage.Port;
+import grondag.fluidity.api.storage.PortFilter;
 import net.minecraft.util.math.Direction;
 
 public class PortFilterImpl implements PortFilter {
 
-    protected boolean includeFill;
-    protected boolean includeDrain;
+    protected boolean includeSupply;
+    protected boolean includeAccept;
     protected Set<Direction> sides;
 
     protected PortFilterImpl(PortFilterImpl builder) {
         if (builder != null) {
-            includeFill = builder.includeFill;
-            includeDrain = builder.includeDrain;
+            includeSupply = builder.includeSupply;
+            includeAccept = builder.includeAccept;
             sides = builder.sides;
         }
     }
 
     @Override
-    public boolean test(FluidPort port) {
-        return (sides.isEmpty() || sides.contains(port.side())) && (includeFill || !port.canFill()) && (includeDrain || !port.canDrain());
+    public boolean test(Port port) {
+        return (sides.isEmpty() || sides.contains(port.side())) && (includeSupply || !port.canAccept()) && (includeAccept || !port.canSupply());
     }
 
     public static Builder builder() {
@@ -59,8 +59,8 @@ public class PortFilterImpl implements PortFilter {
         }
 
         protected void clear() {
-            includeFill = true;
-            includeDrain = true;
+            includeSupply = true;
+            includeAccept = true;
             sides = new HashSet<Direction>();
         }
 
@@ -80,14 +80,14 @@ public class PortFilterImpl implements PortFilter {
         }
 
         @Override
-        public Builder excludeFill() {
-            includeFill = false;
+        public Builder excludeSupply() {
+            includeSupply = false;
             return this;
         }
 
         @Override
-        public Builder excludeDrain() {
-            includeDrain = false;
+        public Builder excludeAccept() {
+            includeAccept = false;
             return this;
         }
 
@@ -106,13 +106,12 @@ public class PortFilterImpl implements PortFilter {
     }
 
     @Override
-    public boolean includeFill() {
-        return includeFill;
+    public boolean includeSupply() {
+        return includeSupply;
     }
 
     @Override
-    public boolean includeDrain() {
-        return includeDrain;
+    public boolean includeAccept() {
+        return includeAccept;
     }
-
 }

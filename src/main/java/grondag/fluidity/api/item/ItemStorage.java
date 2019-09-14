@@ -29,49 +29,21 @@
  * limitations under the License.
  */
 
-package grondag.fluidity.api.fluid.volume.fraction;
+package grondag.fluidity.api.item;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.util.PacketByteBuf;
+import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.transact.Transactor;
 
-public final class Fraction extends AbstractFraction {
-    public static final Fraction ZERO = Fraction.of(0, 0, 1);
-    public static final Fraction MAX_VALUE = Fraction.of(Long.MAX_VALUE, 0, 1);
+public interface ItemStorage extends Storage<ItemPort, StoredItem>, Transactor {
+    long totalCapacity();
 
-    public static Fraction of(long whole, long numerator, long divisor) {
-        return new Fraction(whole, numerator, divisor);
+    @Override
+    default ItemPort voidPort() {
+    	return ItemPort.VOID;
     }
-
-    public static Fraction of(long numerator, long divisor) {
-        return new Fraction(numerator, divisor);
-    }
-
-    public Fraction() {
-        super();
-    }
-
-    public Fraction(long whole) {
-        super(whole, 0, 0);
-    }
-
-    public Fraction(long numerator, long divisor) {
-        super(numerator, divisor);
-    }
-
-    public Fraction(long whole, long numerator, long divisor) {
-        super(whole, numerator, divisor);
-    }
-
-    public Fraction(FractionView template) {
-        super(template.whole(), template.numerator(), template.divisor());
-    }
-
-    public Fraction(Tag tag) {
-        readTag((CompoundTag) tag);
-    }
-
-    public Fraction(PacketByteBuf buf) {
-        readBuffer(buf);
+    
+    @Override
+    default StoredItem emptyResource() {
+    	return StoredItem.EMPTY;
     }
 }

@@ -29,25 +29,26 @@
  * limitations under the License.
  */
 
-package grondag.fluidity.api.fluid.container;
+package grondag.fluidity.api.storage;
 
 import java.util.Iterator;
 import java.util.function.Predicate;
 
 import com.google.common.base.Predicates;
 
-import grondag.fluidity.api.fluid.container.FluidContainerListener.StopNotifier;
-import grondag.fluidity.api.fluid.transact.Transactor;
-import grondag.fluidity.api.fluid.volume.fraction.FractionView;
+import grondag.fluidity.api.bulk.BulkVolumeView;
+import grondag.fluidity.api.transact.Transactor;
 import net.minecraft.util.Identifier;
 
-public interface FluidContainer extends Transactor {
-    Identifier ANONYMOUS_ID = new Identifier("fabric:anon");
+public interface Storage<P extends Port, R extends StoredResourceView> extends Transactor {
+    Identifier ANONYMOUS_ID = new Identifier("fluidity:anon");
     int NO_SLOT = -1;
+    
+    P voidPort();
 
+    R emptyResource();
+    
     boolean isEmpty();
-
-    FractionView totalCapacity();
 
     /**
      * True when can contain more than one fluid.
@@ -71,18 +72,18 @@ public interface FluidContainer extends Transactor {
         return false;
     }
 
-    Iterable<FluidPort> ports(PortFilter portFilter);
+    Iterable<P> ports(PortFilter portFilter);
 
-    default Iterable<FluidPort> ports() {
+    default Iterable<P> ports() {
         return ports(PortFilter.ALL);
     }
 
-    default FluidPort firstPort(PortFilter portFilter) {
-        Iterator<FluidPort> it = ports(portFilter).iterator();
-        return it.hasNext() ? it.next() : FluidPort.VOID;
+    default P firstPort(PortFilter portFilter) {
+		Iterator<P> it = ports(portFilter).iterator();
+        return it.hasNext() ? it.next() : voidPort();
     }
 
-    default FluidPort firstPort() {
+    default P firstPort() {
         return firstPort(PortFilter.ALL);
     }
 
@@ -93,7 +94,7 @@ public interface FluidContainer extends Transactor {
      * @return integer identifier of first matching slot found or {@code NO_SLOT} if
      *         no match
      * @implNote Should be overridden if container has named slots
-     * @see ContainerFluidVolume#slot()
+     * @see BulkVolumeView#slot()
      */
     default int slotFromId(Identifier id) {
         return NO_SLOT;
@@ -103,43 +104,43 @@ public interface FluidContainer extends Transactor {
         return ANONYMOUS_ID;
     }
 
-    Iterable<ContainerFluidVolume> volumes(PortFilter portFilter, Predicate<ContainerFluidVolume> fluidFilter);
+    Iterable<R> contents(PortFilter portFilter, Predicate<R> resourceFilter);
 
-    ContainerFluidVolume volumeForSlot(int slot);
+    default Iterable<R> contents(PortFilter portFilter) {
+        return contents(portFilter, Predicates.alwaysTrue());
+    }
 
-    default ContainerFluidVolume volumeForId(Identifier id) {
+    default Iterable<R> contents(Predicate<R> resourceFilter) {
+        return contents(PortFilter.ALL, resourceFilter);
+    }
+
+    default Iterable<R> contents() {
+        return contents(PortFilter.ALL, Predicates.alwaysTrue());
+    }
+    
+    R resourceForSlot(int slot);
+
+    default R resourceForId(Identifier id) {
         final int slot = slotFromId(id);
-        return slot >= 0 ? volumeForSlot(slot) : ContainerFluidVolume.EMPTY;
+        return slot >= 0 ? resourceForSlot(slot) : emptyResource();
     }
-
-    default Iterable<ContainerFluidVolume> volumes(PortFilter portFilter) {
-        return volumes(portFilter, Predicates.alwaysTrue());
-    }
-
-    default Iterable<ContainerFluidVolume> volumes(Predicate<ContainerFluidVolume> fluidFilter) {
-        return volumes(PortFilter.ALL, fluidFilter);
-    }
-
-    default Iterable<ContainerFluidVolume> volumes() {
-        return volumes(PortFilter.ALL, Predicates.alwaysTrue());
-    }
-
-    default ContainerFluidVolume firstVolume(PortFilter portFilter, Predicate<ContainerFluidVolume> fluidFilter) {
-        Iterator<ContainerFluidVolume> it = volumes(portFilter, fluidFilter).iterator();
+    
+    default R firstResource(PortFilter portFilter, Predicate<R> resourceFilter) {
+        Iterator<R> it = contents(portFilter, resourceFilter).iterator();
         return it.hasNext() ? it.next() : null;
     }
 
-    default ContainerFluidVolume firstVolume(PortFilter portFilter) {
-        return firstVolume(portFilter, Predicates.alwaysTrue());
+    default R firstResource(PortFilter portFilter) {
+        return firstResource(portFilter, Predicates.alwaysTrue());
     }
 
-    default ContainerFluidVolume firstVolume(Predicate<ContainerFluidVolume> fluidFilter) {
-        return firstVolume(PortFilter.ALL, fluidFilter);
+    default R firstResouce(Predicate<R> resourceFilter) {
+        return firstResource(PortFilter.ALL, resourceFilter);
     }
 
-    default ContainerFluidVolume firstVolume() {
-        return firstVolume(PortFilter.ALL, Predicates.alwaysTrue());
+    default R firstResource() {
+        return firstResource(PortFilter.ALL, Predicates.alwaysTrue());
     }
-
-    StopNotifier startListening(FluidContainerListener listener, PortFilter portFilter, Predicate<ContainerFluidVolume> filter);
+    
+    StopNotifier startListening(StorageListener<R> listener, PortFilter portFilter, Predicate<R> resourceFilter);
 }

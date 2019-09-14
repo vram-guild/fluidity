@@ -29,27 +29,38 @@
  * limitations under the License.
  */
 
-package grondag.fluidity.api.fluid.transact;
+package grondag.fluidity.api.item;
 
-import java.util.function.Consumer;
+import grondag.fluidity.api.storage.StoredResourceView;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 
 /**
- * For objects that can participate in fluid transactions.
+ * For container views and queries. Volumes outside containers should use
+ * concrete types.
  */
-@FunctionalInterface
-public interface Transactor {
-    /**
-     * Consumer can save state in the context if it needs to and retrieve it on
-     * rollback.
-     * <p>
-     * 
-     * Consumer is called for both commit and rollback events just in case some
-     * implementation need to lock or store resources internally during a
-     * transaction and need notification when one ends.
-     * <p>
-     * 
-     * @param context
-     * @return
-     */
-    Consumer<TransactionContext> prepareTx(TransactionContext context);
+public interface StoredItem extends StoredResourceView {
+
+	StoredItem EMPTY = new StoredItem() {
+    };
+
+    //TODO: add tag and damage
+    default Item item() {
+        return Items.AIR;
+    }
+
+    default long count() {
+        return 0;
+    }
+
+    default long capacity() {
+        return count();
+    }
+
+    default ItemStack toStack() {
+    	final ItemStack result = new ItemStack(item());
+    	result.setCount((int) count());
+    	return result;
+    }
 }

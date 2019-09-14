@@ -29,44 +29,27 @@
  * limitations under the License.
  */
 
-package grondag.fluidity.api.fluid.container;
+package grondag.fluidity.api.transact;
 
-import grondag.fluidity.api.fluid.FluidVariant;
-import grondag.fluidity.api.fluid.volume.ImmutableFluidVolume;
-import grondag.fluidity.api.fluid.volume.MutableFluidVolume;
-import grondag.fluidity.api.fluid.volume.fraction.Fraction;
-import grondag.fluidity.api.fluid.volume.fraction.FractionView;
+import java.util.function.Consumer;
 
 /**
- * For container views and queries. Volumes outside containers should use
- * concrete types.
+ * For objects that can participate in fluid transactions.
  */
-public interface ContainerFluidVolume {
-
-    ContainerFluidVolume EMPTY = new ContainerFluidVolume() {
-    };
-
-    default FluidVariant fluid() {
-        return FluidVariant.AIR;
-    }
-
-    default FractionView volume() {
-        return Fraction.ZERO;
-    }
-
-    default FractionView capacity() {
-        return volume();
-    }
-
-    default int slot() {
-        return 0;
-    }
-
-    default ImmutableFluidVolume toImmutable() {
-        return ImmutableFluidVolume.of(fluid(), volume());
-    }
-
-    default MutableFluidVolume mutableCopy() {
-        return MutableFluidVolume.of(fluid(), volume());
-    }
+@FunctionalInterface
+public interface Transactor {
+    /**
+     * Consumer can save state in the context if it needs to and retrieve it on
+     * rollback.
+     * <p>
+     * 
+     * Consumer is called for both commit and rollback events just in case some
+     * implementation need to lock or store resources internally during a
+     * transaction and need notification when one ends.
+     * <p>
+     * 
+     * @param context
+     * @return
+     */
+    Consumer<TransactionContext> prepareTx(TransactionContext context);
 }

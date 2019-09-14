@@ -13,20 +13,20 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.fluid.container;
+package grondag.fluidity.api.storage;
 
 import java.util.Set;
 import java.util.function.Predicate;
 
-import grondag.fluidity.impl.fluid.PortFilterImpl;
+import grondag.fluidity.impl.PortFilterImpl;
 import net.minecraft.util.math.Direction;
 
-public interface PortFilter extends Predicate<FluidPort> {
+public interface PortFilter extends Predicate<Port> {
     Set<Direction> sides();
 
-    boolean includeFill();
+    boolean includeSupply();
 
-    boolean includeDrain();
+    boolean includeAccept();
 
     static PortFilter ALL = builder().build();
     static PortFilter UP = builder().includeSide(Direction.UP).build();
@@ -35,17 +35,17 @@ public interface PortFilter extends Predicate<FluidPort> {
     static PortFilter SOUTH = builder().includeSide(Direction.SOUTH).build();
     static PortFilter EAST = builder().includeSide(Direction.EAST).build();
     static PortFilter WEST = builder().includeSide(Direction.WEST).build();
-    static PortFilter ALL_FILL = builder().excludeDrain().build();
-    static PortFilter ALL_DRAIN = builder().excludeFill().build();
+    static PortFilter ALL_SUPPLY = builder().excludeAccept().build();
+    static PortFilter ALL_ACCEPT = builder().excludeSupply().build();
 
     static interface Builder {
         Builder includeSide(Direction side);
 
         Builder excludeSide(Direction side);
 
-        Builder excludeFill();
+        Builder excludeSupply();
 
-        Builder excludeDrain();
+        Builder excludeAccept();
 
         PortFilter build();
     }

@@ -29,66 +29,64 @@
  * limitations under the License.
  */
 
-package grondag.fluidity.api.fluid.volume;
+package grondag.fluidity.api.bulk;
 
 import java.util.function.Consumer;
 
-import grondag.fluidity.api.fluid.FluidVariant;
-import grondag.fluidity.api.fluid.container.ContainerFluidVolume;
-import grondag.fluidity.api.fluid.transact.TransactionContext;
-import grondag.fluidity.api.fluid.transact.Transactor;
-import grondag.fluidity.api.fluid.volume.fraction.Fraction;
-import grondag.fluidity.api.fluid.volume.fraction.FractionView;
-import grondag.fluidity.api.fluid.volume.fraction.MutableFraction;
+import grondag.fluidity.api.fraction.Fraction;
+import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.fraction.MutableFraction;
+import grondag.fluidity.api.transact.TransactionContext;
+import grondag.fluidity.api.transact.Transactor;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 
-public final class MutableFluidVolume extends FluidVolume implements Transactor {
+public final class MutableBulkVolume extends BulkVolume implements Transactor {
 
     private final MutableFraction volume;
 
-    public MutableFluidVolume(CompoundTag tag) {
-        this.substance = FluidVariant.fromId(new Identifier(tag.getString("substance")));
+    public MutableBulkVolume(CompoundTag tag) {
+        this.resource = BulkResource.REGISTRY.get(new Identifier(tag.getString("fluid")));
         this.volume = new MutableFraction(tag);
     }
 
-    public MutableFluidVolume(PacketByteBuf buffer) {
-        this.substance = FluidVariant.fromRawId(buffer.readVarInt());
+    public MutableBulkVolume(PacketByteBuf buffer) {
+        this.resource = BulkResource.REGISTRY.get(buffer.readVarInt());
         this.volume = new MutableFraction(buffer);
     }
 
-    public MutableFluidVolume(FluidVariant substance, FractionView volume) {
-        this.substance = substance;
+    public MutableBulkVolume(BulkResource resource, FractionView volume) {
+        this.resource = resource;
         this.volume = new MutableFraction(volume);
     }
 
-    public MutableFluidVolume(FluidVolume template) {
-        this.substance = template.substance;
+    public MutableBulkVolume(BulkVolume template) {
+        this.resource = template.resource;
         this.volume = new MutableFraction(template.volume());
     }
 
-    public MutableFluidVolume(FluidVariant substance, long buckets) {
-        this.substance = substance;
+    public MutableBulkVolume(BulkResource resource, long buckets) {
+        this.resource = resource;
         this.volume = new MutableFraction(buckets);
     }
 
-    public MutableFluidVolume(FluidVariant substance, long numerator, long divisor) {
-        this.substance = substance;
+    public MutableBulkVolume(BulkResource resource, long numerator, long divisor) {
+        this.resource = resource;
         this.volume = new MutableFraction(numerator, divisor);
     }
 
-    public MutableFluidVolume(FluidVariant substance, long buckets, long numerator, long divisor) {
-        this.substance = substance;
+    public MutableBulkVolume(BulkResource resource, long buckets, long numerator, long divisor) {
+        this.resource = resource;
         this.volume = new MutableFraction(buckets, numerator, divisor);
     }
 
-    public final void setFluid(FluidVariant substance) {
-        this.substance = substance;
+    public final void setResource(BulkResource resource) {
+        this.resource = resource;
     }
 
-    public final void set(ContainerFluidVolume template) {
-        setFluid(template.fluid());
+    public final void set(BulkVolumeView template) {
+        setResource(template.resource());
         volume().set(template.volume());
     }
 
@@ -98,22 +96,22 @@ public final class MutableFluidVolume extends FluidVolume implements Transactor 
     }
 
     @Override
-    public final ImmutableFluidVolume toImmutable() {
-        return new ImmutableFluidVolume(this);
+    public final ImmutableBulkVolume toImmutable() {
+        return new ImmutableBulkVolume(this);
     }
 
     public final void readTag(CompoundTag tag) {
-        this.substance = FluidVariant.fromId(new Identifier(tag.getString("substance")));
+        this.resource = BulkResource.REGISTRY.get(new Identifier(tag.getString("resource")));
         this.volume.readTag(tag);
     }
 
     public final void readBuffer(PacketByteBuf buffer) {
-        this.substance = FluidVariant.fromRawId(buffer.readVarInt());
+        this.resource = BulkResource.REGISTRY.get(buffer.readVarInt());
         this.volume.readBuffer(buffer);
     }
 
-    public static MutableFluidVolume of(FluidVariant substance, FractionView volume) {
-        return new MutableFluidVolume(substance, volume);
+    public static MutableBulkVolume of(BulkResource resource, FractionView volume) {
+        return new MutableBulkVolume(resource, volume);
     }
 
     @Override
