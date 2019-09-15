@@ -18,30 +18,31 @@ package grondag.fluidity.api.bulk;
 
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.storage.Article;
 import grondag.fluidity.api.storage.Port;
 
 /**
  * The thing that will be used to take fluid in or out of another thing.
  */
 public interface BulkPort extends Port {
-    FractionView accept(BulkResource resource, FractionView volume, int flags);
+    FractionView accept(Article article, FractionView volume, int flags);
 
-    default long accept(BulkResource resource, long volume, long units, int flags) {
-        return accept(resource, Fraction.of(volume, units), flags).toLong(units);
+    default long accept(Article article, long volume, long units, int flags) {
+        return accept(article, Fraction.of(volume, units), flags).toLong(units);
     }
 
-    default ImmutableBulkVolume accept(BulkVolume volume, int flags) {
-        return ImmutableBulkVolume.of(volume.resource(), accept(volume.resource(), volume.volume(), flags));
+    default BulkArticle accept(AbstractBulkArticle<?> volume, int flags) {
+        return BulkArticle.of(volume.article(), accept(volume.article(), volume.volume(), flags));
     }
 
-    default boolean acceptFrom(BulkResource resource, FractionView volume, int flags, MutableBulkVolume target) {
-        if (target.resource().equals(resource) || target.volume().isZero()) {
-            final FractionView result = accept(resource, volume, flags);
+    default boolean acceptFrom(Article article, FractionView volume, int flags, MutableBulkArticle target) {
+        if (target.article().equals(article) || target.volume().isZero()) {
+            final FractionView result = accept(article, volume, flags);
             if (result.isZero()) {
                 return false;
             } else {
                 target.volume().subtract(result);
-                target.setResource(resource);
+                target.setArticle(article);
                 return true;
             }
         } else {
@@ -49,11 +50,11 @@ public interface BulkPort extends Port {
         }
     }
 
-    default boolean acceptFrom(MutableBulkVolume target, int flags) {
+    default boolean acceptFrom(MutableBulkArticle target, int flags) {
         if (target.volume().isZero()) {
             return false;
         } else {
-            final FractionView result = accept(target.resource(), target.volume(), flags);
+            final FractionView result = accept(target.article(), target.volume(), flags);
             if (result.isZero()) {
                 return false;
             } else {
@@ -63,24 +64,24 @@ public interface BulkPort extends Port {
         }
     }
 
-    FractionView supply(BulkResource resource, FractionView volume, int flags);
+    FractionView supply(Article article, FractionView volume, int flags);
 
-    default long supply(BulkResource resource, long volume, long units, int flags) {
-        return supply(resource, Fraction.of(volume, units), flags).toLong(units);
+    default long supply(Article article, long volume, long units, int flags) {
+        return supply(article, Fraction.of(volume, units), flags).toLong(units);
     }
 
-    default ImmutableBulkVolume supply(BulkVolume volume, int flags) {
-        return ImmutableBulkVolume.of(volume.resource(), supply(volume.resource(), volume.volume(), flags));
+    default BulkArticle supply(AbstractBulkArticle<?> volume, int flags) {
+        return BulkArticle.of(volume.article(), supply(volume.article(), volume.volume(), flags));
     }
 
-    default boolean supplyTo(BulkResource resource, FractionView volume, int flags, MutableBulkVolume target) {
-        if (target.resource().equals(resource) || target.volume().isZero()) {
-            final FractionView result = supply(resource, volume, flags);
+    default boolean supplyTo(Article article, FractionView volume, int flags, MutableBulkArticle target) {
+        if (target.article().equals(article) || target.volume().isZero()) {
+            final FractionView result = supply(article, volume, flags);
             if (result.isZero()) {
                 return false;
             } else {
                 target.volume().add(result);
-                target.setResource(resource);
+                target.setArticle(article);
                 return true;
             }
         } else {
@@ -90,12 +91,12 @@ public interface BulkPort extends Port {
 
     static BulkPort VOID = new BulkPort() {
         @Override
-        public FractionView accept(BulkResource resource, FractionView volume, int flags) {
+        public FractionView accept(Article resource, FractionView volume, int flags) {
             return Fraction.ZERO;
         }
 
         @Override
-        public FractionView supply(BulkResource resource, FractionView volume, int flags) {
+        public FractionView supply(Article resource, FractionView volume, int flags) {
             return Fraction.ZERO;
         }
     };

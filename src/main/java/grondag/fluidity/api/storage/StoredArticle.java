@@ -1,7 +1,9 @@
 package grondag.fluidity.api.storage;
 
-public interface StoredResourceView {
+public interface StoredArticle {
     default int slot() {
         return 0;
     }
+    
+	Article article();
 }

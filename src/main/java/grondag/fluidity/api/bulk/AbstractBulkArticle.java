@@ -16,14 +16,13 @@
 
 package grondag.fluidity.api.bulk;
 
-import java.util.function.Predicate;
-
 import grondag.fluidity.api.fraction.AbstractFraction;
+import grondag.fluidity.api.storage.AbstractStoredArticle;
+import grondag.fluidity.api.storage.Article;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.util.PacketByteBuf;
 
-public abstract class BulkVolume implements BulkVolumeView, Predicate<BulkVolumeView> {
+public abstract class AbstractBulkArticle<T extends AbstractFraction> extends AbstractStoredArticle implements BulkArticleView {
     // Common units
     public static final int BUCKET = 1;
     public static final int KILOLITER = 1;
@@ -35,68 +34,41 @@ public abstract class BulkVolume implements BulkVolumeView, Predicate<BulkVolume
     public static final int INGOT = 9;
     public static final int NUGGET = 81;
 
-    protected BulkResource resource;
-
-    @Override
-    public final BulkResource resource() {
-        return resource;
+    protected final T volume;
+    
+    protected AbstractBulkArticle(Article article, T volume) {
+    	this.article = article;
+    	this.volume = volume;
     }
 
     @Override
-    public abstract AbstractFraction volume();
-
-    /**
-     * Serializes content to buffer. Recreate instance with
-     * {@link #fromBuffer(PacketByteBuf)}. Suitable only for network traffic -
-     * assumes raw fluid ID's match on both sides.
-     * 
-     * @param buf
-     */
-    public final void writeBuffer(PacketByteBuf buf) {
-        buf.writeVarInt(BulkResource.REGISTRY.getRawId(resource));
+	public final void writeBuffer(PacketByteBuf buf) {
+        super.writeBuffer(buf);
         volume().writeBuffer(buf);
     }
 
-    public final void writeTag(CompoundTag tag) {
-        tag.putString("resource", BulkResource.REGISTRY.getId(resource).toString());
+    @Override
+	public final void writeTag(CompoundTag tag) {
+        super.writeTag(tag);
         volume().writeTag(tag);
     }
 
-    /**
-     * Serializes content to NBT tag. Recreate instance with {@link #fromTag(Tag)}.
-     * Suitable for world saves. Fluid is serialized as an identifier.
-     * 
-     * @return NBT tag with contents of instance.
-     */
-    public final CompoundTag toTag() {
-        CompoundTag result = new CompoundTag();
-        writeTag(result);
-        return result;
-    }
-
+    @Override
+    public abstract T volume();
+    
     /**
      * @return Self if already immutable, otherwise an immutable, exact and complete
      *         copy.
      */
     @Override
-    public abstract ImmutableBulkVolume toImmutable();
+    public abstract BulkArticle toImmutable();
 
     /**
      * @return New mutable instance that is an exact and complete copy of the
      *         current instance.
      */
     @Override
-    public final MutableBulkVolume mutableCopy() {
-        return new MutableBulkVolume(this);
-    }
-
-    @Override
-    public final int slot() {
-        return 0;
-    }
-
-    @Override
-    public final boolean test(BulkVolumeView view) {
-        return view.resource().equals(this.resource());
+    public final MutableBulkArticle mutableCopy() {
+        return new MutableBulkArticle(this);
     }
 }

@@ -16,7 +16,6 @@
 
 package grondag.fluidity.api.storage;
 
-import grondag.fluidity.api.bulk.BulkStorage;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
@@ -26,7 +25,7 @@ public interface Port {
     static int SIMULATE = 2;
 
     default Identifier id() {
-        return BulkStorage.ANONYMOUS_ID;
+        return Storage.ANONYMOUS_ID;
     }
 
     default Direction side() {

@@ -36,57 +36,47 @@ import java.util.function.Consumer;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
+import grondag.fluidity.api.storage.Article;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.Transactor;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 
-public final class MutableBulkVolume extends BulkVolume implements Transactor {
-
-    private final MutableFraction volume;
-
-    public MutableBulkVolume(CompoundTag tag) {
-        this.resource = BulkResource.REGISTRY.get(new Identifier(tag.getString("fluid")));
-        this.volume = new MutableFraction(tag);
+public final class MutableBulkArticle extends AbstractBulkArticle<MutableFraction> implements Transactor {
+    public MutableBulkArticle(CompoundTag tag) {
+    	super(Article.fromTag(tag), new MutableFraction(tag));
     }
 
-    public MutableBulkVolume(PacketByteBuf buffer) {
-        this.resource = BulkResource.REGISTRY.get(buffer.readVarInt());
-        this.volume = new MutableFraction(buffer);
+    public MutableBulkArticle(PacketByteBuf buffer) {
+    	super(Article.fromBuffer(buffer), new MutableFraction(buffer));
     }
 
-    public MutableBulkVolume(BulkResource resource, FractionView volume) {
-        this.resource = resource;
-        this.volume = new MutableFraction(volume);
+    public MutableBulkArticle(Article article, FractionView volume) {
+    	super(article, new MutableFraction(volume));
     }
 
-    public MutableBulkVolume(BulkVolume template) {
-        this.resource = template.resource;
-        this.volume = new MutableFraction(template.volume());
+    public MutableBulkArticle(AbstractBulkArticle<?> template) {
+    	super(template.article(), new MutableFraction(template.volume()));
     }
 
-    public MutableBulkVolume(BulkResource resource, long buckets) {
-        this.resource = resource;
-        this.volume = new MutableFraction(buckets);
+    public MutableBulkArticle(Article article, long buckets) {
+    	super(article, new MutableFraction(buckets));
     }
 
-    public MutableBulkVolume(BulkResource resource, long numerator, long divisor) {
-        this.resource = resource;
-        this.volume = new MutableFraction(numerator, divisor);
+    public MutableBulkArticle(Article article, long numerator, long divisor) {
+        super(article, new MutableFraction(numerator, divisor));
     }
 
-    public MutableBulkVolume(BulkResource resource, long buckets, long numerator, long divisor) {
-        this.resource = resource;
-        this.volume = new MutableFraction(buckets, numerator, divisor);
+    public MutableBulkArticle(Article article, long buckets, long numerator, long divisor) {
+        super(article, new MutableFraction(buckets, numerator, divisor));
     }
 
-    public final void setResource(BulkResource resource) {
-        this.resource = resource;
+    public final void setArticle(Article resource) {
+        this.article = resource;
     }
 
-    public final void set(BulkVolumeView template) {
-        setResource(template.resource());
+    public final void set(BulkArticleView template) {
+        setArticle(template.article());
         volume().set(template.volume());
     }
 
@@ -96,22 +86,22 @@ public final class MutableBulkVolume extends BulkVolume implements Transactor {
     }
 
     @Override
-    public final ImmutableBulkVolume toImmutable() {
-        return new ImmutableBulkVolume(this);
+    public final BulkArticle toImmutable() {
+        return new BulkArticle(this);
     }
 
     public final void readTag(CompoundTag tag) {
-        this.resource = BulkResource.REGISTRY.get(new Identifier(tag.getString("resource")));
+        this.article = Article.fromTag(tag);
         this.volume.readTag(tag);
     }
 
     public final void readBuffer(PacketByteBuf buffer) {
-        this.resource = BulkResource.REGISTRY.get(buffer.readVarInt());
+        this.article = Article.fromBuffer(buffer);
         this.volume.readBuffer(buffer);
     }
 
-    public static MutableBulkVolume of(BulkResource resource, FractionView volume) {
-        return new MutableBulkVolume(resource, volume);
+    public static MutableBulkArticle of(Article resource, FractionView volume) {
+        return new MutableBulkArticle(resource, volume);
     }
 
     @Override

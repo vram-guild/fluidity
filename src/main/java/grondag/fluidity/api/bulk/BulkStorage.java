@@ -35,16 +35,12 @@ import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.transact.Transactor;
 
-public interface BulkStorage extends Storage<BulkPort, BulkVolumeView>, Transactor {
+public interface BulkStorage extends Storage<BulkPort, BulkArticleView>, Transactor {
     FractionView totalCapacity();
 
     @Override
     default BulkPort voidPort() {
     	return BulkPort.VOID;
     }
-    
-    @Override
-    default BulkVolumeView emptyResource() {
-    	return BulkVolumeView.EMPTY;
-    }
+  
 }

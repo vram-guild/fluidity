@@ -33,46 +33,37 @@ package grondag.fluidity.api.bulk;
 
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.storage.Article;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 
-public final class ImmutableBulkVolume extends BulkVolume {
-    private final Fraction volume;
-
-    public ImmutableBulkVolume(CompoundTag tag) {
-        this.resource = BulkResource.REGISTRY.get(new Identifier(tag.getString("resource")));
-        this.volume = new Fraction(tag);
+public final class BulkArticle extends AbstractBulkArticle<Fraction> {
+    public BulkArticle(CompoundTag tag) {
+    	super(Article.fromTag(tag), new Fraction(tag));
     }
 
-    public ImmutableBulkVolume(PacketByteBuf buffer) {
-        this.resource = BulkResource.REGISTRY.get(buffer.readVarInt());
-        this.volume = new Fraction(buffer);
+    public BulkArticle(PacketByteBuf buffer) {
+    	super(Article.fromBuffer(buffer), new Fraction(buffer));
     }
 
-    public ImmutableBulkVolume(BulkResource resource, FractionView volume) {
-        this.resource = resource;
-        this.volume = new Fraction(volume);
+    public BulkArticle(Article article, FractionView volume) {
+    	super(article, new Fraction(volume));
     }
 
-    public ImmutableBulkVolume(BulkVolume template) {
-        this.resource = template.resource;
-        this.volume = new Fraction(template.volume());
+    public BulkArticle(AbstractBulkArticle<?> template) {
+    	super(template.article(), new Fraction(template.volume()));
     }
 
-    public ImmutableBulkVolume(BulkResource resource, long buckets) {
-        this.resource = resource;
-        this.volume = new Fraction(buckets);
+    public BulkArticle(Article article, long buckets) {
+    	super(article, new Fraction(buckets));
     }
 
-    public ImmutableBulkVolume(BulkResource resource, long numerator, long divisor) {
-        this.resource = resource;
-        this.volume = new Fraction(numerator, divisor);
+    public BulkArticle(Article article, long numerator, long divisor) {
+    	super(article, new Fraction(numerator, divisor));
     }
 
-    public ImmutableBulkVolume(BulkResource resource, long buckets, long numerator, long divisor) {
-        this.resource = resource;
-        this.volume = new Fraction(buckets, numerator, divisor);
+    public BulkArticle(Article article, long buckets, long numerator, long divisor) {
+    	super(article, new Fraction(buckets, numerator, divisor));
     }
 
     @Override
@@ -81,12 +72,12 @@ public final class ImmutableBulkVolume extends BulkVolume {
     }
 
     @Override
-    public final ImmutableBulkVolume toImmutable() {
+    public final BulkArticle toImmutable() {
         return this;
     }
 
-    public static ImmutableBulkVolume of(BulkResource resource, FractionView volume) {
-        return new ImmutableBulkVolume(resource, volume);
+    public static BulkArticle of(Article resource, FractionView volume) {
+        return new BulkArticle(resource, volume);
     }
 
     @Override

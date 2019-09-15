@@ -29,21 +29,40 @@
  * limitations under the License.
  */
 
-package grondag.fluidity.api.item;
+package grondag.fluidity.api.discrete;
 
-import grondag.fluidity.api.storage.Storage;
-import grondag.fluidity.api.transact.Transactor;
+import grondag.fluidity.api.storage.Article;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.PacketByteBuf;
 
-public interface ItemStorage extends Storage<ItemPort, StoredItem>, Transactor {
-    long totalCapacity();
-
-    @Override
-    default ItemPort voidPort() {
-    	return ItemPort.VOID;
+public final class DiscreteArticle extends AbstractDiscreteArticle {
+    public DiscreteArticle(CompoundTag tag) {
+        super(tag);
     }
-    
+
+    public DiscreteArticle(PacketByteBuf buffer) {
+        super(buffer);
+    }
+
+    public DiscreteArticle(Article article, long count) {
+        super(article, count);
+    }
+
+    public DiscreteArticle(AbstractDiscreteArticle template) {
+        super(template);
+    }
+
     @Override
-    default StoredItem emptyResource() {
-    	return StoredItem.EMPTY;
+    public final DiscreteArticle toImmutable() {
+        return this;
+    }
+
+    public static DiscreteArticle of(Article article, long count) {
+        return new DiscreteArticle(article, count);
+    }
+
+    @Override
+    public long capacity() {
+        return count();
     }
 }

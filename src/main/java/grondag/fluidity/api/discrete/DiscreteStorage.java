@@ -29,38 +29,16 @@
  * limitations under the License.
  */
 
-package grondag.fluidity.api.item;
+package grondag.fluidity.api.discrete;
 
-import grondag.fluidity.api.storage.StoredResourceView;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.transact.Transactor;
 
-/**
- * For container views and queries. Volumes outside containers should use
- * concrete types.
- */
-public interface StoredItem extends StoredResourceView {
+public interface DiscreteStorage extends Storage<DiscretePort, DiscreteArticleView>, Transactor {
+    long totalCapacity();
 
-	StoredItem EMPTY = new StoredItem() {
-    };
-
-    //TODO: add tag and damage
-    default Item item() {
-        return Items.AIR;
-    }
-
-    default long count() {
-        return 0;
-    }
-
-    default long capacity() {
-        return count();
-    }
-
-    default ItemStack toStack() {
-    	final ItemStack result = new ItemStack(item());
-    	result.setCount((int) count());
-    	return result;
+    @Override
+    default DiscretePort voidPort() {
+    	return DiscretePort.VOID;
     }
 }

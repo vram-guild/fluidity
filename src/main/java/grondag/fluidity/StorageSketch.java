@@ -22,7 +22,7 @@ import org.apache.commons.lang3.ObjectUtils;
 
 import grondag.fluidity.api.bulk.BulkPort;
 import grondag.fluidity.api.bulk.BulkStorage;
-import grondag.fluidity.api.bulk.MutableBulkVolume;
+import grondag.fluidity.api.bulk.MutableBulkArticle;
 import grondag.fluidity.api.storage.PortFilter;
 import grondag.fluidity.api.transact.Transaction;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -88,7 +88,7 @@ public class StorageSketch {
         }
     }
 
-    static void storeAllOrNone(MutableBulkVolume fluid, BulkStorage... targets) {
+    static void storeAllOrNone(MutableBulkArticle fluid, BulkStorage... targets) {
         try (Transaction tx = Transaction.open()) {
             tx.enlist(fluid);
             for (BulkStorage target : targets) {

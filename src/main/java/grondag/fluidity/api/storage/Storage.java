@@ -36,17 +36,17 @@ import java.util.function.Predicate;
 
 import com.google.common.base.Predicates;
 
-import grondag.fluidity.api.bulk.BulkVolumeView;
+import grondag.fluidity.api.bulk.BulkArticleView;
 import grondag.fluidity.api.transact.Transactor;
 import net.minecraft.util.Identifier;
 
-public interface Storage<P extends Port, R extends StoredResourceView> extends Transactor {
+public interface Storage<P extends Port, V extends StoredArticle> extends Transactor {
     Identifier ANONYMOUS_ID = new Identifier("fluidity:anon");
     int NO_SLOT = -1;
     
     P voidPort();
 
-    R emptyResource();
+    V emptyView();
     
     boolean isEmpty();
 
@@ -94,9 +94,9 @@ public interface Storage<P extends Port, R extends StoredResourceView> extends T
      * @return integer identifier of first matching slot found or {@code NO_SLOT} if
      *         no match
      * @implNote Should be overridden if container has named slots
-     * @see BulkVolumeView#slot()
+     * @see BulkArticleView#slot()
      */
-    default int slotFromId(Identifier id) {
+    default int slotFromId(Identifier slotId) {
         return NO_SLOT;
     }
 
@@ -104,43 +104,47 @@ public interface Storage<P extends Port, R extends StoredResourceView> extends T
         return ANONYMOUS_ID;
     }
 
-    Iterable<R> contents(PortFilter portFilter, Predicate<R> resourceFilter);
+    boolean canStore(Article article);
+    
+    boolean contains(Article article);
+    
+    Iterable<V> articles(PortFilter portFilter, Predicate<Article> articleFilter);
 
-    default Iterable<R> contents(PortFilter portFilter) {
-        return contents(portFilter, Predicates.alwaysTrue());
+    default Iterable<V> articles(PortFilter portFilter) {
+        return articles(portFilter, Predicates.alwaysTrue());
     }
 
-    default Iterable<R> contents(Predicate<R> resourceFilter) {
-        return contents(PortFilter.ALL, resourceFilter);
+    default Iterable<V> articles(Predicate<Article> articleFilter) {
+        return articles(PortFilter.ALL, articleFilter);
     }
 
-    default Iterable<R> contents() {
-        return contents(PortFilter.ALL, Predicates.alwaysTrue());
+    default Iterable<V> articles() {
+        return articles(PortFilter.ALL, Predicates.alwaysTrue());
     }
     
-    R resourceForSlot(int slot);
+    V articleForSlot(int slot);
 
-    default R resourceForId(Identifier id) {
+    default V articleForId(Identifier id) {
         final int slot = slotFromId(id);
-        return slot >= 0 ? resourceForSlot(slot) : emptyResource();
+        return slot >= 0 ? articleForSlot(slot) : emptyView();
     }
     
-    default R firstResource(PortFilter portFilter, Predicate<R> resourceFilter) {
-        Iterator<R> it = contents(portFilter, resourceFilter).iterator();
+    default V firstArticle(PortFilter portFilter, Predicate<Article> articleFilter) {
+        Iterator<V> it = articles(portFilter, articleFilter).iterator();
         return it.hasNext() ? it.next() : null;
     }
 
-    default R firstResource(PortFilter portFilter) {
-        return firstResource(portFilter, Predicates.alwaysTrue());
+    default V firstArticle(PortFilter portFilter) {
+        return firstArticle(portFilter, Predicates.alwaysTrue());
     }
 
-    default R firstResouce(Predicate<R> resourceFilter) {
-        return firstResource(PortFilter.ALL, resourceFilter);
+    default V firstArticle(Predicate<Article> articleFilter) {
+        return firstArticle(PortFilter.ALL, articleFilter);
     }
 
-    default R firstResource() {
-        return firstResource(PortFilter.ALL, Predicates.alwaysTrue());
+    default V firstArticle() {
+        return firstArticle(PortFilter.ALL, Predicates.alwaysTrue());
     }
     
-    StopNotifier startListening(StorageListener<R> listener, PortFilter portFilter, Predicate<R> resourceFilter);
+    StopNotifier startListening(StorageListener<V> listener, PortFilter portFilter, Predicate<Article> articleFilter);
 }
