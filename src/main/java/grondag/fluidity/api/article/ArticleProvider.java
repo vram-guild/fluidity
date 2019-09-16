@@ -10,13 +10,17 @@ public interface ArticleProvider<T> {
 	SimpleRegistry<ArticleProvider<?>> REGISTRY = Registry.REGISTRIES.add(new Identifier("fluidity:article_provider"), 
             new SimpleRegistry<ArticleProvider<?>>());
 	
-	void writeBuffer(T data, PacketByteBuf buf);
+	void toBuffer(T data, PacketByteBuf buf);
 
-	void writeTag(T data, CompoundTag tag);
+	void toTag(T data, CompoundTag tag);
 
 	T fromTag(CompoundTag tag);
 
 	T fromBuffer(PacketByteBuf buf);
+	
+	boolean areEqual(T article1, T article2);
+	
+	int hashCode(T article);
 
 	static <V> ArticleProvider<V> forArticle(V article) {
 		return null;

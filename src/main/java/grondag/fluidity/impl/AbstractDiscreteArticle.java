@@ -22,10 +22,10 @@ import grondag.fluidity.api.discrete.MutableDiscreteArticle;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.PacketByteBuf;
 
-public abstract class AbstractDiscreteArticle<V> extends AbstractStoredArticle<V> implements DiscreteArticleView<V> {
+public abstract class AbstractDiscreteArticle<T, V extends DiscreteArticleView<T, V>> extends AbstractStoredArticle<T> implements DiscreteArticleView<T, V> {
 	protected long count;
 	
-    protected AbstractDiscreteArticle(V article, long count) {
+    protected AbstractDiscreteArticle(T article, long count) {
     	super(article);
     	this.count = count;
     }
@@ -40,7 +40,7 @@ public abstract class AbstractDiscreteArticle<V> extends AbstractStoredArticle<V
 		this.count = tag.getLong("count");
 	}
 
-    protected AbstractDiscreteArticle(DiscreteArticleView<V> template) {
+    protected AbstractDiscreteArticle(DiscreteArticleView<T, V> template) {
         super(template.article());
         this.count = template.count();
     }
@@ -67,14 +67,14 @@ public abstract class AbstractDiscreteArticle<V> extends AbstractStoredArticle<V
      *         copy.
      */
     @Override
-    public abstract DiscreteArticle<V> toImmutable();
+    public abstract DiscreteArticle<T, V> toImmutable();
 
     /**
      * @return New mutable instance that is an exact and complete copy of the
      *         current instance.
      */
     @Override
-    public final MutableDiscreteArticle<V> mutableCopy() {
-        return new MutableDiscreteArticle<V>(this);
+    public final MutableDiscreteArticle<T, V> mutableCopy() {
+        return new MutableDiscreteArticle<T, V>(this);
     }
 }

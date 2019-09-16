@@ -8,4 +8,12 @@ public interface StoredArticle<T> {
 	T article();
 	
 	ArticleProvider<T> provider();
+	
+	default boolean isArticleEqual(StoredArticle<T> other) {
+		return provider().areEqual(this.article(), other.article());
+	}
+	
+	default int articleHashCode() {
+		return provider().hashCode(this.article());
+	}
 }

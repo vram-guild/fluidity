@@ -19,11 +19,17 @@ package grondag.fluidity.api.discrete;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.transact.Transactor;
 
-public interface DiscreteStorage<V> extends Storage<DiscretePort, DiscreteArticleView<V>, V>, Transactor {
-    long totalCapacity();
+public interface DiscreteStorage<P extends DiscretePort<T,V>, T, V extends DiscreteArticleView<T,V>> extends Storage<P, V, T>, Transactor {
+    long capacity();
 
-    @Override
-    default DiscretePort voidPort() {
-    	return DiscretePort.VOID;
+    long capacityAvailable();
+
+    default long capacityUsed() {
+    	return capacity() - capacityAvailable();
     }
+
+	@Override
+	default boolean isEmpty() {
+		return capacityAvailable() == 0;
+	}
 }

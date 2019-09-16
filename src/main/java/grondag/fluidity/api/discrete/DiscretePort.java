@@ -21,10 +21,10 @@ import grondag.fluidity.api.storage.Port;
 /**
  * The thing that will be used to take fluid in or out of another thing.
  */
-public interface DiscretePort extends Port {
-	<T> long accept(T article, long count, int flags);
+public interface DiscretePort<T, V extends DiscreteArticleView<T,V>> extends Port {
+	long accept(T article, long count, int flags);
 
-    default <T> boolean acceptFrom(T article, long count, int flags, MutableDiscreteArticle<T> supply) {
+    default boolean acceptFrom(T article, long count, int flags, MutableDiscreteArticle<T, V> supply) {
         if (supply.article().equals(article) || supply.count() == 0) {
             final long result = accept(article, count, flags);
             if (result == 0) {
@@ -39,7 +39,7 @@ public interface DiscretePort extends Port {
         }
     }
 
-    default <T> boolean acceptFrom(MutableDiscreteArticle<T> target, int flags) {
+    default boolean acceptFrom(MutableDiscreteArticle<T, V> target, int flags) {
         if (target.count() == 0) {
             return false;
         } else {
@@ -54,10 +54,10 @@ public interface DiscretePort extends Port {
         }
     }
 
-    <T> long supply(T article, long count, int flags);
+    long supply(T article, long count, int flags);
 
 
-    default <T> boolean supplyTo(T article, long count, int flags, MutableDiscreteArticle<T> target) {
+    default boolean supplyTo(T article, long count, int flags, MutableDiscreteArticle<T, V> target) {
         if (target.article().equals(article) || target.count() == 0) {
             final long result = supply(article, count, flags);
             if (result == 0) {
@@ -72,16 +72,4 @@ public interface DiscretePort extends Port {
             return false;
         }
     }
-
-    static DiscretePort VOID = new DiscretePort() {
-        @Override
-        public <T> long accept(T article, long count, int flags) {
-            return 0;
-        }
-
-        @Override
-        public <T> long supply(T article, long count, int flags) {
-            return 0;
-        }
-    };
 }

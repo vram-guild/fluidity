@@ -35,12 +35,12 @@ public abstract class AbstractStoredArticle<T> implements StoredArticle<T> {
 
 	public void writeBuffer(PacketByteBuf buf) {
 		buf.writeVarInt(ArticleProvider.REGISTRY.getRawId(provider));
-		provider.writeBuffer(article, buf);
+		provider.toBuffer(article, buf);
 	}
 
 	public void writeTag(CompoundTag tag) {
 		tag.putString("provider", ArticleProvider.REGISTRY.getId(provider).toString());
-		provider.writeTag(article, tag);
+		provider.toTag(article, tag);
 	}
 
 	@SuppressWarnings("unchecked")

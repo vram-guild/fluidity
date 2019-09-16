@@ -39,7 +39,7 @@ import grondag.fluidity.impl.AbstractDiscreteArticle;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.PacketByteBuf;
 
-public final class MutableDiscreteArticle<V> extends AbstractDiscreteArticle<V> implements Transactor {
+public final class MutableDiscreteArticle<T, V extends DiscreteArticleView<T,V>> extends AbstractDiscreteArticle<T, V> implements Transactor {
     public MutableDiscreteArticle(CompoundTag tag) {
         super(tag);
     }
@@ -48,16 +48,16 @@ public final class MutableDiscreteArticle<V> extends AbstractDiscreteArticle<V> 
         super(buffer);
     }
 
-    public MutableDiscreteArticle(V article, long count) {
+    public MutableDiscreteArticle(T article, long count) {
         super(article, count);
     }
 
-    public MutableDiscreteArticle(DiscreteArticleView<V> template) {
+    public MutableDiscreteArticle(DiscreteArticleView<T, V> template) {
         super(template);
     }
 
     @Override
-	public final void setArticle(V article) {
+	public final void setArticle(T article) {
         super.setArticle(article);
     }
     
@@ -76,18 +76,18 @@ public final class MutableDiscreteArticle<V> extends AbstractDiscreteArticle<V> 
     	this.count -= count;
     }
     
-    public final void set(DiscreteArticleView<V> template) {
+    public final void set(DiscreteArticleView<T, V> template) {
         setArticle(template.article());
         count = template.count();
     }
 
     @Override
-    public final DiscreteArticle<V> toImmutable() {
-        return new DiscreteArticle<V>(this);
+    public final DiscreteArticle<T, V> toImmutable() {
+        return new DiscreteArticle<T, V>(this);
     }
 
-    public static <T> MutableDiscreteArticle<T> of(T article, long count) {
-        return new MutableDiscreteArticle<T>(article, count);
+    public static <T, V extends DiscreteArticleView<T, V>> MutableDiscreteArticle<T, V> of(T article, long count) {
+        return new MutableDiscreteArticle<T, V>(article, count);
     }
 
     @Override
