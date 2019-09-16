@@ -33,13 +33,12 @@ package grondag.fluidity.api.discrete;
 
 import java.util.function.Consumer;
 
-import grondag.fluidity.api.storage.Article;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.Transactor;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.PacketByteBuf;
 
-public final class MutableDiscreteArticle extends AbstractDiscreteArticle implements Transactor {
+public final class MutableDiscreteArticle<V> extends AbstractDiscreteArticle<V> implements Transactor {
     public MutableDiscreteArticle(CompoundTag tag) {
         super(tag);
     }
@@ -48,17 +47,17 @@ public final class MutableDiscreteArticle extends AbstractDiscreteArticle implem
         super(buffer);
     }
 
-    public MutableDiscreteArticle(Article article, long count) {
+    public MutableDiscreteArticle(V article, long count) {
         super(article, count);
     }
 
-    public MutableDiscreteArticle(AbstractDiscreteArticle template) {
+    public MutableDiscreteArticle(AbstractDiscreteArticle<V> template) {
         super(template);
     }
 
-
-    public final void setArticle(Article article) {
-        this.article = article;
+    @Override
+	public final void setArticle(V article) {
+        super.setArticle(article);
     }
     
     public final void setCount(long count) {
@@ -76,18 +75,18 @@ public final class MutableDiscreteArticle extends AbstractDiscreteArticle implem
     	this.count -= count;
     }
     
-    public final void set(AbstractDiscreteArticle template) {
+    public final void set(AbstractDiscreteArticle<V> template) {
         setArticle(template.article());
         count = template.count();
     }
 
     @Override
-    public final DiscreteArticle toImmutable() {
-        return new DiscreteArticle(this);
+    public final DiscreteArticle<V> toImmutable() {
+        return new DiscreteArticle<V>(this);
     }
 
-    public static MutableDiscreteArticle of(Article resource, long count) {
-        return new MutableDiscreteArticle(resource, count);
+    public static <T> MutableDiscreteArticle<T> of(T article, long count) {
+        return new MutableDiscreteArticle<T>(article, count);
     }
 
     @Override

@@ -17,23 +17,13 @@ package grondag.fluidity.api.bulk;
 
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.storage.Article;
 import grondag.fluidity.api.storage.StoredArticle;
-import grondag.fluidity.impl.ArticleImpl;
 
 /**
  * For container views and queries. Volumes outside containers should use
  * concrete types.
  */
-public interface BulkArticleView extends StoredArticle {
-
-    BulkArticleView EMPTY = new BulkArticleView() {
-		@Override
-		public Article article() {
-			return ArticleImpl.EMPTY;
-		}
-    };
-
+public interface BulkArticleView<V> extends StoredArticle<V> {
     default FractionView volume() {
         return Fraction.ZERO;
     }
@@ -42,11 +32,11 @@ public interface BulkArticleView extends StoredArticle {
         return volume();
     }
 
-    default BulkArticle toImmutable() {
+    default BulkArticle<V> toImmutable() {
         return BulkArticle.of(article(), volume());
     }
 
-    default MutableBulkArticle mutableCopy() {
+    default MutableBulkArticle<V> mutableCopy() {
         return MutableBulkArticle.of(article(), volume());
     }
 }

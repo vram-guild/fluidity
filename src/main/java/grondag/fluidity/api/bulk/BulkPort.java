@@ -18,24 +18,23 @@ package grondag.fluidity.api.bulk;
 
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.storage.Article;
 import grondag.fluidity.api.storage.Port;
 
 /**
  * The thing that will be used to take fluid in or out of another thing.
  */
 public interface BulkPort extends Port {
-    FractionView accept(Article article, FractionView volume, int flags);
+    <T> FractionView accept(T article, FractionView volume, int flags);
 
-    default long accept(Article article, long volume, long units, int flags) {
+    default <T> long accept(T article, long volume, long units, int flags) {
         return accept(article, Fraction.of(volume, units), flags).toLong(units);
     }
 
-    default BulkArticle accept(AbstractBulkArticle<?> volume, int flags) {
+    default <T> BulkArticle<T> accept(AbstractBulkArticle<?, T> volume, int flags) {
         return BulkArticle.of(volume.article(), accept(volume.article(), volume.volume(), flags));
     }
 
-    default boolean acceptFrom(Article article, FractionView volume, int flags, MutableBulkArticle target) {
+    default <T> boolean acceptFrom(T article, FractionView volume, int flags, MutableBulkArticle<T> target) {
         if (target.article().equals(article) || target.volume().isZero()) {
             final FractionView result = accept(article, volume, flags);
             if (result.isZero()) {
@@ -50,7 +49,7 @@ public interface BulkPort extends Port {
         }
     }
 
-    default boolean acceptFrom(MutableBulkArticle target, int flags) {
+    default <T> boolean acceptFrom(MutableBulkArticle<T> target, int flags) {
         if (target.volume().isZero()) {
             return false;
         } else {
@@ -64,17 +63,17 @@ public interface BulkPort extends Port {
         }
     }
 
-    FractionView supply(Article article, FractionView volume, int flags);
+    <T> FractionView supply(T article, FractionView volume, int flags);
 
-    default long supply(Article article, long volume, long units, int flags) {
+    default <T> long supply(T article, long volume, long units, int flags) {
         return supply(article, Fraction.of(volume, units), flags).toLong(units);
     }
 
-    default BulkArticle supply(AbstractBulkArticle<?> volume, int flags) {
+    default <T> BulkArticle<T> supply(AbstractBulkArticle<?, T> volume, int flags) {
         return BulkArticle.of(volume.article(), supply(volume.article(), volume.volume(), flags));
     }
 
-    default boolean supplyTo(Article article, FractionView volume, int flags, MutableBulkArticle target) {
+    default <T> boolean supplyTo(T article, FractionView volume, int flags, MutableBulkArticle<T> target) {
         if (target.article().equals(article) || target.volume().isZero()) {
             final FractionView result = supply(article, volume, flags);
             if (result.isZero()) {
@@ -91,12 +90,12 @@ public interface BulkPort extends Port {
 
     static BulkPort VOID = new BulkPort() {
         @Override
-        public FractionView accept(Article resource, FractionView volume, int flags) {
+        public <T> FractionView accept(T resource, FractionView volume, int flags) {
             return Fraction.ZERO;
         }
 
         @Override
-        public FractionView supply(Article resource, FractionView volume, int flags) {
+        public <T> FractionView supply(T resource, FractionView volume, int flags) {
             return Fraction.ZERO;
         }
     };

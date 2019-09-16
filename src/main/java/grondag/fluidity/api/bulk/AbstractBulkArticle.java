@@ -18,11 +18,10 @@ package grondag.fluidity.api.bulk;
 
 import grondag.fluidity.api.fraction.AbstractFraction;
 import grondag.fluidity.api.storage.AbstractStoredArticle;
-import grondag.fluidity.api.storage.Article;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.PacketByteBuf;
 
-public abstract class AbstractBulkArticle<T extends AbstractFraction> extends AbstractStoredArticle implements BulkArticleView {
+public abstract class AbstractBulkArticle<T extends AbstractFraction, V> extends AbstractStoredArticle<V> implements BulkArticleView<V> {
     // Common units
     public static final int BUCKET = 1;
     public static final int KILOLITER = 1;
@@ -36,11 +35,21 @@ public abstract class AbstractBulkArticle<T extends AbstractFraction> extends Ab
 
     protected final T volume;
     
-    protected AbstractBulkArticle(Article article, T volume) {
-    	this.article = article;
+    protected AbstractBulkArticle(V article, T volume) {
+    	super(article);
     	this.volume = volume;
     }
 
+	protected AbstractBulkArticle(PacketByteBuf buf, T volume) {
+		super(buf);
+		this.volume = volume;
+	}
+	
+	protected AbstractBulkArticle(CompoundTag tag, T volume) {
+		super(tag);
+		this.volume = volume;
+	}
+	
     @Override
 	public final void writeBuffer(PacketByteBuf buf) {
         super.writeBuffer(buf);
@@ -61,14 +70,14 @@ public abstract class AbstractBulkArticle<T extends AbstractFraction> extends Ab
      *         copy.
      */
     @Override
-    public abstract BulkArticle toImmutable();
+    public abstract BulkArticle<V> toImmutable();
 
     /**
      * @return New mutable instance that is an exact and complete copy of the
      *         current instance.
      */
     @Override
-    public final MutableBulkArticle mutableCopy() {
-        return new MutableBulkArticle(this);
+    public final MutableBulkArticle<V> mutableCopy() {
+        return new MutableBulkArticle<V>(this);
     }
 }

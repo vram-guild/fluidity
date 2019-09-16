@@ -42,4 +42,8 @@ public interface ArticleProvider<T> {
 	T fromTag(CompoundTag tag);
 
 	T fromBuffer(PacketByteBuf buf);
+
+	static <V> ArticleProvider<V> forArticle(V article) {
+		return null;
+	}
 }

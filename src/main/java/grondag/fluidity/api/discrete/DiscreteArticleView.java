@@ -1,17 +1,8 @@
 package grondag.fluidity.api.discrete;
 
-import grondag.fluidity.api.storage.Article;
 import grondag.fluidity.api.storage.StoredArticle;
-import grondag.fluidity.impl.ArticleImpl;
 
-public interface DiscreteArticleView extends StoredArticle {
-	DiscreteArticleView EMPTY = new DiscreteArticleView() {
-		@Override
-		public Article article() {
-			return ArticleImpl.EMPTY;
-		}
-    };
-
+public interface DiscreteArticleView<V> extends StoredArticle<V> {
     default long count() {
         return 0;
     }
@@ -20,11 +11,11 @@ public interface DiscreteArticleView extends StoredArticle {
         return count();
     }
     
-    default DiscreteArticle toImmutable() {
+    default DiscreteArticle<V> toImmutable() {
         return DiscreteArticle.of(article(), count());
     }
 
-    default MutableDiscreteArticle mutableCopy() {
+    default MutableDiscreteArticle<V> mutableCopy() {
         return MutableDiscreteArticle.of(article(), count());
     }
 }

@@ -28,6 +28,7 @@ import grondag.fluidity.api.transact.Transaction;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.InventoryListener;
 import net.minecraft.item.ItemStack;
@@ -88,10 +89,11 @@ public class StorageSketch {
         }
     }
 
-    static void storeAllOrNone(MutableBulkArticle fluid, BulkStorage... targets) {
+    @SuppressWarnings("unchecked")
+	static void storeAllOrNone(MutableBulkArticle<Fluid> fluid, BulkStorage<Fluid>... targets) {
         try (Transaction tx = Transaction.open()) {
             tx.enlist(fluid);
-            for (BulkStorage target : targets) {
+            for (BulkStorage<Fluid> target : targets) {
                 tx.enlist(target).firstPort(PortFilter.ALL_SUPPLY).accept(fluid, BulkPort.NORMAL);
                 if (fluid.volume().isZero()) {
                     tx.commit();

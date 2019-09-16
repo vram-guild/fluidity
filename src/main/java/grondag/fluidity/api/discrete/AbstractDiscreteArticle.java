@@ -17,28 +17,29 @@
 package grondag.fluidity.api.discrete;
 
 import grondag.fluidity.api.storage.AbstractStoredArticle;
-import grondag.fluidity.api.storage.Article;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.PacketByteBuf;
 
-public abstract class AbstractDiscreteArticle extends AbstractStoredArticle implements DiscreteArticleView {
+public abstract class AbstractDiscreteArticle<V> extends AbstractStoredArticle<V> implements DiscreteArticleView<V> {
 	protected long count;
 	
-	protected AbstractDiscreteArticle(Article resource, long count) {
-		this.article = resource;
-		this.count = count;
+    protected AbstractDiscreteArticle(V article, long count) {
+    	super(article);
+    	this.count = count;
+    }
+
+	protected AbstractDiscreteArticle(PacketByteBuf buf) {
+		super(buf);
+		this.count = buf.readVarLong();
+	}
+	
+	protected AbstractDiscreteArticle(CompoundTag tag) {
+		super(tag);
+		this.count = tag.getLong("count");
 	}
 
-	protected AbstractDiscreteArticle(CompoundTag tag) {
-		this(Article.fromTag(tag),  tag.getLong("count"));
-    }
-
-    protected AbstractDiscreteArticle(PacketByteBuf buffer) {
-    	this(Article.fromBuffer(buffer),  buffer.readVarLong());
-    }
-
-    protected AbstractDiscreteArticle(AbstractDiscreteArticle template) {
-        this.article = template.article();
+    protected AbstractDiscreteArticle(AbstractDiscreteArticle<V> template) {
+        super(template.article());
         this.count = template.count();
     }
     
@@ -64,14 +65,14 @@ public abstract class AbstractDiscreteArticle extends AbstractStoredArticle impl
      *         copy.
      */
     @Override
-    public abstract DiscreteArticle toImmutable();
+    public abstract DiscreteArticle<V> toImmutable();
 
     /**
      * @return New mutable instance that is an exact and complete copy of the
      *         current instance.
      */
     @Override
-    public final MutableDiscreteArticle mutableCopy() {
-        return new MutableDiscreteArticle(this);
+    public final MutableDiscreteArticle<V> mutableCopy() {
+        return new MutableDiscreteArticle<V>(this);
     }
 }

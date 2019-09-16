@@ -18,6 +18,6 @@ package grondag.fluidity.api.storage;
 import grondag.fluidity.api.storage.StorageOperation;
 
 @FunctionalInterface
-public interface StorageListener<R extends StoredArticle> {
+public interface StorageListener<R extends StoredArticle<T>, T> {
     void accept(R resource, StorageOperation op);
 }

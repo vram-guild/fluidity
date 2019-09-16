@@ -31,11 +31,10 @@
 
 package grondag.fluidity.api.discrete;
 
-import grondag.fluidity.api.storage.Article;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.PacketByteBuf;
 
-public final class DiscreteArticle extends AbstractDiscreteArticle {
+public final class DiscreteArticle<V> extends AbstractDiscreteArticle<V> {
     public DiscreteArticle(CompoundTag tag) {
         super(tag);
     }
@@ -44,21 +43,21 @@ public final class DiscreteArticle extends AbstractDiscreteArticle {
         super(buffer);
     }
 
-    public DiscreteArticle(Article article, long count) {
+    public DiscreteArticle(V article, long count) {
         super(article, count);
     }
 
-    public DiscreteArticle(AbstractDiscreteArticle template) {
+    public DiscreteArticle(AbstractDiscreteArticle<V> template) {
         super(template);
     }
 
     @Override
-    public final DiscreteArticle toImmutable() {
+    public final DiscreteArticle<V> toImmutable() {
         return this;
     }
 
-    public static DiscreteArticle of(Article article, long count) {
-        return new DiscreteArticle(article, count);
+    public static <T> DiscreteArticle<T> of(T article, long count) {
+        return new DiscreteArticle<T>(article, count);
     }
 
     @Override

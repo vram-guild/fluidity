@@ -40,7 +40,7 @@ import grondag.fluidity.api.bulk.BulkArticleView;
 import grondag.fluidity.api.transact.Transactor;
 import net.minecraft.util.Identifier;
 
-public interface Storage<P extends Port, V extends StoredArticle> extends Transactor {
+public interface Storage<P extends Port, V extends StoredArticle<T>, T> extends Transactor {
     Identifier ANONYMOUS_ID = new Identifier("fluidity:anon");
     int NO_SLOT = -1;
     
@@ -104,17 +104,17 @@ public interface Storage<P extends Port, V extends StoredArticle> extends Transa
         return ANONYMOUS_ID;
     }
 
-    boolean canStore(Article article);
+    boolean canStore(T article);
     
-    boolean contains(Article article);
+    boolean contains(T article);
     
-    Iterable<V> articles(PortFilter portFilter, Predicate<Article> articleFilter);
+    Iterable<V> articles(PortFilter portFilter, Predicate<T> articleFilter);
 
     default Iterable<V> articles(PortFilter portFilter) {
         return articles(portFilter, Predicates.alwaysTrue());
     }
 
-    default Iterable<V> articles(Predicate<Article> articleFilter) {
+    default Iterable<V> articles(Predicate<T> articleFilter) {
         return articles(PortFilter.ALL, articleFilter);
     }
 
@@ -129,7 +129,7 @@ public interface Storage<P extends Port, V extends StoredArticle> extends Transa
         return slot >= 0 ? articleForSlot(slot) : emptyView();
     }
     
-    default V firstArticle(PortFilter portFilter, Predicate<Article> articleFilter) {
+    default V firstArticle(PortFilter portFilter, Predicate<T> articleFilter) {
         Iterator<V> it = articles(portFilter, articleFilter).iterator();
         return it.hasNext() ? it.next() : null;
     }
@@ -138,7 +138,7 @@ public interface Storage<P extends Port, V extends StoredArticle> extends Transa
         return firstArticle(portFilter, Predicates.alwaysTrue());
     }
 
-    default V firstArticle(Predicate<Article> articleFilter) {
+    default V firstArticle(Predicate<T> articleFilter) {
         return firstArticle(PortFilter.ALL, articleFilter);
     }
 
@@ -146,5 +146,5 @@ public interface Storage<P extends Port, V extends StoredArticle> extends Transa
         return firstArticle(PortFilter.ALL, Predicates.alwaysTrue());
     }
     
-    StopNotifier startListening(StorageListener<V> listener, PortFilter portFilter, Predicate<Article> articleFilter);
+    StopNotifier startListening(StorageListener<V, T> listener, PortFilter portFilter, Predicate<T> articleFilter);
 }

@@ -16,16 +16,15 @@
 
 package grondag.fluidity.api.discrete;
 
-import grondag.fluidity.api.storage.Article;
 import grondag.fluidity.api.storage.Port;
 
 /**
  * The thing that will be used to take fluid in or out of another thing.
  */
 public interface DiscretePort extends Port {
-    long accept(Article article, long count, int flags);
+	<T> long accept(T article, long count, int flags);
 
-    default boolean acceptFrom(Article article, long count, int flags, MutableDiscreteArticle supply) {
+    default <T> boolean acceptFrom(T article, long count, int flags, MutableDiscreteArticle<T> supply) {
         if (supply.article().equals(article) || supply.count() == 0) {
             final long result = accept(article, count, flags);
             if (result == 0) {
@@ -40,7 +39,7 @@ public interface DiscretePort extends Port {
         }
     }
 
-    default boolean acceptFrom(MutableDiscreteArticle target, int flags) {
+    default <T> boolean acceptFrom(MutableDiscreteArticle<T> target, int flags) {
         if (target.count() == 0) {
             return false;
         } else {
@@ -55,10 +54,10 @@ public interface DiscretePort extends Port {
         }
     }
 
-    long supply(Article article, long count, int flags);
+    <T> long supply(T article, long count, int flags);
 
 
-    default boolean supplyTo(Article article, long count, int flags, MutableDiscreteArticle target) {
+    default <T> boolean supplyTo(T article, long count, int flags, MutableDiscreteArticle<T> target) {
         if (target.article().equals(article) || target.count() == 0) {
             final long result = supply(article, count, flags);
             if (result == 0) {
@@ -76,12 +75,12 @@ public interface DiscretePort extends Port {
 
     static DiscretePort VOID = new DiscretePort() {
         @Override
-        public long accept(Article article, long count, int flags) {
+        public <T> long accept(T article, long count, int flags) {
             return 0;
         }
 
         @Override
-        public long supply(Article article, long count, int flags) {
+        public <T> long supply(T article, long count, int flags) {
             return 0;
         }
     };
