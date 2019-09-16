@@ -15,6 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.api.storage;
 
+import grondag.fluidity.api.article.StoredArticle;
 import grondag.fluidity.api.storage.StorageOperation;
 
 @FunctionalInterface

@@ -16,7 +16,7 @@
 
 package grondag.fluidity.api.discrete;
 
-import grondag.fluidity.api.storage.AbstractStoredArticle;
+import grondag.fluidity.api.article.AbstractStoredArticle;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.PacketByteBuf;
 

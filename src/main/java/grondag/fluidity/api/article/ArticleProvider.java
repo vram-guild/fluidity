@@ -1,4 +1,4 @@
-package grondag.fluidity.api.storage;
+package grondag.fluidity.api.article;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;

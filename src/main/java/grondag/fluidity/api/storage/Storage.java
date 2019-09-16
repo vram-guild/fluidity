@@ -36,6 +36,7 @@ import java.util.function.Predicate;
 
 import com.google.common.base.Predicates;
 
+import grondag.fluidity.api.article.StoredArticle;
 import grondag.fluidity.api.bulk.BulkArticleView;
 import grondag.fluidity.api.transact.Transactor;
 import net.minecraft.util.Identifier;
@@ -124,7 +125,7 @@ public interface Storage<P extends Port, V extends StoredArticle<T>, T> extends 
     
     V articleForSlot(int slot);
 
-    default V articleForId(Identifier id) {
+    default V articleForSlotId(Identifier id) {
         final int slot = slotFromId(id);
         return slot >= 0 ? articleForSlot(slot) : emptyView();
     }

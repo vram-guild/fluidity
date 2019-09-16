@@ -1,6 +1,6 @@
 package grondag.fluidity.api.discrete;
 
-import grondag.fluidity.api.storage.StoredArticle;
+import grondag.fluidity.api.article.StoredArticle;
 
 public interface DiscreteArticleView<V> extends StoredArticle<V> {
     default long count() {

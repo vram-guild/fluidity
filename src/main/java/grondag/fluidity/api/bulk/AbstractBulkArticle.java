@@ -16,8 +16,8 @@
 
 package grondag.fluidity.api.bulk;
 
+import grondag.fluidity.api.article.AbstractStoredArticle;
 import grondag.fluidity.api.fraction.AbstractFraction;
-import grondag.fluidity.api.storage.AbstractStoredArticle;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.PacketByteBuf;
 

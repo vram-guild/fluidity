@@ -15,9 +15,9 @@
  ******************************************************************************/
 package grondag.fluidity.api.bulk;
 
+import grondag.fluidity.api.article.StoredArticle;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.storage.StoredArticle;
 
 /**
  * For container views and queries. Volumes outside containers should use

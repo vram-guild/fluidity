@@ -1,4 +1,4 @@
-package grondag.fluidity.api.storage;
+package grondag.fluidity.api.article;
 
 public interface StoredArticle<T> {
     default int slot() {
