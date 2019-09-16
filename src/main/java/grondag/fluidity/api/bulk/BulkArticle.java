@@ -33,6 +33,7 @@ package grondag.fluidity.api.bulk;
 
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.impl.AbstractBulkArticle;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.PacketByteBuf;
 
@@ -49,7 +50,7 @@ public final class BulkArticle<V> extends AbstractBulkArticle<Fraction, V> {
     	super(article, new Fraction(volume));
     }
 
-    public BulkArticle(AbstractBulkArticle<?, V> template) {
+    public BulkArticle(BulkArticleView<V> template) {
     	super(template.article(), new Fraction(template.volume()));
     }
 

@@ -31,6 +31,7 @@
 
 package grondag.fluidity.api.discrete;
 
+import grondag.fluidity.impl.AbstractDiscreteArticle;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.PacketByteBuf;
 
@@ -47,7 +48,7 @@ public final class DiscreteArticle<V> extends AbstractDiscreteArticle<V> {
         super(article, count);
     }
 
-    public DiscreteArticle(AbstractDiscreteArticle<V> template) {
+    public DiscreteArticle(DiscreteArticleView<V> template) {
         super(template);
     }
 

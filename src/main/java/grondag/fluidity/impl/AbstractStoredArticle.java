@@ -1,5 +1,7 @@
-package grondag.fluidity.api.article;
+package grondag.fluidity.impl;
 
+import grondag.fluidity.api.article.ArticleProvider;
+import grondag.fluidity.api.article.StoredArticle;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;

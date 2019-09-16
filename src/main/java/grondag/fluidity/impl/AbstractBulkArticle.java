@@ -14,65 +14,72 @@
  * the License.
  ******************************************************************************/
 
-package grondag.fluidity.api.discrete;
+package grondag.fluidity.impl;
 
-import grondag.fluidity.api.article.AbstractStoredArticle;
+import grondag.fluidity.api.bulk.BulkArticle;
+import grondag.fluidity.api.bulk.BulkArticleView;
+import grondag.fluidity.api.bulk.MutableBulkArticle;
+import grondag.fluidity.api.fraction.AbstractFraction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.PacketByteBuf;
 
-public abstract class AbstractDiscreteArticle<V> extends AbstractStoredArticle<V> implements DiscreteArticleView<V> {
-	protected long count;
-	
-    protected AbstractDiscreteArticle(V article, long count) {
-    	super(article);
-    	this.count = count;
-    }
+public abstract class AbstractBulkArticle<T extends AbstractFraction, V> extends AbstractStoredArticle<V> implements BulkArticleView<V> {
+    // Common units
+    public static final int BUCKET = 1;
+    public static final int KILOLITER = 1;
+    public static final int LITER = 1000;
+    public static final int BLOCK = 1;
+    public static final int SLAB = 2;
+    public static final int BOTTLE = 3;
+    public static final int QUARTER = 4;
+    public static final int INGOT = 9;
+    public static final int NUGGET = 81;
 
-	protected AbstractDiscreteArticle(PacketByteBuf buf) {
-		super(buf);
-		this.count = buf.readVarLong();
-	}
-	
-	protected AbstractDiscreteArticle(CompoundTag tag) {
-		super(tag);
-		this.count = tag.getLong("count");
-	}
-
-    protected AbstractDiscreteArticle(AbstractDiscreteArticle<V> template) {
-        super(template.article());
-        this.count = template.count();
-    }
+    protected final T volume;
     
-    @Override
-    public long count() {
-    	return count;
+    protected AbstractBulkArticle(V article, T volume) {
+    	super(article);
+    	this.volume = volume;
     }
 
+	protected AbstractBulkArticle(PacketByteBuf buf, T volume) {
+		super(buf);
+		this.volume = volume;
+	}
+	
+	protected AbstractBulkArticle(CompoundTag tag, T volume) {
+		super(tag);
+		this.volume = volume;
+	}
+	
     @Override
 	public final void writeBuffer(PacketByteBuf buf) {
         super.writeBuffer(buf);
-        buf.writeVarLong(count());
+        volume().writeBuffer(buf);
     }
 
     @Override
 	public final void writeTag(CompoundTag tag) {
         super.writeTag(tag);
-        tag.putLong("count", count());
+        volume().writeTag(tag);
     }
 
+    @Override
+    public abstract T volume();
+    
     /**
      * @return Self if already immutable, otherwise an immutable, exact and complete
      *         copy.
      */
     @Override
-    public abstract DiscreteArticle<V> toImmutable();
+    public abstract BulkArticle<V> toImmutable();
 
     /**
      * @return New mutable instance that is an exact and complete copy of the
      *         current instance.
      */
     @Override
-    public final MutableDiscreteArticle<V> mutableCopy() {
-        return new MutableDiscreteArticle<V>(this);
+    public final MutableBulkArticle<V> mutableCopy() {
+        return new MutableBulkArticle<V>(this);
     }
 }

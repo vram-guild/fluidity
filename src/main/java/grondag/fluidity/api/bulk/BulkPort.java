@@ -30,7 +30,7 @@ public interface BulkPort extends Port {
         return accept(article, Fraction.of(volume, units), flags).toLong(units);
     }
 
-    default <T> BulkArticle<T> accept(AbstractBulkArticle<?, T> volume, int flags) {
+    default <T> BulkArticle<T> accept(BulkArticleView<T> volume, int flags) {
         return BulkArticle.of(volume.article(), accept(volume.article(), volume.volume(), flags));
     }
 
@@ -69,7 +69,7 @@ public interface BulkPort extends Port {
         return supply(article, Fraction.of(volume, units), flags).toLong(units);
     }
 
-    default <T> BulkArticle<T> supply(AbstractBulkArticle<?, T> volume, int flags) {
+    default <T> BulkArticle<T> supply(BulkArticleView<T> volume, int flags) {
         return BulkArticle.of(volume.article(), supply(volume.article(), volume.volume(), flags));
     }
 

@@ -35,6 +35,7 @@ import java.util.function.Consumer;
 
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.Transactor;
+import grondag.fluidity.impl.AbstractDiscreteArticle;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.PacketByteBuf;
 
@@ -51,7 +52,7 @@ public final class MutableDiscreteArticle<V> extends AbstractDiscreteArticle<V> 
         super(article, count);
     }
 
-    public MutableDiscreteArticle(AbstractDiscreteArticle<V> template) {
+    public MutableDiscreteArticle(DiscreteArticleView<V> template) {
         super(template);
     }
 
@@ -75,7 +76,7 @@ public final class MutableDiscreteArticle<V> extends AbstractDiscreteArticle<V> 
     	this.count -= count;
     }
     
-    public final void set(AbstractDiscreteArticle<V> template) {
+    public final void set(DiscreteArticleView<V> template) {
         setArticle(template.article());
         count = template.count();
     }

@@ -38,6 +38,7 @@ import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.Transactor;
+import grondag.fluidity.impl.AbstractBulkArticle;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.PacketByteBuf;
 
@@ -54,7 +55,7 @@ public final class MutableBulkArticle<V> extends AbstractBulkArticle<MutableFrac
     	super(article, new MutableFraction(volume));
     }
 
-    public MutableBulkArticle(AbstractBulkArticle<?, V> template) {
+    public MutableBulkArticle(BulkArticleView<V> template) {
     	super(template.article(), new MutableFraction(template.volume()));
     }
 
