@@ -16,27 +16,21 @@
 
 package grondag.fluidity.api.storage;
 
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
+public interface DiscreteStorage<T, U, V extends DiscreteArticleView<V>> extends Storage<T, V> {
+    long capacity();
 
-public interface Port {
-    static int NORMAL = 0;
-    static int EXACT = 1;
-    static int SIMULATE = 2;
+    long capacityAvailable();
 
-    default Identifier id() {
-        return Storage.ANONYMOUS_ID;
+    default long capacityUsed() {
+    	return capacity() - capacityAvailable();
     }
 
-    default Direction side() {
-        return null;
-    }
+	@Override
+	default boolean isEmpty() {
+		return capacityAvailable() == 0;
+	}
+	
+	long accept(U article, long count, boolean simulate);
 
-    default boolean canAccept() {
-        return true;
-    }
-
-    default boolean canSupply() {
-        return true;
-    }
+    long supply(U article, long count, boolean simulate);
 }

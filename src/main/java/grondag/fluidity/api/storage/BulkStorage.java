@@ -13,30 +13,19 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.bulk;
 
-import grondag.fluidity.api.article.StoredArticle;
-import grondag.fluidity.api.fraction.Fraction;
+package grondag.fluidity.api.storage;
+
 import grondag.fluidity.api.fraction.FractionView;
 
-/**
- * For container views and queries. Volumes outside containers should use
- * concrete types.
- */
-public interface BulkArticleView<V> extends StoredArticle<V> {
-    default FractionView volume() {
-        return Fraction.ZERO;
-    }
+public interface BulkStorage<T, V extends BulkArticleView<V>> extends Storage<T, V> {
+    FractionView totalCapacity();
 
-    default FractionView capacity() {
-        return volume();
-    }
+    FractionView capacityAvailable();
 
-    default BulkArticle<V> toImmutable() {
-        return BulkArticle.of(article(), volume());
-    }
-
-    default MutableBulkArticle<V> mutableCopy() {
-        return MutableBulkArticle.of(article(), volume());
-    }
+    FractionView capacityUsed();
+	
+    FractionView accept(Object article, FractionView volume, int flags);
+    
+    FractionView supply(Object article, FractionView volume, int flags);
 }

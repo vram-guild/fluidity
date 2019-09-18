@@ -126,7 +126,7 @@ public final class TransactionImpl implements Transaction {
         validate();
         if (!participants.containsKey(container)) {
             contextContainer = container;
-            participants.put(container, defaultRollback(container.prepareTx(context)));
+            participants.put(container, defaultRollback(container.prepareRollback(context)));
             contextContainer = null;
         }
         return container;

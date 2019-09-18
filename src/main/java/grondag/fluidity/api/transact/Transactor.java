@@ -34,7 +34,7 @@ package grondag.fluidity.api.transact;
 import java.util.function.Consumer;
 
 /**
- * For objects that can participate in fluid transactions.
+ * For objects that can participate in transactions.
  */
 @FunctionalInterface
 public interface Transactor {
@@ -51,5 +51,5 @@ public interface Transactor {
      * @param context
      * @return
      */
-    Consumer<TransactionContext> prepareTx(TransactionContext context);
+    Consumer<TransactionContext> prepareRollback(TransactionContext context);
 }

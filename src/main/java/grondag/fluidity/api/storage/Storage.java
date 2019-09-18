@@ -17,133 +17,37 @@
 
 package grondag.fluidity.api.storage;
 
-import java.util.Iterator;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import com.google.common.base.Predicates;
 
-import grondag.fluidity.api.article.StoredArticle;
-import grondag.fluidity.api.bulk.BulkArticleView;
 import grondag.fluidity.api.transact.Transactor;
-import net.minecraft.util.Identifier;
 
-public interface Storage<P extends Port, V extends StoredArticle<T>, T> extends Transactor {
-    Identifier ANONYMOUS_ID = new Identifier("fluidity:anon");
-    int NO_SLOT = -1;
-    
-    P voidPort();
-
-    V emptyView();
-    
+public interface Storage<T, V extends ArticleView> extends Transactor {
     boolean isEmpty();
 
-    /**
-     * True when can contain more than one fluid.
-     */
-    default boolean isCompound() {
-        return false;
-    }
-
-    /**
-     * True when has ports that can only be accessed from certain sides.
-     */
-    default boolean isSided() {
-        return false;
-    }
-
-    /**
-     * True when container is a view of other containers. This means the contents of
-     * this container could be visible in other containers.
-     */
-    default boolean isVirtual() {
-        return false;
-    }
-
-    Iterable<P> ports(PortFilter portFilter);
-
-    default Iterable<P> ports() {
-        return ports(PortFilter.ALL);
-    }
-
-    default P firstPort(PortFilter portFilter) {
-		Iterator<P> it = ports(portFilter).iterator();
-        return it.hasNext() ? it.next() : voidPort();
-    }
-
-    default P firstPort() {
-        return firstPort(PortFilter.ALL);
-    }
-
-    default boolean hasSlots() {
-    	return false;
+    default boolean fixedSlots() {
+    	return slotCount() > 0;
     }
     
     default int slotCount() {
     	return 0;
     }
     
-    default boolean hasNamedSlots() {
-    	return false;
+    void forEach(T connection, Predicate<V> filter, Predicate<V> consumer);
+
+    default void forEach(T connection, Predicate<V> consumer) {
+    	forEach(connection, Predicates.alwaysTrue(), consumer);
     }
     
-    /**
-     * For containers with named slots, finds slot using named-spaced identifier.
-     * 
-     * @param id
-     * @return integer identifier of first matching slot found or {@code NO_SLOT} if
-     *         no match
-     * @implNote Should be overridden if container has named slots
-     * @see BulkArticleView#slot()
-     */
-    default int slotFromId(Identifier slotId) {
-        return NO_SLOT;
-    }
-
-    default Identifier idForSlot(int slot) {
-        return ANONYMOUS_ID;
-    }
-
-    boolean canStore(T article);
-    
-    boolean contains(T article);
-    
-    Iterable<V> articles(PortFilter portFilter, Predicate<T> articleFilter);
-
-    default Iterable<V> articles(PortFilter portFilter) {
-        return articles(portFilter, Predicates.alwaysTrue());
-    }
-
-    default Iterable<V> articles(Predicate<T> articleFilter) {
-        return articles(PortFilter.ALL, articleFilter);
-    }
-
-    default Iterable<V> articles() {
-        return articles(PortFilter.ALL, Predicates.alwaysTrue());
+    default void forEach(Predicate<V> consumer) {
+    	forEach(null, Predicates.alwaysTrue(), consumer);
     }
     
-    V articleForSlot(int slot);
+    void forSlot(int slot, Consumer<V> consumer);
 
-    default V articleForSlotId(Identifier id) {
-        final int slot = slotFromId(id);
-        return slot >= 0 ? articleForSlot(slot) : emptyView();
-    }
+    void startListening(Consumer<V> listener, T connection, Predicate<V> articleFilter);
     
-    default V firstArticle(PortFilter portFilter, Predicate<T> articleFilter) {
-        Iterator<V> it = articles(portFilter, articleFilter).iterator();
-        return it.hasNext() ? it.next() : null;
-    }
-
-    default V firstArticle(PortFilter portFilter) {
-        return firstArticle(portFilter, Predicates.alwaysTrue());
-    }
-
-    default V firstArticle(Predicate<T> articleFilter) {
-        return firstArticle(PortFilter.ALL, articleFilter);
-    }
-
-    default V firstArticle() {
-        return firstArticle(PortFilter.ALL, Predicates.alwaysTrue());
-    }
-    
-    StopNotifier startListening(StorageListener<V, T> listener, PortFilter portFilter, Predicate<T> articleFilter);
+    void stopListening(Consumer<V> listener);
 }

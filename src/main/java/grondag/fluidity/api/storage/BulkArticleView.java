@@ -13,18 +13,14 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-
-package grondag.fluidity.api.bulk;
+package grondag.fluidity.api.storage;
 
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.storage.Storage;
-import grondag.fluidity.api.transact.Transactor;
 
-public interface BulkStorage<V> extends Storage<BulkPort, BulkArticleView<V>, V>, Transactor {
-    FractionView totalCapacity();
-
-    @Override
-    default BulkPort voidPort() {
-    	return BulkPort.VOID;
-    }
+/**
+ * For container views and queries. Volumes outside containers should use
+ * concrete types.
+ */
+public interface BulkArticleView<V extends BulkArticleView<V>> extends ArticleView {
+    FractionView volume();
 }

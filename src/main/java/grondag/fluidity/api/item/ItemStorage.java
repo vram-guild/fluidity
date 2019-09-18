@@ -1,16 +1,9 @@
 package grondag.fluidity.api.item;
 
-import grondag.fluidity.api.discrete.DiscreteStorage;
+import grondag.fluidity.api.storage.DiscreteStorage;
 import net.minecraft.item.ItemStack;
 
-public interface ItemStorage extends DiscreteStorage<ItemPort, ItemStack, ItemArticleView> {
-	@Override
-	default ItemPort voidPort() {
-		return ItemPort.VOID;
-	}
+public interface ItemStorage<T> extends DiscreteStorage<T, ItemStack, StoredItemView> {
 	
-	@Override
-	default ItemArticleView emptyView() {
-		return ItemArticleView.EMPTY;
-	}
+	
 }
