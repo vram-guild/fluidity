@@ -38,18 +38,18 @@ import java.util.function.Consumer;
  */
 @FunctionalInterface
 public interface Transactor {
-    /**
-     * Consumer can save state in the context if it needs to and retrieve it on
-     * rollback.
-     * <p>
-     * 
-     * Consumer is called for both commit and rollback events just in case some
-     * implementation need to lock or store resources internally during a
-     * transaction and need notification when one ends.
-     * <p>
-     * 
-     * @param context
-     * @return
-     */
-    Consumer<TransactionContext> prepareRollback(TransactionContext context);
+	/**
+	 * Consumer can save state in the context if it needs to and retrieve it on
+	 * rollback.
+	 * <p>
+	 * 
+	 * Consumer is called for both commit and rollback events just in case some
+	 * implementation need to lock or store resources internally during a
+	 * transaction and need notification when one ends.
+	 * <p>
+	 * 
+	 * @param context
+	 * @return
+	 */
+	Consumer<TransactionContext> prepareRollback(TransactionContext context);
 }

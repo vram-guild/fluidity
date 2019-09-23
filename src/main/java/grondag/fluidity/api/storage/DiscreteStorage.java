@@ -13,24 +13,23 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-
 package grondag.fluidity.api.storage;
 
 public interface DiscreteStorage<T, U, V extends DiscreteArticleView<V>> extends Storage<T, V> {
-    long capacity();
+	long capacity();
 
-    long capacityAvailable();
+	long capacityAvailable();
 
-    default long capacityUsed() {
-    	return capacity() - capacityAvailable();
-    }
+	default long capacityUsed() {
+		return capacity() - capacityAvailable();
+	}
 
 	@Override
 	default boolean isEmpty() {
 		return capacityAvailable() == 0;
 	}
-	
+
 	long accept(U article, long count, boolean simulate);
 
-    long supply(U article, long count, boolean simulate);
+	long supply(U article, long count, boolean simulate);
 }

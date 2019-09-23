@@ -16,9 +16,9 @@
 package grondag.fluidity.api.transact;
 
 public interface TransactionContext {
-    <T> void setState(T state);
+	<T> void setState(T state);
 
-    <T> T getState();
+	<T> T getState();
 
-    boolean isCommited();
+	boolean isCommited();
 }

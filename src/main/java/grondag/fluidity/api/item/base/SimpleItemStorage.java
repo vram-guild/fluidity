@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Copyright 2019 grondag
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License.  You may obtain a copy
+ * of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ ******************************************************************************/
 package grondag.fluidity.api.item.base;
 
 import java.util.Arrays;
@@ -78,7 +93,7 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 		ItemStackView view = null;
 		boolean isDirty = false;
 
-		for  (int i = 0; i < size; i++) {
+		for (int i = 0; i < size; i++) {
 			final ItemStack candidate = stacks[i];
 			if (candidate.isEmpty()) {
 
@@ -89,7 +104,8 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 					newStack.setCount(n);
 					stacks[i] = newStack;
 					if (!listeners.isEmpty()) {
-						if (view == null) view = new ItemStackView();
+						if (view == null)
+							view = new ItemStackView();
 						notifyListeners(view.prepare(newStack, i));
 					}
 				}
@@ -103,7 +119,8 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 					if (!simulate) {
 						candidate.increment(n);
 						if (!listeners.isEmpty()) {
-							if (view == null) view = new ItemStackView();
+							if (view == null)
+								view = new ItemStackView();
 							notifyListeners(view.prepare(candidate, i));
 						}
 					}
@@ -111,9 +128,11 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 				}
 
 			}
-			if (result == count) break;
+			if (result == count)
+				break;
 		}
-		if (isDirty) notifyInvListeners();
+		if (isDirty)
+			notifyInvListeners();
 		return result;
 	}
 
@@ -129,26 +148,30 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 		ItemStackView view = null;
 		boolean isDirty = false;
 
-		for  (int i = 0; i < size; i++) {
+		for (int i = 0; i < size; i++) {
 			final ItemStack candidate = stacks[i];
-			if(stack.isItemEqual(candidate)) {
+			if (stack.isItemEqual(candidate)) {
 				final int n = (int) Math.min(count - result, candidate.getCount());
 				if (!simulate) {
 					isDirty = true;
 					candidate.decrement(n);
-					if(candidate.isEmpty()) stacks[i] = ItemStack.EMPTY;
-					
+					if (candidate.isEmpty())
+						stacks[i] = ItemStack.EMPTY;
+
 					if (listeners != null && !listeners.isEmpty()) {
-						if (view == null) view = new ItemStackView();
+						if (view == null)
+							view = new ItemStackView();
 						notifyListeners(view.prepare(stacks[i], i));
 					}
 				}
 				result += n;
-				if (result == count) break;
+				if (result == count)
+					break;
 			}
 		}
 
-		if (isDirty) notifyInvListeners();
+		if (isDirty)
+			notifyInvListeners();
 		return result;
 	}
 
@@ -183,9 +206,9 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 		final ItemStackView view = new ItemStackView();
 		final int size = this.size;
 		final ItemStack[] stacks = this.stacks;
-		for  (int i = 0; i < size; i++) {
+		for (int i = 0; i < size; i++) {
 			ItemStack stack = stacks[i];
-			if(!stack.isEmpty()) {
+			if (!stack.isEmpty()) {
 				listener.accept(view.prepare(stack, i));
 			}
 		}
@@ -201,7 +224,7 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 	protected void notifyListeners(StoredItemView article) {
 		if (this.listeners != null) {
 			final int limit = listeners.size();
-			for  (int i = 0; i < limit; i++) {
+			for (int i = 0; i < limit; i++) {
 				listeners.get(i).accept(article);
 			}
 		}
@@ -212,7 +235,7 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 		final int size = this.size;
 		final ItemStack[] stacks = this.stacks;
 		final ItemStack[] state = new ItemStack[size];
-		for  (int i = 0; i < size; i++) {
+		for (int i = 0; i < size; i++) {
 			ItemStack stack = stacks[i];
 			state[i] = stack.copy();
 		}
@@ -230,19 +253,21 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 			ItemStackView view = null;
 			boolean isDirty = false;
 
-			for  (int i = 0; i < size; i++) {
+			for (int i = 0; i < size; i++) {
 				ItemStack myStack = stacks[i];
 				ItemStack stateStack = state[i];
-				if  (!myStack.isItemEqual(stateStack)) {
+				if (!myStack.isItemEqual(stateStack)) {
 					stacks[i] = stateStack;
 					isDirty = true;
 					if (listeners != null && !listeners.isEmpty()) {
-						if (view == null) view = new ItemStackView();
+						if (view == null)
+							view = new ItemStackView();
 						notifyListeners(view.prepare(stateStack, i));
 					}
 				}
 			}
-			if (isDirty) notifyInvListeners();
+			if (isDirty)
+				notifyInvListeners();
 		}
 	}
 
@@ -258,12 +283,14 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 				stacks[i] = ItemStack.EMPTY;
 				isDirty = true;
 				if (listeners != null && !listeners.isEmpty()) {
-					if (view == null) view = new ItemStackView();
+					if (view == null)
+						view = new ItemStackView();
 					notifyListeners(view.prepare(ItemStack.EMPTY, i));
 				}
 			}
 		}
-		if (isDirty) notifyInvListeners();
+		if (isDirty)
+			notifyInvListeners();
 	}
 
 	@Override
@@ -283,17 +310,20 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 
 	@Override
 	public ItemStack takeInvStack(int slot, int count) {
-		if(slot < 0 || slot >= size) return ItemStack.EMPTY;
+		if (slot < 0 || slot >= size)
+			return ItemStack.EMPTY;
 		final ItemStack stack = stacks[slot];
-		
+
 		final int n = Math.min(count, stack.getCount());
-		if (n == 0) return ItemStack.EMPTY;
+		if (n == 0)
+			return ItemStack.EMPTY;
 		final ItemStack result = stack.copy();
 		result.setCount(n);
-		
+
 		stack.decrement(n);
-		if (stack.isEmpty()) stacks[slot] = ItemStack.EMPTY;
-		
+		if (stack.isEmpty())
+			stacks[slot] = ItemStack.EMPTY;
+
 		if (listeners != null && !listeners.isEmpty()) {
 			notifyListeners(new ItemStackView(stacks[slot], slot));
 		}
@@ -303,10 +333,12 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 
 	@Override
 	public ItemStack removeInvStack(int slot) {
-		if(slot < 0 || slot >= size) return ItemStack.EMPTY;
+		if (slot < 0 || slot >= size)
+			return ItemStack.EMPTY;
 		final ItemStack stack = stacks[slot];
-		if(stack.isEmpty()) return ItemStack.EMPTY;
-		
+		if (stack.isEmpty())
+			return ItemStack.EMPTY;
+
 		stacks[slot] = ItemStack.EMPTY;
 		if (listeners != null && !listeners.isEmpty()) {
 			notifyListeners(new ItemStackView(ItemStack.EMPTY, slot));
@@ -316,17 +348,19 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 
 	@Override
 	public void setInvStack(int slot, ItemStack stackIn) {
-		if(slot < 0 || slot >= size) return;
-		
+		if (slot < 0 || slot >= size)
+			return;
+
 		if (!stackIn.isEmpty() && stackIn.getCount() > this.getInvMaxStackAmount()) {
 			stackIn.setCount(this.getInvMaxStackAmount());
 		}
 
 		final ItemStack stack = stacks[slot];
-		if(stack.isItemEqual(stackIn) && stack.getCount() == stackIn.getCount()) return;
-		
+		if (stack.isItemEqual(stackIn) && stack.getCount() == stackIn.getCount())
+			return;
+
 		stacks[slot] = stackIn;
-		
+
 		if (listeners != null && !listeners.isEmpty()) {
 			notifyListeners(new ItemStackView(stackIn, slot));
 		}
@@ -336,7 +370,7 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 	@Override
 	public void markDirty() {
 		notifyInvListeners();
-		
+
 		if (listeners != null && !listeners.isEmpty()) {
 			final ItemStackView view = new ItemStackView();
 			for (int i = 0; i < size; i++) {
@@ -348,10 +382,10 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 	protected void notifyInvListeners() {
 		if (invListeners != null && !invListeners.isEmpty()) {
 			final int limit = invListeners.size();
-			for(int i = 0; i < limit; i++) {
+			for (int i = 0; i < limit; i++) {
 				invListeners.get(i).onInvChange(this);
 			}
-		}		
+		}
 	}
 
 	@Override

@@ -18,16 +18,16 @@ package grondag.fluidity.api.transact;
 import grondag.fluidity.impl.TransactionImpl;
 
 public interface Transaction extends AutoCloseable {
-    void rollback();
+	void rollback();
 
-    void commit();
+	void commit();
 
-    <T extends Transactor> T enlist(T container);
+	<T extends Transactor> T enlist(T container);
 
-    @Override
-    void close();
+	@Override
+	void close();
 
-    static Transaction open() {
-        return TransactionImpl.open();
-    }
+	static Transaction open() {
+		return TransactionImpl.open();
+	}
 }

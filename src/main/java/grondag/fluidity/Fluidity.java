@@ -20,8 +20,8 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.server.ServerStartCallback;
 
 public class Fluidity implements ModInitializer {
-    @Override
-    public void onInitialize() {
-        ServerStartCallback.EVENT.register(TransactionImpl::setServerThread);
-    }
+	@Override
+	public void onInitialize() {
+		ServerStartCallback.EVENT.register(TransactionImpl::setServerThread);
+	}
 }

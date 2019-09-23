@@ -13,19 +13,18 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-
 package grondag.fluidity.api.storage;
 
 import grondag.fluidity.api.fraction.FractionView;
 
 public interface BulkStorage<T, V extends BulkArticleView<V>> extends Storage<T, V> {
-    FractionView totalCapacity();
+	FractionView totalCapacity();
 
-    FractionView capacityAvailable();
+	FractionView capacityAvailable();
 
-    FractionView capacityUsed();
-	
-    FractionView accept(Object article, FractionView volume, int flags);
-    
-    FractionView supply(Object article, FractionView volume, int flags);
+	FractionView capacityUsed();
+
+	FractionView accept(Object article, FractionView volume, int flags);
+
+	FractionView supply(Object article, FractionView volume, int flags);
 }

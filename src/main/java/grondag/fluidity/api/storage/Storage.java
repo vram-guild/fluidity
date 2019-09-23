@@ -13,8 +13,6 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-
-
 package grondag.fluidity.api.storage;
 
 import java.util.function.Consumer;
@@ -25,29 +23,29 @@ import com.google.common.base.Predicates;
 import grondag.fluidity.api.transact.Transactor;
 
 public interface Storage<T, V extends ArticleView> extends Transactor {
-    boolean isEmpty();
+	boolean isEmpty();
 
-    default boolean fixedSlots() {
-    	return slotCount() > 0;
-    }
-    
-    default int slotCount() {
-    	return 0;
-    }
-    
-    void forEach(T connection, Predicate<V> filter, Predicate<V> consumer);
+	default boolean fixedSlots() {
+		return slotCount() > 0;
+	}
 
-    default void forEach(T connection, Predicate<V> consumer) {
-    	forEach(connection, Predicates.alwaysTrue(), consumer);
-    }
-    
-    default void forEach(Predicate<V> consumer) {
-    	forEach(null, Predicates.alwaysTrue(), consumer);
-    }
-    
-    void forSlot(int slot, Consumer<V> consumer);
+	default int slotCount() {
+		return 0;
+	}
 
-    void startListening(Consumer<V> listener, T connection, Predicate<V> articleFilter);
-    
-    void stopListening(Consumer<V> listener);
+	void forEach(T connection, Predicate<V> filter, Predicate<V> consumer);
+
+	default void forEach(T connection, Predicate<V> consumer) {
+		forEach(connection, Predicates.alwaysTrue(), consumer);
+	}
+
+	default void forEach(Predicate<V> consumer) {
+		forEach(null, Predicates.alwaysTrue(), consumer);
+	}
+
+	void forSlot(int slot, Consumer<V> consumer);
+
+	void startListening(Consumer<V> listener, T connection, Predicate<V> articleFilter);
+
+	void stopListening(Consumer<V> listener);
 }

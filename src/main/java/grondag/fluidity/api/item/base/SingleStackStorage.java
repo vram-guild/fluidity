@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Copyright 2019 grondag
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License.  You may obtain a copy
+ * of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ ******************************************************************************/
 package grondag.fluidity.api.item.base;
 
 import java.util.function.Consumer;
@@ -11,12 +26,12 @@ import net.minecraft.item.ItemStack;
 
 public class SingleStackStorage extends ItemStackView implements ItemStorage<Void> {
 	protected ObjectArrayList<Consumer<StoredItemView>> listeners;
-	
+
 	public SingleStackStorage() {
 		stack = ItemStack.EMPTY;
 		slot = 0;
 	}
-	
+
 	@Override
 	public long capacity() {
 		return stack.getMaxCount();
@@ -26,7 +41,7 @@ public class SingleStackStorage extends ItemStackView implements ItemStorage<Voi
 	public long capacityAvailable() {
 		return stack.getMaxCount() - stack.getCount();
 	}
-	
+
 	@Override
 	public boolean fixedSlots() {
 		return true;
@@ -43,9 +58,9 @@ public class SingleStackStorage extends ItemStackView implements ItemStorage<Voi
 		if (!stack.isItemEqual(article)) {
 			return 0;
 		}
-		
-		int result = Math.min((int)count, stack.getMaxCount() - stack.getCount());
-		
+
+		int result = Math.min((int) count, stack.getMaxCount() - stack.getCount());
+
 		if (!simulate) {
 			stack.increment(result);
 			notifyListeners();
@@ -59,9 +74,9 @@ public class SingleStackStorage extends ItemStackView implements ItemStorage<Voi
 		if (!stack.isItemEqual(article)) {
 			return 0;
 		}
-		
-		int result = Math.min((int)count, stack.getCount());
-		
+
+		int result = Math.min((int) count, stack.getCount());
+
 		if (!simulate) {
 			stack.decrement(result);
 			notifyListeners();
@@ -85,11 +100,11 @@ public class SingleStackStorage extends ItemStackView implements ItemStorage<Voi
 
 	@Override
 	public void startListening(Consumer<StoredItemView> listener, Void connection, Predicate<StoredItemView> articleFilter) {
-        if (listeners == null) {
-            listeners = new ObjectArrayList<>();
-        }
-        listeners.add(listener);
-		if(stack != null && !stack.isEmpty()) {
+		if (listeners == null) {
+			listeners = new ObjectArrayList<>();
+		}
+		listeners.add(listener);
+		if (stack != null && !stack.isEmpty()) {
 			listener.accept(this);
 		}
 	}
@@ -97,31 +112,31 @@ public class SingleStackStorage extends ItemStackView implements ItemStorage<Voi
 	@Override
 	public void stopListening(Consumer<StoredItemView> listener) {
 		if (listeners != null) {
-            listeners.remove(listener);
-        }
+			listeners.remove(listener);
+		}
 	}
 
-    protected void notifyListeners() {
-        if (this.listeners != null) {
-        	final int limit = listeners.size();
-        	for  (int i = 0; i < limit; i++) {
-        		listeners.get(i).accept(this);
-        	}
-        }
-    }
-    
+	protected void notifyListeners() {
+		if (this.listeners != null) {
+			final int limit = listeners.size();
+			for (int i = 0; i < limit; i++) {
+				listeners.get(i).accept(this);
+			}
+		}
+	}
+
 	@Override
 	public Consumer<TransactionContext> prepareRollback(TransactionContext context) {
-    	context.setState(stack.copy());
+		context.setState(stack.copy());
 		return rollackHandler;
 	}
-	
+
 	private final Consumer<TransactionContext> rollackHandler = this::handleRollback;
-	
+
 	private void handleRollback(TransactionContext context) {
 		if (!context.isCommited()) {
 			ItemStack state = context.getState();
-			if(!stack.isItemEqual(state)) {
+			if (!stack.isItemEqual(state)) {
 				stack.setTag(state.getTag());
 				stack.setCount(state.getCount());
 				notifyListeners();

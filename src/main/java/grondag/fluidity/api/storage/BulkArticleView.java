@@ -22,5 +22,5 @@ import grondag.fluidity.api.fraction.FractionView;
  * concrete types.
  */
 public interface BulkArticleView<V extends BulkArticleView<V>> extends ArticleView {
-    FractionView volume();
+	FractionView volume();
 }
