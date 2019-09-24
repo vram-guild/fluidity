@@ -21,18 +21,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.util.PacketByteBuf;
 
 public final class MutableFraction extends AbstractFraction {
-	public static MutableFraction of(long whole, long numerator, long divisor) {
-		return new MutableFraction(whole, numerator, divisor);
-	}
-
-	public static MutableFraction of(long numerator, long divisor) {
-		return new MutableFraction(numerator, divisor);
-	}
-
-	public static MutableFraction of(long whole) {
-		return new MutableFraction(whole);
-	}
-
 	public MutableFraction() {
 		super();
 	}
@@ -139,5 +127,17 @@ public final class MutableFraction extends AbstractFraction {
 		whole = tag.getLong("wholeUnits");
 		numerator = tag.getLong("numerator");
 		divisor = tag.getLong("denominator");
+	}
+	
+	public static MutableFraction of(long whole, long numerator, long divisor) {
+		return new MutableFraction(whole, numerator, divisor);
+	}
+
+	public static MutableFraction of(long numerator, long divisor) {
+		return new MutableFraction(numerator, divisor);
+	}
+
+	public static MutableFraction of(long whole) {
+		return new MutableFraction(whole);
 	}
 }

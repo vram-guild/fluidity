@@ -15,7 +15,15 @@
  ******************************************************************************/
 package grondag.fluidity.api.storage;
 
-public interface ArticleView {
+import grondag.fluidity.api.fraction.FractionView;
+
+public interface ArticleView<T> {
+	T article();
+	
+	long count();
+	
+	FractionView volume();
+	
 	/**
 	 * For stores with fixed slots, this represents a specific location within the store.
 	 * In other cases, it is an abstract handle to a quantity of a specific article instance that will
@@ -24,4 +32,6 @@ public interface ArticleView {
 	 * and reliably identify articles that have changed.
 	 */
 	int slot();
+	
+	boolean isEmpty();
 }

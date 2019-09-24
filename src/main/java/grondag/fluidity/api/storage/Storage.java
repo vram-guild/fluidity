@@ -20,32 +20,51 @@ import java.util.function.Predicate;
 
 import com.google.common.base.Predicates;
 
+import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.transact.Transactor;
 
-public interface Storage<T, V extends ArticleView> extends Transactor {
+public interface Storage<T, U, V extends ArticleView<T>> extends Transactor {
 	boolean isEmpty();
 
-	default boolean fixedSlots() {
-		return slotCount() > 0;
+	boolean hasDynamicSlots();
+	
+	int slotCount();
+	
+	V view(int slot);
+	
+	default boolean isSlotVisibleFrom(U connection) {
+		return true;
+	}
+	
+	default void forEach(U connection, Predicate<V> filter, Predicate<V> action) {
+		final int limit = slotCount();
+		
+		for (int i = 0; i < limit; i++) {
+			final V article = view(i);
+			
+			if (!article.isEmpty() && filter.test(article)) {
+				if (!action.test(article)) break;
+			}
+		}
 	}
 
-	default int slotCount() {
-		return 0;
+	default void forEach(U connection, Predicate<V> action) {
+		forEach(connection, Predicates.alwaysTrue(), action);
 	}
 
-	void forEach(T connection, Predicate<V> filter, Predicate<V> consumer);
-
-	default void forEach(T connection, Predicate<V> consumer) {
-		forEach(connection, Predicates.alwaysTrue(), consumer);
+	default void forEach(Predicate<V> action) {
+		forEach(null, Predicates.alwaysTrue(), action);
 	}
 
-	default void forEach(Predicate<V> consumer) {
-		forEach(null, Predicates.alwaysTrue(), consumer);
-	}
-
-	void forSlot(int slot, Consumer<V> consumer);
-
-	void startListening(Consumer<V> listener, T connection, Predicate<V> articleFilter);
+	void startListening(Consumer<V> listener, U connection, Predicate<V> articleFilter);
 
 	void stopListening(Consumer<V> listener);
+	
+	long accept(T article, long count, boolean simulate);
+
+	long supply(T article, long count, boolean simulate);
+	
+	FractionView accept(T article, FractionView volume, boolean simulate);
+
+	FractionView supply(T article, FractionView volume, boolean simulate);
 }

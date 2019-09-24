@@ -18,32 +18,39 @@ package grondag.fluidity.api.item.base;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import grondag.fluidity.api.item.ItemArticleView;
 import grondag.fluidity.api.item.ItemStorage;
-import grondag.fluidity.api.item.StoredItemView;
+import grondag.fluidity.api.storage.AbstractStorage;
 import grondag.fluidity.api.transact.TransactionContext;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.item.ItemStack;
 
-public class SingleStackStorage extends ItemStackView implements ItemStorage<Void> {
-	protected ObjectArrayList<Consumer<StoredItemView>> listeners;
+public class SingleStackStorage extends AbstractStorage<ItemStack, Void, ItemArticleView> implements ItemStorage<Void> {
+	protected ObjectArrayList<Consumer<ItemArticleView>> listeners;
+	protected final ItemStackView view = new ItemStackView();
 
 	public SingleStackStorage() {
-		stack = ItemStack.EMPTY;
-		slot = 0;
+		view.stack = ItemStack.EMPTY;
+		view.slot = 0;
 	}
 
 	@Override
 	public long capacity() {
-		return stack.getMaxCount();
+		return view.stack.getMaxCount();
 	}
 
 	@Override
 	public long capacityAvailable() {
-		return stack.getMaxCount() - stack.getCount();
+		return view.stack.getMaxCount() - view.stack.getCount();
 	}
 
 	@Override
-	public boolean fixedSlots() {
+	public boolean isEmpty() {
+		return view.stack.isEmpty();
+	}
+
+	@Override
+	public boolean hasDynamicSlots() {
 		return true;
 	}
 
@@ -53,8 +60,13 @@ public class SingleStackStorage extends ItemStackView implements ItemStorage<Voi
 	}
 
 	@Override
+	public ItemArticleView view(int slot) {
+		return view;
+	}
+
+	@Override
 	public long accept(ItemStack article, long count, boolean simulate) {
-		final ItemStack stack = this.stack;
+		final ItemStack stack = view.stack;
 		if (!stack.isItemEqual(article)) {
 			return 0;
 		}
@@ -70,7 +82,7 @@ public class SingleStackStorage extends ItemStackView implements ItemStorage<Voi
 
 	@Override
 	public long supply(ItemStack article, long count, boolean simulate) {
-		final ItemStack stack = this.stack;
+		final ItemStack stack = view.stack;
 		if (!stack.isItemEqual(article)) {
 			return 0;
 		}
@@ -85,32 +97,18 @@ public class SingleStackStorage extends ItemStackView implements ItemStorage<Voi
 	}
 
 	@Override
-	public void forEach(Void connection, Predicate<StoredItemView> filter, Predicate<StoredItemView> consumer) {
-		if (filter.test(this)) {
-			consumer.test(this);
-		}
-	}
-
-	@Override
-	public void forSlot(int slot, Consumer<StoredItemView> consumer) {
-		if (slot == 0) {
-			consumer.accept(this);
-		}
-	}
-
-	@Override
-	public void startListening(Consumer<StoredItemView> listener, Void connection, Predicate<StoredItemView> articleFilter) {
+	public void startListening(Consumer<ItemArticleView> listener, Void connection, Predicate<ItemArticleView> articleFilter) {
 		if (listeners == null) {
 			listeners = new ObjectArrayList<>();
 		}
 		listeners.add(listener);
-		if (stack != null && !stack.isEmpty()) {
-			listener.accept(this);
+		if (view.stack != null && !view.stack.isEmpty()) {
+			listener.accept(view);
 		}
 	}
 
 	@Override
-	public void stopListening(Consumer<StoredItemView> listener) {
+	public void stopListening(Consumer<ItemArticleView> listener) {
 		if (listeners != null) {
 			listeners.remove(listener);
 		}
@@ -120,14 +118,14 @@ public class SingleStackStorage extends ItemStackView implements ItemStorage<Voi
 		if (this.listeners != null) {
 			final int limit = listeners.size();
 			for (int i = 0; i < limit; i++) {
-				listeners.get(i).accept(this);
+				listeners.get(i).accept(this.view);
 			}
 		}
 	}
 
 	@Override
 	public Consumer<TransactionContext> prepareRollback(TransactionContext context) {
-		context.setState(stack.copy());
+		context.setState(view.stack.copy());
 		return rollackHandler;
 	}
 
@@ -135,7 +133,8 @@ public class SingleStackStorage extends ItemStackView implements ItemStorage<Voi
 
 	private void handleRollback(TransactionContext context) {
 		if (!context.isCommited()) {
-			ItemStack state = context.getState();
+			final ItemStack state = context.getState();
+			final ItemStack stack = view.stack;
 			if (!stack.isItemEqual(state)) {
 				stack.setTag(state.getTag());
 				stack.setCount(state.getCount());

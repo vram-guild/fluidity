@@ -13,18 +13,17 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.storage;
+package grondag.fluidity.api.item;
 
-import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.storage.ArticleView;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
-public interface BulkStorage<T, V extends BulkArticleView<V>> extends Storage<T, V> {
-	FractionView totalCapacity();
+public interface ItemArticleView extends ArticleView<ItemStack> {
+	Item item();
 
-	FractionView capacityAvailable();
+	CompoundTag tag();
 
-	FractionView capacityUsed();
-
-	FractionView accept(Object article, FractionView volume, int flags);
-
-	FractionView supply(Object article, FractionView volume, int flags);
+	ItemStack article();
 }

@@ -21,17 +21,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.util.PacketByteBuf;
 
 public final class Fraction extends AbstractFraction {
-	public static final Fraction ZERO = Fraction.of(0, 0, 1);
-	public static final Fraction MAX_VALUE = Fraction.of(Long.MAX_VALUE, 0, 1);
-
-	public static Fraction of(long whole, long numerator, long divisor) {
-		return new Fraction(whole, numerator, divisor);
-	}
-
-	public static Fraction of(long numerator, long divisor) {
-		return new Fraction(numerator, divisor);
-	}
-
 	public Fraction() {
 		super();
 	}
@@ -58,5 +47,20 @@ public final class Fraction extends AbstractFraction {
 
 	public Fraction(PacketByteBuf buf) {
 		readBuffer(buf);
+	}
+	
+	public static final Fraction ZERO = Fraction.of(0, 0, 1);
+	public static final Fraction MAX_VALUE = Fraction.of(Long.MAX_VALUE, 0, 1);
+
+	public static Fraction of(long whole, long numerator, long divisor) {
+		return new Fraction(whole, numerator, divisor);
+	}
+
+	public static Fraction of(long numerator, long divisor) {
+		return new Fraction(numerator, divisor);
+	}
+	
+	public static Fraction of(long whole) {
+		return new Fraction(whole);
 	}
 }

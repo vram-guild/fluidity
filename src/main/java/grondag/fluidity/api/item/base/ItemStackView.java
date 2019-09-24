@@ -15,12 +15,13 @@
  ******************************************************************************/
 package grondag.fluidity.api.item.base;
 
-import grondag.fluidity.api.item.StoredItemView;
+import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.item.ItemArticleView;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
-public class ItemStackView implements StoredItemView {
+public class ItemStackView implements ItemArticleView, FractionView {
 	protected ItemStack stack;
 	protected int slot;
 
@@ -58,7 +59,32 @@ public class ItemStackView implements StoredItemView {
 	}
 
 	@Override
-	public ItemStack toStack() {
+	public ItemStack article() {
 		return stack.copy();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return stack.isEmpty();
+	}
+
+	@Override
+	public FractionView volume() {
+		return this;
+	}
+
+	@Override
+	public long whole() {
+		return count();
+	}
+
+	@Override
+	public long numerator() {
+		return 0;
+	}
+
+	@Override
+	public long divisor() {
+		return 1;
 	}
 }

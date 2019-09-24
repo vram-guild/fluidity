@@ -19,8 +19,9 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import grondag.fluidity.api.item.ItemArticleView;
 import grondag.fluidity.api.item.ItemStorage;
-import grondag.fluidity.api.item.StoredItemView;
+import grondag.fluidity.api.storage.AbstractStorage;
 import grondag.fluidity.api.transact.TransactionContext;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,10 +31,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeFinder;
 import net.minecraft.recipe.RecipeInputProvider;
 
-public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeInputProvider {
+public class SimpleItemStorage extends AbstractStorage<ItemStack, Void, ItemArticleView> implements ItemStorage<Void>, Inventory, RecipeInputProvider {
 	protected final int size;
 	protected final ItemStack[] stacks;
-	protected ObjectArrayList<Consumer<StoredItemView>> listeners;
 	protected ObjectArrayList<InventoryListener> invListeners;
 
 	public SimpleItemStorage(int size) {
@@ -71,7 +71,7 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 	}
 
 	@Override
-	public boolean fixedSlots() {
+	public boolean hasDynamicSlots() {
 		return true;
 	}
 
@@ -176,7 +176,7 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 	}
 
 	@Override
-	public void forEach(Void connection, Predicate<StoredItemView> filter, Predicate<StoredItemView> consumer) {
+	public void forEach(Void connection, Predicate<ItemArticleView> filter, Predicate<ItemArticleView> consumer) {
 		final ItemStackView view = new ItemStackView();
 		final int size = this.size;
 		for (int i = 0; i < size; i++) {
@@ -193,41 +193,8 @@ public class SimpleItemStorage implements ItemStorage<Void>, Inventory, RecipeIn
 	}
 
 	@Override
-	public void forSlot(int slot, Consumer<StoredItemView> consumer) {
-		consumer.accept(new ItemStackView(stacks[slot], slot));
-	}
-
-	@Override
-	public void startListening(Consumer<StoredItemView> listener, Void connection, Predicate<StoredItemView> articleFilter) {
-		if (listeners == null) {
-			listeners = new ObjectArrayList<>();
-		}
-		listeners.add(listener);
-		final ItemStackView view = new ItemStackView();
-		final int size = this.size;
-		final ItemStack[] stacks = this.stacks;
-		for (int i = 0; i < size; i++) {
-			ItemStack stack = stacks[i];
-			if (!stack.isEmpty()) {
-				listener.accept(view.prepare(stack, i));
-			}
-		}
-	}
-
-	@Override
-	public void stopListening(Consumer<StoredItemView> listener) {
-		if (listeners != null) {
-			listeners.remove(listener);
-		}
-	}
-
-	protected void notifyListeners(StoredItemView article) {
-		if (this.listeners != null) {
-			final int limit = listeners.size();
-			for (int i = 0; i < limit; i++) {
-				listeners.get(i).accept(article);
-			}
-		}
+	public ItemArticleView view(int slot) {
+		return new ItemStackView(stacks[slot], slot);
 	}
 
 	@Override
