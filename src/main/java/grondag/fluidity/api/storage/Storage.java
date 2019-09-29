@@ -20,27 +20,31 @@ import java.util.function.Predicate;
 
 import com.google.common.base.Predicates;
 
+import grondag.fluidity.api.bulk.BulkItem;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.transact.Transactor;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
-public interface Storage<T, U, V extends ArticleView<T>> extends Transactor {
+public interface Storage extends Transactor {
 	boolean isEmpty();
 
 	boolean hasDynamicSlots();
 	
 	int slotCount();
 	
-	V view(int slot);
+	ItemView view(int slot);
 	
-	default boolean isSlotVisibleFrom(U connection) {
+	default boolean isSlotVisibleFrom(Object connection) {
 		return true;
 	}
 	
-	default void forEach(U connection, Predicate<V> filter, Predicate<V> action) {
+	default void forEach(Object connection, Predicate<ItemView> filter, Predicate<ItemView> action) {
 		final int limit = slotCount();
 		
 		for (int i = 0; i < limit; i++) {
-			final V article = view(i);
+			final ItemView article = view(i);
 			
 			if (!article.isEmpty() && filter.test(article)) {
 				if (!action.test(article)) break;
@@ -48,23 +52,47 @@ public interface Storage<T, U, V extends ArticleView<T>> extends Transactor {
 		}
 	}
 
-	default void forEach(U connection, Predicate<V> action) {
+	default void forEach(Object connection, Predicate<ItemView> action) {
 		forEach(connection, Predicates.alwaysTrue(), action);
 	}
 
-	default void forEach(Predicate<V> action) {
+	default void forEach(Predicate<ItemView> action) {
 		forEach(null, Predicates.alwaysTrue(), action);
 	}
 
-	void startListening(Consumer<V> listener, U connection, Predicate<V> articleFilter);
+	void startListening(Consumer<ItemView> listener, Object connection, Predicate<ItemView> articleFilter);
 
-	void stopListening(Consumer<V> listener);
+	void stopListening(Consumer<ItemView> listener);
 	
-	long accept(T article, long count, boolean simulate);
+	long accept(Item item, CompoundTag tag, long count, boolean simulate);
 
-	long supply(T article, long count, boolean simulate);
+	default long accept(Item item, long count, boolean simulate) {
+		return accept(item, null, count, simulate);
+	}
+
+	default long accept(ItemStack stack, long count, boolean simulate) {
+		return accept(stack.getItem(), stack.getTag(), count, simulate);
+	}
 	
-	FractionView accept(T article, FractionView volume, boolean simulate);
+	default long accept(ItemStack stack, boolean simulate) {
+		return accept(stack.getItem(), stack.getTag(), stack.getCount(), simulate);
+	}
+	
+	long supply(Item item, CompoundTag tag, long count, boolean simulate);
+	
+	default long supply(Item item, long count, boolean simulate) {
+		return supply(item, null, count, simulate);
+	}
+	
+	default long supply(ItemStack stack, long count, boolean simulate) {
+		return supply(stack.getItem(), stack.getTag(), count, simulate);
+	}
+	
+	default long supply(ItemStack stack, boolean simulate) {
+		return supply(stack.getItem(), stack.getTag(), stack.getCount(), simulate);
+	}
+	
+	FractionView accept(BulkItem item, FractionView volume, boolean simulate);
 
-	FractionView supply(T article, FractionView volume, boolean simulate);
+	FractionView supply(BulkItem item, FractionView volume, boolean simulate);
 }

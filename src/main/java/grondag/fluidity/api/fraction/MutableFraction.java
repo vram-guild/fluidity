@@ -115,6 +115,12 @@ public final class MutableFraction extends AbstractFraction {
 		add(0, -numerator, divisor);
 	}
 
+	public final void multiply(long whole) {
+		this.numerator *= whole;
+		this.whole *= whole;
+		normalize();
+	}
+	
 	@Override
 	public final void readBuffer(PacketByteBuf buffer) {
 		whole = buffer.readVarLong();

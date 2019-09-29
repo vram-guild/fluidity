@@ -20,12 +20,12 @@ import java.util.function.Predicate;
 
 import grondag.fluidity.api.item.ItemArticleView;
 import grondag.fluidity.api.item.ItemStorage;
-import grondag.fluidity.api.storage.AbstractStorage;
+import grondag.fluidity.api.storage.StorageImpl;
 import grondag.fluidity.api.transact.TransactionContext;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 
-public class InventoryStorageAdapter extends AbstractStorage<ItemStack, Void, ItemArticleView> implements ItemStorage<Void> {
+public class InventoryStorageAdapter extends StorageImpl<ItemStack, Void, ItemArticleView> implements ItemStorage<Void> {
 	protected final Inventory inventory;
 
 	public InventoryStorageAdapter(Inventory inventory) {

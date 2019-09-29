@@ -15,14 +15,19 @@
  ******************************************************************************/
 package grondag.fluidity.api.item.base;
 
+import grondag.fluidity.api.bulk.BulkItem;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.item.ItemArticleView;
+import grondag.fluidity.api.fraction.MutableFraction;
+import grondag.fluidity.api.storage.ItemView;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
-public class ItemStackView implements ItemArticleView, FractionView {
-	protected ItemStack stack;
+public class ItemStackView implements ItemView, FractionView {
+	protected Item item;
+	protected CompoundTag tag;
+	protected boolean isBulk;
+	protected MutableFraction fraction;
 	protected int slot;
 
 	public ItemStackView() {
@@ -33,14 +38,25 @@ public class ItemStackView implements ItemArticleView, FractionView {
 	}
 
 	public ItemStackView prepare(ItemStack stack, int slot) {
-		this.stack = stack;
+		item = stack.getItem();
+		tag = stack.getTag();
+		if (tag != null) {
+			tag = (CompoundTag) tag.copy();
+		}
 		this.slot = slot;
+		isBulk = item instanceof BulkItem;
+		if (isBulk) {
+			fraction.readTag(tag);
+			fraction.multiply(stack.getCount());
+		} else {
+			fraction.set(stack.getCount());
+		}
 		return this;
 	}
 
 	@Override
 	public long count() {
-		return stack.getCount();
+		return fraction.whole();
 	}
 
 	@Override
@@ -50,27 +66,39 @@ public class ItemStackView implements ItemArticleView, FractionView {
 
 	@Override
 	public Item item() {
-		return stack.getItem();
+		return item;
 	}
 
 	@Override
 	public CompoundTag tag() {
-		return stack.getTag();
+		return tag == null ? null : (CompoundTag) tag.copy();
 	}
 
 	@Override
-	public ItemStack article() {
-		return stack.copy();
+	public boolean hasTag() {
+		return tag != null;
+	}
+	
+	@Override
+	public ItemStack toStack() {
+		ItemStack result = new ItemStack(item);
+		result.setTag((CompoundTag) tag.copy());
+		return result;
 	}
 
 	@Override
 	public boolean isEmpty() {
-		return stack.isEmpty();
+		return fraction.isZero();
+	}
+
+	@Override
+	public boolean isBulk() {
+		return isBulk;
 	}
 
 	@Override
 	public FractionView volume() {
-		return this;
+		return fraction;
 	}
 
 	@Override
@@ -80,11 +108,21 @@ public class ItemStackView implements ItemArticleView, FractionView {
 
 	@Override
 	public long numerator() {
-		return 0;
+		return fraction.numerator();
 	}
 
 	@Override
 	public long divisor() {
-		return 1;
+		return fraction.divisor();
+	}
+
+	@Override
+	public BulkItem toBulkItem() {
+		return isBulk ? (BulkItem) item : null;
+	}
+
+	@Override
+	public boolean isItemEqual(ItemStack stack) {
+		return StackHelper.areItemsEqual(item, tag, stack);
 	}
 }

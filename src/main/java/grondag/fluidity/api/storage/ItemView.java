@@ -15,11 +15,13 @@
  ******************************************************************************/
 package grondag.fluidity.api.storage;
 
+import grondag.fluidity.api.bulk.BulkItem;
 import grondag.fluidity.api.fraction.FractionView;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
-public interface ArticleView<T> {
-	T article();
-	
+public interface ItemView {
 	long count();
 	
 	FractionView volume();
@@ -34,4 +36,18 @@ public interface ArticleView<T> {
 	int slot();
 	
 	boolean isEmpty();
+	
+	Item item();
+
+	CompoundTag tag();
+
+	ItemStack toStack();
+
+	boolean isBulk();
+	
+	BulkItem toBulkItem();
+	
+    boolean isItemEqual(ItemStack stack);
+
+	boolean hasTag();
 }
