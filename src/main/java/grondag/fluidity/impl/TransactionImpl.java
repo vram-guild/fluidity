@@ -84,9 +84,11 @@ public final class TransactionImpl implements Transaction {
 		if (!isOpen) {
 			throw new IllegalStateException("Encountered transaction operation for closed transaction.");
 		}
+
 		if (STACK.get(stackPointer) != this) {
 			throw new IndexOutOfBoundsException("Transaction operations must apply to most recent open transaction.");
 		}
+
 		if (!innerLock.isHeldByCurrentThread()) {
 			throw new ConcurrentModificationException("Attempt to modify transaction status from foreign thread");
 		}
@@ -105,10 +107,12 @@ public final class TransactionImpl implements Transaction {
 	private void close(boolean isCommited) {
 		validate();
 		this.isCommited = isCommited;
+
 		participants.forEach((c, r) -> {
 			contextContainer = c;
 			r.accept(context);
 		});
+
 		clear();
 
 		final boolean root = --stackPointer == -1;
@@ -118,6 +122,7 @@ public final class TransactionImpl implements Transaction {
 		// non-server threads have an additional lock we must release.
 		if (Thread.currentThread() != serverThread) {
 			outerLock.unlock();
+
 			if (root) {
 				// Give other threads (like the server thread) that want to do transactions a
 				// chance to jump in.
@@ -129,11 +134,13 @@ public final class TransactionImpl implements Transaction {
 	@Override
 	public <T extends Transactor> T enlist(T container) {
 		validate();
+
 		if (!participants.containsKey(container)) {
 			contextContainer = container;
 			participants.put(container, defaultRollback(container.prepareRollback(context)));
 			contextContainer = null;
 		}
+
 		return container;
 	}
 
@@ -166,9 +173,11 @@ public final class TransactionImpl implements Transaction {
 		if (Thread.currentThread() != serverThread) {
 			outerLock.lock();
 		}
+
 		innerLock.lock();
 
 		final TransactionImpl result;
+
 		if (STACK.size() > ++stackPointer) {
 			result = STACK.get(stackPointer);
 			result.isOpen = true;
@@ -177,6 +186,7 @@ public final class TransactionImpl implements Transaction {
 			result = new TransactionImpl();
 			STACK.add(result);
 		}
+
 		return result;
 	}
 }

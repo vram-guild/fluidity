@@ -9,6 +9,15 @@ import net.minecraft.recipe.RecipeFinder;
 import net.minecraft.recipe.RecipeInputProvider;
 
 public interface ItemStorage extends Storage, Inventory, RecipeInputProvider {
+	/**
+	 * Adds items to this storage. May return less than requested.
+	 *
+	 * @param item Item to add
+	 * @param tag NBT if item has it, null otherwise.
+	 * @param count How many to add. Must be >= 0;
+	 * @param simulate If true, will forecast result without making changes.
+	 * @return Count added, or that would be added if {@code simulate} = true.
+	 */
 	long accept(Item item, CompoundTag tag, long count, boolean simulate);
 
 	default long accept(Item item, long count, boolean simulate) {
@@ -23,6 +32,15 @@ public interface ItemStorage extends Storage, Inventory, RecipeInputProvider {
 		return accept(stack.getItem(), stack.getTag(), stack.getCount(), simulate);
 	}
 
+	/**
+	 * Removes items from this storage. May return less than requested.
+	 *
+	 * @param item Item to remove
+	 * @param tag NBT if item has it, null otherwise.
+	 * @param count How many to remove. Must be >= 0;
+	 * @param simulate If true, will forecast result without making changes.
+	 * @return Count removed, or that would be removed if {@code simulate} = true.
+	 */
 	long supply(Item item, CompoundTag tag, long count, boolean simulate);
 
 	default long supply(Item item, long count, boolean simulate) {

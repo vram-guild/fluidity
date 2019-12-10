@@ -103,6 +103,7 @@ public abstract class AbstractFraction implements FractionView {
 		if (val == null || !(val instanceof AbstractFraction)) {
 			return false;
 		}
+
 		final AbstractFraction other = (AbstractFraction) val;
 		return other.whole() == whole && other.numerator() == numerator && other.divisor() == divisor;
 	}
@@ -150,6 +151,7 @@ public abstract class AbstractFraction implements FractionView {
 
 		// remove powers of two bitwise
 		final int twos = Long.numberOfTrailingZeros(numerator | divisor);
+
 		if (twos > 0) {
 			numerator >>= twos;
 			divisor >>= twos;
@@ -157,6 +159,7 @@ public abstract class AbstractFraction implements FractionView {
 
 		// use conventional gcd for rest
 		final long gcd = gcd(Math.abs(numerator), divisor);
+
 		if (gcd != divisor) {
 			numerator /= gcd;
 			divisor /= gcd;
@@ -169,6 +172,7 @@ public abstract class AbstractFraction implements FractionView {
 			b = a % b;
 			a = t;
 		}
+
 		return a;
 	}
 }
