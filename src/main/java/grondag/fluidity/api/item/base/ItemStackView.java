@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -15,15 +15,16 @@
  ******************************************************************************/
 package grondag.fluidity.api.item.base;
 
-import grondag.fluidity.api.bulk.BulkItem;
-import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.fraction.MutableFraction;
-import grondag.fluidity.api.storage.ItemView;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
-public class ItemStackView implements ItemView, FractionView {
+import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.fraction.MutableFraction;
+import grondag.fluidity.api.storage.view.BulkArticleView;
+import grondag.fluidity.api.storage.view.ItemArticleView;
+
+public class ItemStackView implements ItemArticleView, BulkArticleView, FractionView {
 	protected Item item;
 	protected CompoundTag tag;
 	protected boolean isBulk;
@@ -40,17 +41,21 @@ public class ItemStackView implements ItemView, FractionView {
 	public ItemStackView prepare(ItemStack stack, int slot) {
 		item = stack.getItem();
 		tag = stack.getTag();
+
 		if (tag != null) {
-			tag = (CompoundTag) tag.copy();
+			tag = tag.copy();
 		}
+
 		this.slot = slot;
 		isBulk = item instanceof BulkItem;
+
 		if (isBulk) {
 			fraction.readTag(tag);
 			fraction.multiply(stack.getCount());
 		} else {
 			fraction.set(stack.getCount());
 		}
+
 		return this;
 	}
 
@@ -78,11 +83,11 @@ public class ItemStackView implements ItemView, FractionView {
 	public boolean hasTag() {
 		return tag != null;
 	}
-	
+
 	@Override
 	public ItemStack toStack() {
-		ItemStack result = new ItemStack(item);
-		result.setTag((CompoundTag) tag.copy());
+		final ItemStack result = new ItemStack(item);
+		result.setTag(tag.copy());
 		return result;
 	}
 
@@ -117,12 +122,21 @@ public class ItemStackView implements ItemView, FractionView {
 	}
 
 	@Override
-	public BulkItem toBulkItem() {
+	public BulkItem bulkItem() {
 		return isBulk ? (BulkItem) item : null;
+	}
+
+	@Override
+	public BulkArticleView toBulkView() {
+		return isBulk ? this : null;
 	}
 
 	@Override
 	public boolean isItemEqual(ItemStack stack) {
 		return StackHelper.areItemsEqual(item, tag, stack);
+	}
+
+	public static ItemStackView of(ItemStack stack) {
+		return new  ItemStackView().prepare(stack, 0);
 	}
 }

@@ -1,4 +1,4 @@
-package grondag.fluidity.api.item.base;
+package grondag.fluidity.wip;
 
 import grondag.fluidity.api.storage.AbstractItemStorage;
 import net.minecraft.item.ItemStack;

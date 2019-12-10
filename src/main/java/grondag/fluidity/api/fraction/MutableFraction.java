@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -15,11 +15,16 @@
  ******************************************************************************/
 package grondag.fluidity.api.fraction;
 
-import grondag.fluidity.impl.AbstractFraction;
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.PacketByteBuf;
 
+import grondag.fluidity.impl.AbstractFraction;
+
+@API(status = Status.EXPERIMENTAL)
 public final class MutableFraction extends AbstractFraction {
 	public MutableFraction() {
 		super();
@@ -49,43 +54,43 @@ public final class MutableFraction extends AbstractFraction {
 		readBuffer(buf);
 	}
 
-	public final void set(long whole) {
+	public void set(long whole) {
 		this.set(whole, 0, 1);
 	}
 
-	public final void set(long numerator, long divisor) {
+	public void set(long numerator, long divisor) {
 		validate(0, numerator, divisor);
-		this.whole = numerator / divisor;
+		whole = numerator / divisor;
 		this.numerator = numerator - whole * divisor;
 		this.divisor = divisor;
 	}
 
-	public final void set(long whole, long numerator, long divisor) {
+	public void set(long whole, long numerator, long divisor) {
 		validate(whole, numerator, divisor);
 		this.whole = whole;
 		this.numerator = numerator;
 		this.divisor = divisor;
 	}
 
-	public final void set(FractionView template) {
-		this.whole = template.whole();
-		this.numerator = template.numerator();
-		this.divisor = template.divisor();
+	public void set(FractionView template) {
+		whole = template.whole();
+		numerator = template.numerator();
+		divisor = template.divisor();
 	}
 
-	public final void add(FractionView val) {
+	public void add(FractionView val) {
 		add(val.whole(), val.numerator(), val.divisor());
 	}
 
-	public final void add(long whole) {
+	public void add(long whole) {
 		add(whole, 0, 1);
 	}
 
-	public final void add(long numerator, long divisor) {
+	public void add(long numerator, long divisor) {
 		add(0, numerator, divisor);
 	}
 
-	public final void add(long whole, long numerator, long divisor) {
+	public void add(long whole, long numerator, long divisor) {
 		validate(whole, numerator, divisor);
 		this.whole += whole;
 
@@ -103,38 +108,34 @@ public final class MutableFraction extends AbstractFraction {
 		}
 	}
 
-	public final void subtract(FractionView val) {
+	public void subtract(FractionView val) {
 		add(-val.whole(), -val.numerator(), val.divisor());
 	}
 
-	public final void subtract(long whole) {
+	public void subtract(long whole) {
 		add(-whole, 0, 1);
 	}
 
-	public final void subtract(long numerator, long divisor) {
+	public void subtract(long numerator, long divisor) {
 		add(0, -numerator, divisor);
 	}
 
-	public final void multiply(long whole) {
-		this.numerator *= whole;
+	public void multiply(long whole) {
+		numerator *= whole;
 		this.whole *= whole;
 		normalize();
 	}
-	
+
 	@Override
-	public final void readBuffer(PacketByteBuf buffer) {
-		whole = buffer.readVarLong();
-		numerator = buffer.readVarLong();
-		divisor = buffer.readVarLong();
+	public void readBuffer(PacketByteBuf buffer) {
+		super.readBuffer(buffer);
 	}
 
 	@Override
-	public final void readTag(CompoundTag tag) {
-		whole = tag.getLong("wholeUnits");
-		numerator = tag.getLong("numerator");
-		divisor = tag.getLong("denominator");
+	public void readTag(CompoundTag tag) {
+		super.readTag(tag);
 	}
-	
+
 	public static MutableFraction of(long whole, long numerator, long divisor) {
 		return new MutableFraction(whole, numerator, divisor);
 	}

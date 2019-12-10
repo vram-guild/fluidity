@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -15,12 +15,24 @@
  ******************************************************************************/
 package grondag.fluidity.api.fraction;
 
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
+
 /**
  * To be exposed by containers that may not rely on a concrete rational number
- * implementation internally or to prevent external mutation of mutable
- * internals.
+ * implementation internally or to discourage external changes to mutable internals.
  */
+@API(status = Status.EXPERIMENTAL)
 public interface FractionView extends Comparable<FractionView> {
+	int BUCKET = 1;
+	int KILOLITER = 1;
+	int BLOCK = 1;
+	int SLAB = 2;
+	int BOTTLE = 3;
+	int INGOT = 9;
+	int NUGGET = INGOT * 9;
+	int LITER = 1000;
+
 	long whole();
 
 	long numerator();
@@ -28,18 +40,17 @@ public interface FractionView extends Comparable<FractionView> {
 	long divisor();
 
 	/**
-	 * Intended for user display. Result may be approximate due to floating point
-	 * error.
-	 * 
+	 * Intended for user display. Result may be approximate due to floating point error.
+	 *
 	 * @param units Fraction of one that counts as 1 in the result. Must be >= 1.
 	 * @return Current value scaled so that that 1.0 = one of the given units
 	 */
 	default double toDouble(long units) {
 		// start with unit scale
-		double base = (double) numerator() / (double) divisor() + (double) whole();
+		final double base = (double) numerator() / (double) divisor() + whole();
 
 		// scale to requested unit
-		return units == 1 ? base : base / (double) units;
+		return units == 1 ? base : base / units;
 	}
 
 	default double toDouble() {
@@ -49,15 +60,15 @@ public interface FractionView extends Comparable<FractionView> {
 	/**
 	 * Returns the number of units that is less than or equal to the given unit.
 	 * Make be larger than this if value is not evenly divisible .
-	 * 
-	 * @param units Fraction of one bucket that counts as 1 in the result. Must be
-	 *              >= 1.
+	 *
+	 * @param units Fraction of one bucket that counts as 1 in the result. Must be >= 1.
 	 * @return Number of units within current volume.
 	 */
 	default long toLong(long divisor) {
 		if (divisor < 1) {
 			throw new IllegalArgumentException("RationalNumber divisor must be >= 1");
 		}
+
 		final long base = whole() * divisor;
 
 		if (numerator() == 0) {
@@ -75,8 +86,8 @@ public interface FractionView extends Comparable<FractionView> {
 
 	@Override
 	default int compareTo(FractionView o) {
-		// Egregious hack because this implementation will not be sticking around
-		return Double.compare(this.toDouble(1), o.toDouble(1));
+		final int result = Long.compare(o.whole(), whole());
+		return result == 0 ? Long.compare(o.numerator() * divisor(), numerator() * o.divisor()) : result;
 	}
 
 	default Fraction toImmutable() {

@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -21,11 +21,16 @@ import java.util.IdentityHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
+
+import net.minecraft.server.MinecraftServer;
+
 import grondag.fluidity.api.transact.Transaction;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.Transactor;
-import net.minecraft.server.MinecraftServer;
 
+@API(status = Status.INTERNAL)
 public final class TransactionImpl implements Transaction {
 
 	public final class ContextImpl implements TransactionContext {
@@ -137,6 +142,7 @@ public final class TransactionImpl implements Transaction {
 	}
 
 	///// STATIC MEMBERS FOLLOW /////
+
 	public static void setServerThread(MinecraftServer server) {
 		serverThread = Thread.currentThread();
 	}

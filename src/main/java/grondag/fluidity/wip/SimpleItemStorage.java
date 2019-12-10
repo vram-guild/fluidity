@@ -1,37 +1,48 @@
 /*******************************************************************************
  * Copyright 2019 grondag
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- *
+ * 
  *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.transact;
+package grondag.fluidity.wip;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import java.util.Arrays;
 
-import grondag.fluidity.impl.TransactionImpl;
+import grondag.fluidity.api.storage.AbstractItemStorage;
+import grondag.fluidity.api.storage.Storage;
+import net.minecraft.item.ItemStack;
 
-@API(status = Status.EXPERIMENTAL)
-public interface Transaction extends AutoCloseable {
-	void rollback();
+public class SimpleItemStorage extends AbstractItemStorage<Void> implements Storage<Void> {
+	protected final int size;
+	protected final ItemStack[] stacks;
 
-	void commit();
-
-	<T extends Transactor> T enlist(T container);
+	public SimpleItemStorage(int size) {
+		this.size = size;
+		stacks = new ItemStack[size];
+		Arrays.fill(stacks, ItemStack.EMPTY);
+	}
 
 	@Override
-	void close();
+	public int slotCount() {
+		return size;
+	}
 
-	static Transaction open() {
-		return TransactionImpl.open();
+	@Override
+	protected ItemStack getStack(int slot) {
+		return stacks[slot];
+	}
+
+	@Override
+	protected void setStack(int slot, ItemStack stack) {
+		stacks[slot] = stack;
 	}
 }

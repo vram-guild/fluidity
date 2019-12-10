@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -15,12 +15,17 @@
  ******************************************************************************/
 package grondag.fluidity.impl;
 
-import grondag.fluidity.api.fraction.FractionView;
 import it.unimi.dsi.fastutil.HashCommon;
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.PacketByteBuf;
 
+import grondag.fluidity.api.fraction.FractionView;
+
+@API(status = Status.INTERNAL)
 public abstract class AbstractFraction implements FractionView {
 	protected long whole;
 	protected long numerator;
@@ -40,7 +45,7 @@ public abstract class AbstractFraction implements FractionView {
 
 	protected AbstractFraction(long numerator, long divisor) {
 		validate(0, numerator, divisor);
-		this.whole = numerator / divisor;
+		whole = numerator / divisor;
 		this.numerator = numerator - whole * divisor;
 		this.divisor = divisor;
 		normalize();
@@ -74,7 +79,7 @@ public abstract class AbstractFraction implements FractionView {
 	}
 
 	public final Tag toTag() {
-		CompoundTag result = new CompoundTag();
+		final CompoundTag result = new CompoundTag();
 		writeTag(result);
 		return result;
 	}
@@ -98,8 +103,8 @@ public abstract class AbstractFraction implements FractionView {
 		if (val == null || !(val instanceof AbstractFraction)) {
 			return false;
 		}
-		AbstractFraction other = (AbstractFraction) val;
-		return other.whole() == this.whole && other.numerator() == this.numerator && other.divisor() == this.divisor;
+		final AbstractFraction other = (AbstractFraction) val;
+		return other.whole() == whole && other.numerator() == numerator && other.divisor() == divisor;
 	}
 
 	@Override
@@ -151,7 +156,7 @@ public abstract class AbstractFraction implements FractionView {
 		}
 
 		// use conventional gcd for rest
-		long gcd = gcd(Math.abs(numerator), divisor);
+		final long gcd = gcd(Math.abs(numerator), divisor);
 		if (gcd != divisor) {
 			numerator /= gcd;
 			divisor /= gcd;
@@ -160,7 +165,7 @@ public abstract class AbstractFraction implements FractionView {
 
 	protected final long gcd(long a, long b) {
 		while (b != 0) {
-			long t = b;
+			final long t = b;
 			b = a % b;
 			a = t;
 		}

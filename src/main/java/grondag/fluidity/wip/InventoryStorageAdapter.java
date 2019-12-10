@@ -13,19 +13,21 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.item.base;
+package grondag.fluidity.wip;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import grondag.fluidity.api.item.ItemArticleView;
 import grondag.fluidity.api.item.ItemStorage;
-import grondag.fluidity.api.storage.StorageImpl;
+import grondag.fluidity.api.item.base.ItemStackView;
+import grondag.fluidity.api.storage.ItemStorage;
 import grondag.fluidity.api.transact.TransactionContext;
+
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 
-public class InventoryStorageAdapter extends StorageImpl<ItemStack, Void, ItemArticleView> implements ItemStorage<Void> {
+public class InventoryStorageAdapter extends ItemStorage<ItemStack, Void, ItemArticleView> implements ItemStorage<Void> {
 	protected final Inventory inventory;
 
 	public InventoryStorageAdapter(Inventory inventory) {
