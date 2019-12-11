@@ -19,6 +19,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import com.google.common.base.Predicates;
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.storage.view.ArticleView;
 import grondag.fluidity.api.transact.Transactor;
@@ -26,15 +28,30 @@ import grondag.fluidity.api.transact.Transactor;
 /**
  * Flexible storage interface for tanks, containers.
  * Interface supports both discrete items and bulk resources (such as fluids.)
- *
- * This allows for
  */
+@API(status = Status.EXPERIMENTAL)
 public interface Storage extends Transactor {
-	boolean isEmpty();
-
-	boolean hasDynamicSlots();
-
 	int slotCount();
+
+	default boolean isEmpty() {
+		final int size = slotCount();
+
+		for (int i = 0; i < size; i++) {
+			if (!view(i).isEmpty()) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	default boolean hasDynamicSlots() {
+		return false;
+	}
+
+	default boolean isSlotValid(int slot) {
+		return slot >=0  && slot < slotCount();
+	}
 
 	<T extends ArticleView> T view(int slot);
 
@@ -67,4 +84,10 @@ public interface Storage extends Transactor {
 	void startListening(Consumer<? super ArticleView> listener, Object connection, Predicate<? super ArticleView> articleFilter);
 
 	void stopListening(Consumer<? super ArticleView> listener);
+
+	/**
+	 * Exposed in interface to allow more methods to have default implementations.
+	 * @param slot Identifies which article should be refreshed to listeners
+	 */
+	void notifyListeners(int slot);
 }

@@ -15,6 +15,9 @@
  ******************************************************************************/
 package grondag.fluidity.api.item.base;
 
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
+
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
@@ -24,6 +27,7 @@ import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.storage.view.BulkArticleView;
 import grondag.fluidity.api.storage.view.ItemArticleView;
 
+@API(status = Status.EXPERIMENTAL)
 public class ItemStackView implements ItemArticleView, BulkArticleView, FractionView {
 	protected Item item;
 	protected CompoundTag tag;

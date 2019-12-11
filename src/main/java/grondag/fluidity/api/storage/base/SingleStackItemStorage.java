@@ -18,21 +18,21 @@ package grondag.fluidity.api.storage.base;
 import java.util.function.Consumer;
 
 import com.google.common.base.Preconditions;
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.item.base.BulkItem;
 import grondag.fluidity.api.item.base.ItemStackView;
 import grondag.fluidity.api.item.base.StackHelper;
-import grondag.fluidity.api.storage.BulkStorage;
 import grondag.fluidity.api.storage.ItemStorage;
 import grondag.fluidity.api.storage.view.ArticleView;
 import grondag.fluidity.api.transact.TransactionContext;
 
-public class SingleStackStorage extends AbstractStorage implements ItemStorage, BulkStorage {
+@API(status = Status.EXPERIMENTAL)
+public class SingleStackItemStorage extends AbstractStorage implements ItemStorage {
 	protected ItemStack stack = ItemStack.EMPTY;
 	protected final ItemStackView view = new ItemStackView();
 
@@ -46,16 +46,10 @@ public class SingleStackStorage extends AbstractStorage implements ItemStorage, 
 		return stack.isEmpty();
 	}
 
-	@Override
-	public boolean hasDynamicSlots() {
-		return false;
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends ArticleView> T view(int slot) {
-		Preconditions.checkElementIndex(slot, 1, "Invalid slot number");
-		return (T) view.prepare(stack, 0);
+		return (T) view.prepare(slot == 0 ? stack : ItemStack.EMPTY, slot);
 	}
 
 	@Override
@@ -81,16 +75,12 @@ public class SingleStackStorage extends AbstractStorage implements ItemStorage, 
 
 	@Override
 	public ItemStack getInvStack(int slot) {
-		Preconditions.checkElementIndex(slot, 1, "Invalid slot number");
-
-		return stack;
+		return slot == 0 ? stack : ItemStack.EMPTY;
 	}
 
 	@Override
 	public ItemStack takeInvStack(int slot, int count) {
-		Preconditions.checkElementIndex(slot, 1, "Invalid slot number");
-
-		if (stack.isEmpty() || count == 0) {
+		if (slot != 0 || stack.isEmpty() || count == 0) {
 			return ItemStack.EMPTY;
 		}
 
@@ -98,7 +88,7 @@ public class SingleStackStorage extends AbstractStorage implements ItemStorage, 
 		final ItemStack result = stack.copy();
 		result.setCount(n);
 		stack.decrement(n);
-		notifyListeners(view.prepare(stack, 0));
+		notifyListeners(0);
 		markDirty();
 
 		return result;
@@ -106,15 +96,13 @@ public class SingleStackStorage extends AbstractStorage implements ItemStorage, 
 
 	@Override
 	public ItemStack removeInvStack(int slot) {
-		Preconditions.checkElementIndex(slot, 1, "Invalid slot number");
-
-		if (stack.isEmpty()) {
+		if (slot != 0 || stack.isEmpty()) {
 			return ItemStack.EMPTY;
 		}
 
 		final ItemStack result = stack;
 		stack = ItemStack.EMPTY;
-		notifyListeners(view.prepare(stack, 0));
+		notifyListeners(0);
 
 		return result;
 	}
@@ -128,20 +116,15 @@ public class SingleStackStorage extends AbstractStorage implements ItemStorage, 
 		}
 
 		stack = itemStack;
-		notifyListeners(view.prepare(stack, 0));
+		notifyListeners(0);
 		markDirty();
-	}
-
-	@Override
-	public void markDirty() {
-		//NOOP - this implementation doesn't support vanilla inventory listeners
 	}
 
 	@Override
 	public void clear() {
 		if (!stack.isEmpty()) {
 			stack = ItemStack.EMPTY;
-			notifyListeners(view.prepare(stack, 0));
+			notifyListeners(0);
 			markDirty();
 		}
 	}
@@ -171,7 +154,7 @@ public class SingleStackStorage extends AbstractStorage implements ItemStorage, 
 				stack = StackHelper.newStack(item, tag, n);
 			}
 
-			notifyListeners(view.prepare(stack, 0));
+			notifyListeners(0);
 		}
 
 		return n;
@@ -191,33 +174,9 @@ public class SingleStackStorage extends AbstractStorage implements ItemStorage, 
 
 		if (!simulate && n != 0) {
 			stack.decrement(n);
-			notifyListeners(view.prepare(stack, 0));
+			notifyListeners(0);
 		}
 
 		return n;
-	}
-
-	@Override
-	public FractionView accept(BulkItem item, FractionView volume, boolean simulate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public FractionView supply(BulkItem item, FractionView volume, boolean simulate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public long accept(BulkItem item, long numerator, long divisor) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public long supply(BulkItem item, long numerator, long divisor) {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 }

@@ -84,6 +84,10 @@ public interface FractionView extends Comparable<FractionView> {
 		return whole() == 0 && numerator() == 0;
 	}
 
+	default boolean isNegative() {
+		return whole() < 0 || (whole() == 0 && numerator() < 0);
+	}
+
 	@Override
 	default int compareTo(FractionView o) {
 		final int result = Long.compare(o.whole(), whole());

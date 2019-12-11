@@ -17,10 +17,14 @@ package grondag.fluidity.api.storage.view;
 
 import javax.annotation.Nullable;
 
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
+
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
+@API(status = Status.EXPERIMENTAL)
 public interface ItemArticleView extends ArticleView {
 	Item item();
 

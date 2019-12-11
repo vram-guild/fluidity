@@ -17,12 +17,16 @@ package grondag.fluidity.api.storage.view;
 
 import javax.annotation.Nullable;
 
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
+
 /**
  * A view of an article stored in a container. (Could be an discrete item or bulk item.) <p>
  *
  * Containers (especially virtual ones) could contain both types of article.
  * Most containers will not need this and should instead use the specific view type for their content.
  */
+@API(status = Status.EXPERIMENTAL)
 public interface ArticleView {
 	/**
 	 * For stores with fixed slots, this represents a specific location within the store.
