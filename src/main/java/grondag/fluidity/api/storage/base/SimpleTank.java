@@ -22,12 +22,16 @@ import com.mojang.datafixers.util.Pair;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+
 import grondag.fluidity.api.article.ArticleView;
 import grondag.fluidity.api.article.BulkArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.item.BulkItem;
+import grondag.fluidity.api.item.BulkItemRegistry;
 import grondag.fluidity.api.storage.BulkStorage;
 import grondag.fluidity.api.transact.TransactionContext;
 
@@ -121,21 +125,84 @@ public class SimpleTank extends AbstractStorage implements BulkStorage {
 	}
 
 	@Override
-	public long accept(BulkItem item, long numerator, long divisor) {
+	public long accept(BulkItem item, long numerator, long divisor, boolean simulate) {
 		Preconditions.checkArgument(numerator >= 0, "Request to accept negative volume. (%s)", numerator);
+		Preconditions.checkArgument(divisor >= 1, "Divisor must be >= 1. (%s)", divisor);
 
-		// TODO
+		if (item == BulkItem.NOTHING || numerator == 0 || (item != bulkItem && bulkItem != BulkItem.NOTHING)) {
+			return 0;
+		}
 
-		return 0;
+		// compute available space
+		calc.set(capacity);
+		calc.subtract(content);
+
+		long result = calc.toLong(divisor);
+
+		// can't accept if full
+		if (result == 0) {
+			return 0;
+		}
+
+		// can't accept more than we got
+		if (result > numerator) {
+			result = numerator;
+		}
+
+		if (!simulate) {
+			content.add(result, divisor);
+			notifyListeners(0);
+		}
+
+		return result;
 	}
 
 	@Override
-	public long supply(BulkItem item, long numerator, long divisor) {
+	public long supply(BulkItem item, long numerator, long divisor, boolean simulate) {
 		Preconditions.checkArgument(numerator >= 0, "Request to supply negative volume. (%s)", numerator);
+		Preconditions.checkArgument(divisor >= 1, "Divisor must be >= 1. (%s)", divisor);
 
-		// TODO
+		if (item == BulkItem.NOTHING || item != bulkItem || content.isZero() || numerator == 0) {
+			return 0;
+		}
 
-		return 0;
+		calc.set(content);
+		calc.floor(divisor);
+
+		long result = calc.toLong(divisor);
+
+		if (result == 0) {
+			return 0;
+		}
+
+		if (result > numerator) {
+			result = numerator;
+		}
+
+		if (!simulate) {
+			content.subtract(result, divisor);
+			notifyListeners(0);
+		}
+
+		return result;
+	}
+
+	public void writeTag(CompoundTag tag) {
+		tag.put("capacity",capacity.toTag());
+		tag.put("content",content.toTag());
+		tag.putString("bulkItem", BulkItemRegistry.INSTANCE.getId(bulkItem).toString());
+	}
+
+	public Tag toTag() {
+		final CompoundTag result = new CompoundTag();
+		writeTag(result);
+		return result;
+	}
+
+	public void readTag(CompoundTag tag) {
+		capacity = new Fraction(tag.getCompound("capacity"));
+		content.readTag(tag.getCompound("content"));
+		bulkItem = BulkItemRegistry.INSTANCE.get(tag.getString("bulkItem"));
 	}
 
 	protected class View implements BulkArticleView {

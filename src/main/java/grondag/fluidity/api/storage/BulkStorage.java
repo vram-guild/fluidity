@@ -34,7 +34,7 @@ public interface BulkStorage extends Storage {
 	 *
 	 * @param item  The stuff to add
 	 * @param volume How much to add
-	 * @param simulate If true, forecasts the result without making any changes
+	 * @param simulate If true, forecasts the result without making any changes.
 	 * @return How much stuff was added
 	 */
 	FractionView accept(BulkItem item, FractionView volume, boolean simulate);
@@ -50,7 +50,7 @@ public interface BulkStorage extends Storage {
 	 *
 	 * @param item  The stuff to remove
 	 * @param volume How much to remove
-	 * @param simulate If true, forecasts the result without making any changes
+	 * @param simulate If true, forecasts the result without making any changes.
 	 * @return How much stuff was removed
 	 */
 	FractionView supply(BulkItem item, FractionView volume, boolean simulate);
@@ -68,9 +68,10 @@ public interface BulkStorage extends Storage {
 	 * @param item The stuff to add
 	 * @param numerator Fractional units to add. Can be zero.
 	 * @param divisor Denominator of units to add. Must be >= 1.
+	 * @param simulate If true, forecasts the result without making any changes.
 	 * @return How much was added, in units of given denominator.
 	 */
-	long accept(BulkItem item, long numerator, long divisor);
+	long accept(BulkItem item, long numerator, long divisor, boolean simulate);
 
 	/**
 	 * As with {@link #supply(BulkItem, FractionView, boolean)} BUT the result
@@ -85,7 +86,8 @@ public interface BulkStorage extends Storage {
 	 * @param item The stuff to remove
 	 * @param numerator Fractional units to remove. Can be zero.
 	 * @param divisor Denominator of units to add. Must be >= 1.
+	 * @param simulate If true, forecasts the result without making any changes.
 	 * @return How much was removed, in units of given denominator.
 	 */
-	long supply(BulkItem item, long numerator, long divisor);
+	long supply(BulkItem item, long numerator, long divisor, boolean simulate);
 }

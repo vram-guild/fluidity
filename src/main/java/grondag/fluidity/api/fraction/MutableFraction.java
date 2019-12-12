@@ -126,6 +126,16 @@ public final class MutableFraction extends AbstractFraction {
 		normalize();
 	}
 
+	/**
+	 * Rounds down to multiple of divisor if not already divisible by it.
+	 * @param divisor Desired multiple
+	 */
+	public void floor(long divisor) {
+		if(this.divisor != divisor) {
+			this.set(whole, numerator * divisor / this.divisor, divisor);
+		}
+	}
+
 	@Override
 	public void readBuffer(PacketByteBuf buffer) {
 		super.readBuffer(buffer);
