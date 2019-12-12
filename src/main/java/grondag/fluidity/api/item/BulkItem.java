@@ -13,12 +13,30 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.storage.compat;
+package grondag.fluidity.api.item;
+
+import javax.annotation.Nullable;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-@API(status = Status.EXPERIMENTAL)
-public class FluidAdapter {
+import net.minecraft.fluid.Fluid;
 
+/**
+ * Represents a game resource that may be a fluid, or may be some other
+ * thing that is quantified as fractional amounts instead of discrete fixed units.<p>
+ *
+ * Typically would be implemented on (@code Item}.
+ */
+@FunctionalInterface
+@API(status = Status.EXPERIMENTAL)
+public interface BulkItem {
+	@Nullable
+	Fluid toFluid();
+
+	default boolean isFluid() {
+		return toFluid() != null;
+	}
+
+	BulkItem NOTHING = () -> null;
 }

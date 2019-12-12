@@ -22,7 +22,7 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.api.item.base.StackHelper;
+import grondag.fluidity.api.item.StackHelper;
 import grondag.fluidity.api.storage.ItemStorage;
 
 @API(status = Status.EXPERIMENTAL)

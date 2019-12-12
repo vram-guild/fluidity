@@ -13,28 +13,60 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.item.base;
+package grondag.fluidity.api.article;
 
 import javax.annotation.Nullable;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.fluid.Fluid;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
-/**
- * Represents a game resource that may be a fluid, or may be some other
- * thing that is quantified as fractional amounts instead of discrete fixed units.<p>
- *
- * Typically would be implemented on (@code Item}.
- */
-@FunctionalInterface
 @API(status = Status.EXPERIMENTAL)
-public interface BulkItem {
-	@Nullable
-	Fluid toFluid();
+@FunctionalInterface
+public interface ItemArticleView extends ArticleView {
+	default Item item()  {
+		return toStack().getItem();
+	}
 
-	default boolean isFluid() {
-		return toFluid() != null;
+	@Nullable default CompoundTag tag() {
+		return toStack().getTag();
+	}
+
+	@Override
+	default int slot() {
+		return 0;
+	}
+
+	@Override
+	default boolean isEmpty() {
+		return toStack().isEmpty();
+	}
+
+	ItemStack toStack();
+
+	default long count() {
+		return toStack().getCount();
+	}
+
+	default boolean isItemEqual(ItemStack stack)  {
+		return toStack().isItemEqual(stack);
+	}
+
+	default boolean hasTag() {
+		return toStack().hasTag();
+	}
+
+	@Override
+	default boolean isItem() {
+		return true;
+	}
+
+	@Override
+	@Nullable
+	default ItemArticleView toItemView() {
+		return this;
 	}
 }

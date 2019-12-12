@@ -19,7 +19,7 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.item.base.BulkItem;
+import grondag.fluidity.api.item.BulkItem;
 
 @API(status = Status.EXPERIMENTAL)
 public interface BulkStorage extends Storage {

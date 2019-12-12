@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.item.base;
+package grondag.fluidity.api.article;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
@@ -24,25 +24,25 @@ import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
-import grondag.fluidity.api.storage.view.BulkArticleView;
-import grondag.fluidity.api.storage.view.ItemArticleView;
+import grondag.fluidity.api.item.BulkItem;
+import grondag.fluidity.api.item.StackHelper;
 
 @API(status = Status.EXPERIMENTAL)
-public class ItemStackView implements ItemArticleView, BulkArticleView, FractionView {
+public class CompoundStackView implements ItemArticleView, BulkArticleView, FractionView {
 	protected Item item;
 	protected CompoundTag tag;
 	protected boolean isBulk;
 	protected MutableFraction fraction;
 	protected int slot;
 
-	public ItemStackView() {
+	public CompoundStackView() {
 	}
 
-	public ItemStackView(ItemStack stack, int slot) {
+	public CompoundStackView(ItemStack stack, int slot) {
 		prepare(stack, slot);
 	}
 
-	public ItemStackView prepare(ItemStack stack, int slot) {
+	public CompoundStackView prepare(ItemStack stack, int slot) {
 		item = stack.getItem();
 		tag = stack.getTag();
 
@@ -140,7 +140,7 @@ public class ItemStackView implements ItemArticleView, BulkArticleView, Fraction
 		return StackHelper.areItemsEqual(item, tag, stack);
 	}
 
-	public static ItemStackView of(ItemStack stack) {
-		return new  ItemStackView().prepare(stack, 0);
+	public static CompoundStackView of(ItemStack stack) {
+		return new  CompoundStackView().prepare(stack, 0);
 	}
 }

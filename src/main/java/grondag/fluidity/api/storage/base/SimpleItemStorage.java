@@ -24,10 +24,10 @@ import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.api.item.base.ItemStackView;
-import grondag.fluidity.api.item.base.StackHelper;
+import grondag.fluidity.api.article.ArticleView;
+import grondag.fluidity.api.article.ItemStackView;
+import grondag.fluidity.api.item.StackHelper;
 import grondag.fluidity.api.storage.ItemStorage;
-import grondag.fluidity.api.storage.view.ArticleView;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.TransactionHelper;
 

@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.storage.compat;
+package grondag.fluidity.api.compat;
 
 import java.util.function.Consumer;
 
@@ -23,10 +23,10 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.api.item.base.ItemStackView;
+import grondag.fluidity.api.article.ArticleView;
+import grondag.fluidity.api.article.ItemStackView;
 import grondag.fluidity.api.storage.ItemStorage;
 import grondag.fluidity.api.storage.base.AbstractStorage;
-import grondag.fluidity.api.storage.view.ArticleView;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.TransactionHelper;
 

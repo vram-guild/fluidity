@@ -15,6 +15,8 @@
  ******************************************************************************/
 package grondag.fluidity.api.storage;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Preconditions;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
@@ -28,7 +30,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.recipe.RecipeFinder;
 import net.minecraft.recipe.RecipeInputProvider;
 
-import grondag.fluidity.api.item.base.StackHelper;
+import grondag.fluidity.api.item.StackHelper;
 
 @API(status = Status.EXPERIMENTAL)
 public interface ItemStorage extends Storage, Inventory, RecipeInputProvider {
@@ -41,7 +43,7 @@ public interface ItemStorage extends Storage, Inventory, RecipeInputProvider {
 	 * @param simulate If true, will forecast result without making changes.
 	 * @return Count added, or that would be added if {@code simulate} = true.
 	 */
-	default long accept(Item item, CompoundTag tag, long count, boolean simulate) {
+	default long accept(Item item, @Nullable CompoundTag tag, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to accept null item");
 
@@ -114,7 +116,7 @@ public interface ItemStorage extends Storage, Inventory, RecipeInputProvider {
 	 * @param simulate If true, will forecast result without making changes.
 	 * @return Count removed, or that would be removed if {@code simulate} = true.
 	 */
-	default long supply(Item item, CompoundTag tag, long count, boolean simulate) {
+	default long supply(Item item, @Nullable CompoundTag tag, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to supply null item");
 

@@ -13,33 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.storage.view;
-
-import javax.annotation.Nullable;
+package grondag.fluidity.api.compat;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.item.base.BulkItem;
-
-/**
- * View of a bulk item in storage.
- */
 @API(status = Status.EXPERIMENTAL)
-public interface BulkArticleView extends ArticleView {
-	BulkItem bulkItem();
+public class FluidAdapter {
 
-	FractionView volume();
-
-	@Override
-	default boolean isBulk() {
-		return true;
-	}
-
-	@Override
-	@Nullable
-	default BulkArticleView toBulkView() {
-		return  this;
-	}
 }

@@ -18,11 +18,13 @@ package grondag.fluidity.api.storage;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Predicates;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.storage.view.ArticleView;
+import grondag.fluidity.api.article.ArticleView;
 import grondag.fluidity.api.transact.Transactor;
 
 /**
@@ -53,13 +55,13 @@ public interface Storage extends Transactor {
 		return slot >=0  && slot < slotCount();
 	}
 
-	<T extends ArticleView> T view(int slot);
+	@Nullable <T extends ArticleView> T view(int slot);
 
 	default boolean isSlotVisibleFrom(Object connection) {
 		return true;
 	}
 
-	default void forEach(Object connection, Predicate<? super ArticleView> filter, Predicate<? super ArticleView> action) {
+	default void forEach(@Nullable Object connection, Predicate<? super ArticleView> filter, Predicate<? super ArticleView> action) {
 		final int limit = slotCount();
 
 		for (int i = 0; i < limit; i++) {
@@ -73,7 +75,7 @@ public interface Storage extends Transactor {
 		}
 	}
 
-	default void forEach(Object connection, Predicate<? super ArticleView> action) {
+	default void forEach(@Nullable Object connection, Predicate<? super ArticleView> action) {
 		forEach(connection, Predicates.alwaysTrue(), action);
 	}
 
@@ -81,7 +83,7 @@ public interface Storage extends Transactor {
 		forEach(null, Predicates.alwaysTrue(), action);
 	}
 
-	void startListening(Consumer<? super ArticleView> listener, Object connection, Predicate<? super ArticleView> articleFilter);
+	void startListening(Consumer<? super ArticleView> listener, @Nullable Object connection, Predicate<? super ArticleView> articleFilter);
 
 	void stopListening(Consumer<? super ArticleView> listener);
 

@@ -25,10 +25,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.item.base.ItemStackView;
-import grondag.fluidity.api.item.base.StackHelper;
+import grondag.fluidity.api.article.ArticleView;
+import grondag.fluidity.api.article.ItemStackView;
+import grondag.fluidity.api.item.StackHelper;
 import grondag.fluidity.api.storage.ItemStorage;
-import grondag.fluidity.api.storage.view.ArticleView;
 import grondag.fluidity.api.transact.TransactionContext;
 
 @API(status = Status.EXPERIMENTAL)

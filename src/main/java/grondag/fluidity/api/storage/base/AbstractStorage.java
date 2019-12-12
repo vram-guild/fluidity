@@ -23,8 +23,8 @@ import java.util.function.Predicate;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import grondag.fluidity.api.article.ArticleView;
 import grondag.fluidity.api.storage.Storage;
-import grondag.fluidity.api.storage.view.ArticleView;
 import grondag.fluidity.api.transact.TransactionContext;
 
 @API(status = Status.EXPERIMENTAL)

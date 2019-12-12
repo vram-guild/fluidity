@@ -13,39 +13,33 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.storage.view;
+package grondag.fluidity.api.article;
 
 import javax.annotation.Nullable;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.item.BulkItem;
 
+/**
+ * View of a bulk item in storage.
+ */
 @API(status = Status.EXPERIMENTAL)
-public interface ItemArticleView extends ArticleView {
-	Item item();
+public interface BulkArticleView extends ArticleView {
+	BulkItem bulkItem();
 
-	CompoundTag tag();
-
-	ItemStack toStack();
-
-	long count();
-
-	boolean isItemEqual(ItemStack stack);
-
-	boolean hasTag();
+	FractionView volume();
 
 	@Override
-	default boolean isItem() {
+	default boolean isBulk() {
 		return true;
 	}
 
 	@Override
 	@Nullable
-	default ItemArticleView toItemView() {
-		return this;
+	default BulkArticleView toBulkView() {
+		return  this;
 	}
 }

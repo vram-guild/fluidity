@@ -94,6 +94,22 @@ public interface FractionView extends Comparable<FractionView> {
 		return result == 0 ? Long.compare(o.numerator() * divisor(), numerator() * o.divisor()) : result;
 	}
 
+	default boolean isGreaterThan(FractionView other) {
+		return compareTo(other) > 0;
+	}
+
+	default boolean isGreaterThankOrEqual(FractionView other) {
+		return compareTo(other) >= 0;
+	}
+
+	default boolean isLessThan(FractionView other) {
+		return compareTo(other) < 0;
+	}
+
+	default boolean isLessThankOrEqual(FractionView other) {
+		return compareTo(other) <= 0;
+	}
+
 	default Fraction toImmutable() {
 		return Fraction.of(whole(), numerator(), divisor());
 	}
