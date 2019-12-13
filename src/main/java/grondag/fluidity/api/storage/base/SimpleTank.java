@@ -15,8 +15,6 @@
  ******************************************************************************/
 package grondag.fluidity.api.storage.base;
 
-import java.util.function.Consumer;
-
 import com.google.common.base.Preconditions;
 import com.mojang.datafixers.util.Pair;
 import org.apiguardian.api.API;
@@ -33,14 +31,12 @@ import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.item.BulkItem;
 import grondag.fluidity.api.item.BulkItemRegistry;
 import grondag.fluidity.api.storage.BulkStorage;
-import grondag.fluidity.api.transact.TransactionContext;
 
 @API(status = Status.EXPERIMENTAL)
-public class SimpleTank extends AbstractStorage implements BulkStorage {
+public class SimpleTank extends AbstractLazyRollbackStorage implements BulkStorage {
 	protected final MutableFraction content = new MutableFraction();
 	protected final MutableFraction calc = new MutableFraction();
 	protected final View view = new View();
-	protected final Consumer<TransactionContext> rollbackHandler = this::handleRollback;
 
 	protected BulkItem bulkItem = BulkItem.NOTHING;
 	protected Fraction capacity;
@@ -58,22 +54,6 @@ public class SimpleTank extends AbstractStorage implements BulkStorage {
 	@Override
 	public <T extends ArticleView> T view(int slot) {
 		return  slot == 0 ? (T) view : null;
-	}
-
-	@Override
-	public Consumer<TransactionContext> prepareRollback(TransactionContext context) {
-		context.setState(Pair.of(bulkItem, content.toImmutable()));
-		return rollbackHandler;
-	}
-
-	@Override
-	protected void handleRollback(TransactionContext context) {
-		if (!context.isCommited()) {
-			final Pair<BulkItem, Fraction> state = context.getState();
-			bulkItem = state.getFirst();
-			content.set(state.getSecond());
-			notifyListeners(0);
-		}
 	}
 
 	@Override
@@ -99,6 +79,7 @@ public class SimpleTank extends AbstractStorage implements BulkStorage {
 		}
 
 		if (!simulate) {
+			rollbackHandler.prepareIfNeeded();
 			content.add(calc);
 			notifyListeners(0);
 		}
@@ -117,6 +98,7 @@ public class SimpleTank extends AbstractStorage implements BulkStorage {
 		calc.set(content.isLessThan(volume) ? content : volume);
 
 		if (!simulate) {
+			rollbackHandler.prepareIfNeeded();
 			content.subtract(calc);
 			notifyListeners(0);
 		}
@@ -150,6 +132,7 @@ public class SimpleTank extends AbstractStorage implements BulkStorage {
 		}
 
 		if (!simulate) {
+			rollbackHandler.prepareIfNeeded();
 			content.add(result, divisor);
 			notifyListeners(0);
 		}
@@ -180,6 +163,7 @@ public class SimpleTank extends AbstractStorage implements BulkStorage {
 		}
 
 		if (!simulate) {
+			rollbackHandler.prepareIfNeeded();
 			content.subtract(result, divisor);
 			notifyListeners(0);
 		}
@@ -225,5 +209,19 @@ public class SimpleTank extends AbstractStorage implements BulkStorage {
 		public FractionView volume() {
 			return content;
 		}
+	}
+
+	@Override
+	protected Object createRollbackState() {
+		return Pair.of(bulkItem, content.toImmutable());
+	}
+
+	@Override
+	protected void applyRollbackState(Object state) {
+		@SuppressWarnings("unchecked")
+		final Pair<BulkItem, Fraction> pair = (Pair<BulkItem, Fraction>) state;
+		bulkItem = pair.getFirst();
+		content.set(pair.getSecond());
+		notifyListeners(0);
 	}
 }

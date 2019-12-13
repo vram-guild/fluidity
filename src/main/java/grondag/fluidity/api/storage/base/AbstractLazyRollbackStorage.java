@@ -13,20 +13,26 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.transact;
+package grondag.fluidity.api.storage.base;
 
 import java.util.function.Consumer;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import grondag.fluidity.api.transact.LazyRollbackHandler;
+import grondag.fluidity.api.transact.TransactionContext;
+
 @API(status = Status.EXPERIMENTAL)
-public interface TransactionContext {
-	<T> void setState(T state);
+public abstract class AbstractLazyRollbackStorage extends AbstractStorage {
+	protected final LazyRollbackHandler rollbackHandler = new LazyRollbackHandler(this::createRollbackState, this::applyRollbackState);
 
-	<T> T getState();
+	protected abstract Object createRollbackState();
 
-	boolean isCommited();
+	protected abstract void applyRollbackState(Object state);
 
-	Consumer<Transactor> enlister();
+	@Override
+	public final Consumer<TransactionContext> prepareRollback(TransactionContext context) {
+		return rollbackHandler.prepareExternal(context);
+	}
 }

@@ -15,8 +15,6 @@
  ******************************************************************************/
 package grondag.fluidity.api.compat;
 
-import java.util.function.Consumer;
-
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
@@ -25,13 +23,12 @@ import net.minecraft.item.ItemStack;
 
 import grondag.fluidity.api.article.ArticleView;
 import grondag.fluidity.api.article.ItemStackView;
-import grondag.fluidity.api.storage.ItemStorage;
-import grondag.fluidity.api.storage.base.AbstractStorage;
-import grondag.fluidity.api.transact.TransactionContext;
+import grondag.fluidity.api.storage.ItemInventoryStorage;
+import grondag.fluidity.api.storage.base.AbstractLazyRollbackStorage;
 import grondag.fluidity.api.transact.TransactionHelper;
 
 @API(status = Status.EXPERIMENTAL)
-public class InventoryAdapter extends AbstractStorage implements ItemStorage {
+public class InventoryAdapter extends AbstractLazyRollbackStorage implements ItemInventoryStorage {
 	protected Inventory inventory;
 	protected final ItemStackView view = new ItemStackView();
 
@@ -66,17 +63,6 @@ public class InventoryAdapter extends AbstractStorage implements ItemStorage {
 	}
 
 	@Override
-	public Consumer<TransactionContext> prepareRollback(TransactionContext context) {
-		TransactionHelper.prepareInventoryRollbackHandler(context, this);
-		return rollbackHandler;
-	}
-
-	@Override
-	protected void handleRollback(TransactionContext context) {
-		TransactionHelper.applyInventoryRollbackHandler(context, this);
-	}
-
-	@Override
 	public ItemStack getInvStack(int slot) {
 		return inventory.getInvStack(slot);
 	}
@@ -104,5 +90,15 @@ public class InventoryAdapter extends AbstractStorage implements ItemStorage {
 	@Override
 	public void markDirty() {
 		inventory.markDirty();
+	}
+
+	@Override
+	protected Object createRollbackState() {
+		return TransactionHelper.prepareInventoryRollbackState(this);
+	}
+
+	@Override
+	protected void applyRollbackState(Object state) {
+		TransactionHelper.applyInventoryRollbackState(state, this);
 	}
 }

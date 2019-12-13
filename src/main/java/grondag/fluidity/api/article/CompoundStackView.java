@@ -25,7 +25,6 @@ import net.minecraft.nbt.CompoundTag;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.item.BulkItem;
-import grondag.fluidity.api.item.StackHelper;
 
 @API(status = Status.EXPERIMENTAL)
 public class CompoundStackView implements ItemArticleView, BulkArticleView, FractionView {
@@ -133,11 +132,6 @@ public class CompoundStackView implements ItemArticleView, BulkArticleView, Frac
 	@Override
 	public BulkArticleView toBulkView() {
 		return isBulk ? this : null;
-	}
-
-	@Override
-	public boolean isItemEqual(ItemStack stack) {
-		return StackHelper.areItemsEqual(item, tag, stack);
 	}
 
 	public static CompoundStackView of(ItemStack stack) {

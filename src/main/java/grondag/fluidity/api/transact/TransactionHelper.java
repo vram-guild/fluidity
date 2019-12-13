@@ -23,11 +23,12 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 
 import grondag.fluidity.api.item.StackHelper;
-import grondag.fluidity.api.storage.ItemStorage;
+import grondag.fluidity.api.storage.ItemInventoryStorage;
 
 @API(status = Status.EXPERIMENTAL)
 public class TransactionHelper {
-	public static void prepareInventoryRollbackHandler(TransactionContext context, ItemStorage storage) {
+
+	public static Object prepareInventoryRollbackState(ItemInventoryStorage storage) {
 		final int size = storage.getInvSize();
 		final ItemStack[] state = new ItemStack[size];
 
@@ -35,24 +36,33 @@ public class TransactionHelper {
 			state[i] = storage.getInvStack(i).copy();
 		}
 
-		context.setState(state);
+		return state;
+
+	}
+
+	public static void prepareInventoryRollbackHandler(TransactionContext context, ItemInventoryStorage storage) {
+		context.setState(prepareInventoryRollbackState(storage));
+	}
+
+	public static void applyInventoryRollbackState(Object state, Inventory storage) {
+		final int size = storage.getInvSize();
+		final ItemStack[] stacks = (ItemStack[]) state;
+
+		for (int i = 0; i < size; i++) {
+			final ItemStack myStack = storage.getInvStack(i);
+			final ItemStack stateStack = stacks[i];
+
+			if (StackHelper.areStacksEqual(myStack, stateStack)) {
+				continue;
+			}
+
+			storage.setInvStack(i, stateStack);
+		}
 	}
 
 	public static void applyInventoryRollbackHandler(TransactionContext context, Inventory storage) {
 		if (!context.isCommited()) {
-			final int size = storage.getInvSize();
-			final ItemStack[] state = context.getState();
-
-			for (int i = 0; i < size; i++) {
-				final ItemStack myStack = storage.getInvStack(i);
-				final ItemStack stateStack = state[i];
-
-				if (StackHelper.areStacksEqual(myStack, stateStack)) {
-					continue;
-				}
-
-				storage.setInvStack(i, stateStack);
-			}
+			applyInventoryRollbackState(context.getState(), storage);
 		}
 	}
 }

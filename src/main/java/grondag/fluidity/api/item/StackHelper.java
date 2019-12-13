@@ -25,12 +25,12 @@ import net.minecraft.nbt.CompoundTag;
 
 @API(status = Status.EXPERIMENTAL)
 public class StackHelper {
-	public static ItemStack newStack(Item item, CompoundTag tag, int count) {
-		if (item == null || item == Items.AIR) {
+	public static ItemStack newStack(Item item, CompoundTag tag, long count) {
+		if (item == null || item == Items.AIR || count <= 0) {
 			return ItemStack.EMPTY;
 		}
 
-		final ItemStack result = new ItemStack(item, count);
+		final ItemStack result = new ItemStack(item, (int) Math.min(item.getMaxCount(), count));
 		result.setTag(tag);
 		return result;
 	}

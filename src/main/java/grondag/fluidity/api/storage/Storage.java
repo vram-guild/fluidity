@@ -15,6 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.api.storage;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -83,13 +84,42 @@ public interface Storage extends Transactor {
 		forEach(null, Predicates.alwaysTrue(), action);
 	}
 
-	void startListening(Consumer<? super ArticleView> listener, @Nullable Object connection, Predicate<? super ArticleView> articleFilter);
-
-	void stopListening(Consumer<? super ArticleView> listener);
-
 	/**
 	 * Exposed in interface to allow more methods to have default implementations.
 	 * @param slot Identifies which article should be refreshed to listeners
 	 */
-	void notifyListeners(int slot);
+	List<Consumer<? super ArticleView>> listeners();
+
+	default void startListening(Consumer<? super ArticleView> listener, Object connection, Predicate<? super ArticleView> articleFilter) {
+		listeners().add(listener);
+
+		this.forEach(v -> {
+			listener.accept(v);
+			return true;
+		});
+	}
+
+	default void stopListening(Consumer<? super ArticleView> listener) {
+		listeners().remove(listener);
+	}
+
+	default void notifyListeners(int slot) {
+		notifyListeners(view(slot));
+	}
+
+	/**
+	 * @param view  For convenience of implementations, does nothing if null.
+	 */
+	default void notifyListeners(@Nullable ArticleView view) {
+		if(view == null) {
+			return;
+		}
+
+		final List<Consumer<? super ArticleView>> listeners = listeners();
+		final int limit = listeners.size();
+
+		for (int i = 0; i < limit; i++) {
+			listeners.get(i).accept(view);
+		}
+	}
 }

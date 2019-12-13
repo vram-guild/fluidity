@@ -15,8 +15,6 @@
  ******************************************************************************/
 package grondag.fluidity.api.storage.base;
 
-import java.util.function.Consumer;
-
 import com.google.common.base.Preconditions;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
@@ -28,11 +26,10 @@ import net.minecraft.nbt.CompoundTag;
 import grondag.fluidity.api.article.ArticleView;
 import grondag.fluidity.api.article.ItemStackView;
 import grondag.fluidity.api.item.StackHelper;
-import grondag.fluidity.api.storage.ItemStorage;
-import grondag.fluidity.api.transact.TransactionContext;
+import grondag.fluidity.api.storage.ItemInventoryStorage;
 
 @API(status = Status.EXPERIMENTAL)
-public class SingleStackItemStorage extends AbstractStorage implements ItemStorage {
+public class SingleStackItemStorage extends AbstractLazyRollbackStorage implements ItemInventoryStorage {
 	protected ItemStack stack = ItemStack.EMPTY;
 	protected final ItemStackView view = new ItemStackView();
 
@@ -50,17 +47,6 @@ public class SingleStackItemStorage extends AbstractStorage implements ItemStora
 	@Override
 	public <T extends ArticleView> T view(int slot) {
 		return (T) view.prepare(slot == 0 ? stack : ItemStack.EMPTY, slot);
-	}
-
-	@Override
-	public Consumer<TransactionContext> prepareRollback(TransactionContext context) {
-		context.setState(stack.copy());
-		return rollbackHandler;
-	}
-
-	@Override
-	protected void handleRollback(TransactionContext context) {
-		stack = context.getState();
 	}
 
 	@Override
@@ -84,6 +70,7 @@ public class SingleStackItemStorage extends AbstractStorage implements ItemStora
 			return ItemStack.EMPTY;
 		}
 
+		rollbackHandler.prepareIfNeeded();
 		final int n = Math.min(count, stack.getCount());
 		final ItemStack result = stack.copy();
 		result.setCount(n);
@@ -100,6 +87,7 @@ public class SingleStackItemStorage extends AbstractStorage implements ItemStora
 			return ItemStack.EMPTY;
 		}
 
+		rollbackHandler.prepareIfNeeded();
 		final ItemStack result = stack;
 		stack = ItemStack.EMPTY;
 		notifyListeners(0);
@@ -115,6 +103,7 @@ public class SingleStackItemStorage extends AbstractStorage implements ItemStora
 			return;
 		}
 
+		rollbackHandler.prepareIfNeeded();
 		stack = itemStack;
 		notifyListeners(0);
 		markDirty();
@@ -123,6 +112,7 @@ public class SingleStackItemStorage extends AbstractStorage implements ItemStora
 	@Override
 	public void clear() {
 		if (!stack.isEmpty()) {
+			rollbackHandler.prepareIfNeeded();
 			stack = ItemStack.EMPTY;
 			notifyListeners(0);
 			markDirty();
@@ -148,6 +138,8 @@ public class SingleStackItemStorage extends AbstractStorage implements ItemStora
 		}
 
 		if (!simulate && n != 0) {
+			rollbackHandler.prepareIfNeeded();
+
 			if (keepStack) {
 				stack.increment(n);
 			} else {
@@ -173,10 +165,21 @@ public class SingleStackItemStorage extends AbstractStorage implements ItemStora
 		}
 
 		if (!simulate && n != 0) {
+			rollbackHandler.prepareIfNeeded();
 			stack.decrement(n);
 			notifyListeners(0);
 		}
 
 		return n;
+	}
+
+	@Override
+	protected Object createRollbackState() {
+		return stack.copy();
+	}
+
+	@Override
+	protected void applyRollbackState(Object state) {
+		stack = (ItemStack) state;
 	}
 }

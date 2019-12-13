@@ -22,8 +22,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.item.StackHelper;
-
 @API(status = Status.EXPERIMENTAL)
 public class ItemStackView implements ItemArticleView {
 	protected Item item;
@@ -92,11 +90,6 @@ public class ItemStackView implements ItemArticleView {
 	@Override
 	public boolean isBulk() {
 		return false;
-	}
-
-	@Override
-	public boolean isItemEqual(ItemStack stack) {
-		return StackHelper.areItemsEqual(item, tag, stack);
 	}
 
 	public static ItemStackView of(ItemStack stack) {

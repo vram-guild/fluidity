@@ -16,7 +16,6 @@
 package grondag.fluidity.api.storage.base;
 
 import java.util.Arrays;
-import java.util.function.Consumer;
 
 import com.google.common.base.Preconditions;
 import org.apiguardian.api.API;
@@ -27,8 +26,7 @@ import net.minecraft.item.ItemStack;
 import grondag.fluidity.api.article.ArticleView;
 import grondag.fluidity.api.article.ItemStackView;
 import grondag.fluidity.api.item.StackHelper;
-import grondag.fluidity.api.storage.ItemStorage;
-import grondag.fluidity.api.transact.TransactionContext;
+import grondag.fluidity.api.storage.ItemInventoryStorage;
 import grondag.fluidity.api.transact.TransactionHelper;
 
 /**
@@ -41,7 +39,7 @@ import grondag.fluidity.api.transact.TransactionHelper;
  *
  */
 @API(status = Status.EXPERIMENTAL)
-public class SimpleItemStorage extends AbstractStorage implements ItemStorage {
+public class SimpleItemStorage extends AbstractLazyRollbackStorage implements ItemInventoryStorage {
 	protected int slotCount;
 	protected ItemStack[] stacks;
 	protected final ItemStackView view = new ItemStackView();
@@ -64,17 +62,6 @@ public class SimpleItemStorage extends AbstractStorage implements ItemStorage {
 	}
 
 	@Override
-	public Consumer<TransactionContext> prepareRollback(TransactionContext context) {
-		TransactionHelper.prepareInventoryRollbackHandler(context, this);
-		return rollbackHandler;
-	}
-
-	@Override
-	protected void handleRollback(TransactionContext context) {
-		TransactionHelper.applyInventoryRollbackHandler(context, this);
-	}
-
-	@Override
 	public ItemStack getInvStack(int slot) {
 		return isSlotValid(slot) ? stacks[slot] : ItemStack.EMPTY;
 	}
@@ -93,8 +80,19 @@ public class SimpleItemStorage extends AbstractStorage implements ItemStorage {
 			return;
 		}
 
+		rollbackHandler.prepareIfNeeded();
 		stacks[slot] = itemStack;
 		notifyListeners(slot);
 		markDirty();
+	}
+
+	@Override
+	protected Object createRollbackState() {
+		return TransactionHelper.prepareInventoryRollbackState(SimpleItemStorage.this);
+	}
+
+	@Override
+	protected void applyRollbackState(Object state) {
+		TransactionHelper.applyInventoryRollbackState(state, this);
 	}
 }

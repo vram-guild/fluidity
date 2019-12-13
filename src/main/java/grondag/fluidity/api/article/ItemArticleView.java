@@ -51,10 +51,6 @@ public interface ItemArticleView extends ArticleView {
 		return toStack().getCount();
 	}
 
-	default boolean isItemEqual(ItemStack stack)  {
-		return toStack().isItemEqual(stack);
-	}
-
 	default boolean hasTag() {
 		return toStack().hasTag();
 	}

@@ -33,7 +33,7 @@ import grondag.fluidity.api.transact.Transactor;
 @API(status = Status.INTERNAL)
 public final class TransactionImpl implements Transaction {
 
-	public final class ContextImpl implements TransactionContext {
+	private final class ContextImpl implements TransactionContext {
 		private ContextImpl() {
 		}
 
@@ -52,6 +52,11 @@ public final class TransactionImpl implements Transaction {
 		public boolean isCommited() {
 			return isCommited;
 		}
+
+		@Override
+		public Consumer<Transactor> enlister() {
+			return enlister;
+		}
 	}
 
 	private final ContextImpl context = new ContextImpl();
@@ -60,6 +65,7 @@ public final class TransactionImpl implements Transaction {
 	private final IdentityHashMap<Transactor, Consumer<TransactionContext>> participants = new IdentityHashMap<>();
 	private final IdentityHashMap<Transactor, Object> stateStorage = new IdentityHashMap<>();
 	private Transactor contextContainer;
+	private final Consumer<Transactor> enlister = this::enlist;
 
 	private TransactionImpl() {
 	}
