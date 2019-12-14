@@ -25,30 +25,33 @@ import org.apiguardian.api.API.Status;
 
 import net.minecraft.util.math.MathHelper;
 
+import grondag.fluidity.api.article.ArticleView;
+import grondag.fluidity.api.item.ArticleItem;
 import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.Transactor;
 import grondag.fluidity.base.article.AbstractArticle;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractAggregateStorage<T extends AbstractArticle<S>, S extends Storage, K> extends AbstractStorage {
+public abstract class AbstractAggregateStorage<A extends AbstractArticle<S, I>, L extends StorageListener<L>, I extends ArticleItem, S extends AbstractAggregateStorage<A, L, I, S>> extends AbstractStorage<A, L, I> {
 	protected final Consumer<TransactionContext> rollbackHandler = this::handleRollback;
-	protected final Object2ObjectOpenHashMap<K, T> articles = new Object2ObjectOpenHashMap<>();
-	protected final ObjectOpenHashSet<S> stores = new ObjectOpenHashSet<>();
+	protected final Object2ObjectOpenHashMap<I, A> articles = new Object2ObjectOpenHashMap<>();
+	protected final ObjectOpenHashSet<Storage<A, L,I>> stores = new ObjectOpenHashSet<>();
 
 	protected Consumer<Transactor> enlister = t -> {};
 	protected int nextUnusedSlot = 0;
 	protected int emptySlotCount = 0;
 	protected boolean itMe = false;
-	protected T[] slots;
+	protected A[] slots;
 
 	public AbstractAggregateStorage(int startingSlotCount) {
 		startingSlotCount = MathHelper.smallestEncompassingPowerOfTwo(startingSlotCount);
 		@SuppressWarnings("unchecked")
-		final T[] slots = (T[]) Array.newInstance(newArticle().getClass(), startingSlotCount);
+		final A[] slots = (A[]) Array.newInstance(newArticle().getClass(), startingSlotCount);
 
 		for(int i = 0; i < startingSlotCount; i++) {
-			final T a = newArticle();
+			final A a = newArticle();
 			a.slot = i;
 			slots[i] = a;
 		}
@@ -56,7 +59,35 @@ public abstract class AbstractAggregateStorage<T extends AbstractArticle<S>, S e
 		this.slots = slots;
 	}
 
-	protected abstract T newArticle();
+	protected abstract A newArticle();
+
+	protected abstract I keyFromArticleView(ArticleView<I> a);
+
+	protected A findOrCreateArticle(ArticleView<I> a) {
+		final I key = keyFromArticleView(a);
+		A candidate = articles.get(key);
+
+		if(candidate == null) {
+			candidate = getEmptyArticle();
+			candidate.item = key;
+		}
+
+		return candidate;
+	}
+
+	protected abstract L listener();
+
+	@SuppressWarnings("unchecked")
+	public void addStore(Storage<A, L,I> store) {
+		if(stores.add(store)) {
+			store.forEach(Storage.NOT_EMPTY, a -> {
+				findOrCreateArticle(a).addStore((S) store);
+				return true;
+			});
+		}
+
+		store.startListening(listener());
+	}
 
 	public AbstractAggregateStorage() {
 		this(32);
@@ -88,6 +119,10 @@ public abstract class AbstractAggregateStorage<T extends AbstractArticle<S>, S e
 		return rollbackHandler;
 	}
 
+	protected A getEmptyArticle() {
+		return slots[getEmptySlot()];
+	}
+
 	protected int getEmptySlot() {
 		// fill empties first
 		if(emptySlotCount > 0) {
@@ -108,11 +143,11 @@ public abstract class AbstractAggregateStorage<T extends AbstractArticle<S>, S e
 		// add slot capacity
 		final int newCount = slotCount * 2;
 		@SuppressWarnings("unchecked")
-		final T[] newSlots = (T[]) Array.newInstance(newArticle().getClass(), newCount);
+		final A[] newSlots = (A[]) Array.newInstance(newArticle().getClass(), newCount);
 		System.arraycopy(slots, 0, newSlots, 0, slotCount);
 
 		for(int i = slotCount; i < newCount; i++) {
-			final T a = newArticle();
+			final A a = newArticle();
 			a.slot = i;
 			newSlots[i] = a;
 		}
@@ -137,7 +172,7 @@ public abstract class AbstractAggregateStorage<T extends AbstractArticle<S>, S e
 					--nextUnusedSlot;
 				} else {
 					// swap with last non-empty and renumber
-					final T swap = slots[i];
+					final A swap = slots[i];
 					swap.slot = target;
 
 					slots[i] = slots[target];
@@ -151,9 +186,8 @@ public abstract class AbstractAggregateStorage<T extends AbstractArticle<S>, S e
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public T view(int slot) {
+	public A view(int slot) {
 		return slots[slot];
 	}
 }

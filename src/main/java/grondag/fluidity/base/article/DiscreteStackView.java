@@ -18,38 +18,34 @@ package grondag.fluidity.base.article;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.ItemArticleView;
+import grondag.fluidity.api.item.DiscreteItem;
 
 @API(status = Status.EXPERIMENTAL)
-public class ItemStackView implements ItemArticleView {
-	protected Item item;
-	protected CompoundTag tag;
-	protected long count;
+public class DiscreteStackView implements ItemArticleView {
+	protected DiscreteItem item;
+	protected int count;
 	protected int slot;
 
-	public ItemStackView() {
+	public DiscreteStackView() {
 	}
 
-	public ItemStackView(ItemStack stack, int slot) {
+	public DiscreteStackView(ItemStack stack, int slot) {
 		prepare(stack, slot);
 	}
 
-	public ItemStackView prepare(ItemStack stack, int slot) {
-		item = stack.getItem();
-		count = stack.getCount();
-		tag = stack.getTag();
-
-		if (tag != null) {
-			tag = tag.copy();
-		}
-
+	public DiscreteStackView prepare(ItemStack stack, int slot) {
+		item = DiscreteItem.of(stack);
 		this.slot = slot;
-
+		count = stack.getCount();
 		return this;
+	}
+
+	@Override
+	public DiscreteItem item() {
+		return item;
 	}
 
 	@Override
@@ -62,39 +58,7 @@ public class ItemStackView implements ItemArticleView {
 		return slot;
 	}
 
-	@Override
-	public Item item() {
-		return item;
-	}
-
-	@Override
-	public CompoundTag tag() {
-		return tag == null ? null : (CompoundTag) tag.copy();
-	}
-
-	@Override
-	public boolean hasTag() {
-		return tag != null;
-	}
-
-	@Override
-	public ItemStack toStack() {
-		final ItemStack result = new ItemStack(item);
-		result.setTag(tag.copy());
-		return result;
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return count == 0;
-	}
-
-	@Override
-	public boolean isBulk() {
-		return false;
-	}
-
-	public static ItemStackView of(ItemStack stack) {
-		return new  ItemStackView().prepare(stack, 0);
+	public static DiscreteStackView of(ItemStack stack) {
+		return new  DiscreteStackView().prepare(stack, 0);
 	}
 }

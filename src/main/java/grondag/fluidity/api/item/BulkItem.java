@@ -21,6 +21,7 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.fluid.Fluid;
+import net.minecraft.nbt.CompoundTag;
 
 /**
  * Represents a game resource that may be a fluid, or may be some other
@@ -30,7 +31,7 @@ import net.minecraft.fluid.Fluid;
  */
 @FunctionalInterface
 @API(status = Status.EXPERIMENTAL)
-public interface BulkItem {
+public interface BulkItem extends ArticleItem {
 	@Nullable
 	Fluid toFluid();
 
@@ -38,5 +39,24 @@ public interface BulkItem {
 		return toFluid() != null;
 	}
 
+	@Override
+	default boolean isBulk() {
+		return true;
+	}
+
+	@Override
+	default boolean isItem() {
+		return false;
+	}
+
+	@Override
+	default void writeTag(CompoundTag tag, String tagName) {
+		tag.putString(tagName, BulkItemRegistry.INSTANCE.getId(this).toString());
+	}
+
 	BulkItem NOTHING = () -> null;
+
+	static BulkItem fromTagValue(String tagValue) {
+		return BulkItemRegistry.INSTANCE.get(tagValue);
+	}
 }

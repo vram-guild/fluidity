@@ -16,16 +16,22 @@
 package grondag.fluidity.base.storage;
 
 import java.util.Arrays;
+import java.util.function.Predicate;
+
+import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicates;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.api.article.ArticleView;
-import grondag.fluidity.base.article.ItemStackView;
-import grondag.fluidity.base.item.StackHelper;
+import grondag.fluidity.api.article.ItemArticleView;
+import grondag.fluidity.api.item.DiscreteItem;
+import grondag.fluidity.api.storage.DiscreteStorageListener;
+import grondag.fluidity.api.storage.InventoryStorage;
+import grondag.fluidity.base.article.DiscreteStackView;
 import grondag.fluidity.base.transact.TransactionHelper;
 
 /**
@@ -38,15 +44,25 @@ import grondag.fluidity.base.transact.TransactionHelper;
  *
  */
 @API(status = Status.EXPERIMENTAL)
-public class SimpleItemStorage extends AbstractLazyRollbackStorage implements InventoryStorage {
-	protected int slotCount;
-	protected ItemStack[] stacks;
-	protected final ItemStackView view = new ItemStackView();
+public class SimpleItemStorage extends AbstractLazyRollbackStorage<ItemArticleView,  DiscreteStorageListener, DiscreteItem> implements InventoryStorage {
+	protected final int slotCount;
+	protected final ItemStack[] stacks;
+	protected final DiscreteStackView view = new DiscreteStackView();
+	protected Predicate<DiscreteItem> filter = Predicates.alwaysTrue();
 
-	public SimpleItemStorage(int slotCount) {
+	public SimpleItemStorage(int slotCount, @Nullable Predicate<DiscreteItem> filter) {
 		this.slotCount = slotCount;
 		stacks = new ItemStack[slotCount];
 		Arrays.fill(stacks, ItemStack.EMPTY);
+		filter(filter);
+	}
+
+	public SimpleItemStorage(int slotCount) {
+		this(slotCount, null);
+	}
+
+	public void filter(Predicate<DiscreteItem> filter) {
+		this.filter = filter == null ? Predicates.alwaysTrue() : filter;
 	}
 
 	@Override
@@ -54,10 +70,9 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage implements In
 		return slotCount;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends ArticleView> T view(int slot) {
-		return( T) view.prepare(isSlotValid(slot) ? stacks[slot] : ItemStack.EMPTY, slot);
+	public ItemArticleView view(int slot) {
+		return view.prepare(isSlotValid(slot) ? stacks[slot] : ItemStack.EMPTY, slot);
 	}
 
 	@Override
@@ -66,23 +81,101 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage implements In
 	}
 
 	@Override
-	public void setInvStack(int slot, ItemStack itemStack) {
-		Preconditions.checkNotNull(itemStack, "ItemStack must be non-null");
+	public void setInvStack(int slot, ItemStack newStack) {
+		Preconditions.checkNotNull(newStack, "ItemStack must be non-null");
 
 		if (!isSlotValid(slot)) {
 			return;
 		}
 
 		final ItemStack currentStack = stacks[slot];
+		final boolean needAcceptNotify;
 
-		if (StackHelper.areStacksEqual(currentStack, itemStack)) {
-			return;
+		if (ItemStack.areItemsEqual(newStack, currentStack)) {
+			if(newStack.getCount() == currentStack.getCount()) {
+				return;
+			} else {
+				final int delta = newStack.getCount() - currentStack.getCount();
+				needAcceptNotify = false;
+
+				if(delta > 0) {
+					notifyAccept(slot, newStack, delta);
+				} else {
+					notifySupply(slot, newStack, -delta);
+				}
+			}
+		} else {
+			notifySupply(slot, currentStack, currentStack.getCount());
+			needAcceptNotify = true;
 		}
 
 		rollbackHandler.prepareIfNeeded();
-		stacks[slot] = itemStack;
-		notifyListeners(slot);
+		stacks[slot] = newStack;
 		markDirty();
+
+		if(needAcceptNotify) {
+			notifyAccept(slot, newStack, newStack.getCount());
+		}
+	}
+
+	@Override
+	public ItemStack takeInvStack(int slot, int count) {
+		if(!isSlotValid(slot) || count == 0) {
+			return ItemStack.EMPTY;
+		}
+
+		final ItemStack stack = stacks[slot];
+
+		if (stack.isEmpty()) {
+			return ItemStack.EMPTY;
+		}
+
+		rollbackHandler.prepareIfNeeded();
+		final int n = Math.min(count, stack.getCount());
+		notifySupply(slot, stack, n);
+		final ItemStack result = stack.copy();
+		result.setCount(n);
+		stack.decrement(n);
+		markDirty();
+
+		return result;
+	}
+
+	@Override
+	public ItemStack removeInvStack(int slot) {
+		if (slot != 0) {
+			return ItemStack.EMPTY;
+		}
+
+		final ItemStack stack = stacks[slot];
+
+		if (stack.isEmpty()) {
+			return ItemStack.EMPTY;
+		}
+
+		rollbackHandler.prepareIfNeeded();
+		notifySupply(slot, stack, stack.getCount());
+		stacks[slot] = ItemStack.EMPTY;
+
+		return stack;
+	}
+
+	@Override
+	public void clear() {
+		if(!isEmpty()) {
+			rollbackHandler.prepareIfNeeded();
+
+			for(int i = 0 ; i < slotCount; i++) {
+				final ItemStack stack = stacks[i];
+
+				if (!stack.isEmpty()) {
+					notifySupply(i, stack, stack.getCount());
+					stacks[i] = ItemStack.EMPTY;
+				}
+			}
+
+			markDirty();
+		}
 	}
 
 	@Override
@@ -93,5 +186,119 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage implements In
 	@Override
 	protected void applyRollbackState(Object state) {
 		TransactionHelper.applyInventoryRollbackState(state, this);
+	}
+
+	@Override
+	public long accept(DiscreteItem item, long count, boolean simulate) {
+		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
+
+		if(item.isEmpty()) {
+			return 0;
+		}
+
+		int result = 0;
+		boolean needsRollback = true;
+
+		for(int i = 0 ; i < slotCount; i++) {
+			final ItemStack stack = stacks[i];
+
+			if(stack.isEmpty()) {
+				final int n = (int) Math.min(count, item.getItem().getMaxCount());
+
+				if(!simulate) {
+					if(needsRollback) {
+						rollbackHandler.prepareIfNeeded();
+						needsRollback = false;
+					}
+
+					final ItemStack newStack = item.toStack(n);
+					notifyAccept(i, newStack, n);
+				}
+
+				return n;
+			} else if(item.matches(stack)) {
+				final int n = (int) Math.min(count, item.getItem().getMaxCount() - stack.getCount());
+
+				if(!simulate) {
+					if(needsRollback) {
+						rollbackHandler.prepareIfNeeded();
+						needsRollback = false;
+					}
+
+					stack.increment(n);
+					notifyAccept(i, stack, n);
+				}
+
+				result += n;
+			}
+		}
+
+		return result;
+	}
+
+	@Override
+	public long supply(DiscreteItem item, long count, boolean simulate) {
+		if(item.isEmpty()) {
+			return 0;
+		}
+
+		int result = 0;
+		boolean needsRollback = true;
+
+		for(int i = 0 ; i < slotCount; i++) {
+			final ItemStack stack = stacks[i];
+			final int n = (int) Math.min(count, stack.getCount());
+
+			if(!simulate) {
+				if(needsRollback) {
+					rollbackHandler.prepareIfNeeded();
+					needsRollback = false;
+				}
+
+				notifySupply(i, stack, n);
+				stack.decrement(n);
+			}
+
+			result += n;
+		}
+
+		return result;
+	}
+
+	protected void notifySupply(int slot, ItemStack stack, int count) {
+		final int listenCount = listeners.size();
+
+		if(listenCount > 0) {
+			final boolean isEmpty = stack.isEmpty();
+			final DiscreteItem item = DiscreteItem.of(stack);
+
+			for(int i = 0; i < listenCount; i++) {
+				listeners.get(i).onSupply(slot, item, count, isEmpty);
+			}
+		}
+	}
+
+	protected void notifyAccept(int slot, ItemStack stack, int count) {
+		final int listenCount = listeners.size();
+
+		if(listenCount > 0) {
+			final boolean wasEmpty = stack.getCount() == count;
+			final DiscreteItem item = DiscreteItem.of(stack);
+
+			for(int i = 0; i < listenCount; i++) {
+				listeners.get(i).onAccept(slot, item, count, wasEmpty);
+			}
+		}
+	}
+
+	@Override
+	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
+		for(int i = 0 ; i < slotCount; i++) {
+			final ItemStack stack = stacks[i];
+
+			if (!stack.isEmpty()) {
+				listener.onAccept(i, DiscreteItem.of(stack), stack.getCount(), true);
+			}
+		}
 	}
 }

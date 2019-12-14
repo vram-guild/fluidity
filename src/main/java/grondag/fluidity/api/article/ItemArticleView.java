@@ -20,40 +20,13 @@ import javax.annotation.Nullable;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+
+import grondag.fluidity.api.item.DiscreteItem;
 
 @API(status = Status.EXPERIMENTAL)
-@FunctionalInterface
-public interface ItemArticleView extends ArticleView {
-	default Item item()  {
-		return toStack().getItem();
-	}
-
-	@Nullable default CompoundTag tag() {
-		return toStack().getTag();
-	}
-
-	@Override
-	default int slot() {
-		return 0;
-	}
-
-	@Override
-	default boolean isEmpty() {
-		return toStack().isEmpty();
-	}
-
-	ItemStack toStack();
-
-	default long count() {
-		return toStack().getCount();
-	}
-
-	default boolean hasTag() {
-		return toStack().hasTag();
-	}
+public interface ItemArticleView extends ArticleView<DiscreteItem> {
+	long count();
 
 	@Override
 	default boolean isItem() {
@@ -61,8 +34,17 @@ public interface ItemArticleView extends ArticleView {
 	}
 
 	@Override
+	default boolean isEmpty() {
+		return count() == 0;
+	}
+
+	@Override
 	@Nullable
 	default ItemArticleView toItemView() {
 		return this;
+	}
+
+	default ItemStack toStack() {
+		return item().toStack(count());
 	}
 }

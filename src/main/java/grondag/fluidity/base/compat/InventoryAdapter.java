@@ -22,9 +22,9 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 
 import grondag.fluidity.api.article.ArticleView;
+import grondag.fluidity.api.storage.InventoryStorage;
 import grondag.fluidity.base.article.ItemStackView;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
-import grondag.fluidity.base.storage.InventoryStorage;
 import grondag.fluidity.base.transact.TransactionHelper;
 
 @API(status = Status.EXPERIMENTAL)

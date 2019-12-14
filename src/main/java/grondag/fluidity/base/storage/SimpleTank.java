@@ -23,7 +23,6 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 
-import grondag.fluidity.api.article.ArticleView;
 import grondag.fluidity.api.article.BulkArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
@@ -31,9 +30,10 @@ import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.item.BulkItem;
 import grondag.fluidity.api.item.BulkItemRegistry;
 import grondag.fluidity.api.storage.BulkStorage;
+import grondag.fluidity.api.storage.BulkStorageListener;
 
 @API(status = Status.EXPERIMENTAL)
-public class SimpleTank extends AbstractLazyRollbackStorage implements BulkStorage {
+public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  BulkStorageListener, BulkItem> implements BulkStorage {
 	protected final MutableFraction content = new MutableFraction();
 	protected final MutableFraction calc = new MutableFraction();
 	protected final View view = new View();
@@ -50,10 +50,9 @@ public class SimpleTank extends AbstractLazyRollbackStorage implements BulkStora
 		return 1;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends ArticleView> T view(int slot) {
-		return  slot == 0 ? (T) view : null;
+	public BulkArticleView view(int slot) {
+		return  slot == 0 ? view : null;
 	}
 
 	@Override
@@ -79,9 +78,18 @@ public class SimpleTank extends AbstractLazyRollbackStorage implements BulkStora
 		}
 
 		if (!simulate) {
+			final boolean wasEmpty = content.isZero();
+
 			rollbackHandler.prepareIfNeeded();
 			content.add(calc);
-			notifyListeners(0);
+
+			final int listenCount = listeners.size();
+
+			if(listenCount > 0) {
+				for(int i = 0; i < listenCount; i++) {
+					listeners.get(i).onAccept(0, bulkItem, calc, wasEmpty);
+				}
+			}
 		}
 
 		return calc;
@@ -100,7 +108,14 @@ public class SimpleTank extends AbstractLazyRollbackStorage implements BulkStora
 		if (!simulate) {
 			rollbackHandler.prepareIfNeeded();
 			content.subtract(calc);
-			notifyListeners(0);
+
+			final int listenCount = listeners.size();
+
+			if(listenCount > 0) {
+				for(int i = 0; i < listenCount; i++) {
+					listeners.get(i).onSupply(0, bulkItem, calc, content.isZero());
+				}
+			}
 		}
 
 		return calc;
@@ -132,9 +147,20 @@ public class SimpleTank extends AbstractLazyRollbackStorage implements BulkStora
 		}
 
 		if (!simulate) {
+			final boolean wasEmpty = content.isZero();
+
 			rollbackHandler.prepareIfNeeded();
 			content.add(result, divisor);
-			notifyListeners(0);
+
+			final int listenCount = listeners.size();
+
+			if(listenCount > 0) {
+				calc.set(result, divisor);
+
+				for(int i = 0; i < listenCount; i++) {
+					listeners.get(i).onAccept(0, bulkItem, calc, wasEmpty);
+				}
+			}
 		}
 
 		return result;
@@ -165,7 +191,16 @@ public class SimpleTank extends AbstractLazyRollbackStorage implements BulkStora
 		if (!simulate) {
 			rollbackHandler.prepareIfNeeded();
 			content.subtract(result, divisor);
-			notifyListeners(0);
+
+			final int listenCount = listeners.size();
+
+			if(listenCount > 0) {
+				calc.set(result, divisor);
+
+				for(int i = 0; i < listenCount; i++) {
+					listeners.get(i).onSupply(0, bulkItem, calc, content.isZero());
+				}
+			}
 		}
 
 		return result;
@@ -201,13 +236,13 @@ public class SimpleTank extends AbstractLazyRollbackStorage implements BulkStora
 		}
 
 		@Override
-		public BulkItem bulkItem() {
-			return bulkItem;
+		public FractionView volume() {
+			return content;
 		}
 
 		@Override
-		public FractionView volume() {
-			return content;
+		public BulkItem item() {
+			return bulkItem;
 		}
 	}
 
@@ -220,8 +255,27 @@ public class SimpleTank extends AbstractLazyRollbackStorage implements BulkStora
 	protected void applyRollbackState(Object state) {
 		@SuppressWarnings("unchecked")
 		final Pair<BulkItem, Fraction> pair = (Pair<BulkItem, Fraction>) state;
-		bulkItem = pair.getFirst();
-		content.set(pair.getSecond());
-		notifyListeners(0);
+		final BulkItem bulkItem = pair.getFirst();
+		final Fraction newContent = pair.getSecond();
+
+		if(bulkItem == this.bulkItem) {
+			if(newContent.isGreaterThan(content)) {
+				calc.set(newContent);
+				calc.subtract(content);
+				accept(bulkItem, calc, false);
+			} else if (newContent.isLessThan(content)) {
+				calc.set(content);
+				calc.subtract(newContent);
+				supply(bulkItem, calc, false);
+			}
+		} else {
+			supply(this.bulkItem, content, false);
+			accept(bulkItem, newContent, false);
+		}
+	}
+
+	@Override
+	protected void sendFirstListenerUpdate(BulkStorageListener listener) {
+		listener.onAccept(0, bulkItem, content, true);
 	}
 }

@@ -18,11 +18,12 @@ package grondag.fluidity.api.storage;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import grondag.fluidity.api.article.BulkArticleView;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.item.BulkItem;
 
 @API(status = Status.EXPERIMENTAL)
-public interface BulkStorage extends Storage {
+public interface BulkStorage extends Storage<BulkArticleView, BulkStorageListener, BulkItem> {
 	/**
 	 * Adds up to  {@code volume} units of the bulk item to this storage and
 	 * returns the number of units added.  The denominator of the result *may*

@@ -20,6 +20,8 @@ import javax.annotation.Nullable;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import grondag.fluidity.api.item.ArticleItem;
+
 /**
  * A view of an article stored in a container. (Could be an discrete item or bulk item.) <p>
  *
@@ -27,7 +29,9 @@ import org.apiguardian.api.API.Status;
  * Most containers will not need this and should instead use the specific view type for their content.
  */
 @API(status = Status.EXPERIMENTAL)
-public interface ArticleView {
+public interface ArticleView<I extends ArticleItem> {
+	I item();
+
 	/**
 	 * For stores with fixed slots, this represents a specific location within the store.
 	 * In other cases, it is an abstract handle to a quantity of a specific article instance that will

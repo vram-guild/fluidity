@@ -17,20 +17,30 @@ package grondag.fluidity.base.storage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.ArticleView;
+import grondag.fluidity.api.item.ArticleItem;
 import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.StorageListener;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractStorage implements Storage {
-	protected final List<Consumer<? super ArticleView>> listeners = new ArrayList<>();
+public abstract class AbstractStorage<A extends ArticleView<I>, L extends StorageListener<L>, I extends ArticleItem> implements Storage<A, L, I> {
+	protected final List<L> listeners = new ArrayList<>();
 
 	@Override
-	public List<Consumer<? super ArticleView>> listeners() {
-		return listeners;
+	public final void startListening(L listener) {
+		listeners.add(listener);
+
+		sendFirstListenerUpdate(listener);
+	}
+
+	protected abstract void sendFirstListenerUpdate(L listener);
+
+	@Override
+	public final void stopListening(L listener) {
+		listeners.remove(listener);
 	}
 }

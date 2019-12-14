@@ -10,14 +10,15 @@ import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.storage.ItemStorage;
+import grondag.fluidity.api.article.ArticleView;
+import grondag.fluidity.api.item.DiscreteItem;
+import grondag.fluidity.api.storage.DiscreteStorage;
+import grondag.fluidity.api.storage.DiscreteStorageListener;
 import grondag.fluidity.base.article.ItemArticle;
-import grondag.fluidity.base.item.ItemInstance;
-import grondag.fluidity.base.item.ItemInstance.MutableItemInstance;
 
 @API(status = Status.EXPERIMENTAL)
-public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticle, ItemStorage, ItemInstance> implements ItemStorage {
-	protected final MutableItemInstance lookupKey = new MutableItemInstance();
+public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticle<AggregateItemStorage>, DiscreteStorageListener, DiscreteItem, AggregateItemStorage> implements DiscreteStorage<ItemArticle<AggregateItemStorage>> {
+	protected final DiscreteItem.Mutable lookupKey = new DiscreteItem.Mutable();
 
 	public AggregateItemStorage(int startingSlotCount) {
 		super(startingSlotCount);
@@ -28,7 +29,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticle, 
 	}
 
 	@Nullable
-	protected ItemArticle getArticle(Item item, CompoundTag tag) {
+	protected ItemArticle<AggregateItemStorage> getArticle(Item item, CompoundTag tag) {
 		return articles.get(lookupKey.set(item, tag));
 	}
 
@@ -45,7 +46,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticle, 
 		itMe  = true;
 		long result = 0;
 
-		for (final ItemStorage store : stores) {
+		for (final DiscreteStorage<?> store : stores) {
 			enlister.accept(store);
 			result += store.accept(item, tag, count - result, simulate);
 
@@ -82,7 +83,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticle, 
 		itMe  = true;
 		long result = 0;
 
-		for (final ItemStorage store : a.stores) {
+		for (final DiscreteStorage store : a.stores) {
 			enlister.accept(store);
 			result += store.supply(item, tag, count - result, simulate);
 
@@ -101,7 +102,38 @@ public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticle, 
 	}
 
 	@Override
-	protected ItemArticle newArticle() {
-		return new ItemArticle();
+	public long accept(DiscreteItem item, long count, boolean simulate) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public long supply(DiscreteItem item, long count, boolean simulate) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	protected ItemArticle<AggregateItemStorage> newArticle() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected DiscreteItem keyFromArticleView(ArticleView<DiscreteItem> a) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected DiscreteStorageListener listener() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
+		// TODO Auto-generated method stub
+
 	}
 }

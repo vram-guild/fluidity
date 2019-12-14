@@ -13,31 +13,47 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.article;
-
-import javax.annotation.Nullable;
+package grondag.fluidity.api.storage;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.item.BulkItem;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.recipe.RecipeFinder;
+import net.minecraft.recipe.RecipeInputProvider;
 
-/**
- * View of a bulk item in storage.
- */
+import grondag.fluidity.api.article.ItemArticleView;
+
 @API(status = Status.EXPERIMENTAL)
-public interface BulkArticleView extends ArticleView<BulkItem> {
-	FractionView volume();
-
-	@Override
-	default boolean isBulk() {
+public interface InventoryStorage extends DiscreteStorage<ItemArticleView>, Inventory, RecipeInputProvider {
+	@Override default boolean canPlayerUseInv(PlayerEntity player) {
 		return true;
 	}
 
 	@Override
-	@Nullable
-	default BulkArticleView toBulkView() {
-		return  this;
+	default void provideRecipeInputs(RecipeFinder finder) {
+		this.forEach(v -> {
+			if (!v.isEmpty()) {
+				finder.addItem(v.toStack());
+			}
+
+			return true;
+		});
+	}
+
+	@Override
+	default int getInvSize() {
+		return slotCount();
+	}
+
+	@Override
+	default boolean isInvEmpty() {
+		return isEmpty();
+	}
+
+	@Override
+	default void markDirty() {
+		//NOOP - default implementation doesn't support vanilla inventory listeners
 	}
 }

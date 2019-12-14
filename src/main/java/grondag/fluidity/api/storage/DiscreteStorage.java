@@ -24,8 +24,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
+import grondag.fluidity.api.article.ItemArticleView;
+import grondag.fluidity.api.item.DiscreteItem;
+
 @API(status = Status.EXPERIMENTAL)
-public interface ItemStorage extends Storage {
+public interface DiscreteStorage<A extends ItemArticleView> extends Storage<A, DiscreteStorageListener, DiscreteItem> {
 	/**
 	 * Adds items to this storage. May return less than requested.
 	 *
@@ -35,18 +38,22 @@ public interface ItemStorage extends Storage {
 	 * @param simulate If true, will forecast result without making changes.
 	 * @return Count added, or that would be added if {@code simulate} = true.
 	 */
-	long accept(Item item, @Nullable CompoundTag tag, long count, boolean simulate);
+	long accept(DiscreteItem item, long count, boolean simulate);
+
+	default long accept(Item item, @Nullable CompoundTag tag, long count, boolean simulate) {
+		return accept(DiscreteItem.of(item, tag), count, simulate);
+	}
 
 	default long accept(Item item, long count, boolean simulate) {
-		return accept(item, null, count, simulate);
+		return accept(DiscreteItem.of(item), count, simulate);
 	}
 
 	default long accept(ItemStack stack, long count, boolean simulate) {
-		return accept(stack.getItem(), stack.getTag(), count, simulate);
+		return accept(DiscreteItem.of(stack), count, simulate);
 	}
 
 	default long accept(ItemStack stack, boolean simulate) {
-		return accept(stack.getItem(), stack.getTag(), stack.getCount(), simulate);
+		return accept(DiscreteItem.of(stack), stack.getCount(), simulate);
 	}
 
 	/**
@@ -58,18 +65,21 @@ public interface ItemStorage extends Storage {
 	 * @param simulate If true, will forecast result without making changes.
 	 * @return Count removed, or that would be removed if {@code simulate} = true.
 	 */
-	long supply(Item item, @Nullable CompoundTag tag, long count, boolean simulate);
+	long supply(DiscreteItem item, long count, boolean simulate);
 
+	default long supply(Item item, @Nullable CompoundTag tag, long count, boolean simulate) {
+		return supply(DiscreteItem.of(item, tag), count, simulate);
+	}
 
 	default long supply(Item item, long count, boolean simulate) {
-		return supply(item, null, count, simulate);
+		return supply(DiscreteItem.of(item), count, simulate);
 	}
 
 	default long supply(ItemStack stack, long count, boolean simulate) {
-		return supply(stack.getItem(), stack.getTag(), count, simulate);
+		return supply(DiscreteItem.of(stack), count, simulate);
 	}
 
 	default long supply(ItemStack stack, boolean simulate) {
-		return supply(stack.getItem(), stack.getTag(), stack.getCount(), simulate);
+		return supply(DiscreteItem.of(stack), stack.getCount(), simulate);
 	}
 }

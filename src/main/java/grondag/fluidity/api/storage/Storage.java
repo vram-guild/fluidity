@@ -15,8 +15,6 @@
  ******************************************************************************/
 package grondag.fluidity.api.storage;
 
-import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
@@ -26,6 +24,7 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.ArticleView;
+import grondag.fluidity.api.item.ArticleItem;
 import grondag.fluidity.api.transact.Transactor;
 
 /**
@@ -33,7 +32,7 @@ import grondag.fluidity.api.transact.Transactor;
  * Interface supports both discrete items and bulk resources (such as fluids.)
  */
 @API(status = Status.EXPERIMENTAL)
-public interface Storage extends Transactor {
+public interface Storage<A extends ArticleView<K>, L extends StorageListener<L>, K extends ArticleItem> extends Transactor {
 	int slotCount();
 
 	default boolean isEmpty() {
@@ -56,17 +55,17 @@ public interface Storage extends Transactor {
 		return slot >=0  && slot < slotCount();
 	}
 
-	@Nullable <T extends ArticleView> T view(int slot);
+	@Nullable A view(int slot);
 
 	default boolean isSlotVisibleFrom(Object connection) {
 		return true;
 	}
 
-	default void forEach(@Nullable Object connection, Predicate<? super ArticleView> filter, Predicate<? super ArticleView> action) {
+	default void forEach(@Nullable Object connection, Predicate<A> filter, Predicate<A> action) {
 		final int limit = slotCount();
 
 		for (int i = 0; i < limit; i++) {
-			final ArticleView article = view(i);
+			final A article = view(i);
 
 			if (!article.isEmpty() && filter.test(article)) {
 				if (!action.test(article)) {
@@ -76,50 +75,21 @@ public interface Storage extends Transactor {
 		}
 	}
 
-	default void forEach(@Nullable Object connection, Predicate<? super ArticleView> action) {
+	default void forEach(Predicate<A> filter, Predicate<A> action) {
+		forEach(null, filter, action);
+	}
+
+	default void forEach(@Nullable Object connection, Predicate<A> action) {
 		forEach(connection, Predicates.alwaysTrue(), action);
 	}
 
-	default void forEach(Predicate<? super ArticleView> action) {
+	default void forEach(Predicate<A> action) {
 		forEach(null, Predicates.alwaysTrue(), action);
 	}
 
-	/**
-	 * Exposed in interface to allow more methods to have default implementations.
-	 * @param slot Identifies which article should be refreshed to listeners
-	 */
-	List<Consumer<? super ArticleView>> listeners();
+	void startListening(L listener);
 
-	default void startListening(Consumer<? super ArticleView> listener, Object connection, Predicate<? super ArticleView> articleFilter) {
-		listeners().add(listener);
+	void stopListening(L listener);
 
-		this.forEach(v -> {
-			listener.accept(v);
-			return true;
-		});
-	}
-
-	default void stopListening(Consumer<? super ArticleView> listener) {
-		listeners().remove(listener);
-	}
-
-	default void notifyListeners(int slot) {
-		notifyListeners(view(slot));
-	}
-
-	/**
-	 * @param view  For convenience of implementations, does nothing if null.
-	 */
-	default void notifyListeners(@Nullable ArticleView view) {
-		if(view == null) {
-			return;
-		}
-
-		final List<Consumer<? super ArticleView>> listeners = listeners();
-		final int limit = listeners.size();
-
-		for (int i = 0; i < limit; i++) {
-			listeners.get(i).accept(view);
-		}
-	}
+	Predicate <? super ArticleView<?>> NOT_EMPTY = a -> !a.isEmpty();
 }
