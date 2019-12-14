@@ -28,7 +28,7 @@ import grondag.fluidity.api.article.ItemArticleView;
 import grondag.fluidity.api.item.DiscreteItem;
 
 @API(status = Status.EXPERIMENTAL)
-public interface DiscreteStorage<A extends ItemArticleView> extends Storage<A, DiscreteStorageListener, DiscreteItem> {
+public interface DiscreteStorage extends Storage<ItemArticleView, DiscreteStorageListener, DiscreteItem> {
 	/**
 	 * Adds items to this storage. May return less than requested.
 	 *

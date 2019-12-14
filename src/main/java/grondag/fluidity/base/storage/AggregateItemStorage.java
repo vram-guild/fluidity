@@ -11,13 +11,16 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.ArticleView;
+import grondag.fluidity.api.article.ItemArticleView;
 import grondag.fluidity.api.item.DiscreteItem;
 import grondag.fluidity.api.storage.DiscreteStorage;
 import grondag.fluidity.api.storage.DiscreteStorageListener;
+import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.base.article.ItemArticle;
 
+@SuppressWarnings("rawtypes")
 @API(status = Status.EXPERIMENTAL)
-public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticle<AggregateItemStorage>, DiscreteStorageListener, DiscreteItem, AggregateItemStorage> implements DiscreteStorage<ItemArticle<AggregateItemStorage>> {
+public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticleView, DiscreteStorageListener, DiscreteItem, ItemArticle> implements DiscreteStorage {
 	protected final DiscreteItem.Mutable lookupKey = new DiscreteItem.Mutable();
 
 	public AggregateItemStorage(int startingSlotCount) {
@@ -28,6 +31,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticle<A
 		this(32);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Nullable
 	protected ItemArticle<AggregateItemStorage> getArticle(Item item, CompoundTag tag) {
 		return articles.get(lookupKey.set(item, tag));
@@ -46,9 +50,9 @@ public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticle<A
 		itMe  = true;
 		long result = 0;
 
-		for (final DiscreteStorage<?> store : stores) {
+		for (final Storage store : stores) {
 			enlister.accept(store);
-			result += store.accept(item, tag, count - result, simulate);
+			result += ((DiscreteStorage) store).accept(item, tag, count - result, simulate);
 
 			if (result == count) {
 				break;
@@ -120,7 +124,13 @@ public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticle<A
 	}
 
 	@Override
-	protected DiscreteItem keyFromArticleView(ArticleView<DiscreteItem> a) {
+	protected DiscreteItem keyFromArticleView(ArticleView a) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ItemArticle<AggregateItemStorage> view(int slot) {
 		// TODO Auto-generated method stub
 		return null;
 	}

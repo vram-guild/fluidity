@@ -4,7 +4,7 @@ import grondag.fluidity.api.article.ItemArticleView;
 import grondag.fluidity.api.item.DiscreteItem;
 import grondag.fluidity.api.storage.DiscreteStorage;
 
-public class ItemArticle<S extends DiscreteStorage<ItemArticle<S>>> extends AbstractArticle<S, DiscreteItem> implements ItemArticleView {
+public class ItemArticle<S extends DiscreteStorage> extends AbstractArticle<S, DiscreteItem> implements ItemArticleView {
 	long count;
 
 	@Override

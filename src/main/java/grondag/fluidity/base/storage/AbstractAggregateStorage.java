@@ -33,25 +33,25 @@ import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.Transactor;
 import grondag.fluidity.base.article.AbstractArticle;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractAggregateStorage<A extends AbstractArticle<S, I>, L extends StorageListener<L>, I extends ArticleItem, S extends AbstractAggregateStorage<A, L, I, S>> extends AbstractStorage<A, L, I> {
+public abstract class AbstractAggregateStorage<A extends ArticleView<I>, L extends StorageListener<L>, I extends ArticleItem, K extends AbstractArticle> extends AbstractStorage<A, L, I> {
 	protected final Consumer<TransactionContext> rollbackHandler = this::handleRollback;
-	protected final Object2ObjectOpenHashMap<I, A> articles = new Object2ObjectOpenHashMap<>();
-	protected final ObjectOpenHashSet<Storage<A, L,I>> stores = new ObjectOpenHashSet<>();
+	protected final Object2ObjectOpenHashMap<I, K> articles = new Object2ObjectOpenHashMap<>();
+	protected final ObjectOpenHashSet<Storage<?, ?, I>> stores = new ObjectOpenHashSet<>();
 
 	protected Consumer<Transactor> enlister = t -> {};
 	protected int nextUnusedSlot = 0;
 	protected int emptySlotCount = 0;
 	protected boolean itMe = false;
-	protected A[] slots;
+	protected K[] slots;
 
 	public AbstractAggregateStorage(int startingSlotCount) {
 		startingSlotCount = MathHelper.smallestEncompassingPowerOfTwo(startingSlotCount);
-		@SuppressWarnings("unchecked")
-		final A[] slots = (A[]) Array.newInstance(newArticle().getClass(), startingSlotCount);
+		final K[] slots = (K[]) Array.newInstance(newArticle().getClass(), startingSlotCount);
 
 		for(int i = 0; i < startingSlotCount; i++) {
-			final A a = newArticle();
+			final K a = newArticle();
 			a.slot = i;
 			slots[i] = a;
 		}
@@ -59,13 +59,13 @@ public abstract class AbstractAggregateStorage<A extends AbstractArticle<S, I>, 
 		this.slots = slots;
 	}
 
-	protected abstract A newArticle();
+	protected abstract K newArticle();
 
-	protected abstract I keyFromArticleView(ArticleView<I> a);
+	protected abstract I keyFromArticleView(ArticleView a);
 
-	protected A findOrCreateArticle(ArticleView<I> a) {
+	protected K findOrCreateArticle(ArticleView a) {
 		final I key = keyFromArticleView(a);
-		A candidate = articles.get(key);
+		K candidate = articles.get(key);
 
 		if(candidate == null) {
 			candidate = getEmptyArticle();
@@ -77,11 +77,10 @@ public abstract class AbstractAggregateStorage<A extends AbstractArticle<S, I>, 
 
 	protected abstract L listener();
 
-	@SuppressWarnings("unchecked")
-	public void addStore(Storage<A, L,I> store) {
+	public void addStore(Storage store) {
 		if(stores.add(store)) {
 			store.forEach(Storage.NOT_EMPTY, a -> {
-				findOrCreateArticle(a).addStore((S) store);
+				findOrCreateArticle((ArticleView) a).addStore(store);
 				return true;
 			});
 		}
@@ -119,7 +118,7 @@ public abstract class AbstractAggregateStorage<A extends AbstractArticle<S, I>, 
 		return rollbackHandler;
 	}
 
-	protected A getEmptyArticle() {
+	protected K getEmptyArticle() {
 		return slots[getEmptySlot()];
 	}
 
@@ -142,12 +141,11 @@ public abstract class AbstractAggregateStorage<A extends AbstractArticle<S, I>, 
 
 		// add slot capacity
 		final int newCount = slotCount * 2;
-		@SuppressWarnings("unchecked")
-		final A[] newSlots = (A[]) Array.newInstance(newArticle().getClass(), newCount);
+		final K[] newSlots = (K[]) Array.newInstance(newArticle().getClass(), newCount);
 		System.arraycopy(slots, 0, newSlots, 0, slotCount);
 
 		for(int i = slotCount; i < newCount; i++) {
-			final A a = newArticle();
+			final K a = newArticle();
 			a.slot = i;
 			newSlots[i] = a;
 		}
@@ -172,7 +170,7 @@ public abstract class AbstractAggregateStorage<A extends AbstractArticle<S, I>, 
 					--nextUnusedSlot;
 				} else {
 					// swap with last non-empty and renumber
-					final A swap = slots[i];
+					final K swap = slots[i];
 					swap.slot = target;
 
 					slots[i] = slots[target];
@@ -188,6 +186,6 @@ public abstract class AbstractAggregateStorage<A extends AbstractArticle<S, I>, 
 
 	@Override
 	public A view(int slot) {
-		return slots[slot];
+		return (A) slots[slot];
 	}
 }
