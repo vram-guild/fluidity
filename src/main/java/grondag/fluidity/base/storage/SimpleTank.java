@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.storage.base;
+package grondag.fluidity.base.storage;
 
 import com.google.common.base.Preconditions;
 import com.mojang.datafixers.util.Pair;

@@ -1,7 +1,9 @@
-package grondag.fluidity.api.transact;
+package grondag.fluidity.base.transact;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
+import grondag.fluidity.api.transact.TransactionContext;
 
 public class LazyRollbackHandler {
 	public  final Consumer<TransactionContext> externalHandler = this::handleExternal;

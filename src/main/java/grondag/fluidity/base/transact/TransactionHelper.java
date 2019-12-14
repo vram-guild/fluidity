@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.transact;
+package grondag.fluidity.base.transact;
 
 
 import org.apiguardian.api.API;
@@ -22,13 +22,14 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.api.item.StackHelper;
-import grondag.fluidity.api.storage.ItemInventoryStorage;
+import grondag.fluidity.api.transact.TransactionContext;
+import grondag.fluidity.base.item.StackHelper;
+import grondag.fluidity.base.storage.InventoryStorage;
 
 @API(status = Status.EXPERIMENTAL)
 public class TransactionHelper {
 
-	public static Object prepareInventoryRollbackState(ItemInventoryStorage storage) {
+	public static Object prepareInventoryRollbackState(InventoryStorage storage) {
 		final int size = storage.getInvSize();
 		final ItemStack[] state = new ItemStack[size];
 
@@ -40,7 +41,7 @@ public class TransactionHelper {
 
 	}
 
-	public static void prepareInventoryRollbackHandler(TransactionContext context, ItemInventoryStorage storage) {
+	public static void prepareInventoryRollbackHandler(TransactionContext context, InventoryStorage storage) {
 		context.setState(prepareInventoryRollbackState(storage));
 	}
 

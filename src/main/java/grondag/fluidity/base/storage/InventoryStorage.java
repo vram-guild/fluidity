@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.storage;
+package grondag.fluidity.base.storage;
 
 import javax.annotation.Nullable;
 
@@ -30,10 +30,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.recipe.RecipeFinder;
 import net.minecraft.recipe.RecipeInputProvider;
 
-import grondag.fluidity.api.item.StackHelper;
+import grondag.fluidity.api.storage.ItemStorage;
+import grondag.fluidity.base.item.StackHelper;
 
 @API(status = Status.EXPERIMENTAL)
-public interface ItemInventoryStorage extends ItemStorage, Inventory, RecipeInputProvider {
+public interface InventoryStorage extends ItemStorage, Inventory, RecipeInputProvider {
 	/**
 	 * Adds items to this storage. May return less than requested.
 	 *

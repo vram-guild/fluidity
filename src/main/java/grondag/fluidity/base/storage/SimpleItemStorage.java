@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.storage.base;
+package grondag.fluidity.base.storage;
 
 import java.util.Arrays;
 
@@ -24,10 +24,9 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.item.ItemStack;
 
 import grondag.fluidity.api.article.ArticleView;
-import grondag.fluidity.api.article.ItemStackView;
-import grondag.fluidity.api.item.StackHelper;
-import grondag.fluidity.api.storage.ItemInventoryStorage;
-import grondag.fluidity.api.transact.TransactionHelper;
+import grondag.fluidity.base.article.ItemStackView;
+import grondag.fluidity.base.item.StackHelper;
+import grondag.fluidity.base.transact.TransactionHelper;
 
 /**
  *
@@ -39,7 +38,7 @@ import grondag.fluidity.api.transact.TransactionHelper;
  *
  */
 @API(status = Status.EXPERIMENTAL)
-public class SimpleItemStorage extends AbstractLazyRollbackStorage implements ItemInventoryStorage {
+public class SimpleItemStorage extends AbstractLazyRollbackStorage implements InventoryStorage {
 	protected int slotCount;
 	protected ItemStack[] stacks;
 	protected final ItemStackView view = new ItemStackView();

@@ -40,7 +40,7 @@ public interface BulkStorage extends Storage {
 	FractionView accept(BulkItem item, FractionView volume, boolean simulate);
 
 	/**
-	 * Removes up to  {@code volume} units of the bulk item to this storage and
+	 * Removes up to {@code volume} units of the bulk item to this storage and
 	 * returns the number of units removed.  The denominator of the result *may*
 	 * be different from the denominator of the input fraction.
 	 *

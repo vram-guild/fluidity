@@ -13,15 +13,15 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.storage.base;
+package grondag.fluidity.base.storage;
 
 import java.util.function.Consumer;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.transact.LazyRollbackHandler;
 import grondag.fluidity.api.transact.TransactionContext;
+import grondag.fluidity.base.transact.LazyRollbackHandler;
 
 @API(status = Status.EXPERIMENTAL)
 public abstract class AbstractLazyRollbackStorage extends AbstractStorage {

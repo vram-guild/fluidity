@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.article;
+package grondag.fluidity.base.article;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
@@ -22,27 +22,25 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.fraction.MutableFraction;
-import grondag.fluidity.api.item.BulkItem;
+import grondag.fluidity.api.article.ItemArticleView;
 
 @API(status = Status.EXPERIMENTAL)
-public class CompoundStackView implements ItemArticleView, BulkArticleView, FractionView {
+public class ItemStackView implements ItemArticleView {
 	protected Item item;
 	protected CompoundTag tag;
-	protected boolean isBulk;
-	protected MutableFraction fraction;
+	protected long count;
 	protected int slot;
 
-	public CompoundStackView() {
+	public ItemStackView() {
 	}
 
-	public CompoundStackView(ItemStack stack, int slot) {
+	public ItemStackView(ItemStack stack, int slot) {
 		prepare(stack, slot);
 	}
 
-	public CompoundStackView prepare(ItemStack stack, int slot) {
+	public ItemStackView prepare(ItemStack stack, int slot) {
 		item = stack.getItem();
+		count = stack.getCount();
 		tag = stack.getTag();
 
 		if (tag != null) {
@@ -50,21 +48,13 @@ public class CompoundStackView implements ItemArticleView, BulkArticleView, Frac
 		}
 
 		this.slot = slot;
-		isBulk = item instanceof BulkItem;
-
-		if (isBulk) {
-			fraction.readTag(tag);
-			fraction.multiply(stack.getCount());
-		} else {
-			fraction.set(stack.getCount());
-		}
 
 		return this;
 	}
 
 	@Override
 	public long count() {
-		return fraction.whole();
+		return count;
 	}
 
 	@Override
@@ -96,45 +86,15 @@ public class CompoundStackView implements ItemArticleView, BulkArticleView, Frac
 
 	@Override
 	public boolean isEmpty() {
-		return fraction.isZero();
+		return count == 0;
 	}
 
 	@Override
 	public boolean isBulk() {
-		return isBulk;
+		return false;
 	}
 
-	@Override
-	public FractionView volume() {
-		return fraction;
-	}
-
-	@Override
-	public long whole() {
-		return count();
-	}
-
-	@Override
-	public long numerator() {
-		return fraction.numerator();
-	}
-
-	@Override
-	public long divisor() {
-		return fraction.divisor();
-	}
-
-	@Override
-	public BulkItem bulkItem() {
-		return isBulk ? (BulkItem) item : null;
-	}
-
-	@Override
-	public BulkArticleView toBulkView() {
-		return isBulk ? this : null;
-	}
-
-	public static CompoundStackView of(ItemStack stack) {
-		return new  CompoundStackView().prepare(stack, 0);
+	public static ItemStackView of(ItemStack stack) {
+		return new  ItemStackView().prepare(stack, 0);
 	}
 }
