@@ -7,42 +7,36 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.Item;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.article.ArticleView;
 import grondag.fluidity.api.article.ItemArticleView;
 import grondag.fluidity.api.item.DiscreteItem;
 import grondag.fluidity.api.storage.DiscreteStorage;
 import grondag.fluidity.api.storage.DiscreteStorageListener;
-import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.base.article.ItemArticle;
 
-@SuppressWarnings("rawtypes")
 @API(status = Status.EXPERIMENTAL)
-public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticleView, DiscreteStorageListener, DiscreteItem, ItemArticle> implements DiscreteStorage {
+public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticleView, DiscreteStorageListener, DiscreteItem, ItemArticle, DiscreteStorage> implements DiscreteStorage, DiscreteStorageListener {
 	protected final DiscreteItem.Mutable lookupKey = new DiscreteItem.Mutable();
 
 	public AggregateItemStorage(int startingSlotCount) {
 		super(startingSlotCount);
 	}
-
 	public AggregateItemStorage() {
 		this(32);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Nullable
-	protected ItemArticle<AggregateItemStorage> getArticle(Item item, CompoundTag tag) {
+	protected ItemArticle getArticle(Item item, CompoundTag tag) {
 		return articles.get(lookupKey.set(item, tag));
 	}
 
 	@Override
-	public long accept(Item item, @Nullable CompoundTag tag, long count, boolean simulate) {
+	public long accept(DiscreteItem item, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to accept null item");
 
-		if (item == Items.AIR || stores.isEmpty()) {
+		if (item.isEmpty() || stores.isEmpty()) {
 			return 0;
 		}
 
@@ -50,9 +44,9 @@ public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticleVi
 		itMe  = true;
 		long result = 0;
 
-		for (final Storage store : stores) {
+		for (final DiscreteStorage store : stores) {
 			enlister.accept(store);
-			result += ((DiscreteStorage) store).accept(item, tag, count - result, simulate);
+			result += store.accept(item, count - result, simulate);
 
 			if (result == count) {
 				break;
@@ -62,88 +56,115 @@ public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticleVi
 		itMe = false;
 
 		if(result > 0 && !simulate) {
-			notifyListeners(getArticle(item, tag));
+			final ItemArticle article = findOrCreateArticle(item);
+			article.count += result;
+			notifyAccept(article, result);
 		}
 
 		return result;
-	}
-
-	@Override
-	public long supply(Item item, @Nullable CompoundTag tag, long count, boolean simulate) {
-		Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
-		Preconditions.checkNotNull(item, "Request to supply null item");
-
-		if (item == Items.AIR || articles.isEmpty()) {
-			return 0;
-		}
-
-		final ItemArticle a = getArticle(item, tag);
-
-		if(a == null || a.isEmpty()) {
-			return 0;
-		}
-
-		// consolidate notifications
-		itMe  = true;
-		long result = 0;
-
-		for (final DiscreteStorage store : a.stores) {
-			enlister.accept(store);
-			result += store.supply(item, tag, count - result, simulate);
-
-			if (result == count) {
-				break;
-			}
-		}
-
-		itMe = false;
-
-		if(result > 0 && !simulate) {
-			notifyListeners(a);
-		}
-
-		return result;
-	}
-
-	@Override
-	public long accept(DiscreteItem item, long count, boolean simulate) {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 	@Override
 	public long supply(DiscreteItem item, long count, boolean simulate) {
+		Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
+		Preconditions.checkNotNull(item, "Request to supply null item");
+
+		if (item.isEmpty() || articles.isEmpty()) {
+			return 0;
+		}
+
+		final ItemArticle article = articles.get(item);
+
+		if(article == null || article.isEmpty()) {
+			return 0;
+		}
+
+		// consolidate notifications
+		itMe  = true;
+		long result = 0;
+
+		for (final DiscreteStorage store : article.stores) {
+			enlister.accept(store);
+			result += store.supply(item, count - result, simulate);
+
+			if (result == count) {
+				break;
+			}
+		}
+
+		itMe = false;
+
+		if(result > 0 && !simulate) {
+			notifySupply(article, result);
+			article.count -= result;
+		}
+
+		return result;
+	}
+
+	@Override
+	protected ItemArticle newArticle() {
+		return new ItemArticle();
+	}
+
+	@Override
+	public ItemArticleView view(int slot) {
+		return slots[slot];
+	}
+
+	@Override
+	protected DiscreteStorageListener listener() {
+		return this;
+	}
+
+	protected void notifySupply(ItemArticle article, long count) {
+		final int listenCount = listeners.size();
+
+		if(listenCount > 0) {
+			final boolean isEmpty = article.isEmpty();
+			final DiscreteItem item = article.item();
+			final int slot = article.slot;
+
+			for(int i = 0; i < listenCount; i++) {
+				listeners.get(i).onSupply(slot, item, count, isEmpty);
+			}
+		}
+	}
+
+	protected void notifyAccept(ItemArticle article, long result) {
+		final int listenCount = listeners.size();
+
+		if(listenCount > 0) {
+			final boolean wasEmpty = article.count() == result;
+			final DiscreteItem item = article.item();
+			final int slot = article.slot;
+
+			for(int i = 0; i < listenCount; i++) {
+				listeners.get(i).onAccept(slot, item, result, wasEmpty);
+			}
+		}
+	}
+
+	@Override
+	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
+		for(int i = 0 ; i < nextUnusedSlot; i++) {
+			final ItemArticle article = slots[i];
+
+			if (!article.isEmpty()) {
+				listener.onAccept(i, article.item(), article.count(), true);
+			}
+		}
+	}
+
+	@Override
+	public long onAccept(int slot, DiscreteItem item, long count, boolean wasEmpty) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	protected ItemArticle<AggregateItemStorage> newArticle() {
+	public long onSupply(int slot, DiscreteItem item, long count, boolean isEmpty) {
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected DiscreteItem keyFromArticleView(ArticleView a) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ItemArticle<AggregateItemStorage> view(int slot) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected DiscreteStorageListener listener() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
-		// TODO Auto-generated method stub
-
+		return 0;
 	}
 }

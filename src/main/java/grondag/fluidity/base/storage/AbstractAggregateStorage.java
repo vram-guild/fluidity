@@ -35,10 +35,10 @@ import grondag.fluidity.base.article.AbstractArticle;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractAggregateStorage<A extends ArticleView<I>, L extends StorageListener<L>, I extends ArticleItem, K extends AbstractArticle> extends AbstractStorage<A, L, I> {
+public abstract class AbstractAggregateStorage<A extends ArticleView<I>, L extends StorageListener<L>, I extends ArticleItem, K extends AbstractArticle, S extends Storage<A, L, I>> extends AbstractStorage<A, L, I> {
 	protected final Consumer<TransactionContext> rollbackHandler = this::handleRollback;
 	protected final Object2ObjectOpenHashMap<I, K> articles = new Object2ObjectOpenHashMap<>();
-	protected final ObjectOpenHashSet<Storage<?, ?, I>> stores = new ObjectOpenHashSet<>();
+	protected final ObjectOpenHashSet<S> stores = new ObjectOpenHashSet<>();
 
 	protected Consumer<Transactor> enlister = t -> {};
 	protected int nextUnusedSlot = 0;
@@ -61,10 +61,7 @@ public abstract class AbstractAggregateStorage<A extends ArticleView<I>, L exten
 
 	protected abstract K newArticle();
 
-	protected abstract I keyFromArticleView(ArticleView a);
-
-	protected K findOrCreateArticle(ArticleView a) {
-		final I key = keyFromArticleView(a);
+	protected K findOrCreateArticle(I key) {
 		K candidate = articles.get(key);
 
 		if(candidate == null) {
@@ -77,10 +74,10 @@ public abstract class AbstractAggregateStorage<A extends ArticleView<I>, L exten
 
 	protected abstract L listener();
 
-	public void addStore(Storage store) {
+	public void addStore(S store) {
 		if(stores.add(store)) {
 			store.forEach(Storage.NOT_EMPTY, a -> {
-				findOrCreateArticle((ArticleView) a).addStore(store);
+				findOrCreateArticle(a.item()).addStore(store);
 				return true;
 			});
 		}

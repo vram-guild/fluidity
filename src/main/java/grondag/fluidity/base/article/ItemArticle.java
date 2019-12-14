@@ -4,8 +4,13 @@ import grondag.fluidity.api.article.ItemArticleView;
 import grondag.fluidity.api.item.DiscreteItem;
 import grondag.fluidity.api.storage.DiscreteStorage;
 
-public class ItemArticle<S extends DiscreteStorage> extends AbstractArticle<S, DiscreteItem> implements ItemArticleView {
-	long count;
+public class ItemArticle extends AbstractArticle<DiscreteStorage, DiscreteItem> implements ItemArticleView {
+	public long count;
+
+	@Override
+	public DiscreteItem item() {
+		return super.item();
+	}
 
 	@Override
 	public boolean isEmpty() {
@@ -28,7 +33,7 @@ public class ItemArticle<S extends DiscreteStorage> extends AbstractArticle<S, D
 	}
 
 	@Override
-	public void addStore(S store) {
+	public void addStore(DiscreteStorage store) {
 		// TODO Auto-generated method stub
 
 	}
