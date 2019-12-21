@@ -16,6 +16,8 @@
 package grondag.fluidity.api.client;
 
 import io.netty.buffer.Unpooled;
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -33,6 +35,7 @@ import grondag.fluidity.Fluidity;
  * Sent when player interacts with the GUI of an IStorage (vs container slots).
  * IStorage has no concept of slots.
  */
+@API(status = Status.EXPERIMENTAL)
 public class OpenContainerStorageInteractionC2S {
 	public enum Action {
 		/** move targeted stack to player's inventory */
