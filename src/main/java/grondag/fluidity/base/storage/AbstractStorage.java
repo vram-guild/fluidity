@@ -31,7 +31,7 @@ public abstract class AbstractStorage<A extends ArticleView<I>, L extends Storag
 	protected final List<L> listeners = new ArrayList<>();
 
 	@Override
-	public final void startListening(L listener) {
+	public void startListening(L listener) {
 		listeners.add(listener);
 
 		sendFirstListenerUpdate(listener);
@@ -40,7 +40,12 @@ public abstract class AbstractStorage<A extends ArticleView<I>, L extends Storag
 	protected abstract void sendFirstListenerUpdate(L listener);
 
 	@Override
-	public final void stopListening(L listener) {
+	public void stopListening(L listener) {
 		listeners.remove(listener);
+	}
+
+	@Override
+	public List<L> listeners() {
+		return listeners;
 	}
 }

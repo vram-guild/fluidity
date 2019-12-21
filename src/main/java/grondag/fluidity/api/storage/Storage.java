@@ -15,6 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.api.storage;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
@@ -86,6 +87,8 @@ public interface Storage<A extends ArticleView<K>, L extends StorageListener<L>,
 	default void forEach(Predicate<A> action) {
 		forEach(null, Predicates.alwaysTrue(), action);
 	}
+
+	List<L> listeners();
 
 	void startListening(L listener);
 

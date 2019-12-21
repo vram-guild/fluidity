@@ -19,11 +19,11 @@ import grondag.fluidity.base.article.DiscreteArticle;
 @API(status = Status.EXPERIMENTAL)
 public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArticleView, DiscreteStorageListener, DiscreteItem, DiscreteArticle, DiscreteStorage> implements DiscreteStorage, DiscreteStorageListener {
 	protected final DiscreteItem.Mutable lookupKey = new DiscreteItem.Mutable();
-	protected long capacity;
-	protected long count;
+	protected final DiscreteItemNotifier notifier;
 
 	public AggregateItemStorage(int startingSlotCount) {
 		super(startingSlotCount);
+		notifier = new DiscreteItemNotifier(0, this, slots);
 	}
 	public AggregateItemStorage() {
 		this(32);
@@ -31,7 +31,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 
 	@Nullable
 	protected DiscreteArticle getArticle(Item item, CompoundTag tag) {
-		return articles.get(lookupKey.set(item, tag));
+		return slots.get(lookupKey.set(item, tag));
 	}
 
 	@Override
@@ -59,9 +59,9 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 		itMe = false;
 
 		if(result > 0 && !simulate) {
-			final DiscreteArticle article = findOrCreateArticle(item);
+			final DiscreteArticle article = slots.findOrCreateArticle(item);
 			article.count += result;
-			notifyAccept(article, result);
+			notifier.notifyAccept(article, result);
 		}
 
 		return result;
@@ -72,11 +72,11 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 		Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to supply null item");
 
-		if (item.isEmpty() || articles.isEmpty()) {
+		if (item.isEmpty() || slots.isEmpty()) {
 			return 0;
 		}
 
-		final DiscreteArticle article = articles.get(item);
+		final DiscreteArticle article = slots.get(item);
 
 		if(article == null || article.isEmpty()) {
 			return 0;
@@ -98,7 +98,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 		itMe = false;
 
 		if(result > 0 && !simulate) {
-			notifySupply(article, result);
+			notifier.notifySupply(article, result);
 			article.count -= result;
 		}
 
@@ -112,7 +112,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 
 	@Override
 	public DiscreteArticleView view(int slot) {
-		return slots[slot];
+		return slots.get(slot);
 	}
 
 	@Override
@@ -120,71 +120,14 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 		return this;
 	}
 
-	protected void notifySupply(DiscreteArticle article, long count) {
-		this.count -= count;
-
-		final int listenCount = listeners.size();
-
-		if(listenCount > 0) {
-			final long newCount = article.count();
-			final DiscreteItem item = article.item();
-			final int slot = article.slot;
-
-			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onSupply(this, slot, item, count, newCount);
-			}
-		}
-	}
-
-	protected void notifyAccept(DiscreteArticle article, long count) {
-		this.count += count;
-
-		final int listenCount = listeners.size();
-
-		if(listenCount > 0) {
-			final long newCount = article.count();
-			final DiscreteItem item = article.item();
-			final int slot = article.slot;
-
-			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onAccept(this, slot, item, count, newCount);
-			}
-		}
-	}
-
-	protected void notifyCapacityChange(long capacityDelta) {
-		capacity += capacityDelta;
-
-		final int listenCount = listeners.size();
-
-		if(listenCount > 0) {
-			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onCapacityChange(this, capacityDelta);
-			}
-		}
-	}
-
-	@Override
-	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
-		listener.onCapacityChange(this, capacity);
-
-		for(int i = 0 ; i < nextUnusedSlot; i++) {
-			final DiscreteArticle article = slots[i];
-
-			if (!article.isEmpty()) {
-				listener.onAccept(this, i, article.item(), article.count(), article.count());
-			}
-		}
-	}
-
 	@Override
 	public long count() {
-		return count;
+		return notifier.count;
 	}
 
 	@Override
 	public long capacity() {
-		return capacity;
+		return notifier.capacity;
 	}
 
 	@Override
@@ -203,7 +146,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 
 	@Override
 	public void onCapacityChange(Storage<?, DiscreteStorageListener, ?> storage, long capacityDelta) {
-		capacity += capacityDelta;
+		notifier.capacity += capacityDelta;
 	}
 
 	@Override
@@ -215,5 +158,10 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 	@Override
 	public void clear() {
 		// NOOP - unsupported
+	}
+
+	@Override
+	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
+		notifier.sendFirstListenerUpdate(listener);
 	}
 }

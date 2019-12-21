@@ -39,9 +39,7 @@ import grondag.fluidity.base.transact.TransactionHelper;
  * The naive, copy-all-the-stacks approach used here for transaction support is
  * heavy on allocation and could be problematic for very large inventories or very
  * large transaction. A journaling approach that captures changes as they are made
- * is likely to be preferable for performant implementations.  At a minimum, the
- * snapshot could be deferred until a change is made.
- *
+ * is likely to be preferable for performant implementations.
  */
 @API(status = Status.EXPERIMENTAL)
 public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArticleView,  DiscreteStorageListener, DiscreteItem> implements InventoryStorage {
