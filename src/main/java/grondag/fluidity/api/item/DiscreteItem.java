@@ -34,7 +34,7 @@ import net.minecraft.util.registry.Registry;
 import grondag.fluidity.base.item.StackHelper;
 
 @API(status = Status.EXPERIMENTAL)
-public class DiscreteItem implements ArticleItem {
+public class DiscreteItem implements StorageItem {
 	protected Item item;
 	protected CompoundTag tag;
 	protected int hashCode;

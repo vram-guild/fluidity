@@ -22,7 +22,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.server.ServerStartCallback;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
-import grondag.fluidity.api.client.OpenContainerStorageInteractionC2S;
+import grondag.fluidity.api.synch.OpenContainerStorageInteractionC2S;
 import grondag.fluidity.impl.TransactionImpl;
 
 @API(status = Status.INTERNAL)

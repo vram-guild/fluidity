@@ -29,19 +29,19 @@ import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.item.BulkItem;
 
 @API(status = Status.EXPERIMENTAL)
-public class BulkStackView implements BulkArticleView {
+public class BulkArticle implements BulkArticleView {
 	protected BulkItem item;
 	protected MutableFraction fraction;
 	protected int slot;
 
-	public BulkStackView() {
+	public BulkArticle() {
 	}
 
-	public BulkStackView(ItemStack stack, int slot) {
+	public BulkArticle(ItemStack stack, int slot) {
 		prepare(stack, slot);
 	}
 
-	public BulkStackView prepare(ItemStack stack, int slot) {
+	public BulkArticle prepare(ItemStack stack, int slot) {
 		final Item item = stack.getItem();
 		final CompoundTag tag = stack.getTag();
 
@@ -78,7 +78,7 @@ public class BulkStackView implements BulkArticleView {
 		return fraction;
 	}
 
-	public static BulkStackView of(ItemStack stack) {
-		return new  BulkStackView().prepare(stack, 0);
+	public static BulkArticle of(ItemStack stack) {
+		return new  BulkArticle().prepare(stack, 0);
 	}
 }

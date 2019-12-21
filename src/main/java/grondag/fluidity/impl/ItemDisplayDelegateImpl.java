@@ -21,7 +21,7 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.api.client.ItemDisplayDelegate;
+import grondag.fluidity.api.synch.ItemDisplayDelegate;
 
 @API(status = Status.INTERNAL)
 public class ItemDisplayDelegateImpl implements ItemDisplayDelegate {
@@ -69,8 +69,13 @@ public class ItemDisplayDelegateImpl implements ItemDisplayDelegate {
 	}
 
 	@Override
-	public long count() {
+	public long getCount() {
 		return count;
+	}
+
+	@Override
+	public void setCount(long count) {
+		this.count = count;
 	}
 
 	@Override

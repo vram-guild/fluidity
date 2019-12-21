@@ -25,7 +25,7 @@ import net.minecraft.item.ItemStack;
 import grondag.fluidity.api.item.DiscreteItem;
 
 @API(status = Status.EXPERIMENTAL)
-public interface ItemArticleView extends ArticleView<DiscreteItem> {
+public interface DiscreteArticleView extends ArticleView<DiscreteItem> {
 	long count();
 
 	@Override
@@ -40,7 +40,7 @@ public interface ItemArticleView extends ArticleView<DiscreteItem> {
 
 	@Override
 	@Nullable
-	default ItemArticleView toItemView() {
+	default DiscreteArticleView toItemView() {
 		return this;
 	}
 

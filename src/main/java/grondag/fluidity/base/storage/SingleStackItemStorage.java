@@ -21,16 +21,16 @@ import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.api.article.ItemArticleView;
+import grondag.fluidity.api.article.DiscreteArticleView;
 import grondag.fluidity.api.item.DiscreteItem;
 import grondag.fluidity.api.storage.DiscreteStorageListener;
 import grondag.fluidity.api.storage.InventoryStorage;
-import grondag.fluidity.base.article.DiscreteStackView;
+import grondag.fluidity.base.article.DiscreteArticle;
 
 @API(status = Status.EXPERIMENTAL)
-public class SingleStackItemStorage extends AbstractLazyRollbackStorage<ItemArticleView,  DiscreteStorageListener, DiscreteItem> implements InventoryStorage {
+public class SingleStackItemStorage extends AbstractLazyRollbackStorage<DiscreteArticleView,  DiscreteStorageListener, DiscreteItem> implements InventoryStorage {
 	protected ItemStack stack = ItemStack.EMPTY;
-	protected final DiscreteStackView view = new DiscreteStackView();
+	protected final DiscreteArticle view = new DiscreteArticle();
 
 	@Override
 	public int slotCount() {
@@ -43,7 +43,7 @@ public class SingleStackItemStorage extends AbstractLazyRollbackStorage<ItemArti
 	}
 
 	@Override
-	public ItemArticleView view(int slot) {
+	public DiscreteArticleView view(int slot) {
 		return view.prepare(slot == 0 ? stack : ItemStack.EMPTY, slot);
 	}
 
@@ -150,11 +150,10 @@ public class SingleStackItemStorage extends AbstractLazyRollbackStorage<ItemArti
 		final int listenCount = listeners.size();
 
 		if(listenCount > 0) {
-			final boolean isEmpty = stack.isEmpty();
 			final DiscreteItem item = DiscreteItem.of(stack);
 
 			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onSupply(0, item, count, isEmpty);
+				listeners.get(i).onSupply(this, 0, item, count, stack.getCount() - count);
 			}
 		}
 	}
@@ -163,11 +162,20 @@ public class SingleStackItemStorage extends AbstractLazyRollbackStorage<ItemArti
 		final int listenCount = listeners.size();
 
 		if(listenCount > 0) {
-			final boolean wasEmpty = stack.getCount() == count;
 			final DiscreteItem item = DiscreteItem.of(stack);
 
 			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onAccept(0, item, count, wasEmpty);
+				listeners.get(i).onAccept(this, 0, item, count, stack.getCount());
+			}
+		}
+	}
+
+	protected void notifyCapacityChange(int capacityDelta) {
+		final int listenCount = listeners.size();
+
+		if(listenCount > 0) {
+			for(int i = 0; i < listenCount; i++) {
+				listeners.get(i).onCapacityChange(this, capacityDelta);
 			}
 		}
 	}
@@ -178,13 +186,19 @@ public class SingleStackItemStorage extends AbstractLazyRollbackStorage<ItemArti
 			return 0;
 		}
 
+		final int maxCount = item.getItem().getMaxCount();
+
 		if(stack.isEmpty()) {
-			final int n = (int) Math.min(count, item.getItem().getMaxCount());
+			final int n = (int) Math.min(count, maxCount);
 
 			if(!simulate) {
 				rollbackHandler.prepareIfNeeded();
 				stack = item.toStack(n);
 				notifyAccept(n);
+
+				if(maxCount != 64) {
+					notifyCapacityChange(maxCount - 64);
+				}
 			}
 
 			return n;
@@ -212,9 +226,15 @@ public class SingleStackItemStorage extends AbstractLazyRollbackStorage<ItemArti
 		final int n = (int) Math.min(count, stack.getCount());
 
 		if(!simulate) {
+			final int oldMax = stack.getMaxCount();
+
 			rollbackHandler.prepareIfNeeded();
 			notifySupply(n);
 			stack.decrement(n);
+
+			if(stack.isEmpty() && oldMax != 64) {
+				notifyCapacityChange(64 - oldMax);
+			}
 		}
 
 		return n;
@@ -222,6 +242,17 @@ public class SingleStackItemStorage extends AbstractLazyRollbackStorage<ItemArti
 
 	@Override
 	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
-		listener.onAccept(0, DiscreteItem.of(stack), stack.getCount(), true);
+		listener.onCapacityChange(this, stack.getMaxCount());
+		listener.onAccept(this, 0, DiscreteItem.of(stack), stack.getCount(), stack.getCount());
+	}
+
+	@Override
+	public long count() {
+		return stack.getCount();
+	}
+
+	@Override
+	public long capacity() {
+		return stack.isEmpty() ? 64 : stack.getMaxCount();
 	}
 }

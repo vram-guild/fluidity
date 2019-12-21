@@ -13,18 +13,25 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-
-package grondag.fluidity.api.client;
+package grondag.fluidity;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.item.ItemStack;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 
-@API(status = Status.EXPERIMENTAL)
-public interface ItemDisplayResource {
+import grondag.fluidity.api.synch.ItemStorageClientDelegate;
+import grondag.fluidity.api.synch.ItemStorageUpdateS2C;
 
-	ItemStack sampleItemStack();
+@API(status = Status.INTERNAL)
 
-	boolean isStackEqual(ItemStack heldStack);
+public class FluidityClient implements ClientModInitializer {
+
+	@Override
+	public void onInitializeClient() {
+		ClientSidePacketRegistry.INSTANCE.register(ItemStorageUpdateS2C.ID_FULL_REFRESH, ItemStorageClientDelegate::handleFullRefresh);
+		ClientSidePacketRegistry.INSTANCE.register(ItemStorageUpdateS2C.ID_UPDATE, ItemStorageClientDelegate::handleUpdate);
+		ClientSidePacketRegistry.INSTANCE.register(ItemStorageUpdateS2C.ID_UPDATE_WITH_CAPACITY, ItemStorageClientDelegate::handleUpdateWithCapacity);
+	}
 }

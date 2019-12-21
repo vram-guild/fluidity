@@ -14,10 +14,9 @@
  * the License.
  ******************************************************************************/
 
-package grondag.fluidity.api.client;
+package grondag.fluidity.api.synch;
 
 import java.util.Comparator;
-import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -26,7 +25,10 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.impl.ItemDisplayDelegateImpl;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.PacketByteBuf;
+
+import net.fabricmc.fabric.api.network.PacketContext;
 
 @API(status = Status.EXPERIMENTAL)
 public final class ItemStorageClientDelegate {
@@ -61,53 +63,57 @@ public final class ItemStorageClientDelegate {
 		return true;
 	}
 
-	public static void handleStorageRefresh(List<ItemDisplayDelegateImpl> update, long capacity, boolean isFullRefresh) {
-		ItemStorageClientDelegate.capacity = capacity;
-
-		if (isFullRefresh) {
-			handleFullRefresh(update);
-		} else if (!update.isEmpty()) {
-			for (final ItemDisplayDelegate d : update) {
-				handleDelegateUpdate(d);
-			}
-		}
-
-		isSortDirty = true;
+	public static void handleUpdateWithCapacity(PacketContext context, PacketByteBuf buf) {
+		handleUpdateInner(context, buf, true);
 	}
 
-	private static void handleFullRefresh(List<ItemDisplayDelegateImpl> update) {
+	public static void handleUpdate(PacketContext context, PacketByteBuf buf) {
+		handleUpdateInner(context, buf, false);
+	}
+
+	public static void handleFullRefresh(PacketContext context, PacketByteBuf buf) {
 		MAP.clear();
 		LIST.clear();
 		usedCapacity = 0;
 
-		for (final ItemDisplayDelegate item : update) {
+		final int limit = buf.readInt();
+
+		for (int i = 0; i < limit; i++) {
+			final ItemDisplayDelegate item = ItemDisplayDelegate.create(buf.readItemStack(), buf.readVarLong(), buf.readVarInt());
 			MAP.put(item.handle(), item);
 			LIST.add(item);
-			usedCapacity += item.count();
+			usedCapacity += item.getCount();
 		}
+
+		capacity = buf.readVarLong();
+		isSortDirty = true;
 	}
 
-	private static void handleDelegateUpdate(ItemDisplayDelegate update) {
-		final ItemDisplayDelegate prior = MAP.get(update.handle());
+	private static void handleUpdateInner(PacketContext context, PacketByteBuf buf, boolean hasCapacity) {
+		final int limit = buf.readInt();
 
-		if (prior == null) {
-			MAP.put(update.handle(), update);
-			addToListIfIncluded(update);
-			usedCapacity += update.count();
-		} else if (update.count() == 0) {
-			MAP.remove(update.handle());
-			LIST.remove(prior);
-			usedCapacity -= prior.count();
-		} else {
-			usedCapacity += update.count() - prior.count();
-			prior.set(update);
+		for (int i = 0; i < limit; i++) {
+			final ItemStack stack = buf.readItemStack();
+			final long count = buf.readVarLong();
+			final int handle = buf.readVarInt();
+			final ItemDisplayDelegate prior = MAP.get(handle);
+
+			if (prior == null) {
+				final ItemDisplayDelegate update = ItemDisplayDelegate.create(stack, count, handle);
+				MAP.put(handle, update);
+				addToListIfIncluded(update);
+				usedCapacity += count;
+			} else if (count == 0) {
+				MAP.remove(handle);
+				LIST.remove(prior);
+				usedCapacity -= prior.getCount();
+			} else {
+				usedCapacity += count - prior.getCount();
+				prior.setCount(count);
+			}
 		}
-	}
 
-	public static void handleStorageDisconnect() {
-		MAP.clear();
-		LIST.clear();
-		isSortDirty = false;
+		isSortDirty = true;
 	}
 
 	public static int getSortIndex() {

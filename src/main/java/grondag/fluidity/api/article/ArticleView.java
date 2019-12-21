@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.item.ArticleItem;
+import grondag.fluidity.api.item.StorageItem;
 
 /**
  * A view of an article stored in a container. (Could be an discrete item or bulk item.) <p>
@@ -29,7 +29,7 @@ import grondag.fluidity.api.item.ArticleItem;
  * Most containers will not need this and should instead use the specific view type for their content.
  */
 @API(status = Status.EXPERIMENTAL)
-public interface ArticleView<I extends ArticleItem> {
+public interface ArticleView<I extends StorageItem> {
 	I item();
 
 	/**
@@ -61,7 +61,7 @@ public interface ArticleView<I extends ArticleItem> {
 	}
 
 	@Nullable
-	default ItemArticleView toItemView() {
+	default DiscreteArticleView toItemView() {
 		return null;
 	}
 }

@@ -25,7 +25,5 @@ public interface StorageListener<L extends StorageListener<L>> {
 	/**
 	 * Called when storage being listened to becomes unavailable
 	 */
-	default void disconnect(Storage<?, L, ?> target) {
-
-	}
+	void disconnect(Storage<?, L, ?> target);
 }

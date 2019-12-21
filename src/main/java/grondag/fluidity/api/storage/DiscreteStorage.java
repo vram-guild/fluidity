@@ -24,11 +24,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.article.ItemArticleView;
+import grondag.fluidity.api.article.DiscreteArticleView;
 import grondag.fluidity.api.item.DiscreteItem;
 
 @API(status = Status.EXPERIMENTAL)
-public interface DiscreteStorage extends Storage<ItemArticleView, DiscreteStorageListener, DiscreteItem> {
+public interface DiscreteStorage extends Storage<DiscreteArticleView, DiscreteStorageListener, DiscreteItem> {
 	/**
 	 * Adds items to this storage. May return less than requested.
 	 *
@@ -82,4 +82,14 @@ public interface DiscreteStorage extends Storage<ItemArticleView, DiscreteStorag
 	default long supply(ItemStack stack, boolean simulate) {
 		return supply(DiscreteItem.of(stack), stack.getCount(), simulate);
 	}
+
+	default long countOf(DiscreteItem item)  {
+		return supply(item, Long.MAX_VALUE, true);
+	}
+
+	long count();
+
+	long capacity();
+
+	void clear();
 }

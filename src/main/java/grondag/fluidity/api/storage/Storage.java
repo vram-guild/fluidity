@@ -24,7 +24,7 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.ArticleView;
-import grondag.fluidity.api.item.ArticleItem;
+import grondag.fluidity.api.item.StorageItem;
 import grondag.fluidity.api.transact.Transactor;
 
 /**
@@ -32,7 +32,7 @@ import grondag.fluidity.api.transact.Transactor;
  * Interface supports both discrete items and bulk resources (such as fluids.)
  */
 @API(status = Status.EXPERIMENTAL)
-public interface Storage<A extends ArticleView<K>, L extends StorageListener<L>, K extends ArticleItem> extends Transactor {
+public interface Storage<A extends ArticleView<K>, L extends StorageListener<L>, K extends StorageItem> extends Transactor {
 	int slotCount();
 
 	default boolean isEmpty() {

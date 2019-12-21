@@ -23,7 +23,9 @@ import grondag.fluidity.api.item.DiscreteItem;
 
 @API(status = Status.EXPERIMENTAL)
 public interface DiscreteStorageListener extends StorageListener<DiscreteStorageListener> {
-	long onAccept(int slot, DiscreteItem item, long count, boolean wasEmpty);
+	void onAccept(Storage<?, DiscreteStorageListener, ?> storage, int slot, DiscreteItem item, long delta, long newCount);
 
-	long onSupply(int slot, DiscreteItem item, long count, boolean isEmpty);
+	void onSupply(Storage<?, DiscreteStorageListener, ?> storage, int slot, DiscreteItem item, long delta, long newCount);
+
+	void onCapacityChange(Storage<?, DiscreteStorageListener, ?> storage, long capacityDelta);
 }

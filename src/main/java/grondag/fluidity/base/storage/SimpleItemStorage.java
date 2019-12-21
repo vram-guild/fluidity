@@ -27,11 +27,11 @@ import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.api.article.ItemArticleView;
+import grondag.fluidity.api.article.DiscreteArticleView;
 import grondag.fluidity.api.item.DiscreteItem;
 import grondag.fluidity.api.storage.DiscreteStorageListener;
 import grondag.fluidity.api.storage.InventoryStorage;
-import grondag.fluidity.base.article.DiscreteStackView;
+import grondag.fluidity.base.article.DiscreteArticle;
 import grondag.fluidity.base.transact.TransactionHelper;
 
 /**
@@ -44,14 +44,18 @@ import grondag.fluidity.base.transact.TransactionHelper;
  *
  */
 @API(status = Status.EXPERIMENTAL)
-public class SimpleItemStorage extends AbstractLazyRollbackStorage<ItemArticleView,  DiscreteStorageListener, DiscreteItem> implements InventoryStorage {
+public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArticleView,  DiscreteStorageListener, DiscreteItem> implements InventoryStorage {
 	protected final int slotCount;
+	protected long capacity;
+	protected long count;
 	protected final ItemStack[] stacks;
-	protected final DiscreteStackView view = new DiscreteStackView();
+	protected final DiscreteArticle view = new DiscreteArticle();
 	protected Predicate<DiscreteItem> filter = Predicates.alwaysTrue();
 
 	public SimpleItemStorage(int slotCount, @Nullable Predicate<DiscreteItem> filter) {
 		this.slotCount = slotCount;
+		capacity = slotCount * 64;
+		count = 0;
 		stacks = new ItemStack[slotCount];
 		Arrays.fill(stacks, ItemStack.EMPTY);
 		filter(filter);
@@ -71,7 +75,7 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<ItemArticleVi
 	}
 
 	@Override
-	public ItemArticleView view(int slot) {
+	public DiscreteArticleView view(int slot) {
 		return view.prepare(isSlotValid(slot) ? stacks[slot] : ItemStack.EMPTY, slot);
 	}
 
@@ -175,6 +179,9 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<ItemArticleVi
 			}
 
 			markDirty();
+
+			count = 0;
+			capacity = slotCount * 64;
 		}
 	}
 
@@ -213,6 +220,7 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<ItemArticleVi
 
 					final ItemStack newStack = item.toStack(n);
 					notifyAccept(i, newStack, n);
+					stacks[i] = newStack;
 				}
 
 				return n;
@@ -266,39 +274,75 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<ItemArticleVi
 	}
 
 	protected void notifySupply(int slot, ItemStack stack, int count) {
+		final boolean isEmpty = stack.getCount() == count;
+
+		this.count -= count;
+
+		if(isEmpty && stack.getMaxCount() != 64) {
+			notifyCapacityChange(64 - stack.getMaxCount());
+		}
+
 		final int listenCount = listeners.size();
 
 		if(listenCount > 0) {
-			final boolean isEmpty = stack.isEmpty();
 			final DiscreteItem item = DiscreteItem.of(stack);
 
 			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onSupply(slot, item, count, isEmpty);
+				listeners.get(i).onSupply(this, slot, item, count, stack.getCount());
 			}
 		}
 	}
 
 	protected void notifyAccept(int slot, ItemStack stack, int count) {
+		this.count += count;
+		final int newCount = stack.getCount();
+
+		if(newCount == count && stack.getMaxCount() != 64) {
+			notifyCapacityChange(stack.getMaxCount() - 64);
+		}
+
 		final int listenCount = listeners.size();
 
 		if(listenCount > 0) {
-			final boolean wasEmpty = stack.getCount() == count;
 			final DiscreteItem item = DiscreteItem.of(stack);
-
 			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onAccept(slot, item, count, wasEmpty);
+				listeners.get(i).onAccept(this, slot, item, count, newCount);
+			}
+		}
+	}
+
+	protected void notifyCapacityChange(int capacityDelta) {
+		capacity += capacityDelta;
+
+		final int listenCount = listeners.size();
+
+		if(listenCount > 0) {
+			for(int i = 0; i < listenCount; i++) {
+				listeners.get(i).onCapacityChange(this, capacityDelta);
 			}
 		}
 	}
 
 	@Override
 	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
+		listener.onCapacityChange(this, capacity);
+
 		for(int i = 0 ; i < slotCount; i++) {
 			final ItemStack stack = stacks[i];
 
 			if (!stack.isEmpty()) {
-				listener.onAccept(i, DiscreteItem.of(stack), stack.getCount(), true);
+				listener.onAccept(this, i, DiscreteItem.of(stack), stack.getCount(), stack.getCount());
 			}
 		}
+	}
+
+	@Override
+	public long count() {
+		return count;
+	}
+
+	@Override
+	public long capacity() {
+		return capacity;
 	}
 }

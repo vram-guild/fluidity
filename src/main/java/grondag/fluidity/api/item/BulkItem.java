@@ -31,7 +31,7 @@ import net.minecraft.nbt.CompoundTag;
  */
 @FunctionalInterface
 @API(status = Status.EXPERIMENTAL)
-public interface BulkItem extends ArticleItem {
+public interface BulkItem extends StorageItem {
 	@Nullable
 	Fluid toFluid();
 

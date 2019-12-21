@@ -26,7 +26,7 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.util.math.MathHelper;
 
 import grondag.fluidity.api.article.ArticleView;
-import grondag.fluidity.api.item.ArticleItem;
+import grondag.fluidity.api.item.StorageItem;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.transact.TransactionContext;
@@ -35,7 +35,7 @@ import grondag.fluidity.base.article.AbstractArticle;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractAggregateStorage<A extends ArticleView<I>, L extends StorageListener<L>, I extends ArticleItem, K extends AbstractArticle, S extends Storage<A, L, I>> extends AbstractStorage<A, L, I> {
+public abstract class AbstractAggregateStorage<A extends ArticleView<I>, L extends StorageListener<L>, I extends StorageItem, K extends AbstractArticle, S extends Storage<A, L, I>> extends AbstractStorage<A, L, I> {
 	protected final Consumer<TransactionContext> rollbackHandler = this::handleRollback;
 	protected final Object2ObjectOpenHashMap<I, K> articles = new Object2ObjectOpenHashMap<>();
 	protected final ObjectOpenHashSet<S> stores = new ObjectOpenHashSet<>();

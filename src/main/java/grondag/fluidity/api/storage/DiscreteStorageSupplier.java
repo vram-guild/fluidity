@@ -14,23 +14,13 @@
  * the License.
  ******************************************************************************/
 
-package grondag.fluidity.api.client;
+package grondag.fluidity.api.storage;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.item.ItemStack;
-
 @API(status = Status.EXPERIMENTAL)
-public interface ItemDisplayContainer {
-
-	boolean isDead();
-
-	ItemDisplayResource resourceFromHandle(int resourceHandle);
-
-	int storedCount(ItemDisplayResource targetResource);
-
-	int add(ItemStack stack, int howMany);
-
-	int takeUpTo(ItemDisplayResource targetResource, int howMany);
+@FunctionalInterface
+public interface DiscreteStorageSupplier {
+	DiscreteStorage getDiscreteStorage();
 }

@@ -9,15 +9,18 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.article.ItemArticleView;
+import grondag.fluidity.api.article.DiscreteArticleView;
 import grondag.fluidity.api.item.DiscreteItem;
 import grondag.fluidity.api.storage.DiscreteStorage;
 import grondag.fluidity.api.storage.DiscreteStorageListener;
-import grondag.fluidity.base.article.ItemArticle;
+import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.base.article.DiscreteArticle;
 
 @API(status = Status.EXPERIMENTAL)
-public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticleView, DiscreteStorageListener, DiscreteItem, ItemArticle, DiscreteStorage> implements DiscreteStorage, DiscreteStorageListener {
+public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArticleView, DiscreteStorageListener, DiscreteItem, DiscreteArticle, DiscreteStorage> implements DiscreteStorage, DiscreteStorageListener {
 	protected final DiscreteItem.Mutable lookupKey = new DiscreteItem.Mutable();
+	protected long capacity;
+	protected long count;
 
 	public AggregateItemStorage(int startingSlotCount) {
 		super(startingSlotCount);
@@ -27,7 +30,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticleVi
 	}
 
 	@Nullable
-	protected ItemArticle getArticle(Item item, CompoundTag tag) {
+	protected DiscreteArticle getArticle(Item item, CompoundTag tag) {
 		return articles.get(lookupKey.set(item, tag));
 	}
 
@@ -56,7 +59,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticleVi
 		itMe = false;
 
 		if(result > 0 && !simulate) {
-			final ItemArticle article = findOrCreateArticle(item);
+			final DiscreteArticle article = findOrCreateArticle(item);
 			article.count += result;
 			notifyAccept(article, result);
 		}
@@ -73,7 +76,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticleVi
 			return 0;
 		}
 
-		final ItemArticle article = articles.get(item);
+		final DiscreteArticle article = articles.get(item);
 
 		if(article == null || article.isEmpty()) {
 			return 0;
@@ -103,12 +106,12 @@ public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticleVi
 	}
 
 	@Override
-	protected ItemArticle newArticle() {
-		return new ItemArticle();
+	protected DiscreteArticle newArticle() {
+		return new DiscreteArticle();
 	}
 
 	@Override
-	public ItemArticleView view(int slot) {
+	public DiscreteArticleView view(int slot) {
 		return slots[slot];
 	}
 
@@ -117,54 +120,100 @@ public class AggregateItemStorage extends AbstractAggregateStorage<ItemArticleVi
 		return this;
 	}
 
-	protected void notifySupply(ItemArticle article, long count) {
+	protected void notifySupply(DiscreteArticle article, long count) {
+		this.count -= count;
+
 		final int listenCount = listeners.size();
 
 		if(listenCount > 0) {
-			final boolean isEmpty = article.isEmpty();
+			final long newCount = article.count();
 			final DiscreteItem item = article.item();
 			final int slot = article.slot;
 
 			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onSupply(slot, item, count, isEmpty);
+				listeners.get(i).onSupply(this, slot, item, count, newCount);
 			}
 		}
 	}
 
-	protected void notifyAccept(ItemArticle article, long result) {
+	protected void notifyAccept(DiscreteArticle article, long count) {
+		this.count += count;
+
 		final int listenCount = listeners.size();
 
 		if(listenCount > 0) {
-			final boolean wasEmpty = article.count() == result;
+			final long newCount = article.count();
 			final DiscreteItem item = article.item();
 			final int slot = article.slot;
 
 			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onAccept(slot, item, result, wasEmpty);
+				listeners.get(i).onAccept(this, slot, item, count, newCount);
+			}
+		}
+	}
+
+	protected void notifyCapacityChange(long capacityDelta) {
+		capacity += capacityDelta;
+
+		final int listenCount = listeners.size();
+
+		if(listenCount > 0) {
+			for(int i = 0; i < listenCount; i++) {
+				listeners.get(i).onCapacityChange(this, capacityDelta);
 			}
 		}
 	}
 
 	@Override
 	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
+		listener.onCapacityChange(this, capacity);
+
 		for(int i = 0 ; i < nextUnusedSlot; i++) {
-			final ItemArticle article = slots[i];
+			final DiscreteArticle article = slots[i];
 
 			if (!article.isEmpty()) {
-				listener.onAccept(i, article.item(), article.count(), true);
+				listener.onAccept(this, i, article.item(), article.count(), article.count());
 			}
 		}
 	}
 
 	@Override
-	public long onAccept(int slot, DiscreteItem item, long count, boolean wasEmpty) {
-		// TODO Auto-generated method stub
-		return 0;
+	public long count() {
+		return count;
 	}
 
 	@Override
-	public long onSupply(int slot, DiscreteItem item, long count, boolean isEmpty) {
+	public long capacity() {
+		return capacity;
+	}
+
+	@Override
+	public void onAccept(Storage<?, DiscreteStorageListener, ?> storage, int slot, DiscreteItem item, long delta, long newCount) {
+		if (!itMe) {
+			// TODO Auto-generated method stub
+		}
+	}
+
+	@Override
+	public void onSupply(Storage<?, DiscreteStorageListener, ?> storage, int slot, DiscreteItem item, long delta, long newCount) {
+		if (!itMe) {
+			// TODO Auto-generated method stub
+		}
+	}
+
+	@Override
+	public void onCapacityChange(Storage<?, DiscreteStorageListener, ?> storage, long capacityDelta) {
+		capacity += capacityDelta;
+	}
+
+	@Override
+	public void disconnect(Storage<?, DiscreteStorageListener, ?> target) {
 		// TODO Auto-generated method stub
-		return 0;
+
+	}
+
+	@Override
+	public void clear() {
+		// NOOP - unsupported
 	}
 }

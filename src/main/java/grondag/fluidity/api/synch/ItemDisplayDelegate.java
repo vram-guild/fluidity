@@ -14,7 +14,7 @@
  * the License.
  ******************************************************************************/
 
-package grondag.fluidity.api.client;
+package grondag.fluidity.api.synch;
 
 import java.util.Comparator;
 
@@ -41,7 +41,9 @@ public interface ItemDisplayDelegate {
 
 	ItemStack displayStack();
 
-	long count();
+	long getCount();
+
+	void setCount(long count);
 
 	String localizedName();
 
@@ -50,7 +52,7 @@ public interface ItemDisplayDelegate {
 	ItemDisplayDelegate set(ItemStack stack, long count, int handle);
 
 	default ItemDisplayDelegate set(ItemDisplayDelegate from) {
-		return set(from.displayStack(), from.count(), from.handle());
+		return set(from.displayStack(), from.getCount(), from.handle());
 	}
 
 	ItemDisplayDelegate EMPTY = new ItemDisplayDelegateImpl(ItemStack.EMPTY, 0, -1);
@@ -99,7 +101,7 @@ public interface ItemDisplayDelegate {
 			} else if (o2 == null) {
 				return -1;
 			}
-			final int result = Long.compare(o1.count(), o2.count());
+			final int result = Long.compare(o1.getCount(), o2.getCount());
 			return result == 0 ? SORT_BY_NAME_ASC.compare(o1, o2) : result;
 		}
 	};

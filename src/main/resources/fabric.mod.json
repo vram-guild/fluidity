@@ -20,6 +20,9 @@
   "entrypoints": {
     "main": [
       "grondag.fluidity.Fluidity"
+    ],
+    "client": [
+      "grondag.fluidity.FluidityClient"
     ]
   },
   "depends": {
