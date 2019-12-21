@@ -20,13 +20,18 @@ import org.apiguardian.api.API.Status;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.server.ServerStartCallback;
+import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
+import grondag.fluidity.api.client.OpenContainerStorageInteractionC2S;
 import grondag.fluidity.impl.TransactionImpl;
 
 @API(status = Status.INTERNAL)
 public class Fluidity implements ModInitializer {
+	public static final String MOD_ID = "fluidity";
+
 	@Override
 	public void onInitialize() {
 		ServerStartCallback.EVENT.register(TransactionImpl::setServerThread);
+		ServerSidePacketRegistry.INSTANCE.register(OpenContainerStorageInteractionC2S.ID, OpenContainerStorageInteractionC2S::accept);
 	}
 }

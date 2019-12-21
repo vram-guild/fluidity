@@ -1,0 +1,6 @@
+{
+	"label.fluidity.sort_by_name_asc" : "A-Z",
+	"label.fluidity.sort_by_name_desc" : "Z-A",
+	"label.fluidity.sort_by_qty_asc" : "1-2-3",
+	"label.fluidity.sort_by_qty_desc" : "3-2-1"
+}
