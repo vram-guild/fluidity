@@ -176,9 +176,10 @@ public class FlexibleItemStorage extends AbstractLazyRollbackStorage<DiscreteArt
 		}
 
 		final DiscreteArticle a = slots.get(slot);
+		final DiscreteItem oldItem = a.item;
 
 		if(a == null || a.isEmpty()) {
-
+			supply(DiscreteItem.of(newStack), newStack.getCount(), false);
 		}
 
 	}
