@@ -37,7 +37,6 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 	protected final MutableFraction content = new MutableFraction();
 	protected final MutableFraction calc = new MutableFraction();
 	protected final View view = new View();
-
 	protected BulkItem bulkItem = BulkItem.NOTHING;
 	protected Fraction capacity;
 
@@ -46,13 +45,13 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 	}
 
 	@Override
-	public int slotCount() {
+	public int handleCount() {
 		return 1;
 	}
 
 	@Override
-	public BulkArticleView view(int slot) {
-		return  slot == 0 ? view : null;
+	public BulkArticleView view(int handle) {
+		return  handle == 0 ? view : null;
 	}
 
 	@Override
@@ -226,7 +225,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 
 	protected class View implements BulkArticleView {
 		@Override
-		public int slot() {
+		public int handle() {
 			return 0;
 		}
 

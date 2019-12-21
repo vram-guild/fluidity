@@ -23,7 +23,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 
 	public AggregateItemStorage(int startingSlotCount) {
 		super(startingSlotCount);
-		notifier = new DiscreteItemNotifier(0, this, slots);
+		notifier = new DiscreteItemNotifier(0, this, articles);
 	}
 	public AggregateItemStorage() {
 		this(32);
@@ -31,7 +31,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 
 	@Nullable
 	protected DiscreteArticle getArticle(Item item, CompoundTag tag) {
-		return slots.get(lookupKey.set(item, tag));
+		return articles.get(lookupKey.set(item, tag));
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 		itMe = false;
 
 		if(result > 0 && !simulate) {
-			final DiscreteArticle article = slots.findOrCreateArticle(item);
+			final DiscreteArticle article = articles.findOrCreateArticle(item);
 			article.count += result;
 			notifier.notifyAccept(article, result);
 		}
@@ -72,11 +72,11 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 		Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to supply null item");
 
-		if (item.isEmpty() || slots.isEmpty()) {
+		if (item.isEmpty() || articles.isEmpty()) {
 			return 0;
 		}
 
-		final DiscreteArticle article = slots.get(item);
+		final DiscreteArticle article = articles.get(item);
 
 		if(article == null || article.isEmpty()) {
 			return 0;
@@ -112,7 +112,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 
 	@Override
 	public DiscreteArticleView view(int slot) {
-		return slots.get(slot);
+		return articles.get(slot);
 	}
 
 	@Override

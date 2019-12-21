@@ -40,10 +40,10 @@ public final class ItemStorageUpdateS2C {
 		return buf;
 	}
 
-	public static PacketByteBuf append(PacketByteBuf buf, ItemStack stack, long count, int slot) {
+	public static PacketByteBuf append(PacketByteBuf buf, ItemStack stack, long count, int handle) {
 		buf.writeItemStack(stack);
 		buf.writeVarLong(count);
-		buf.writeVarInt(slot);
+		buf.writeVarInt(handle);
 		return buf;
 	}
 

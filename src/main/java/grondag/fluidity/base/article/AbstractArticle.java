@@ -8,7 +8,7 @@ import grondag.fluidity.api.storage.Storage;
 
 public abstract class AbstractArticle<S extends Storage<?, ?, I>, I extends StorageItem> implements ArticleView<I> {
 	public I item;
-	public int slot;
+	public int handle;
 	public final ObjectArraySet<S> stores = new ObjectArraySet<>();
 
 	@Override
@@ -17,8 +17,8 @@ public abstract class AbstractArticle<S extends Storage<?, ?, I>, I extends Stor
 	}
 
 	@Override
-	public int slot() {
-		return slot;
+	public int handle() {
+		return handle;
 	}
 
 	public abstract void addStore(S store);

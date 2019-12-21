@@ -53,14 +53,14 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 	}
 
 	@Override
-	public void onAccept(Storage<?, DiscreteStorageListener, ?> storage, int slot, DiscreteItem item, long delta, long newCount) {
+	public void onAccept(Storage<?, DiscreteStorageListener, ?> storage, int handle, DiscreteItem item, long delta, long newCount) {
 		if(storage != null && storage == this.storage) {
-			final DiscreteArticle update = updates.get(slot);
+			final DiscreteArticle update = updates.get(handle);
 
 			if(update == null) {
-				updates.put(slot, DiscreteArticle.of(item, newCount, slot));
+				updates.put(handle, DiscreteArticle.of(item, newCount, handle));
 			} else {
-				update.prepare(item, newCount, slot);
+				update.prepare(item, newCount, handle);
 			}
 		}
 	}
@@ -85,7 +85,7 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 		final PacketByteBuf buf = ItemStorageUpdateS2C.begin(updates.size());
 
 		for(final DiscreteArticle a : updates.values()) {
-			ItemStorageUpdateS2C.append(buf, a.toStack(), a.count, a.slot);
+			ItemStorageUpdateS2C.append(buf, a.toStack(), a.count, a.handle);
 		}
 
 		if(isFirstUpdate) {

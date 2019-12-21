@@ -41,11 +41,6 @@ public interface InventoryStorage extends DiscreteStorage, Inventory, RecipeInpu
 	}
 
 	@Override
-	default int getInvSize() {
-		return slotCount();
-	}
-
-	@Override
 	default boolean isInvEmpty() {
 		return isEmpty();
 	}

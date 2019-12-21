@@ -24,23 +24,21 @@ import com.google.common.base.Predicates;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.item.ItemStack;
-
 import grondag.fluidity.api.article.DiscreteArticleView;
 import grondag.fluidity.api.item.DiscreteItem;
+import grondag.fluidity.api.storage.DiscreteStorage;
 import grondag.fluidity.api.storage.DiscreteStorageListener;
-import grondag.fluidity.api.storage.InventoryStorage;
 import grondag.fluidity.base.article.DiscreteArticle;
 
 @API(status = Status.EXPERIMENTAL)
-public class FlexibleItemStorage extends AbstractLazyRollbackStorage<DiscreteArticleView,  DiscreteStorageListener, DiscreteItem> implements InventoryStorage {
+public class FlexibleItemStorage extends AbstractLazyRollbackStorage<DiscreteArticleView,  DiscreteStorageListener, DiscreteItem> implements DiscreteStorage {
 	protected Predicate<DiscreteItem> filter = Predicates.alwaysTrue();
-	protected final FlexibleSlotManager<DiscreteItem, DiscreteArticle> slots;
+	protected final FlexibleArticleManager<DiscreteItem, DiscreteArticle> articles;
 	protected final DiscreteItemNotifier notifier;
 
-	public FlexibleItemStorage(int startingSlotCount, long capacity, @Nullable Predicate<DiscreteItem> filter) {
-		slots = new FlexibleSlotManager<>(startingSlotCount, DiscreteArticle::new);
-		notifier = new DiscreteItemNotifier(capacity, this, slots);
+	public FlexibleItemStorage(int startingHandleCount, long capacity, @Nullable Predicate<DiscreteItem> filter) {
+		articles = new FlexibleArticleManager<>(startingHandleCount, DiscreteArticle::new);
+		notifier = new DiscreteItemNotifier(capacity, this, articles);
 		filter(filter);
 	}
 
@@ -64,7 +62,7 @@ public class FlexibleItemStorage extends AbstractLazyRollbackStorage<DiscreteArt
 		final long result = Math.min(count, notifier.capacity - notifier.count);
 
 		if(result > 0 && !simulate) {
-			final DiscreteArticle article = slots.findOrCreateArticle(item);
+			final DiscreteArticle article = articles.findOrCreateArticle(item);
 			article.count += result;
 			notifier.notifyAccept(article, result);
 		}
@@ -77,11 +75,11 @@ public class FlexibleItemStorage extends AbstractLazyRollbackStorage<DiscreteArt
 		Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to supply null item");
 
-		if (item.isEmpty() || slots.isEmpty()) {
+		if (item.isEmpty() || articles.isEmpty()) {
 			return 0;
 		}
 
-		final DiscreteArticle article = slots.get(item);
+		final DiscreteArticle article = articles.get(item);
 
 		if(article == null || article.isEmpty()) {
 			return 0;
@@ -114,74 +112,13 @@ public class FlexibleItemStorage extends AbstractLazyRollbackStorage<DiscreteArt
 	}
 
 	@Override
-	public int slotCount() {
-		return slots.slotCount();
+	public int handleCount() {
+		return articles.handleCount();
 	}
 
 	@Override
-	public DiscreteArticleView view(int slot) {
-		return slots.get(slot);
-	}
-
-	@Override
-	public ItemStack getInvStack(int slot) {
-		final DiscreteArticle a = slots.get(slot);
-		return a == null || a.isEmpty() ? ItemStack.EMPTY : a.toStack();
-	}
-
-	@Override
-	public ItemStack takeInvStack(int slot, int count) {
-		final DiscreteArticle a = slots.get(slot);
-
-		if(a == null || a.isEmpty()) {
-			return ItemStack.EMPTY;
-		}
-
-		final DiscreteItem item = a.item;
-		count = Math.min(count, item.getItem().getMaxCount());
-		final int result = (int) supply(item, count, false);
-
-		if(result == 0) {
-			return ItemStack.EMPTY;
-		} else {
-			markDirty();
-			return item.toStack(result);
-		}
-	}
-
-	@Override
-	public ItemStack removeInvStack(int slot) {
-		final DiscreteArticle a = slots.get(slot);
-
-		if(a == null || a.isEmpty()) {
-			return ItemStack.EMPTY;
-		}
-
-		final DiscreteItem item = a.item;
-		final int result = (int) supply(item, item.getItem().getMaxCount(), false);
-
-		if(result == 0) {
-			return ItemStack.EMPTY;
-		} else {
-			return item.toStack(result);
-		}
-	}
-
-	@Override
-	public void setInvStack(int slot, ItemStack newStack) {
-		Preconditions.checkNotNull(newStack, "ItemStack must be non-null");
-
-		if(slot < 0 || slot >= slots.slotCount()) {
-			return;
-		}
-
-		final DiscreteArticle a = slots.get(slot);
-		final DiscreteItem oldItem = a.item;
-
-		if(a == null || a.isEmpty()) {
-			supply(DiscreteItem.of(newStack), newStack.getCount(), false);
-		}
-
+	public DiscreteArticleView view(int handle) {
+		return articles.get(handle);
 	}
 
 	@Override

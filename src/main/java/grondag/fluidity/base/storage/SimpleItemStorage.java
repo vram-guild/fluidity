@@ -68,25 +68,25 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 	}
 
 	@Override
-	public int slotCount() {
+	public int handleCount() {
 		return slotCount;
 	}
 
 	@Override
 	public DiscreteArticleView view(int slot) {
-		return view.prepare(isSlotValid(slot) ? stacks[slot] : ItemStack.EMPTY, slot);
+		return view.prepare(isHandleValid(slot) ? stacks[slot] : ItemStack.EMPTY, slot);
 	}
 
 	@Override
 	public ItemStack getInvStack(int slot) {
-		return isSlotValid(slot) ? stacks[slot] : ItemStack.EMPTY;
+		return isHandleValid(slot) ? stacks[slot] : ItemStack.EMPTY;
 	}
 
 	@Override
 	public void setInvStack(int slot, ItemStack newStack) {
 		Preconditions.checkNotNull(newStack, "ItemStack must be non-null");
 
-		if (!isSlotValid(slot)) {
+		if (!isHandleValid(slot)) {
 			return;
 		}
 
@@ -122,7 +122,7 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 
 	@Override
 	public ItemStack takeInvStack(int slot, int count) {
-		if(!isSlotValid(slot) || count == 0) {
+		if(!isHandleValid(slot) || count == 0) {
 			return ItemStack.EMPTY;
 		}
 
@@ -271,7 +271,7 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 		return result;
 	}
 
-	protected void notifySupply(int slot, ItemStack stack, int count) {
+	protected void notifySupply(int handle, ItemStack stack, int count) {
 		final boolean isEmpty = stack.getCount() == count;
 
 		this.count -= count;
@@ -286,12 +286,12 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 			final DiscreteItem item = DiscreteItem.of(stack);
 
 			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onSupply(this, slot, item, count, stack.getCount());
+				listeners.get(i).onSupply(this, handle, item, count, stack.getCount());
 			}
 		}
 	}
 
-	protected void notifyAccept(int slot, ItemStack stack, int count) {
+	protected void notifyAccept(int handle, ItemStack stack, int count) {
 		this.count += count;
 		final int newCount = stack.getCount();
 
@@ -304,7 +304,7 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 		if(listenCount > 0) {
 			final DiscreteItem item = DiscreteItem.of(stack);
 			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onAccept(this, slot, item, count, newCount);
+				listeners.get(i).onAccept(this, handle, item, count, newCount);
 			}
 		}
 	}
@@ -342,5 +342,10 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 	@Override
 	public long capacity() {
 		return capacity;
+	}
+
+	@Override
+	public int getInvSize() {
+		return slotCount;
 	}
 }

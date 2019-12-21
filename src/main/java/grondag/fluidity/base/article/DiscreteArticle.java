@@ -12,21 +12,21 @@ public class DiscreteArticle extends AbstractArticle<DiscreteStorage, DiscreteIt
 	public DiscreteArticle() {
 	}
 
-	public DiscreteArticle(ItemStack stack, int slot) {
-		prepare(stack, slot);
+	public DiscreteArticle(ItemStack stack, int handle) {
+		prepare(stack, handle);
 	}
 
-	public DiscreteArticle(DiscreteItem item, final long count, final int slot) {
-		prepare(item, count, slot);
+	public DiscreteArticle(DiscreteItem item, final long count, final int handle) {
+		prepare(item, count, handle);
 	}
 
-	public DiscreteArticle prepare(ItemStack stack, int slot) {
-		return prepare(DiscreteItem.of(stack), stack.getCount(), slot);
+	public DiscreteArticle prepare(ItemStack stack, int handle) {
+		return prepare(DiscreteItem.of(stack), stack.getCount(), handle);
 	}
 
-	public DiscreteArticle prepare(DiscreteItem item, long count, int slot) {
+	public DiscreteArticle prepare(DiscreteItem item, long count, int handle) {
 		this.item = item;
-		this.slot = slot;
+		this.handle = handle;
 		this.count = count;
 		return this;
 	}
@@ -66,7 +66,7 @@ public class DiscreteArticle extends AbstractArticle<DiscreteStorage, DiscreteIt
 		return new  DiscreteArticle().prepare(stack, 0);
 	}
 
-	public static DiscreteArticle of(DiscreteItem item, long count, int slot) {
-		return new DiscreteArticle(item, count, slot);
+	public static DiscreteArticle of(DiscreteItem item, long count, int handle) {
+		return new DiscreteArticle(item, count, handle);
 	}
 }

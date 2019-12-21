@@ -34,10 +34,10 @@ import grondag.fluidity.api.transact.Transactor;
  */
 @API(status = Status.EXPERIMENTAL)
 public interface Storage<A extends ArticleView<K>, L extends StorageListener<L>, K extends StorageItem> extends Transactor {
-	int slotCount();
+	int handleCount();
 
 	default boolean isEmpty() {
-		final int size = slotCount();
+		final int size = handleCount();
 
 		for (int i = 0; i < size; i++) {
 			if (!view(i).isEmpty()) {
@@ -48,22 +48,18 @@ public interface Storage<A extends ArticleView<K>, L extends StorageListener<L>,
 		return true;
 	}
 
-	default boolean hasDynamicSlots() {
-		return false;
+	default boolean isHandleValid(int handle) {
+		return handle >=0  && handle < handleCount();
 	}
 
-	default boolean isSlotValid(int slot) {
-		return slot >=0  && slot < slotCount();
-	}
+	@Nullable A view(int handle);
 
-	@Nullable A view(int slot);
-
-	default boolean isSlotVisibleFrom(Object connection) {
+	default boolean isHandleVisibleFrom(Object connection) {
 		return true;
 	}
 
 	default void forEach(@Nullable Object connection, Predicate<A> filter, Predicate<A> action) {
-		final int limit = slotCount();
+		final int limit = handleCount();
 
 		for (int i = 0; i < limit; i++) {
 			final A article = view(i);

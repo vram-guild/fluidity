@@ -98,7 +98,7 @@ public class OpenContainerStorageInteractionC2S {
 
 		final DiscreteStorage container = ((DiscreteStorageSupplier) player.container).getDiscreteStorage();
 
-		if(!container.isSlotValid(resourceHandle)) {
+		if(!container.isHandleValid(resourceHandle)) {
 			return;
 		}
 

@@ -14,12 +14,12 @@ public class DiscreteItemNotifier {
 	protected long count;
 
 	protected final DiscreteStorage owner;
-	protected final FlexibleSlotManager<?,DiscreteArticle> slots;
+	protected final FlexibleArticleManager<?,DiscreteArticle> articles;
 
-	public DiscreteItemNotifier(long capacity, DiscreteStorage owner, @Nullable FlexibleSlotManager<?, DiscreteArticle> slots) {
+	public DiscreteItemNotifier(long capacity, DiscreteStorage owner, @Nullable FlexibleArticleManager<?, DiscreteArticle> articles) {
 		this.owner = owner;
 		this.capacity = capacity;
-		this.slots = slots;
+		this.articles = articles;
 	}
 
 	public void notifySupply(DiscreteArticle article, long count) {
@@ -32,13 +32,13 @@ public class DiscreteItemNotifier {
 
 		if(listenCount > 0) {
 			final DiscreteItem item = article.item();
-			final int slot = article.slot;
+			final int handle = article.handle;
 
 			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onSupply(owner, slot, item, count, newCount);
+				listeners.get(i).onSupply(owner, handle, item, count, newCount);
 			}
-		} else if(newCount == 0 && slots != null) {
-			slots.compactSlots();
+		} else if(newCount == 0 && articles != null) {
+			articles.compact();
 		}
 	}
 
@@ -51,10 +51,10 @@ public class DiscreteItemNotifier {
 		if(listenCount > 0) {
 			final long newCount = article.count();
 			final DiscreteItem item = article.item();
-			final int slot = article.slot;
+			final int handle = article.handle;
 
 			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onAccept(owner, slot, item, count, newCount);
+				listeners.get(i).onAccept(owner, handle, item, count, newCount);
 			}
 		}
 	}
@@ -75,10 +75,11 @@ public class DiscreteItemNotifier {
 	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
 		listener.onCapacityChange(owner, capacity);
 
-		if(slots != null) {
-			final int limit = slots.slotCount();
+		if(articles != null) {
+			final int limit = articles.handleCount();
+
 			for(int i = 0 ; i < limit; i++) {
-				final DiscreteArticle article = slots.get(i);
+				final DiscreteArticle article = articles.get(i);
 
 				if (!article.isEmpty()) {
 					listener.onAccept(owner, i, article.item(), article.count(), article.count());

@@ -33,14 +33,14 @@ import grondag.fluidity.base.article.AbstractArticle;
 @API(status = Status.EXPERIMENTAL)
 public abstract class AbstractAggregateStorage<A extends ArticleView<I>, L extends StorageListener<L>, I extends StorageItem, K extends AbstractArticle, S extends Storage<A, L, I>> extends AbstractStorage<A, L, I> {
 	protected final Consumer<TransactionContext> rollbackHandler = this::handleRollback;
-	protected final FlexibleSlotManager<I, K> slots;
+	protected final FlexibleArticleManager<I, K> articles;
 	protected final ObjectOpenHashSet<S> stores = new ObjectOpenHashSet<>();
 
 	protected Consumer<Transactor> enlister = t -> {};
 	protected boolean itMe = false;
 
-	public AbstractAggregateStorage(int startingSlotCount) {
-		slots = new FlexibleSlotManager<>(startingSlotCount, this::newArticle);
+	public AbstractAggregateStorage(int startingHandleCount) {
+		articles = new FlexibleArticleManager<>(startingHandleCount, this::newArticle);
 	}
 
 	protected abstract K newArticle();
@@ -50,7 +50,7 @@ public abstract class AbstractAggregateStorage<A extends ArticleView<I>, L exten
 	public void addStore(S store) {
 		if(stores.add(store)) {
 			store.forEach(Storage.NOT_EMPTY, a -> {
-				slots.findOrCreateArticle(a.item()).addStore(store);
+				articles.findOrCreateArticle(a.item()).addStore(store);
 				return true;
 			});
 		}
@@ -63,18 +63,13 @@ public abstract class AbstractAggregateStorage<A extends ArticleView<I>, L exten
 	}
 
 	@Override
-	public int slotCount() {
-		return slots.slotCount();
+	public int handleCount() {
+		return articles.handleCount();
 	}
 
 	@Override
 	public boolean isEmpty() {
-		return slots.isEmpty();
-	}
-
-	@Override
-	public boolean hasDynamicSlots() {
-		return true;
+		return articles.isEmpty();
 	}
 
 	protected void handleRollback(TransactionContext context) {
@@ -89,8 +84,8 @@ public abstract class AbstractAggregateStorage<A extends ArticleView<I>, L exten
 	}
 
 	@Override
-	public A view(int slot) {
-		return (A) slots.get(slot);
+	public A view(int handle) {
+		return (A) articles.get(handle);
 	}
 
 	@Override
@@ -98,7 +93,7 @@ public abstract class AbstractAggregateStorage<A extends ArticleView<I>, L exten
 		super.stopListening(listener);
 
 		if(listeners.isEmpty()) {
-			slots.compactSlots();
+			articles.compact();
 		}
 	}
 }

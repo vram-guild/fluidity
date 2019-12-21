@@ -33,7 +33,7 @@ public class SingleStackItemStorage extends AbstractLazyRollbackStorage<Discrete
 	protected final DiscreteArticle view = new DiscreteArticle();
 
 	@Override
-	public int slotCount() {
+	public int handleCount() {
 		return 1;
 	}
 
@@ -43,8 +43,8 @@ public class SingleStackItemStorage extends AbstractLazyRollbackStorage<Discrete
 	}
 
 	@Override
-	public DiscreteArticleView view(int slot) {
-		return view.prepare(slot == 0 ? stack : ItemStack.EMPTY, slot);
+	public DiscreteArticleView view(int handle) {
+		return view.prepare(handle == 0 ? stack : ItemStack.EMPTY, handle);
 	}
 
 	@Override
