@@ -19,10 +19,8 @@ import io.netty.buffer.Unpooled;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.container.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 
@@ -42,75 +40,47 @@ import grondag.fluidity.api.storage.DiscreteStorageSupplier;
  */
 @API(status = Status.EXPERIMENTAL)
 public class ItemStorageInteractionC2S {
-	//TODO: these names are inaccurate
-	public enum Action {
-		/** move targeted stack to player's inventory */
-		QUICK_MOVE_STACK,
-
-		/** move half of targeted item, up to half a stack, to player's inventory */
-		QUICK_MOVE_HALF,
-
-		/** move one of targeted item to player's inventory */
-		QUICK_MOVE_ONE,
-
-		/** if player has an empty hand or holds the target item, add one to held */
-		TAKE_ONE,
-
-		/**
-		 * if player has an empty hand, take half of targeted item, up to half a stack
-		 */
-		TAKE_HALF,
-
-		/** if player has an empty hand, take full stack of targeted item */
-		TAKE_STACK,
-
-		/**
-		 * if player holds a stack, deposit one of it into storage. target is
-		 * ignored/can be null
-		 */
-		PUT_ONE_HELD,
-
-		/**
-		 * if player holds a stack, deposit all of it into storage. target is
-		 * ignored/can be null
-		 */
-		PUT_ALL_HELD
-	}
-
 	public static final Identifier ID = new Identifier(Fluidity.MOD_ID, "posci");
 
 	@Environment(EnvType.CLIENT)
-	public static void sendPacket(Action action, ItemDisplayDelegate target) {
+	public static void sendPacket(StorageAction action, ItemDisplayDelegate target) {
 		final PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeEnumConstant(action);
-		buf.writeInt(target.handle());
+		buf.writeInt(target == null ? -1 : target.handle());
 		ClientSidePacketRegistry.INSTANCE.sendToServer(ID, buf);
 	}
 
 	public static void accept(PacketContext context, PacketByteBuf buf) {
-		final Action action = buf.readEnumConstant(Action.class);
-		final int resourceHandle = buf.readInt();
+		final StorageAction action = buf.readEnumConstant(StorageAction.class);
+		final int handle = buf.readInt();
 		final ServerPlayerEntity player = (ServerPlayerEntity) context.getPlayer();
+
+		if (context.getTaskQueue().isOnThread()) {
+			acceptInner(action, handle, player);
+		} else {
+			context.getTaskQueue().execute(() -> acceptInner(action, handle, player));
+		}
+	}
+
+	private static void acceptInner(StorageAction action, int handle, ServerPlayerEntity player) {
+
+		//TODO: remove
+		System.out.println("acceptInner " + action.name());
 
 		if (player.container == null || !(player.container instanceof DiscreteStorageSupplier)) {
 			return;
 		}
 
-		final DiscreteStorage container = ((DiscreteStorageSupplier) player.container).getDiscreteStorage();
-
-		if(!container.isHandleValid(resourceHandle)) {
-			return;
-		}
-
-		final DiscreteItem targetResource = container.view(resourceHandle).item();
+		final DiscreteStorage storage = ((DiscreteStorageSupplier) player.container).getDiscreteStorage();
+		final DiscreteItem targetResource = handle == -1 ? null : storage.view(handle).item();
 
 		switch (action) {
 		case PUT_ALL_HELD:
-			doPut(false, player, container);
+			doPut(false, player, storage);
 			return;
 
 		case PUT_ONE_HELD:
-			doPut(true, player, container);
+			doPut(true, player, storage);
 			return;
 
 		case QUICK_MOVE_HALF: {
@@ -118,8 +88,8 @@ public class ItemStorageInteractionC2S {
 				return;
 			}
 
-			final int toMove = (int) Math.max(1, Math.min(targetResource.getItem().getMaxCount() / 2, container.countOf(targetResource)) / 2);
-			doQuickMove(toMove, player, targetResource, container);
+			final int toMove = (int) Math.max(1, Math.min(targetResource.getItem().getMaxCount() / 2, storage.countOf(targetResource)) / 2);
+			doQuickMove(toMove, player, targetResource, storage);
 			return;
 		}
 
@@ -127,7 +97,7 @@ public class ItemStorageInteractionC2S {
 			if (targetResource == null) {
 				return;
 			}
-			doQuickMove(1, player, targetResource, container);
+			doQuickMove(1, player, targetResource, storage);
 			return;
 
 		case QUICK_MOVE_STACK: {
@@ -135,13 +105,13 @@ public class ItemStorageInteractionC2S {
 				return;
 			}
 
-			final int toMove = (int) Math.min(targetResource.getItem().getMaxCount(), container.countOf(targetResource));
-			doQuickMove(toMove, player, targetResource, container);
+			final int toMove = (int) Math.min(targetResource.getItem().getMaxCount(), storage.countOf(targetResource));
+			doQuickMove(toMove, player, targetResource, storage);
 			return;
 		}
 
 		case TAKE_ONE:
-			doTake(1, player, targetResource, container);
+			doTake(1, player, targetResource, storage);
 			return;
 
 		case TAKE_HALF: {
@@ -149,8 +119,8 @@ public class ItemStorageInteractionC2S {
 				return;
 			}
 
-			final int toTake = (int) Math.max(1, Math.min(targetResource.getItem().getMaxCount() / 2, container.countOf(targetResource) / 2));
-			doTake(toTake, player, targetResource, container);
+			final int toTake = (int) Math.max(1, Math.min(targetResource.getItem().getMaxCount() / 2, storage.countOf(targetResource) / 2));
+			doTake(toTake, player, targetResource, storage);
 			return;
 		}
 
@@ -159,8 +129,8 @@ public class ItemStorageInteractionC2S {
 				return;
 			}
 
-			final int toTake = (int) Math.min(targetResource.getItem().getMaxCount(), container.countOf(targetResource));
-			doTake(toTake, player, targetResource, container);
+			final int toTake = (int) Math.min(targetResource.getItem().getMaxCount(), storage.countOf(targetResource));
+			doTake(toTake, player, targetResource, storage);
 			return;
 		}
 
@@ -170,22 +140,23 @@ public class ItemStorageInteractionC2S {
 	}
 
 	private static void doPut(boolean single, ServerPlayerEntity player, DiscreteStorage container) {
-		final ItemStack heldStack = player.inventory.getMainHandStack();
+		final ItemStack cursorStack = player.inventory.getCursorStack();
 
-		if (heldStack != null && !heldStack.isEmpty()) {
-			final int added = (int) container.accept(heldStack, single ? 1 : heldStack.getCount(), false);
+		if (cursorStack != null && !cursorStack.isEmpty()) {
+			final int added = (int) container.accept(cursorStack, single ? 1 : cursorStack.getCount(), false);
 
-			if (added > 0)
-			{
-				heldStack.decrement(added);
-				((Container) container).sendContentUpdates();
+			if (added > 0){
+				cursorStack.decrement(added);
+				player.inventory.setCursorStack(cursorStack);
+				player.inventory.markDirty();
+				player.method_14241();
 			}
 		}
 		return;
 	}
 
 	private static void doQuickMove(int howMany, ServerPlayerEntity player, DiscreteItem targetResource, DiscreteStorage listener) {
-		if (howMany == 0) {
+		if (howMany == 0 || targetResource == null || targetResource.isEmpty()) {
 			return;
 		}
 
@@ -199,46 +170,42 @@ public class ItemStorageInteractionC2S {
 		player.inventory.offerOrDrop(player.world, newStack);
 	}
 
-	/**
-	 * Note: assumes player held item is empty and does not check for this.
-	 */
 	private static void doTake(int howMany, ServerPlayerEntity player, DiscreteItem targetResource, DiscreteStorage container) {
-		if (howMany == 0) {
+		if (howMany == 0 || targetResource == null || targetResource.isEmpty()) {
 			return;
 		}
 
-		final ItemStack heldStack = player.inventory.getMainHandStack();
+		final ItemStack cursorStack = player.inventory.getCursorStack();
 
-		if (heldStack != null && !heldStack.isEmpty()) {
-			final boolean heldStackMatchesTarget = targetResource.matches(heldStack);
-
-			if (!heldStackMatchesTarget) {
+		if (cursorStack != null && !cursorStack.isEmpty()) {
+			if (!targetResource.matches(cursorStack)) {
 				return;
 			}
 
-			if (heldStack.getCount() >= heldStack.getMaxCount()) {
+			if (cursorStack.getCount() >= cursorStack.getMaxCount()) {
 				return;
 			}
 
-			howMany = Math.min(howMany, heldStack.getMaxCount() - heldStack.getCount());
+			howMany = Math.min(howMany, cursorStack.getMaxCount() - cursorStack.getCount());
+			final int toAdd = (int) container.supply(targetResource, howMany, false);
+			cursorStack.increment(toAdd);
+			player.inventory.setCursorStack(cursorStack);
+			player.inventory.markDirty();
+			player.method_14241();
 		} else {
 			howMany = Math.min(howMany, targetResource.getItem().getMaxCount());
-		}
 
-		final int finalHowMany = howMany;
+			final int toAdd = (int) container.supply(targetResource, howMany, false);
 
-		final int toAdd = (int) container.supply(targetResource, finalHowMany, false);
+			if (toAdd == 0) {
+				return;
+			}
 
-		if (toAdd == 0) {
-			return;
-		}
-
-		if (heldStack != null && !heldStack.isEmpty()) {
-			heldStack.increment(toAdd);
-			((Container) container).sendContentUpdates();
-		} else {
 			final ItemStack newStack = targetResource.toStack(toAdd);
-			player.setStackInHand(Hand.MAIN_HAND, newStack);
+			player.inventory.setCursorStack(newStack);
+			player.inventory.markDirty();
+			player.method_14241();
 		}
+
 	}
 }
