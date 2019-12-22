@@ -41,13 +41,15 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 		if(candidate == null) {
 			candidate = getEmptyArticle();
 			candidate.item = key;
+			articles.put(key, candidate);
 		}
 
 		return candidate;
 	}
 
 	protected V getEmptyArticle() {
-		return handles[getEmptyHandle()];
+		final int index = getEmptyHandle();
+		return handles[index];
 	}
 
 	protected int getEmptyHandle() {
@@ -62,9 +64,10 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 
 		// fill unused handle capacity
 		final int handleCount = handles.length;
+		final int result = ++nextUnusedHandle;
 
-		if(nextUnusedHandle < handleCount) {
-			return ++nextUnusedHandle;
+		if(result < handleCount) {
+			return result;
 		}
 
 		// add slot capacity
@@ -80,7 +83,7 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 
 		handles = newHandles;
 
-		return ++nextUnusedHandle;
+		return result;
 	}
 
 	/** Do not call while listeners are active */
@@ -90,7 +93,9 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 		}
 
 		for (int i = nextUnusedHandle -  1; i > 0 && emptyHandleCount > 0; --i) {
-			if(handles[i].isEmpty()) {
+			final V a = handles[i];
+
+			if(a.isEmpty()) {
 				final int target = nextUnusedHandle - 1;
 
 				if (i == target) {
@@ -107,6 +112,7 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 					handles[target] = swap;
 				}
 
+				articles.remove(a.item);
 				--emptyHandleCount;
 			}
 		}

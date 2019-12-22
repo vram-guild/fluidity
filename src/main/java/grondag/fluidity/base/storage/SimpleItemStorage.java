@@ -47,11 +47,15 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 	protected long capacity;
 	protected long count;
 	protected final ItemStack[] stacks;
-	protected final DiscreteArticle view = new DiscreteArticle();
+
+	//TODO: make this lazy
+	protected final FlexibleArticleManager<DiscreteItem, DiscreteArticle> articles;
+
 	protected Predicate<DiscreteItem> filter = Predicates.alwaysTrue();
 
 	public SimpleItemStorage(int slotCount, @Nullable Predicate<DiscreteItem> filter) {
 		this.slotCount = slotCount;
+		articles = new FlexibleArticleManager<>(slotCount, DiscreteArticle::new);
 		capacity = slotCount * 64;
 		count = 0;
 		stacks = new ItemStack[slotCount];
@@ -69,17 +73,17 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 
 	@Override
 	public int handleCount() {
-		return slotCount;
+		return articles.handleCount();
 	}
 
 	@Override
-	public DiscreteArticleView view(int slot) {
-		return view.prepare(isHandleValid(slot) ? stacks[slot] : ItemStack.EMPTY, slot);
+	public DiscreteArticleView view(int handle) {
+		return articles.get(handle);
 	}
 
 	@Override
 	public ItemStack getInvStack(int slot) {
-		return isHandleValid(slot) ? stacks[slot] : ItemStack.EMPTY;
+		return slot >= 0 && slot < slotCount ? stacks[slot] : ItemStack.EMPTY;
 	}
 
 	@Override
@@ -101,13 +105,13 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 				needAcceptNotify = false;
 
 				if(delta > 0) {
-					notifyAccept(slot, newStack, delta);
+					notifyAccept(newStack, delta);
 				} else {
-					notifySupply(slot, newStack, -delta);
+					notifySupply(newStack, -delta);
 				}
 			}
 		} else {
-			notifySupply(slot, currentStack, currentStack.getCount());
+			notifySupply(currentStack, currentStack.getCount());
 			needAcceptNotify = true;
 		}
 
@@ -116,7 +120,7 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 		markDirty();
 
 		if(needAcceptNotify) {
-			notifyAccept(slot, newStack, newStack.getCount());
+			notifyAccept(newStack, newStack.getCount());
 		}
 	}
 
@@ -134,7 +138,7 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 
 		rollbackHandler.prepareIfNeeded();
 		final int n = Math.min(count, stack.getCount());
-		notifySupply(slot, stack, n);
+		notifySupply(stack, n);
 		final ItemStack result = stack.copy();
 		result.setCount(n);
 		stack.decrement(n);
@@ -156,7 +160,7 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 		}
 
 		rollbackHandler.prepareIfNeeded();
-		notifySupply(slot, stack, stack.getCount());
+		notifySupply(stack, stack.getCount());
 		stacks[slot] = ItemStack.EMPTY;
 
 		return stack;
@@ -171,7 +175,7 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 				final ItemStack stack = stacks[i];
 
 				if (!stack.isEmpty()) {
-					notifySupply(i, stack, stack.getCount());
+					notifySupply(stack, stack.getCount());
 					stacks[i] = ItemStack.EMPTY;
 				}
 			}
@@ -217,7 +221,7 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 					}
 
 					final ItemStack newStack = item.toStack(n);
-					notifyAccept(i, newStack, n);
+					notifyAccept(newStack, n);
 					stacks[i] = newStack;
 				}
 
@@ -232,7 +236,7 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 					}
 
 					stack.increment(n);
-					notifyAccept(i, stack, n);
+					notifyAccept(stack, n);
 				}
 
 				result += n;
@@ -261,7 +265,7 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 					needsRollback = false;
 				}
 
-				notifySupply(i, stack, n);
+				notifySupply(stack, n);
 				stack.decrement(n);
 			}
 
@@ -271,7 +275,7 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 		return result;
 	}
 
-	protected void notifySupply(int handle, ItemStack stack, int count) {
+	protected void notifySupply(ItemStack stack, int count) {
 		final boolean isEmpty = stack.getCount() == count;
 
 		this.count -= count;
@@ -280,18 +284,23 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 			notifyCapacityChange(64 - stack.getMaxCount());
 		}
 
+		final DiscreteArticle article = articles.findOrCreateArticle(DiscreteItem.of(stack));
+		article.count -= count;
+
 		final int listenCount = listeners.size();
 
 		if(listenCount > 0) {
 			final DiscreteItem item = DiscreteItem.of(stack);
 
 			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onSupply(this, handle, item, count, stack.getCount());
+				listeners.get(i).onSupply(this, article.handle, item, count, article.count);
 			}
+		} else if(article.count == 0) {
+			articles.compact();
 		}
 	}
 
-	protected void notifyAccept(int handle, ItemStack stack, int count) {
+	protected void notifyAccept(ItemStack stack, int count) {
 		this.count += count;
 		final int newCount = stack.getCount();
 
@@ -299,12 +308,15 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 			notifyCapacityChange(stack.getMaxCount() - 64);
 		}
 
+		final DiscreteArticle article = articles.findOrCreateArticle(DiscreteItem.of(stack));
+		article.count += count;
+
 		final int listenCount = listeners.size();
 
 		if(listenCount > 0) {
 			final DiscreteItem item = DiscreteItem.of(stack);
 			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onAccept(this, handle, item, count, newCount);
+				listeners.get(i).onAccept(this, article.handle, item, count, article.count);
 			}
 		}
 	}
@@ -325,12 +337,17 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
 		listener.onCapacityChange(this, capacity);
 
-		for(int i = 0 ; i < slotCount; i++) {
-			final ItemStack stack = stacks[i];
-
-			if (!stack.isEmpty()) {
-				listener.onAccept(this, i, DiscreteItem.of(stack), stack.getCount(), stack.getCount());
+		for(final DiscreteArticle a : articles.articles.values()) {
+			if (!a.isEmpty()) {
+				listener.onAccept(this, a.handle, a.item, a.count, a.count);
 			}
+		}
+	}
+
+	@Override
+	public void stopListening(DiscreteStorageListener listener) {
+		if(listeners.isEmpty()) {
+			articles.compact();
 		}
 	}
 
