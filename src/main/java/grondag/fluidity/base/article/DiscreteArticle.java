@@ -1,6 +1,7 @@
 package grondag.fluidity.base.article;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.DiscreteArticleView;
 import grondag.fluidity.api.item.DiscreteItem;
@@ -68,5 +69,17 @@ public class DiscreteArticle extends AbstractArticle<DiscreteStorage, DiscreteIt
 
 	public static DiscreteArticle of(DiscreteItem item, long count, int handle) {
 		return new DiscreteArticle(item, count, handle);
+	}
+
+	public CompoundTag toTag() {
+		final CompoundTag result = new CompoundTag();
+		item.writeTag(result, "item");
+		result.putLong("count", count);
+		return result;
+	}
+
+	public void readTag(CompoundTag tag) {
+		item = DiscreteItem.fromTag(tag, "item");
+		count = tag.getLong("count");
 	}
 }

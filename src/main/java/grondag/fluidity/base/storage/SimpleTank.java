@@ -217,6 +217,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 		return result;
 	}
 
+	@Override
 	public void readTag(CompoundTag tag) {
 		capacity = new Fraction(tag.getCompound("capacity"));
 		content.readTag(tag.getCompound("content"));
@@ -276,5 +277,11 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 	@Override
 	protected void sendFirstListenerUpdate(BulkStorageListener listener) {
 		listener.onAccept(0, bulkItem, content, true);
+	}
+
+	@Override
+	public CompoundTag writeTag() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

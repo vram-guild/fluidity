@@ -164,4 +164,13 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
 		notifier.sendFirstListenerUpdate(listener);
 	}
+	@Override
+	public CompoundTag writeTag() {
+		throw new UnsupportedOperationException("Aggregate storage view do not support saving");
+	}
+
+	@Override
+	public void readTag(CompoundTag tag) {
+		throw new UnsupportedOperationException("Aggregate storage view do not support saving");
+	}
 }

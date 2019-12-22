@@ -110,7 +110,7 @@ public class DiscreteItem implements StorageItem {
 	}
 
 	public final ItemStack toStack() {
-		return toStack(0);
+		return toStack(1);
 	}
 
 	public boolean matches(ItemStack stack) {

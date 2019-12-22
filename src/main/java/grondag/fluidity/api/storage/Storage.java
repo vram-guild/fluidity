@@ -24,6 +24,8 @@ import com.google.common.base.Predicates;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import net.minecraft.nbt.CompoundTag;
+
 import grondag.fluidity.api.article.ArticleView;
 import grondag.fluidity.api.item.StorageItem;
 import grondag.fluidity.api.transact.Transactor;
@@ -91,4 +93,11 @@ public interface Storage<A extends ArticleView<K>, L extends StorageListener<L>,
 	void stopListening(L listener);
 
 	Predicate <? super ArticleView<?>> NOT_EMPTY = a -> !a.isEmpty();
+
+	CompoundTag writeTag();
+
+	void readTag(CompoundTag tag);
+
+	String TAG_ITEMS = "items";
+	String TAG_CAPACITY = "cap";
 }

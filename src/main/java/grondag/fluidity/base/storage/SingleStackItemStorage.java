@@ -20,6 +20,7 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.DiscreteArticleView;
 import grondag.fluidity.api.item.DiscreteItem;
@@ -254,5 +255,17 @@ public class SingleStackItemStorage extends AbstractLazyRollbackStorage<Discrete
 	@Override
 	public long capacity() {
 		return stack.isEmpty() ? 64 : stack.getMaxCount();
+	}
+
+	@Override
+	public CompoundTag writeTag() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void readTag(CompoundTag tag) {
+		// TODO Auto-generated method stub
+
 	}
 }

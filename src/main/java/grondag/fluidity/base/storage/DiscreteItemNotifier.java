@@ -59,6 +59,12 @@ public class DiscreteItemNotifier {
 		}
 	}
 
+	public void setCapacity(long newCapacity) {
+		if(newCapacity != capacity) {
+			notifyCapacityChange(newCapacity - capacity);
+		}
+	}
+
 	public void notifyCapacityChange(long capacityDelta) {
 		capacity += capacityDelta;
 

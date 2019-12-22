@@ -24,6 +24,9 @@ import com.google.common.base.Predicates;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+
 import grondag.fluidity.api.article.DiscreteArticleView;
 import grondag.fluidity.api.item.DiscreteItem;
 import grondag.fluidity.api.storage.DiscreteStorage;
@@ -153,5 +156,49 @@ public class FlexibleItemStorage extends AbstractLazyRollbackStorage<DiscreteArt
 	@Override
 	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
 		notifier.sendFirstListenerUpdate(listener);
+	}
+
+	@Override
+	public CompoundTag writeTag() {
+		final CompoundTag result = new CompoundTag();
+		result.putLong("cap", notifier.capacity);
+
+		if(!isEmpty()) {
+			final ListTag list = new ListTag();
+			final int limit = articles.handleCount();
+
+			for (int i = 0; i < limit; i++) {
+				final DiscreteArticle a = articles.get(i);
+
+				if(!a.isEmpty()) {
+					list.add(a.toTag());
+				}
+			}
+
+			result.put("items", list);
+		}
+
+		return result;
+	}
+
+	@Override
+	public void readTag(CompoundTag tag) {
+		clear();
+
+		notifier.setCapacity(tag.getLong(TAG_CAPACITY));
+
+		if(tag.contains(TAG_ITEMS)) {
+			final ListTag list = tag.getList(TAG_ITEMS, 10);
+			final int limit = list.size();
+			final DiscreteArticle lookup = new DiscreteArticle();
+
+			for(int i = 0; i < limit; i++) {
+				lookup.readTag(list.getCompound(i));
+
+				if(!lookup.isEmpty()) {
+					accept(lookup.item(), lookup.count, false);
+				}
+			}
+		}
 	}
 }
