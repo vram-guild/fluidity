@@ -127,7 +127,7 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 	}
 
 	public V get(int handle) {
-		return handle >= 0 && handle < nextUnusedHandle ? handles[handle] : null;
+		return handle >= 0 && handle < handles.length ? handles[handle] : null;
 	}
 
 	public V get(K key) {

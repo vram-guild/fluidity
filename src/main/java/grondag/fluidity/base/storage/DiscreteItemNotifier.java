@@ -28,7 +28,7 @@ public class DiscreteItemNotifier {
 		final List<DiscreteStorageListener> listeners = owner.listeners();
 
 		final int listenCount = listeners.size();
-		final long newCount = article.count();
+		final long newCount = article.count() - count;
 
 		if(listenCount > 0) {
 			final DiscreteItem item = article.item();

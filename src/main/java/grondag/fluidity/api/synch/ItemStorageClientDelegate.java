@@ -25,7 +25,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.PacketByteBuf;
 
 import net.fabricmc.fabric.api.network.PacketContext;
@@ -63,53 +62,89 @@ public final class ItemStorageClientDelegate {
 		return true;
 	}
 
+	private static ItemDisplayDelegate[] readItems(PacketByteBuf buf) {
+		final int limit = buf.readInt();
+		final ItemDisplayDelegate[] items = new ItemDisplayDelegate[limit];
+
+		for (int i = 0; i < limit; i++) {
+			items[i] = ItemDisplayDelegate.create(buf.readItemStack(), buf.readVarLong(), buf.readVarInt());
+		}
+
+		return items;
+	}
+
 	public static void handleUpdateWithCapacity(PacketContext context, PacketByteBuf buf) {
-		handleUpdateInner(context, buf, true);
+		final ItemDisplayDelegate[] items = readItems(buf);
+		final long newCapacity = buf.readVarLong();
+
+		if (context.getTaskQueue().isOnThread()) {
+			handleUpdateInner(items, newCapacity);
+		} else {
+			context.getTaskQueue().execute(() -> handleUpdateInner(items, newCapacity));
+		}
 	}
 
 	public static void handleUpdate(PacketContext context, PacketByteBuf buf) {
-		handleUpdateInner(context, buf, false);
+		final ItemDisplayDelegate[] items = readItems(buf);
+
+		if (context.getTaskQueue().isOnThread()) {
+			handleUpdateInner(items, -1);
+		} else {
+			context.getTaskQueue().execute(() -> handleUpdateInner(items, -1));
+		}
 	}
 
 	public static void handleFullRefresh(PacketContext context, PacketByteBuf buf) {
+		final ItemDisplayDelegate[] items = readItems(buf);
+		final long capacity = buf.readVarLong();
+
+		if (context.getTaskQueue().isOnThread()) {
+			handleFullRefreshInner(items, capacity);
+		} else {
+			context.getTaskQueue().execute(() -> handleFullRefreshInner(items, capacity));
+		}
+	}
+
+	private static void handleFullRefreshInner(ItemDisplayDelegate[] items, long newCapacity) {
+		capacity = newCapacity;
 		MAP.clear();
 		LIST.clear();
 		usedCapacity = 0;
 
-		final int limit = buf.readInt();
+		final int limit = items.length;
 
 		for (int i = 0; i < limit; i++) {
-			final ItemDisplayDelegate item = ItemDisplayDelegate.create(buf.readItemStack(), buf.readVarLong(), buf.readVarInt());
+			final ItemDisplayDelegate item = items[i];
 			MAP.put(item.handle(), item);
 			LIST.add(item);
 			usedCapacity += item.getCount();
 		}
 
-		capacity = buf.readVarLong();
 		isSortDirty = true;
 	}
 
-	private static void handleUpdateInner(PacketContext context, PacketByteBuf buf, boolean hasCapacity) {
-		final int limit = buf.readInt();
+	private static void handleUpdateInner(ItemDisplayDelegate[] items, long newCapacity) {
+		final int limit = items.length;
+
+		if(newCapacity >= 0) {
+			capacity = newCapacity;
+		}
 
 		for (int i = 0; i < limit; i++) {
-			final ItemStack stack = buf.readItemStack();
-			final long count = buf.readVarLong();
-			final int handle = buf.readVarInt();
-			final ItemDisplayDelegate prior = MAP.get(handle);
+			final ItemDisplayDelegate update = items[i];
+			final ItemDisplayDelegate prior = MAP.get(update.handle());
 
 			if (prior == null) {
-				final ItemDisplayDelegate update = ItemDisplayDelegate.create(stack, count, handle);
-				MAP.put(handle, update);
+				MAP.put(update.handle(), update);
 				addToListIfIncluded(update);
-				usedCapacity += count;
-			} else if (count == 0) {
-				MAP.remove(handle);
+				usedCapacity += update.getCount();
+			} else if (update.getCount() == 0) {
+				MAP.remove(update.handle());
 				LIST.remove(prior);
 				usedCapacity -= prior.getCount();
 			} else {
-				usedCapacity += count - prior.getCount();
-				prior.setCount(count);
+				usedCapacity += update.getCount() - prior.getCount();
+				prior.setCount(update.getCount());
 			}
 		}
 

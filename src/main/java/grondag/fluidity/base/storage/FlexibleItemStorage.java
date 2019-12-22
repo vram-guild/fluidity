@@ -107,8 +107,25 @@ public class FlexibleItemStorage extends AbstractLazyRollbackStorage<DiscreteArt
 
 	@Override
 	public void clear() {
-		// TODO Auto-generated method stub
+		if(isEmpty()) {
+			return;
+		}
 
+		final int limit = articles.handleCount();
+
+		for (int i = 0; i < limit; i++) {
+			final DiscreteArticle a = articles.get(i);
+
+			if(!a.isEmpty()) {
+				notifier.notifySupply(a, a.count);
+				a.item = DiscreteItem.EMPTY;
+				a.count = 0;
+			}
+		}
+
+		articles.articles.clear();
+		articles.emptyHandleCount = articles.handles.length;
+		articles.nextUnusedHandle = 0;
 	}
 
 	@Override
