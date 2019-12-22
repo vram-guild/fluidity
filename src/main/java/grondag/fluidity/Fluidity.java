@@ -22,7 +22,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.server.ServerStartCallback;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
-import grondag.fluidity.api.synch.OpenContainerStorageInteractionC2S;
+import grondag.fluidity.api.synch.ItemStorageInteractionC2S;
 import grondag.fluidity.impl.TransactionImpl;
 
 @API(status = Status.INTERNAL)
@@ -32,6 +32,6 @@ public class Fluidity implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		ServerStartCallback.EVENT.register(TransactionImpl::setServerThread);
-		ServerSidePacketRegistry.INSTANCE.register(OpenContainerStorageInteractionC2S.ID, OpenContainerStorageInteractionC2S::accept);
+		ServerSidePacketRegistry.INSTANCE.register(ItemStorageInteractionC2S.ID, ItemStorageInteractionC2S::accept);
 	}
 }

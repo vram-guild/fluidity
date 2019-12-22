@@ -32,7 +32,7 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 		}
 
 		this.handles = handles;
-		emptyHandleCount = startingHandleCount;
+		emptyHandleCount = 0;
 	}
 
 	public V findOrCreateArticle(K key) {
@@ -64,7 +64,7 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 
 		// fill unused handle capacity
 		final int handleCount = handles.length;
-		final int result = ++nextUnusedHandle;
+		final int result = nextUnusedHandle++;
 
 		if(result < handleCount) {
 			return result;

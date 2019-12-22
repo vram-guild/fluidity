@@ -26,7 +26,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.container.Container;
 import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.api.synch.OpenContainerStorageInteractionC2S.Action;
+import grondag.fluidity.api.synch.ItemStorageInteractionC2S.Action;
 
 @API(status = Status.EXPERIMENTAL)
 public class ItemDisplayClickHandler {
@@ -66,7 +66,7 @@ public class ItemDisplayClickHandler {
 		}
 
 		if (action != null) {
-			OpenContainerStorageInteractionC2S.sendPacket(action, target);
+			ItemStorageInteractionC2S.sendPacket(action, target);
 		}
 	}
 }

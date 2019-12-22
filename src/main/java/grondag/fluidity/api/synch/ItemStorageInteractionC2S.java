@@ -41,7 +41,7 @@ import grondag.fluidity.api.storage.DiscreteStorageSupplier;
  * IStorage has no concept of slots.
  */
 @API(status = Status.EXPERIMENTAL)
-public class OpenContainerStorageInteractionC2S {
+public class ItemStorageInteractionC2S {
 	//TODO: these names are inaccurate
 	public enum Action {
 		/** move targeted stack to player's inventory */
