@@ -21,14 +21,11 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicates;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.article.DiscreteArticleView;
 import grondag.fluidity.api.item.DiscreteItem;
 import grondag.fluidity.api.storage.DiscreteStorageListener;
 import grondag.fluidity.api.storage.InventoryStorage;
@@ -43,43 +40,24 @@ import grondag.fluidity.base.transact.TransactionHelper;
  * is likely to be preferable for performant implementations.
  */
 @API(status = Status.EXPERIMENTAL)
-public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArticleView,  DiscreteStorageListener, DiscreteItem> implements InventoryStorage {
+public class SimpleItemStorage extends AbstractItemStorage implements InventoryStorage {
 	protected final int slotCount;
 	protected long capacity;
 	protected long count;
 	protected final ItemStack[] stacks;
 
-	//TODO: make this lazy
-	protected final FlexibleArticleManager<DiscreteItem, DiscreteArticle> articles;
-
-	protected Predicate<DiscreteItem> filter = Predicates.alwaysTrue();
-
 	public SimpleItemStorage(int slotCount, @Nullable Predicate<DiscreteItem> filter) {
+		super(slotCount, filter);
 		this.slotCount = slotCount;
-		articles = new FlexibleArticleManager<>(slotCount, DiscreteArticle::new);
 		capacity = slotCount * 64;
 		count = 0;
 		stacks = new ItemStack[slotCount];
 		Arrays.fill(stacks, ItemStack.EMPTY);
-		filter(filter);
+
 	}
 
 	public SimpleItemStorage(int slotCount) {
 		this(slotCount, null);
-	}
-
-	public void filter(Predicate<DiscreteItem> filter) {
-		this.filter = filter == null ? Predicates.alwaysTrue() : filter;
-	}
-
-	@Override
-	public int handleCount() {
-		return articles.handleCount();
-	}
-
-	@Override
-	public DiscreteArticleView view(int handle) {
-		return articles.get(handle);
 	}
 
 	@Override
@@ -226,7 +204,7 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 					stacks[i] = newStack;
 				}
 
-				return n;
+				result += n;
 			} else if(item.matches(stack)) {
 				final int n = (int) Math.min(count, item.getItem().getMaxCount() - stack.getCount());
 
@@ -241,6 +219,10 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 				}
 
 				result += n;
+			}
+
+			if (result == count) {
+				break;
 			}
 		}
 
@@ -365,17 +347,5 @@ public class SimpleItemStorage extends AbstractLazyRollbackStorage<DiscreteArtic
 	@Override
 	public int getInvSize() {
 		return slotCount;
-	}
-
-	@Override
-	public CompoundTag writeTag() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void readTag(CompoundTag tag) {
-		// TODO Auto-generated method stub
-
 	}
 }

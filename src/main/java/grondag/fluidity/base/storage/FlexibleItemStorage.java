@@ -20,37 +20,25 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicates;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-
-import grondag.fluidity.api.article.DiscreteArticleView;
 import grondag.fluidity.api.item.DiscreteItem;
 import grondag.fluidity.api.storage.DiscreteStorage;
 import grondag.fluidity.api.storage.DiscreteStorageListener;
 import grondag.fluidity.base.article.DiscreteArticle;
 
 @API(status = Status.EXPERIMENTAL)
-public class FlexibleItemStorage extends AbstractLazyRollbackStorage<DiscreteArticleView,  DiscreteStorageListener, DiscreteItem> implements DiscreteStorage {
-	protected Predicate<DiscreteItem> filter = Predicates.alwaysTrue();
-	protected final FlexibleArticleManager<DiscreteItem, DiscreteArticle> articles;
+public class FlexibleItemStorage extends AbstractItemStorage implements DiscreteStorage {
 	protected final DiscreteItemNotifier notifier;
 
 	public FlexibleItemStorage(int startingHandleCount, long capacity, @Nullable Predicate<DiscreteItem> filter) {
-		articles = new FlexibleArticleManager<>(startingHandleCount, DiscreteArticle::new);
+		super(startingHandleCount, filter);
 		notifier = new DiscreteItemNotifier(capacity, this, articles);
-		filter(filter);
 	}
 
 	public FlexibleItemStorage(int capacity) {
 		this(32, capacity, null);
-	}
-
-	public void filter(Predicate<DiscreteItem> filter) {
-		this.filter = filter == null ? Predicates.alwaysTrue() : filter;
 	}
 
 	@Override
@@ -132,16 +120,6 @@ public class FlexibleItemStorage extends AbstractLazyRollbackStorage<DiscreteArt
 	}
 
 	@Override
-	public int handleCount() {
-		return articles.handleCount();
-	}
-
-	@Override
-	public DiscreteArticleView view(int handle) {
-		return articles.get(handle);
-	}
-
-	@Override
 	protected Object createRollbackState() {
 		// TODO Auto-generated method stub
 		return null;
@@ -156,49 +134,5 @@ public class FlexibleItemStorage extends AbstractLazyRollbackStorage<DiscreteArt
 	@Override
 	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
 		notifier.sendFirstListenerUpdate(listener);
-	}
-
-	@Override
-	public CompoundTag writeTag() {
-		final CompoundTag result = new CompoundTag();
-		result.putLong("cap", notifier.capacity);
-
-		if(!isEmpty()) {
-			final ListTag list = new ListTag();
-			final int limit = articles.handleCount();
-
-			for (int i = 0; i < limit; i++) {
-				final DiscreteArticle a = articles.get(i);
-
-				if(!a.isEmpty()) {
-					list.add(a.toTag());
-				}
-			}
-
-			result.put("items", list);
-		}
-
-		return result;
-	}
-
-	@Override
-	public void readTag(CompoundTag tag) {
-		clear();
-
-		notifier.setCapacity(tag.getLong(TAG_CAPACITY));
-
-		if(tag.contains(TAG_ITEMS)) {
-			final ListTag list = tag.getList(TAG_ITEMS, 10);
-			final int limit = list.size();
-			final DiscreteArticle lookup = new DiscreteArticle();
-
-			for(int i = 0; i < limit; i++) {
-				lookup.readTag(list.getCompound(i));
-
-				if(!lookup.isEmpty()) {
-					accept(lookup.item(), lookup.count, false);
-				}
-			}
-		}
 	}
 }

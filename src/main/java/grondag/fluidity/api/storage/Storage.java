@@ -99,5 +99,4 @@ public interface Storage<A extends ArticleView<K>, L extends StorageListener<L>,
 	void readTag(CompoundTag tag);
 
 	String TAG_ITEMS = "items";
-	String TAG_CAPACITY = "cap";
 }
