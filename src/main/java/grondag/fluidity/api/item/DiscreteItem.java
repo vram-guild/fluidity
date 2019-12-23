@@ -53,9 +53,17 @@ public class DiscreteItem implements StorageItem {
 		return item;
 	}
 
+	public boolean hasTag() {
+		return tag != null;
+	}
+
 	@Nullable
-	public final CompoundTag getTag() {
-		return tag;
+	public final CompoundTag copyTag() {
+		return tag.copy();
+	}
+
+	public final boolean doesTagMatch(@Nullable CompoundTag otherTag) {
+		return tag == null ? otherTag == null : tag.equals(otherTag);
 	}
 
 	@Override
@@ -185,5 +193,4 @@ public class DiscreteItem implements StorageItem {
 	public static DiscreteItem of(Item item, @Nullable CompoundTag tag) {
 		return ITEMS.computeIfAbsent(KEYS.get().set(item, tag), k -> k.toImmutable());
 	}
-
 }

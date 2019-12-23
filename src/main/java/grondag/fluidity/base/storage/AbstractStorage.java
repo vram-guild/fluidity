@@ -17,7 +17,9 @@ package grondag.fluidity.base.storage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
+import com.google.common.base.Predicates;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
@@ -29,6 +31,13 @@ import grondag.fluidity.api.storage.StorageListener;
 @API(status = Status.EXPERIMENTAL)
 public abstract class AbstractStorage<A extends ArticleView<I>, L extends StorageListener<L>, I extends StorageItem> implements Storage<A, L, I> {
 	protected final List<L> listeners = new ArrayList<>();
+	protected Predicate<I> filter = Predicates.alwaysTrue();
+
+	@SuppressWarnings("unchecked")
+	public <S extends AbstractStorage<A, L, I>> S filter(Predicate<I> filter) {
+		this.filter = filter == null ? Predicates.alwaysTrue() : filter;
+		return (S) this;
+	}
 
 	@Override
 	public void startListening(L listener) {

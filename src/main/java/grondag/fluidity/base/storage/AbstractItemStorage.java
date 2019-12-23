@@ -15,9 +15,6 @@
  ******************************************************************************/
 package grondag.fluidity.base.storage;
 
-import java.util.function.Predicate;
-
-import com.google.common.base.Predicates;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
@@ -32,18 +29,12 @@ import grondag.fluidity.base.article.DiscreteArticle;
 
 @API(status = Status.EXPERIMENTAL)
 public abstract class AbstractItemStorage extends AbstractLazyRollbackStorage<DiscreteArticleView,  DiscreteStorageListener, DiscreteItem> implements DiscreteStorage {
-	protected Predicate<DiscreteItem> filter = Predicates.alwaysTrue();
-
-	public void filter(Predicate<DiscreteItem> filter) {
-		this.filter = filter == null ? Predicates.alwaysTrue() : filter;
-	}
 
 	//TODO: make this lazy
 	protected final FlexibleArticleManager<DiscreteItem, DiscreteArticle> articles;
 
-	AbstractItemStorage(int startingHandleCount, Predicate<DiscreteItem> filter) {
+	AbstractItemStorage(int startingHandleCount) {
 		articles = new FlexibleArticleManager<>(startingHandleCount, DiscreteArticle::new);
-		filter(filter);
 	}
 
 	@Override

@@ -15,10 +15,6 @@
  ******************************************************************************/
 package grondag.fluidity.base.storage;
 
-import java.util.function.Predicate;
-
-import javax.annotation.Nullable;
-
 import com.google.common.base.Preconditions;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
@@ -32,13 +28,13 @@ import grondag.fluidity.base.article.DiscreteArticle;
 public class FlexibleItemStorage extends AbstractItemStorage implements DiscreteStorage {
 	protected final DiscreteItemNotifier notifier;
 
-	public FlexibleItemStorage(int startingHandleCount, long capacity, @Nullable Predicate<DiscreteItem> filter) {
-		super(startingHandleCount, filter);
+	public FlexibleItemStorage(int startingHandleCount, long capacity) {
+		super(startingHandleCount);
 		notifier = new DiscreteItemNotifier(capacity, this, articles);
 	}
 
 	public FlexibleItemStorage(int capacity) {
-		this(32, capacity, null);
+		this(32, capacity);
 	}
 
 	@Override
@@ -46,7 +42,7 @@ public class FlexibleItemStorage extends AbstractItemStorage implements Discrete
 		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to accept null item");
 
-		if (item.isEmpty()) {
+		if (item.isEmpty() || count == 0 || !filter.test(item)) {
 			return 0;
 		}
 

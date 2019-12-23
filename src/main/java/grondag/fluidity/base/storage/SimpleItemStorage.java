@@ -16,9 +16,6 @@
 package grondag.fluidity.base.storage;
 
 import java.util.Arrays;
-import java.util.function.Predicate;
-
-import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
 import org.apiguardian.api.API;
@@ -46,18 +43,14 @@ public class SimpleItemStorage extends AbstractItemStorage implements InventoryS
 	protected long count;
 	protected final ItemStack[] stacks;
 
-	public SimpleItemStorage(int slotCount, @Nullable Predicate<DiscreteItem> filter) {
-		super(slotCount, filter);
+	public SimpleItemStorage(int slotCount) {
+		super(slotCount);
 		this.slotCount = slotCount;
 		capacity = slotCount * 64;
 		count = 0;
 		stacks = new ItemStack[slotCount];
 		Arrays.fill(stacks, ItemStack.EMPTY);
 
-	}
-
-	public SimpleItemStorage(int slotCount) {
-		this(slotCount, null);
 	}
 
 	@Override
@@ -180,7 +173,7 @@ public class SimpleItemStorage extends AbstractItemStorage implements InventoryS
 	public long accept(DiscreteItem item, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
 
-		if(item.isEmpty()) {
+		if(item.isEmpty() || count == 0 || !filter.test(item)) {
 			return 0;
 		}
 
@@ -191,7 +184,7 @@ public class SimpleItemStorage extends AbstractItemStorage implements InventoryS
 			final ItemStack stack = stacks[i];
 
 			if(stack.isEmpty()) {
-				final int n = (int) Math.min(count, item.getItem().getMaxCount());
+				final int n = (int) Math.min(count - result, item.getItem().getMaxCount());
 
 				if(!simulate) {
 					if(needsRollback) {
@@ -206,7 +199,7 @@ public class SimpleItemStorage extends AbstractItemStorage implements InventoryS
 
 				result += n;
 			} else if(item.matches(stack)) {
-				final int n = (int) Math.min(count, item.getItem().getMaxCount() - stack.getCount());
+				final int n = (int) Math.min(count - result, item.getItem().getMaxCount() - stack.getCount());
 
 				if(!simulate) {
 					if(needsRollback) {
@@ -231,7 +224,7 @@ public class SimpleItemStorage extends AbstractItemStorage implements InventoryS
 
 	@Override
 	public long supply(DiscreteItem item, long count, boolean simulate) {
-		if(item.isEmpty()) {
+		if(item.isEmpty() || count == 0) {
 			return 0;
 		}
 
@@ -240,19 +233,26 @@ public class SimpleItemStorage extends AbstractItemStorage implements InventoryS
 
 		for(int i = 0 ; i < slotCount; i++) {
 			final ItemStack stack = stacks[i];
-			final int n = (int) Math.min(count, stack.getCount());
 
-			if(!simulate) {
-				if(needsRollback) {
-					rollbackHandler.prepareIfNeeded();
-					needsRollback = false;
+			if(item.matches(stack)) {
+				final int n = (int) Math.min(count - result, stack.getCount());
+
+				if(!simulate) {
+					if(needsRollback) {
+						rollbackHandler.prepareIfNeeded();
+						needsRollback = false;
+					}
+
+					notifySupply(stack, n);
+					stack.decrement(n);
 				}
 
-				notifySupply(stack, n);
-				stack.decrement(n);
+				result += n;
 			}
 
-			result += n;
+			if (result == count) {
+				break;
+			}
 		}
 
 		return result;
