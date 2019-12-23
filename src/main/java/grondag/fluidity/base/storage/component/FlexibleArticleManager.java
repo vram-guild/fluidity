@@ -15,7 +15,6 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 	protected final Object2ObjectOpenHashMap<K, V> articles = new Object2ObjectOpenHashMap<>();
 
 	protected int nextUnusedHandle = 0;
-	protected int emptyHandleCount = 0;
 	protected V[] handles;
 	protected final Supplier<V> articleFactory;
 
@@ -32,7 +31,6 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 		}
 
 		this.handles = handles;
-		emptyHandleCount = 0;
 	}
 
 	@Override
@@ -54,15 +52,6 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 	}
 
 	protected int getEmptyHandle() {
-		// fill empties first
-		if(emptyHandleCount > 0) {
-			for(int i = 0; i < nextUnusedHandle; i++) {
-				if(handles[i].isEmpty()) {
-					return i;
-				}
-			}
-		}
-
 		// fill unused handle capacity
 		final int handleCount = handles.length;
 		final int result = nextUnusedHandle++;
@@ -89,11 +78,7 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 
 	@Override
 	public void compact() {
-		if(emptyHandleCount == 0) {
-			return;
-		}
-
-		for (int i = nextUnusedHandle -  1; i > 0 && emptyHandleCount > 0; --i) {
+		for (int i = nextUnusedHandle - 1; i > 0; --i) {
 			final V a = handles[i];
 
 			if(a.isEmpty()) {
@@ -114,7 +99,6 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 				}
 
 				articles.remove(a.item);
-				--emptyHandleCount;
 			}
 		}
 	}
@@ -122,16 +106,6 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 	@Override
 	public int handleCount() {
 		return nextUnusedHandle;
-	}
-
-	@Override
-	public int usedHandleCount() {
-		return handleCount() - emptyHandleCount;
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return emptyHandleCount == nextUnusedHandle;
 	}
 
 	@Override
@@ -147,7 +121,6 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 	@Override
 	public void clear() {
 		articles.clear();
-		emptyHandleCount = 0;
 		nextUnusedHandle = 0;
 	}
 }

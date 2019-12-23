@@ -69,11 +69,6 @@ public abstract class AbstractAggregateStorage<A extends ArticleView<I>, L exten
 		return articles.handleCount();
 	}
 
-	@Override
-	public boolean isEmpty() {
-		return articles.isEmpty();
-	}
-
 	protected void handleRollback(TransactionContext context) {
 		enlister = context.getState();
 	}

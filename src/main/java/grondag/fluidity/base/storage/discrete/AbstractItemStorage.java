@@ -26,9 +26,9 @@ import grondag.fluidity.api.item.DiscreteItem;
 import grondag.fluidity.api.storage.DiscreteStorage;
 import grondag.fluidity.api.storage.DiscreteStorageListener;
 import grondag.fluidity.base.article.DiscreteArticle;
-import grondag.fluidity.base.storage.component.TrackingItemNotifier;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
 import grondag.fluidity.base.storage.component.FlexibleArticleManager;
+import grondag.fluidity.base.storage.component.TrackingItemNotifier;
 
 @API(status = Status.EXPERIMENTAL)
 public abstract class AbstractItemStorage extends AbstractLazyRollbackStorage<DiscreteArticleView,  DiscreteStorageListener, DiscreteItem> implements DiscreteStorage {
@@ -94,6 +94,11 @@ public abstract class AbstractItemStorage extends AbstractLazyRollbackStorage<Di
 	}
 
 	@Override
+	public boolean isEmpty() {
+		return notifier.count() == 0;
+	}
+
+	@Override
 	public long count() {
 		return notifier.count();
 	}
@@ -102,7 +107,6 @@ public abstract class AbstractItemStorage extends AbstractLazyRollbackStorage<Di
 	public long capacity() {
 		return notifier.capacity();
 	}
-
 
 	@Override
 	protected final void sendFirstListenerUpdate(DiscreteStorageListener listener) {

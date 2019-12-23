@@ -12,10 +12,6 @@ public interface ArticleManager<K extends StorageItem, V extends AbstractArticle
 
 	int handleCount();
 
-	int usedHandleCount();
-
-	boolean isEmpty();
-
 	V get(int handle);
 
 	V get(K key);

@@ -34,10 +34,10 @@ public class DividedItemStorage extends FlexibleItemStorage  {
 
 	@Override
 	public long accept(DiscreteItem item, long count, boolean simulate) {
-		if(articles.usedHandleCount() >= divisionCount) {
+		if(notifier.articleCount() >= divisionCount) {
 			final DiscreteArticle a = articles.get(item);
 
-			if(a == null) {
+			if(a == null || a.isEmpty()) {
 				return 0;
 			}
 

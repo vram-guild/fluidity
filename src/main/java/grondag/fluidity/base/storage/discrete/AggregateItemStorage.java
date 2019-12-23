@@ -74,7 +74,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 		Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to supply null item");
 
-		if (item.isEmpty() || articles.isEmpty()) {
+		if (item.isEmpty() || isEmpty()) {
 			return 0;
 		}
 
