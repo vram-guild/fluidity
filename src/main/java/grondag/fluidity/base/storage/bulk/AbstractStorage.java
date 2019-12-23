@@ -13,13 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.base.storage;
+package grondag.fluidity.base.storage.bulk;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Predicate;
 
 import com.google.common.base.Predicates;
+import com.google.common.util.concurrent.Runnables;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
@@ -27,11 +26,13 @@ import grondag.fluidity.api.article.ArticleView;
 import grondag.fluidity.api.item.StorageItem;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
+import grondag.fluidity.base.storage.component.ListenerSet;
 
 @API(status = Status.EXPERIMENTAL)
 public abstract class AbstractStorage<A extends ArticleView<I>, L extends StorageListener<L>, I extends StorageItem> implements Storage<A, L, I> {
-	protected final List<L> listeners = new ArrayList<>();
+	public final ListenerSet<L> listeners = new ListenerSet<>(this::sendFirstListenerUpdate, this::onListenersEmpty);
 	protected Predicate<I> filter = Predicates.alwaysTrue();
+	protected Runnable dirtyNotifier = Runnables.doNothing();
 
 	@SuppressWarnings("unchecked")
 	public <S extends AbstractStorage<A, L, I>> S filter(Predicate<I> filter) {
@@ -40,21 +41,25 @@ public abstract class AbstractStorage<A extends ArticleView<I>, L extends Storag
 	}
 
 	@Override
-	public void startListening(L listener) {
-		listeners.add(listener);
-
-		sendFirstListenerUpdate(listener);
+	public final void startListening(L listener) {
+		listeners.startListening(listener);
 	}
 
 	protected abstract void sendFirstListenerUpdate(L listener);
 
+	protected abstract void onListenersEmpty();
+
 	@Override
-	public void stopListening(L listener) {
-		listeners.remove(listener);
+	public final void stopListening(L listener) {
+		listeners.stopListening(listener);
 	}
 
 	@Override
-	public List<L> listeners() {
+	public Iterable<L> listeners() {
 		return listeners;
+	}
+
+	public void onDirty(Runnable dirtyNotifier) {
+		this.dirtyNotifier = dirtyNotifier == null ? Runnables.doNothing() : dirtyNotifier;
 	}
 }

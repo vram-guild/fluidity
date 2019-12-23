@@ -21,7 +21,6 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 
 import grondag.fluidity.api.article.BulkArticleView;
 import grondag.fluidity.api.fraction.Fraction;
@@ -77,18 +76,10 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 		}
 
 		if (!simulate) {
-			final boolean wasEmpty = content.isZero();
-
 			rollbackHandler.prepareIfNeeded();
 			content.add(calc);
-
-			final int listenCount = listeners.size();
-
-			if(listenCount > 0) {
-				for(int i = 0; i < listenCount; i++) {
-					listeners.get(i).onAccept(0, bulkItem, calc, wasEmpty);
-				}
-			}
+			dirtyNotifier.run();
+			listeners.forEach(l -> l.onSupply(0, bulkItem, calc, content));
 		}
 
 		return calc;
@@ -107,14 +98,8 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 		if (!simulate) {
 			rollbackHandler.prepareIfNeeded();
 			content.subtract(calc);
-
-			final int listenCount = listeners.size();
-
-			if(listenCount > 0) {
-				for(int i = 0; i < listenCount; i++) {
-					listeners.get(i).onSupply(0, bulkItem, calc, content.isZero());
-				}
-			}
+			dirtyNotifier.run();
+			listeners.forEach(l -> l.onSupply(0, bulkItem, calc, content));
 		}
 
 		return calc;
@@ -146,19 +131,13 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 		}
 
 		if (!simulate) {
-			final boolean wasEmpty = content.isZero();
-
 			rollbackHandler.prepareIfNeeded();
 			content.add(result, divisor);
+			dirtyNotifier.run();
 
-			final int listenCount = listeners.size();
-
-			if(listenCount > 0) {
+			if(!listeners.isEmpty()) {
 				calc.set(result, divisor);
-
-				for(int i = 0; i < listenCount; i++) {
-					listeners.get(i).onAccept(0, bulkItem, calc, wasEmpty);
-				}
+				listeners.forEach(l -> l.onAccept(0, item, calc, content));
 			}
 		}
 
@@ -190,15 +169,11 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 		if (!simulate) {
 			rollbackHandler.prepareIfNeeded();
 			content.subtract(result, divisor);
+			dirtyNotifier.run();
 
-			final int listenCount = listeners.size();
-
-			if(listenCount > 0) {
+			if(!listeners.isEmpty()) {
 				calc.set(result, divisor);
-
-				for(int i = 0; i < listenCount; i++) {
-					listeners.get(i).onSupply(0, bulkItem, calc, content.isZero());
-				}
+				listeners.forEach(l -> l.onAccept(0, item, calc, content));
 			}
 		}
 
@@ -211,7 +186,8 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 		tag.putString("bulkItem", BulkItemRegistry.INSTANCE.getId(bulkItem).toString());
 	}
 
-	public Tag toTag() {
+	@Override
+	public CompoundTag writeTag() {
 		final CompoundTag result = new CompoundTag();
 		writeTag(result);
 		return result;
@@ -276,12 +252,17 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 
 	@Override
 	protected void sendFirstListenerUpdate(BulkStorageListener listener) {
-		listener.onAccept(0, bulkItem, content, true);
+		listener.onAccept(0, bulkItem, content, content);
 	}
 
 	@Override
-	public CompoundTag writeTag() {
-		// TODO Auto-generated method stub
-		return null;
+	protected void onListenersEmpty() {
+		// NOOP
+	}
+
+	public void clear() {
+		//TODO: implement rest of it
+
+		dirtyNotifier.run();
 	}
 }

@@ -24,6 +24,7 @@ import grondag.fluidity.api.article.ArticleView;
 import grondag.fluidity.api.item.StorageItem;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.transact.TransactionContext;
+import grondag.fluidity.base.storage.bulk.AbstractStorage;
 import grondag.fluidity.base.transact.LazyRollbackHandler;
 
 @API(status = Status.EXPERIMENTAL)

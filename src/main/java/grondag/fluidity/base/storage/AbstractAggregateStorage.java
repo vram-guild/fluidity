@@ -28,6 +28,8 @@ import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.Transactor;
 import grondag.fluidity.base.article.AbstractArticle;
+import grondag.fluidity.base.storage.bulk.AbstractStorage;
+import grondag.fluidity.base.storage.component.FlexibleArticleManager;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 @API(status = Status.EXPERIMENTAL)
@@ -86,14 +88,5 @@ public abstract class AbstractAggregateStorage<A extends ArticleView<I>, L exten
 	@Override
 	public A view(int handle) {
 		return (A) articles.get(handle);
-	}
-
-	@Override
-	public void stopListening(L listener) {
-		super.stopListening(listener);
-
-		if(listeners.isEmpty()) {
-			articles.compact();
-		}
 	}
 }

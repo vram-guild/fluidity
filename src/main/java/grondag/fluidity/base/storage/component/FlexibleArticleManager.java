@@ -1,4 +1,4 @@
-package grondag.fluidity.base.storage;
+package grondag.fluidity.base.storage.component;
 
 import java.lang.reflect.Array;
 import java.util.function.Supplier;
@@ -11,7 +11,7 @@ import grondag.fluidity.api.item.StorageItem;
 import grondag.fluidity.base.article.AbstractArticle;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArticle> {
+public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArticle> implements ArticleManager<K, V>{
 	protected final Object2ObjectOpenHashMap<K, V> articles = new Object2ObjectOpenHashMap<>();
 
 	protected int nextUnusedHandle = 0;
@@ -19,7 +19,7 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 	protected V[] handles;
 	protected final Supplier<V> articleFactory;
 
-	FlexibleArticleManager(int startingHandleCount, Supplier<V> articleFactory) {
+	public FlexibleArticleManager(int startingHandleCount, Supplier<V> articleFactory) {
 		this.articleFactory = articleFactory;
 
 		startingHandleCount = MathHelper.smallestEncompassingPowerOfTwo(startingHandleCount);
@@ -35,6 +35,7 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 		emptyHandleCount = 0;
 	}
 
+	@Override
 	public V findOrCreateArticle(K key) {
 		V candidate = articles.get(key);
 
@@ -86,8 +87,8 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 		return result;
 	}
 
-	/** Do not call while listeners are active */
-	protected void compact() {
+	@Override
+	public void compact() {
 		if(emptyHandleCount == 0) {
 			return;
 		}
@@ -118,19 +119,35 @@ public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArt
 		}
 	}
 
+	@Override
 	public int handleCount() {
 		return nextUnusedHandle;
 	}
 
+	@Override
+	public int usedHandleCount() {
+		return handleCount() - emptyHandleCount;
+	}
+
+	@Override
 	public boolean isEmpty() {
 		return emptyHandleCount == nextUnusedHandle;
 	}
 
+	@Override
 	public V get(int handle) {
 		return handle >= 0 && handle < handles.length ? handles[handle] : null;
 	}
 
+	@Override
 	public V get(K key) {
 		return articles.get(key);
+	}
+
+	@Override
+	public void clear() {
+		articles.clear();
+		emptyHandleCount = 0;
+		nextUnusedHandle = 0;
 	}
 }

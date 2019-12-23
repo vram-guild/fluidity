@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.base.storage;
+package grondag.fluidity.base.storage.discrete;
 
 import com.google.common.base.Preconditions;
 import org.apiguardian.api.API;
@@ -21,16 +21,12 @@ import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.item.DiscreteItem;
 import grondag.fluidity.api.storage.DiscreteStorage;
-import grondag.fluidity.api.storage.DiscreteStorageListener;
 import grondag.fluidity.base.article.DiscreteArticle;
 
 @API(status = Status.EXPERIMENTAL)
 public class FlexibleItemStorage extends AbstractItemStorage implements DiscreteStorage {
-	protected final DiscreteItemNotifier notifier;
-
 	public FlexibleItemStorage(int startingHandleCount, long capacity) {
-		super(startingHandleCount);
-		notifier = new DiscreteItemNotifier(capacity, this, articles);
+		super(startingHandleCount, capacity);
 	}
 
 	public FlexibleItemStorage(int capacity) {
@@ -46,12 +42,13 @@ public class FlexibleItemStorage extends AbstractItemStorage implements Discrete
 			return 0;
 		}
 
-		final long result = Math.min(count, notifier.capacity - notifier.count);
+		final long result = Math.min(count, notifier.capacity() - notifier.count());
 
 		if(result > 0 && !simulate) {
 			final DiscreteArticle article = articles.findOrCreateArticle(item);
 			article.count += result;
 			notifier.notifyAccept(article, result);
+			dirtyNotifier.run();
 		}
 
 		return result;
@@ -77,19 +74,10 @@ public class FlexibleItemStorage extends AbstractItemStorage implements Discrete
 		if(result > 0 && !simulate) {
 			notifier.notifySupply(article, result);
 			article.count -= result;
+			dirtyNotifier.run();
 		}
 
 		return result;
-	}
-
-	@Override
-	public long count() {
-		return notifier.count;
-	}
-
-	@Override
-	public long capacity() {
-		return notifier.capacity;
 	}
 
 	@Override
@@ -110,9 +98,8 @@ public class FlexibleItemStorage extends AbstractItemStorage implements Discrete
 			}
 		}
 
-		articles.articles.clear();
-		articles.emptyHandleCount = 0;
-		articles.nextUnusedHandle = 0;
+		articles.clear();
+		dirtyNotifier.run();
 	}
 
 	@Override
@@ -125,10 +112,5 @@ public class FlexibleItemStorage extends AbstractItemStorage implements Discrete
 	protected void applyRollbackState(Object state) {
 		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
-		notifier.sendFirstListenerUpdate(listener);
 	}
 }

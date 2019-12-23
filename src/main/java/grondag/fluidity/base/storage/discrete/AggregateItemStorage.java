@@ -1,4 +1,4 @@
-package grondag.fluidity.base.storage;
+package grondag.fluidity.base.storage.discrete;
 
 import javax.annotation.Nullable;
 
@@ -15,15 +15,17 @@ import grondag.fluidity.api.storage.DiscreteStorage;
 import grondag.fluidity.api.storage.DiscreteStorageListener;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.base.article.DiscreteArticle;
+import grondag.fluidity.base.storage.AbstractAggregateStorage;
+import grondag.fluidity.base.storage.component.TrackingItemNotifier;
 
 @API(status = Status.EXPERIMENTAL)
 public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArticleView, DiscreteStorageListener, DiscreteItem, DiscreteArticle, DiscreteStorage> implements DiscreteStorage, DiscreteStorageListener {
 	protected final DiscreteItem.Mutable lookupKey = new DiscreteItem.Mutable();
-	protected final DiscreteItemNotifier notifier;
+	protected final TrackingItemNotifier notifier;
 
 	public AggregateItemStorage(int startingSlotCount) {
 		super(startingSlotCount);
-		notifier = new DiscreteItemNotifier(0, this, articles);
+		notifier = new TrackingItemNotifier(0, this);
 	}
 	public AggregateItemStorage() {
 		this(32);
@@ -122,12 +124,12 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 
 	@Override
 	public long count() {
-		return notifier.count;
+		return notifier.count();
 	}
 
 	@Override
 	public long capacity() {
-		return notifier.capacity;
+		return notifier.capacity();
 	}
 
 	@Override
@@ -146,7 +148,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 
 	@Override
 	public void onCapacityChange(Storage<?, DiscreteStorageListener, ?> storage, long capacityDelta) {
-		notifier.capacity += capacityDelta;
+		notifier.changeCapacity(capacityDelta);
 	}
 
 	@Override
@@ -164,6 +166,7 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
 		notifier.sendFirstListenerUpdate(listener);
 	}
+
 	@Override
 	public CompoundTag writeTag() {
 		throw new UnsupportedOperationException("Aggregate storage view do not support saving");
@@ -172,5 +175,10 @@ public class AggregateItemStorage extends AbstractAggregateStorage<DiscreteArtic
 	@Override
 	public void readTag(CompoundTag tag) {
 		throw new UnsupportedOperationException("Aggregate storage view do not support saving");
+	}
+
+	@Override
+	protected void onListenersEmpty() {
+		articles.compact();
 	}
 }

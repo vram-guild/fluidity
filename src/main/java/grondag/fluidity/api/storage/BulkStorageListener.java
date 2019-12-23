@@ -24,8 +24,10 @@ import grondag.fluidity.api.item.BulkItem;
 
 @API(status = Status.EXPERIMENTAL)
 public interface BulkStorageListener extends StorageListener<BulkStorageListener> {
-	FractionView onAccept(int handle, BulkItem item, FractionView volume, boolean wasEmpty);
+	FractionView onAccept(int handle, BulkItem item, FractionView delta, FractionView newVolume);
 
-	FractionView onSupply(int handle, BulkItem item, FractionView volume, boolean isEmpty);
+	FractionView onSupply(int handle, BulkItem item, FractionView delta, FractionView newVolume);
+
+	void onCapacityChange(Storage<?, DiscreteStorageListener, ?> storage, long capacityDelta);
 }
 

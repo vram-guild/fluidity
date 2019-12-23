@@ -25,6 +25,7 @@ import net.minecraft.util.Identifier;
 
 import grondag.fluidity.impl.BulkItemRegistryImpl;
 
+// TODO: make this generic for any storage item
 @API(status = EXPERIMENTAL)
 public interface BulkItemRegistry {
 	BulkItemRegistry INSTANCE = BulkItemRegistryImpl.INSTANCE;

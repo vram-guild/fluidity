@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.base.storage;
+package grondag.fluidity.base.storage.discrete;
 
 import java.util.Arrays;
 
@@ -24,7 +24,6 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.item.ItemStack;
 
 import grondag.fluidity.api.item.DiscreteItem;
-import grondag.fluidity.api.storage.DiscreteStorageListener;
 import grondag.fluidity.api.storage.InventoryStorage;
 import grondag.fluidity.base.article.DiscreteArticle;
 import grondag.fluidity.base.transact.TransactionHelper;
@@ -39,15 +38,11 @@ import grondag.fluidity.base.transact.TransactionHelper;
 @API(status = Status.EXPERIMENTAL)
 public class SimpleItemStorage extends AbstractItemStorage implements InventoryStorage {
 	protected final int slotCount;
-	protected long capacity;
-	protected long count;
 	protected final ItemStack[] stacks;
 
 	public SimpleItemStorage(int slotCount) {
-		super(slotCount);
+		super(slotCount, slotCount * 64);
 		this.slotCount = slotCount;
-		capacity = slotCount * 64;
-		count = 0;
 		stacks = new ItemStack[slotCount];
 		Arrays.fill(stacks, ItemStack.EMPTY);
 
@@ -90,6 +85,7 @@ public class SimpleItemStorage extends AbstractItemStorage implements InventoryS
 		rollbackHandler.prepareIfNeeded();
 		stacks[slot] = newStack;
 		markDirty();
+		dirtyNotifier.run();
 
 		if(needAcceptNotify) {
 			notifyAccept(newStack, newStack.getCount());
@@ -115,6 +111,7 @@ public class SimpleItemStorage extends AbstractItemStorage implements InventoryS
 		result.setCount(n);
 		stack.decrement(n);
 		markDirty();
+		dirtyNotifier.run();
 
 		return result;
 	}
@@ -134,6 +131,7 @@ public class SimpleItemStorage extends AbstractItemStorage implements InventoryS
 		rollbackHandler.prepareIfNeeded();
 		notifySupply(stack, stack.getCount());
 		stacks[slot] = ItemStack.EMPTY;
+		dirtyNotifier.run();
 
 		return stack;
 	}
@@ -154,8 +152,9 @@ public class SimpleItemStorage extends AbstractItemStorage implements InventoryS
 
 			markDirty();
 
-			count = 0;
-			capacity = slotCount * 64;
+			articles.clear();
+			notifier.setCapacity(slotCount * 64);
+			dirtyNotifier.run();
 		}
 	}
 
@@ -195,6 +194,7 @@ public class SimpleItemStorage extends AbstractItemStorage implements InventoryS
 					final ItemStack newStack = item.toStack(n);
 					notifyAccept(newStack, n);
 					stacks[i] = newStack;
+					dirtyNotifier.run();
 				}
 
 				result += n;
@@ -209,6 +209,7 @@ public class SimpleItemStorage extends AbstractItemStorage implements InventoryS
 
 					stack.increment(n);
 					notifyAccept(stack, n);
+					dirtyNotifier.run();
 				}
 
 				result += n;
@@ -245,6 +246,7 @@ public class SimpleItemStorage extends AbstractItemStorage implements InventoryS
 
 					notifySupply(stack, n);
 					stack.decrement(n);
+					dirtyNotifier.run();
 				}
 
 				result += n;
@@ -261,87 +263,25 @@ public class SimpleItemStorage extends AbstractItemStorage implements InventoryS
 	protected void notifySupply(ItemStack stack, int count) {
 		final boolean isEmpty = stack.getCount() == count;
 
-		this.count -= count;
-
 		if(isEmpty && stack.getMaxCount() != 64) {
-			notifyCapacityChange(64 - stack.getMaxCount());
+			notifier.changeCapacity(64 - stack.getMaxCount());
 		}
 
 		final DiscreteArticle article = articles.findOrCreateArticle(DiscreteItem.of(stack));
+		notifier.notifySupply(article, count);
 		article.count -= count;
-
-		final int listenCount = listeners.size();
-
-		if(listenCount > 0) {
-			final DiscreteItem item = DiscreteItem.of(stack);
-
-			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onSupply(this, article.handle, item, count, article.count);
-			}
-		} else if(article.count == 0) {
-			articles.compact();
-		}
 	}
 
 	protected void notifyAccept(ItemStack stack, int count) {
-		this.count += count;
 		final int newCount = stack.getCount();
 
 		if(newCount == count && stack.getMaxCount() != 64) {
-			notifyCapacityChange(stack.getMaxCount() - 64);
+			notifier.changeCapacity(stack.getMaxCount() - 64);
 		}
 
 		final DiscreteArticle article = articles.findOrCreateArticle(DiscreteItem.of(stack));
 		article.count += count;
-
-		final int listenCount = listeners.size();
-
-		if(listenCount > 0) {
-			final DiscreteItem item = DiscreteItem.of(stack);
-			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onAccept(this, article.handle, item, count, article.count);
-			}
-		}
-	}
-
-	protected void notifyCapacityChange(int capacityDelta) {
-		capacity += capacityDelta;
-
-		final int listenCount = listeners.size();
-
-		if(listenCount > 0) {
-			for(int i = 0; i < listenCount; i++) {
-				listeners.get(i).onCapacityChange(this, capacityDelta);
-			}
-		}
-	}
-
-	@Override
-	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
-		listener.onCapacityChange(this, capacity);
-
-		for(final DiscreteArticle a : articles.articles.values()) {
-			if (!a.isEmpty()) {
-				listener.onAccept(this, a.handle, a.item, a.count, a.count);
-			}
-		}
-	}
-
-	@Override
-	public void stopListening(DiscreteStorageListener listener) {
-		if(listeners.isEmpty()) {
-			articles.compact();
-		}
-	}
-
-	@Override
-	public long count() {
-		return count;
-	}
-
-	@Override
-	public long capacity() {
-		return capacity;
+		notifier.notifyAccept(article, count);
 	}
 
 	@Override

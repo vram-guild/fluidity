@@ -63,10 +63,6 @@ public class ItemStorageInteractionC2S {
 	}
 
 	private static void acceptInner(StorageAction action, int handle, ServerPlayerEntity player) {
-
-		//TODO: remove
-		System.out.println("acceptInner " + action.name());
-
 		if (player.container == null || !(player.container instanceof DiscreteStorageSupplier)) {
 			return;
 		}
@@ -168,6 +164,7 @@ public class ItemStorageInteractionC2S {
 
 		final ItemStack newStack = targetResource.toStack(toMove);
 		player.inventory.offerOrDrop(player.world, newStack);
+		player.inventory.markDirty();
 	}
 
 	private static void doTake(int howMany, ServerPlayerEntity player, DiscreteItem targetResource, DiscreteStorage container) {
