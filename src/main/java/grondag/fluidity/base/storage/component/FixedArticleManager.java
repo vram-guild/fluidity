@@ -34,7 +34,7 @@ public class FixedArticleManager<K extends StorageItem, V extends AbstractArticl
 
 			if(candidate.item.equals(key)) {
 				return candidate;
-			} else if (candidate.isEmpty()) {
+			} else if (firstUnused == -1 && candidate.isEmpty()) {
 				firstUnused = i;
 			}
 		}
