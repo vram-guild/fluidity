@@ -11,15 +11,16 @@ import grondag.fluidity.api.item.StorageItem;
 import grondag.fluidity.base.article.AbstractArticle;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArticle> implements ArticleManager<K, V>{
+public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArticle> extends AbstractArticleManager<K, V> {
 	protected final Object2ObjectOpenHashMap<K, V> articles = new Object2ObjectOpenHashMap<>();
 
 	protected int nextUnusedHandle = 0;
 	protected V[] handles;
-	protected final Supplier<V> articleFactory;
+
 
 	public FlexibleArticleManager(int startingHandleCount, Supplier<V> articleFactory) {
-		this.articleFactory = articleFactory;
+		super(articleFactory);
+
 
 		startingHandleCount = MathHelper.smallestEncompassingPowerOfTwo(startingHandleCount);
 		final V[] handles = (V[]) Array.newInstance(articleFactory.get().getClass(), startingHandleCount);

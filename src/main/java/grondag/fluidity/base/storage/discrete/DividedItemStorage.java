@@ -19,15 +19,17 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.item.DiscreteItem;
+import grondag.fluidity.api.storage.DiscreteStorage;
 import grondag.fluidity.base.article.DiscreteArticle;
+import grondag.fluidity.base.storage.component.FixedArticleManager;
 
 @API(status = Status.EXPERIMENTAL)
-public class DividedItemStorage extends FlexibleItemStorage  {
+public class DividedItemStorage extends AbstractItemStorage implements DiscreteStorage  {
 	protected final int divisionCount;
 	protected final long capacityPerDivision;
 
 	public DividedItemStorage(int divisionCount, long capacityPerDivision) {
-		super(divisionCount, divisionCount * capacityPerDivision);
+		super(divisionCount, divisionCount * capacityPerDivision, new FixedArticleManager<>(divisionCount, DiscreteArticle::new));
 		this.divisionCount = divisionCount;
 		this.capacityPerDivision = capacityPerDivision;
 	}

@@ -22,4 +22,6 @@ public abstract class AbstractArticle<S extends Storage<?, ?, I>, I extends Stor
 	}
 
 	public abstract void addStore(S store);
+
+	public abstract void zero();
 }

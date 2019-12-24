@@ -151,8 +151,10 @@ public class DiscreteItem implements StorageItem {
 		}
 	}
 
-	public static final DiscreteItem EMPTY = new DiscreteItem(Items.AIR, null);
+	public static final DiscreteItem NOTHING = new DiscreteItem(Items.AIR, null);
+
 	private static final String TAG_KEY = "id"; // same as vanilla item stack
+
 	@Override
 	public void writeTag(CompoundTag tag, String tagName) {
 		if(this.tag == null) {
@@ -160,13 +162,16 @@ public class DiscreteItem implements StorageItem {
 		} else {
 			final CompoundTag myTag = this.tag.copy();
 			myTag.putString(TAG_KEY, Registry.ITEM.getId(item).toString());
+			tag.put(tagName, myTag);
 		}
 	}
 
 	public static DiscreteItem fromTag(CompoundTag tag, String tagName) {
 		final Tag data = tag.get(tagName);
 
-		if(data.getType() == 8) {
+		if(data == null) {
+			return DiscreteItem.NOTHING;
+		} else if(data.getType() == 8) {
 			return of(Registry.ITEM.get(new Identifier(((StringTag) data).asString())), null);
 		} else {
 			final CompoundTag compound = (CompoundTag) data;
@@ -191,6 +196,10 @@ public class DiscreteItem implements StorageItem {
 	}
 
 	public static DiscreteItem of(Item item, @Nullable CompoundTag tag) {
-		return ITEMS.computeIfAbsent(KEYS.get().set(item, tag), k -> k.toImmutable());
+		if(item == Items.AIR || item == null) {
+			return DiscreteItem.NOTHING;
+		} else {
+			return ITEMS.computeIfAbsent(KEYS.get().set(item, tag), k -> k.toImmutable());
+		}
 	}
 }

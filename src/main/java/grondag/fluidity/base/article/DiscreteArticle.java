@@ -11,6 +11,7 @@ public class DiscreteArticle extends AbstractArticle<DiscreteStorage, DiscreteIt
 	public long count;
 
 	public DiscreteArticle() {
+		item = DiscreteItem.NOTHING;
 	}
 
 	public DiscreteArticle(ItemStack stack, int handle) {
@@ -26,7 +27,7 @@ public class DiscreteArticle extends AbstractArticle<DiscreteStorage, DiscreteIt
 	}
 
 	public DiscreteArticle prepare(DiscreteItem item, long count, int handle) {
-		this.item = item;
+		this.item = item == null ? DiscreteItem.NOTHING : item;
 		this.handle = handle;
 		this.count = count;
 		return this;
@@ -39,12 +40,17 @@ public class DiscreteArticle extends AbstractArticle<DiscreteStorage, DiscreteIt
 
 	@Override
 	public boolean isEmpty() {
-		return count == 0;
+		return count == 0 || item == DiscreteItem.NOTHING;
 	}
 
 	@Override
 	public long count() {
 		return count;
+	}
+
+	@Override
+	public void zero() {
+		count = 0;
 	}
 
 	@Override

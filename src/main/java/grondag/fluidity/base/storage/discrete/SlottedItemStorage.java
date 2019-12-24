@@ -26,6 +26,7 @@ import net.minecraft.item.ItemStack;
 import grondag.fluidity.api.item.DiscreteItem;
 import grondag.fluidity.api.storage.InventoryStorage;
 import grondag.fluidity.base.article.DiscreteArticle;
+import grondag.fluidity.base.storage.component.FlexibleArticleManager;
 import grondag.fluidity.base.transact.TransactionHelper;
 
 /**
@@ -36,12 +37,12 @@ import grondag.fluidity.base.transact.TransactionHelper;
  * is likely to be preferable for performant implementations.
  */
 @API(status = Status.EXPERIMENTAL)
-public class SimpleItemStorage extends AbstractItemStorage implements InventoryStorage {
+public class SlottedItemStorage extends AbstractItemStorage implements InventoryStorage {
 	protected final int slotCount;
 	protected final ItemStack[] stacks;
 
-	public SimpleItemStorage(int slotCount) {
-		super(slotCount, slotCount * 64);
+	public SlottedItemStorage(int slotCount) {
+		super(slotCount, slotCount * 64, new FlexibleArticleManager<>(slotCount, DiscreteArticle::new));
 		this.slotCount = slotCount;
 		stacks = new ItemStack[slotCount];
 		Arrays.fill(stacks, ItemStack.EMPTY);
@@ -160,7 +161,7 @@ public class SimpleItemStorage extends AbstractItemStorage implements InventoryS
 
 	@Override
 	protected Object createRollbackState() {
-		return TransactionHelper.prepareInventoryRollbackState(SimpleItemStorage.this);
+		return TransactionHelper.prepareInventoryRollbackState(SlottedItemStorage.this);
 	}
 
 	@Override

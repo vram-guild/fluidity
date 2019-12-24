@@ -27,9 +27,10 @@ import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.item.BulkItem;
+import grondag.fluidity.api.storage.BulkStorage;
 
 @API(status = Status.EXPERIMENTAL)
-public class BulkArticle implements BulkArticleView {
+public class BulkArticle extends AbstractArticle<BulkStorage, BulkItem> implements BulkArticleView {
 	protected BulkItem item;
 	protected MutableFraction fraction;
 	protected int handle;
@@ -74,11 +75,22 @@ public class BulkArticle implements BulkArticleView {
 	}
 
 	@Override
+	public void zero() {
+		fraction.set(0);
+	}
+
+	@Override
 	public FractionView volume() {
 		return fraction;
 	}
 
 	public static BulkArticle of(ItemStack stack) {
 		return new  BulkArticle().prepare(stack, 0);
+	}
+
+	@Override
+	public void addStore(BulkStorage store) {
+		// TODO Auto-generated method stub
+
 	}
 }
