@@ -26,12 +26,11 @@ import grondag.fluidity.api.article.BulkArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
-import grondag.fluidity.api.item.BulkItem;
+import grondag.fluidity.api.item.StorageItem;
 import grondag.fluidity.api.storage.BulkStorage;
 
 @API(status = Status.EXPERIMENTAL)
-public class BulkArticle extends AbstractArticle<BulkStorage, BulkItem> implements BulkArticleView {
-	protected BulkItem item;
+public class BulkArticle extends AbstractArticle<BulkStorage> implements BulkArticleView {
 	protected MutableFraction fraction;
 	protected int handle;
 
@@ -47,26 +46,17 @@ public class BulkArticle extends AbstractArticle<BulkStorage, BulkItem> implemen
 		final CompoundTag tag = stack.getTag();
 
 		this.handle = handle;
-		if(item instanceof BulkItem) {
-			this.item = (BulkItem) item;
+
+		if(item instanceof StorageItem) {
+			this.item = (StorageItem) item;
 			fraction.readTag(tag);
 			fraction.multiply(stack.getCount());
 		} else  {
-			this.item = BulkItem.NOTHING;
+			this.item = StorageItem.NOTHING;
 			fraction.set(Fraction.ZERO);
 		}
 
 		return this;
-	}
-
-	@Override
-	public BulkItem item() {
-		return item;
-	}
-
-	@Override
-	public int handle() {
-		return handle;
 	}
 
 	@Override

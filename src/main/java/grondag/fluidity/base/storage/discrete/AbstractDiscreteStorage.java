@@ -23,7 +23,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 
 import grondag.fluidity.api.article.DiscreteArticleView;
-import grondag.fluidity.api.item.DiscreteItem;
+import grondag.fluidity.api.item.CommonItem;
+import grondag.fluidity.api.item.StorageItem;
 import grondag.fluidity.api.storage.DiscreteStorage;
 import grondag.fluidity.api.storage.DiscreteStorageListener;
 import grondag.fluidity.base.article.DiscreteArticle;
@@ -32,11 +33,11 @@ import grondag.fluidity.base.storage.component.AbstractArticleManager;
 import grondag.fluidity.base.storage.component.TrackingItemNotifier;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractItemStorage extends AbstractLazyRollbackStorage<DiscreteArticleView,  DiscreteStorageListener, DiscreteItem> implements DiscreteStorage {
-	protected final AbstractArticleManager<DiscreteItem, DiscreteArticle> articles;
+public abstract class AbstractDiscreteStorage extends AbstractLazyRollbackStorage<DiscreteArticleView,  DiscreteStorageListener> implements DiscreteStorage {
+	protected final AbstractArticleManager<StorageItem, DiscreteArticle> articles;
 	protected final TrackingItemNotifier notifier;
 
-	AbstractItemStorage(int startingHandleCount, long capacity, AbstractArticleManager<DiscreteItem, DiscreteArticle> articles) {
+	AbstractDiscreteStorage(int startingHandleCount, long capacity, AbstractArticleManager<StorageItem, DiscreteArticle> articles) {
 		this.articles = articles;
 		notifier = new TrackingItemNotifier(capacity, this);
 	}
@@ -118,11 +119,11 @@ public abstract class AbstractItemStorage extends AbstractLazyRollbackStorage<Di
 	}
 
 	@Override
-	public long accept(DiscreteItem item, long count, boolean simulate) {
+	public long accept(StorageItem item, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to accept null item");
 
-		if (item.isEmpty() || count == 0 || !filter.test(item)) {
+		if (item.isNothing() || count == 0 || !filter.test(item)) {
 			return 0;
 		}
 
@@ -139,11 +140,11 @@ public abstract class AbstractItemStorage extends AbstractLazyRollbackStorage<Di
 	}
 
 	@Override
-	public long supply(DiscreteItem item, long count, boolean simulate) {
+	public long supply(StorageItem item, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to supply null item");
 
-		if (item.isEmpty() || isEmpty()) {
+		if (item.isNothing() || isEmpty()) {
 			return 0;
 		}
 
@@ -177,7 +178,7 @@ public abstract class AbstractItemStorage extends AbstractLazyRollbackStorage<Di
 
 			if(!a.isEmpty()) {
 				notifier.notifySupply(a, a.count);
-				a.item = DiscreteItem.NOTHING;
+				a.item = CommonItem.NOTHING;
 				a.count = 0;
 			}
 		}

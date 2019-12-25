@@ -23,7 +23,8 @@ import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.api.item.DiscreteItem;
+import grondag.fluidity.api.item.CommonItem;
+import grondag.fluidity.api.item.StorageItem;
 import grondag.fluidity.api.storage.InventoryStorage;
 import grondag.fluidity.base.article.DiscreteArticle;
 import grondag.fluidity.base.storage.component.FlexibleArticleManager;
@@ -37,11 +38,11 @@ import grondag.fluidity.base.transact.TransactionHelper;
  * is likely to be preferable for performant implementations.
  */
 @API(status = Status.EXPERIMENTAL)
-public class SlottedItemStorage extends AbstractItemStorage implements InventoryStorage {
+public class SlottedCommonStorage extends AbstractDiscreteStorage implements InventoryStorage {
 	protected final int slotCount;
 	protected final ItemStack[] stacks;
 
-	public SlottedItemStorage(int slotCount) {
+	public SlottedCommonStorage(int slotCount) {
 		super(slotCount, slotCount * 64, new FlexibleArticleManager<>(slotCount, DiscreteArticle::new));
 		this.slotCount = slotCount;
 		stacks = new ItemStack[slotCount];
@@ -161,7 +162,7 @@ public class SlottedItemStorage extends AbstractItemStorage implements Inventory
 
 	@Override
 	protected Object createRollbackState() {
-		return TransactionHelper.prepareInventoryRollbackState(SlottedItemStorage.this);
+		return TransactionHelper.prepareInventoryRollbackState(SlottedCommonStorage.this);
 	}
 
 	@Override
@@ -170,8 +171,9 @@ public class SlottedItemStorage extends AbstractItemStorage implements Inventory
 	}
 
 	@Override
-	public long accept(DiscreteItem item, long count, boolean simulate) {
+	public long accept(StorageItem itemIn, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
+		final CommonItem item = (CommonItem) itemIn;
 
 		if(item.isEmpty() || count == 0 || !filter.test(item)) {
 			return 0;
@@ -225,7 +227,9 @@ public class SlottedItemStorage extends AbstractItemStorage implements Inventory
 	}
 
 	@Override
-	public long supply(DiscreteItem item, long count, boolean simulate) {
+	public long supply(StorageItem itemIn, long count, boolean simulate) {
+		final CommonItem item = (CommonItem) itemIn;
+
 		if(item.isEmpty() || count == 0) {
 			return 0;
 		}
@@ -268,7 +272,7 @@ public class SlottedItemStorage extends AbstractItemStorage implements Inventory
 			notifier.changeCapacity(64 - stack.getMaxCount());
 		}
 
-		final DiscreteArticle article = articles.findOrCreateArticle(DiscreteItem.of(stack));
+		final DiscreteArticle article = articles.findOrCreateArticle(CommonItem.of(stack));
 		notifier.notifySupply(article, count);
 		article.count -= count;
 	}
@@ -280,7 +284,7 @@ public class SlottedItemStorage extends AbstractItemStorage implements Inventory
 			notifier.changeCapacity(stack.getMaxCount() - 64);
 		}
 
-		final DiscreteArticle article = articles.findOrCreateArticle(DiscreteItem.of(stack));
+		final DiscreteArticle article = articles.findOrCreateArticle(CommonItem.of(stack));
 		article.count += count;
 		notifier.notifyAccept(article, count);
 	}

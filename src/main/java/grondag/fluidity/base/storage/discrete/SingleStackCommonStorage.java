@@ -23,17 +23,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.DiscreteArticleView;
-import grondag.fluidity.api.item.DiscreteItem;
+import grondag.fluidity.api.item.CommonItem;
+import grondag.fluidity.api.item.StorageItem;
 import grondag.fluidity.api.storage.DiscreteStorageListener;
 import grondag.fluidity.api.storage.InventoryStorage;
-import grondag.fluidity.base.article.DiscreteArticle;
+import grondag.fluidity.base.article.CommonArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
 import grondag.fluidity.base.storage.component.DiscreteItemNotifier;
 
 @API(status = Status.EXPERIMENTAL)
-public class SingleStackItemStorage extends AbstractLazyRollbackStorage<DiscreteArticleView,  DiscreteStorageListener, DiscreteItem> implements InventoryStorage {
+public class SingleStackCommonStorage extends AbstractLazyRollbackStorage<DiscreteArticleView,  DiscreteStorageListener> implements InventoryStorage {
 	protected ItemStack stack = ItemStack.EMPTY;
-	protected final DiscreteArticle view = new DiscreteArticle();
+	protected final CommonArticle view = new CommonArticle();
 	protected final DiscreteItemNotifier notifier = new DiscreteItemNotifier(this);
 
 	@Override
@@ -76,7 +77,7 @@ public class SingleStackItemStorage extends AbstractLazyRollbackStorage<Discrete
 		final int n = Math.min(count, stack.getCount());
 
 		if(!listeners.isEmpty()) {
-			notifier.notifySupply(DiscreteItem.of(stack), 0, n, stack.getCount() - n);
+			notifier.notifySupply(CommonItem.of(stack), 0, n, stack.getCount() - n);
 		}
 
 		final ItemStack result = stack.copy();
@@ -96,7 +97,7 @@ public class SingleStackItemStorage extends AbstractLazyRollbackStorage<Discrete
 		rollbackHandler.prepareIfNeeded();
 
 		if(!listeners.isEmpty()) {
-			notifier.notifySupply(DiscreteItem.of(stack), 0, stack.getCount(), 0);
+			notifier.notifySupply(CommonItem.of(stack), 0, stack.getCount(), 0);
 		}
 
 		final ItemStack result = stack;
@@ -119,15 +120,15 @@ public class SingleStackItemStorage extends AbstractLazyRollbackStorage<Discrete
 
 				if(!listeners.isEmpty()) {
 					if(delta > 0) {
-						notifier.notifyAccept(DiscreteItem.of(stack), 0, delta, newStack.getCount());
+						notifier.notifyAccept(CommonItem.of(stack), 0, delta, newStack.getCount());
 					} else {
-						notifier.notifySupply(DiscreteItem.of(stack), 0, -delta, newStack.getCount());
+						notifier.notifySupply(CommonItem.of(stack), 0, -delta, newStack.getCount());
 					}
 				}
 			}
 		} else {
 			if(!listeners.isEmpty()) {
-				notifier.notifySupply(DiscreteItem.of(stack), 0, stack.getCount(), 0);
+				notifier.notifySupply(CommonItem.of(stack), 0, stack.getCount(), 0);
 				needAcceptNotify = true;
 			}
 		}
@@ -137,7 +138,7 @@ public class SingleStackItemStorage extends AbstractLazyRollbackStorage<Discrete
 		markDirty();
 
 		if(needAcceptNotify) {
-			notifier.notifySupply(DiscreteItem.of(newStack), 0, newStack.getCount(), newStack.getCount());
+			notifier.notifySupply(CommonItem.of(newStack), 0, newStack.getCount(), newStack.getCount());
 		}
 	}
 
@@ -147,7 +148,7 @@ public class SingleStackItemStorage extends AbstractLazyRollbackStorage<Discrete
 			rollbackHandler.prepareIfNeeded();
 
 			if(!listeners.isEmpty()) {
-				notifier.notifySupply(DiscreteItem.of(stack), 0, stack.getCount(), 0);
+				notifier.notifySupply(CommonItem.of(stack), 0, stack.getCount(), 0);
 			}
 
 			stack = ItemStack.EMPTY;
@@ -166,7 +167,9 @@ public class SingleStackItemStorage extends AbstractLazyRollbackStorage<Discrete
 	}
 
 	@Override
-	public long accept(DiscreteItem item, long count, boolean simulate) {
+	public long accept(StorageItem itemIn, long count, boolean simulate) {
+		final CommonItem item = (CommonItem) itemIn;
+
 		if(item.isEmpty()) {
 			return 0;
 		}
@@ -209,7 +212,9 @@ public class SingleStackItemStorage extends AbstractLazyRollbackStorage<Discrete
 	}
 
 	@Override
-	public long supply(DiscreteItem item, long count, boolean simulate) {
+	public long supply(StorageItem itemIn, long count, boolean simulate) {
+		final CommonItem item = (CommonItem) itemIn;
+
 		if(item.isEmpty() || stack.isEmpty() || !item.matches(stack)) {
 			return 0;
 		}
@@ -237,7 +242,7 @@ public class SingleStackItemStorage extends AbstractLazyRollbackStorage<Discrete
 	@Override
 	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
 		listener.onCapacityChange(this, stack.getMaxCount());
-		listener.onAccept(this, 0, DiscreteItem.of(stack), stack.getCount(), stack.getCount());
+		listener.onAccept(this, 0, CommonItem.of(stack), stack.getCount(), stack.getCount());
 	}
 
 	@Override

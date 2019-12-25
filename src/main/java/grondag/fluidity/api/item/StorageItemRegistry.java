@@ -23,30 +23,29 @@ import org.apiguardian.api.API;
 
 import net.minecraft.util.Identifier;
 
-import grondag.fluidity.impl.BulkItemRegistryImpl;
+import grondag.fluidity.impl.StorageItemRegistryImpl;
 
-// TODO: make this generic for any storage item
 @API(status = EXPERIMENTAL)
-public interface BulkItemRegistry {
-	BulkItemRegistry INSTANCE = BulkItemRegistryImpl.INSTANCE;
+public interface StorageItemRegistry {
+	StorageItemRegistry INSTANCE = StorageItemRegistryImpl.INSTANCE;
 
-	BulkItem get(Identifier id);
+	<V extends StorageItem> V get(Identifier id);
 
-	BulkItem get(String idString);
+	<V extends StorageItem> V get(String idString);
 
-	BulkItem get(int index);
+	<V extends StorageItem> V get(int index);
 
-	void forEach(Consumer<BulkItem> consumer);
+	<V extends StorageItem> void forEach(Consumer<V> consumer);
 
 	boolean contains(Identifier id);
 
-	BulkItem add(Identifier id, BulkItem item);
+	<V extends StorageItem> V add(Identifier id, V item);
 
-	default BulkItem add(String idString, BulkItem item) {
+	default <V extends StorageItem> V add(String idString, V item) {
 		return add(new Identifier(idString), item);
 	}
 
-	Identifier getId(BulkItem bulkItem);
+	<V extends StorageItem> Identifier getId(V bulkItem);
 
-	int getRawId(BulkItem bulkItem);
+	<V extends StorageItem> int getRawId(V bulkItem);
 }

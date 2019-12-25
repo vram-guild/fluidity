@@ -15,33 +15,18 @@
  ******************************************************************************/
 package grondag.fluidity.api.article;
 
-import javax.annotation.Nullable;
-
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.api.item.DiscreteItem;
-
 @API(status = Status.EXPERIMENTAL)
-public interface DiscreteArticleView extends ArticleView<DiscreteItem> {
+public interface DiscreteArticleView extends ArticleView {
 	long count();
-
-	@Override
-	default boolean isItem() {
-		return true;
-	}
 
 	@Override
 	default boolean isEmpty() {
 		return count() == 0;
-	}
-
-	@Override
-	@Nullable
-	default DiscreteArticleView toItemView() {
-		return this;
 	}
 
 	default ItemStack toStack() {

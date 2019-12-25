@@ -19,13 +19,13 @@ package grondag.fluidity.api.storage;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.item.DiscreteItem;
+import grondag.fluidity.api.item.StorageItem;
 
 @API(status = Status.EXPERIMENTAL)
 public interface DiscreteStorageListener extends StorageListener<DiscreteStorageListener> {
-	void onAccept(Storage<?, DiscreteStorageListener, ?> storage, int handle, DiscreteItem item, long delta, long newCount);
+	void onAccept(Storage<?, DiscreteStorageListener> storage, int handle, StorageItem item, long delta, long newCount);
 
-	void onSupply(Storage<?, DiscreteStorageListener, ?> storage, int handle, DiscreteItem item, long delta, long newCount);
+	void onSupply(Storage<?, DiscreteStorageListener> storage, int handle, StorageItem item, long delta, long newCount);
 
-	void onCapacityChange(Storage<?, DiscreteStorageListener, ?> storage, long capacityDelta);
+	void onCapacityChange(Storage<?, DiscreteStorageListener> storage, long capacityDelta);
 }

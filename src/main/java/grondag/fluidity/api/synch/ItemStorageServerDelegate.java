@@ -24,8 +24,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.PacketByteBuf;
 
-import grondag.fluidity.api.item.DiscreteItem;
-import grondag.fluidity.api.storage.DiscreteStorage;
+import grondag.fluidity.api.item.StorageItem;
+import grondag.fluidity.api.storage.CommonStorage;
 import grondag.fluidity.api.storage.DiscreteStorageListener;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.base.article.DiscreteArticle;
@@ -33,19 +33,19 @@ import grondag.fluidity.base.article.DiscreteArticle;
 @API(status = Status.EXPERIMENTAL)
 public class ItemStorageServerDelegate implements DiscreteStorageListener {
 	protected ServerPlayerEntity player;
-	protected DiscreteStorage storage;
+	protected CommonStorage storage;
 	protected boolean isFirstUpdate = true;
 	protected boolean capacityChange = true;
 	protected final Int2ObjectOpenHashMap<DiscreteArticle> updates = new Int2ObjectOpenHashMap<>();
 
-	public ItemStorageServerDelegate(ServerPlayerEntity player, DiscreteStorage storage) {
+	public ItemStorageServerDelegate(ServerPlayerEntity player, CommonStorage storage) {
 		this.player = player;
 		this.storage = storage;
 		storage.startListening(this);
 	}
 
 	@Override
-	public void disconnect(Storage<?, DiscreteStorageListener, ?> storage) {
+	public void disconnect(Storage<?, DiscreteStorageListener> storage) {
 		if(storage == this.storage) {
 			player = null;
 			this.storage = null;
@@ -53,7 +53,7 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 	}
 
 	@Override
-	public void onAccept(Storage<?, DiscreteStorageListener, ?> storage, int handle, DiscreteItem item, long delta, long newCount) {
+	public void onAccept(Storage<?, DiscreteStorageListener> storage, int handle, StorageItem item, long delta, long newCount) {
 		if(storage != null && storage == this.storage) {
 			final DiscreteArticle update = updates.get(handle);
 
@@ -66,12 +66,12 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 	}
 
 	@Override
-	public void onSupply(Storage<?, DiscreteStorageListener, ?> storage, int slot, DiscreteItem item, long delta, long newCount) {
+	public void onSupply(Storage<?, DiscreteStorageListener> storage, int slot, StorageItem item, long delta, long newCount) {
 		onAccept(storage, slot, item, delta, newCount);
 	}
 
 	@Override
-	public void onCapacityChange(Storage<?, DiscreteStorageListener, ?> storage, long capacityDelta) {
+	public void onCapacityChange(Storage<?, DiscreteStorageListener> storage, long capacityDelta) {
 		if(storage != null && storage == this.storage) {
 			capacityChange = true;
 		}

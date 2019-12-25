@@ -18,9 +18,7 @@ package grondag.fluidity.api.storage;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.item.ItemStack;
-
-import grondag.fluidity.api.item.DiscreteItem;
+import grondag.fluidity.api.item.StorageItem;
 
 /**
  * Storage with fixed handles - similar to slots but they don't have aribtrary limits
@@ -28,7 +26,6 @@ import grondag.fluidity.api.item.DiscreteItem;
  */
 @API(status = Status.EXPERIMENTAL)
 public interface FixedDiscreteStorage extends DiscreteStorage {
-
 	/**
 	 * Will return zero if handle slot is already occupied and different.
 	 * @param item
@@ -37,15 +34,7 @@ public interface FixedDiscreteStorage extends DiscreteStorage {
 	 * @param handle
 	 * @return
 	 */
-	long accept(int handle, DiscreteItem item, long count, boolean simulate);
-
-	default long accept(int handle, ItemStack stack, long count, boolean simulate) {
-		return accept(handle, DiscreteItem.of(stack), count, simulate);
-	}
-
-	default long accept(int handle, ItemStack stack, boolean simulate) {
-		return accept(handle, DiscreteItem.of(stack), stack.getCount(), simulate);
-	}
+	long accept(int handle, StorageItem item, long count, boolean simulate);
 
 	/**
 	 *
@@ -57,13 +46,5 @@ public interface FixedDiscreteStorage extends DiscreteStorage {
 	 * @param simulate
 	 * @return
 	 */
-	long supply(int handle, DiscreteItem item, long count, boolean simulate);
-
-	default long supply(int handle, ItemStack stack, long count, boolean simulate) {
-		return supply(handle, DiscreteItem.of(stack), count, simulate);
-	}
-
-	default long supply(int handle, ItemStack stack, boolean simulate) {
-		return supply(handle, DiscreteItem.of(stack), stack.getCount(), simulate);
-	}
+	long supply(int handle, StorageItem item, long count, boolean simulate);
 }

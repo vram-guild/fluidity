@@ -15,20 +15,14 @@
  ******************************************************************************/
 package grondag.fluidity.api.storage;
 
-import javax.annotation.Nullable;
-
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-
 import grondag.fluidity.api.article.DiscreteArticleView;
-import grondag.fluidity.api.item.DiscreteItem;
+import grondag.fluidity.api.item.StorageItem;
 
 @API(status = Status.EXPERIMENTAL)
-public interface DiscreteStorage extends Storage<DiscreteArticleView, DiscreteStorageListener, DiscreteItem> {
+public interface DiscreteStorage extends Storage<DiscreteArticleView, DiscreteStorageListener> {
 	/**
 	 * Adds items to this storage. May return less than requested.
 	 *
@@ -38,23 +32,7 @@ public interface DiscreteStorage extends Storage<DiscreteArticleView, DiscreteSt
 	 * @param simulate If true, will forecast result without making changes.
 	 * @return Count added, or that would be added if {@code simulate} = true.
 	 */
-	long accept(DiscreteItem item, long count, boolean simulate);
-
-	default long accept(Item item, @Nullable CompoundTag tag, long count, boolean simulate) {
-		return accept(DiscreteItem.of(item, tag), count, simulate);
-	}
-
-	default long accept(Item item, long count, boolean simulate) {
-		return accept(DiscreteItem.of(item), count, simulate);
-	}
-
-	default long accept(ItemStack stack, long count, boolean simulate) {
-		return accept(DiscreteItem.of(stack), count, simulate);
-	}
-
-	default long accept(ItemStack stack, boolean simulate) {
-		return accept(DiscreteItem.of(stack), stack.getCount(), simulate);
-	}
+	long accept(StorageItem item, long count, boolean simulate);
 
 	/**
 	 * Removes items from this storage. May return less than requested.
@@ -65,25 +43,9 @@ public interface DiscreteStorage extends Storage<DiscreteArticleView, DiscreteSt
 	 * @param simulate If true, will forecast result without making changes.
 	 * @return Count removed, or that would be removed if {@code simulate} = true.
 	 */
-	long supply(DiscreteItem item, long count, boolean simulate);
+	long supply(StorageItem item, long count, boolean simulate);
 
-	default long supply(Item item, @Nullable CompoundTag tag, long count, boolean simulate) {
-		return supply(DiscreteItem.of(item, tag), count, simulate);
-	}
-
-	default long supply(Item item, long count, boolean simulate) {
-		return supply(DiscreteItem.of(item), count, simulate);
-	}
-
-	default long supply(ItemStack stack, long count, boolean simulate) {
-		return supply(DiscreteItem.of(stack), count, simulate);
-	}
-
-	default long supply(ItemStack stack, boolean simulate) {
-		return supply(DiscreteItem.of(stack), stack.getCount(), simulate);
-	}
-
-	default long countOf(DiscreteItem item)  {
+	default long countOf(StorageItem item)  {
 		return supply(item, Long.MAX_VALUE, true);
 	}
 

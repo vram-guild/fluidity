@@ -26,55 +26,56 @@ import net.minecraft.util.registry.DefaultedRegistry;
 import net.minecraft.util.registry.MutableRegistry;
 import net.minecraft.util.registry.Registry;
 
-import grondag.fluidity.api.item.BulkItem;
-import grondag.fluidity.api.item.BulkItemRegistry;
+import grondag.fluidity.api.item.StorageItem;
+import grondag.fluidity.api.item.StorageItemRegistry;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 @API(status = INTERNAL)
-public class BulkItemRegistryImpl implements BulkItemRegistry {
-	public static BulkItemRegistryImpl INSTANCE = new BulkItemRegistryImpl();
+public class StorageItemRegistryImpl implements StorageItemRegistry {
+	public static StorageItemRegistryImpl INSTANCE = new StorageItemRegistryImpl();
 
-	private static final MutableRegistry<BulkItem> REGISTRY;
+	private static final MutableRegistry REGISTRY;
 
 	static {
-		REGISTRY = Registry.REGISTRIES.add(new Identifier("c:bulk_items"),
-				(MutableRegistry<BulkItem>) new DefaultedRegistry<BulkItem>("c:nothing"));
+		REGISTRY = Registry.REGISTRIES.add(new Identifier("c:storage_items"),
+				(MutableRegistry<? extends StorageItem>) new DefaultedRegistry("c:nothing"));
 
-		REGISTRY.add(new Identifier("c:nothing"), BulkItem.NOTHING);
+		REGISTRY.add(new Identifier("c:nothing"), StorageItem.NOTHING);
 	}
 
 	@Override
-	public Identifier getId(BulkItem bulkItem) {
+	public <V extends StorageItem> Identifier getId(V bulkItem) {
 		return REGISTRY.getId(bulkItem);
 	}
 
 	@Override
-	public int getRawId(BulkItem bulkItem) {
+	public <V extends StorageItem> int getRawId(V bulkItem) {
 		return REGISTRY.getRawId(bulkItem);
 	}
 
 	@Override
-	public BulkItem get(Identifier id) {
-		return REGISTRY.get(id);
+	public <V extends StorageItem> V get(Identifier id) {
+		return (V) REGISTRY.get(id);
 	}
 
 	@Override
-	public BulkItem get(String idString) {
-		return REGISTRY.get(new Identifier(idString));
+	public <V extends StorageItem> V get(String idString) {
+		return (V) REGISTRY.get(new Identifier(idString));
 	}
 
 	@Override
-	public BulkItem get(int index) {
-		return REGISTRY.get(index);
+	public <V extends StorageItem> V get(int index) {
+		return (V) REGISTRY.get(index);
 	}
 
 	@Override
-	public void forEach(Consumer<BulkItem> consumer) {
+	public <V extends StorageItem> void forEach(Consumer<V> consumer) {
 		REGISTRY.forEach(consumer);
 	}
 
 	@Override
-	public BulkItem add(Identifier id, BulkItem item) {
-		return REGISTRY.add(id, item);
+	public <V extends StorageItem> V add(Identifier id, V item) {
+		return (V) REGISTRY.add(id, item);
 	}
 
 	@Override

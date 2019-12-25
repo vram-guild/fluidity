@@ -13,22 +13,14 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.base.storage.discrete;
+
+package grondag.fluidity.api.storage;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.storage.DiscreteStorage;
-import grondag.fluidity.base.article.DiscreteArticle;
-import grondag.fluidity.base.storage.component.FlexibleArticleManager;
-
 @API(status = Status.EXPERIMENTAL)
-public class FlexibleItemStorage extends AbstractItemStorage implements DiscreteStorage {
-	public FlexibleItemStorage(int startingHandleCount, long capacity) {
-		super(startingHandleCount, capacity, new FlexibleArticleManager<>(startingHandleCount, DiscreteArticle::new));
-	}
-
-	public FlexibleItemStorage(int capacity) {
-		this(32, capacity);
-	}
+@FunctionalInterface
+public interface StorageSupplier {
+	<V extends Storage<?,?>> V getStorage();
 }

@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.base.storage;
+package grondag.fluidity.base.storage.bulk;
 
 import com.google.common.base.Preconditions;
 import com.mojang.datafixers.util.Pair;
@@ -26,17 +26,18 @@ import grondag.fluidity.api.article.BulkArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
-import grondag.fluidity.api.item.BulkItem;
-import grondag.fluidity.api.item.BulkItemRegistry;
+import grondag.fluidity.api.item.StorageItem;
+import grondag.fluidity.api.item.StorageItemRegistry;
 import grondag.fluidity.api.storage.BulkStorage;
 import grondag.fluidity.api.storage.BulkStorageListener;
+import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
 
 @API(status = Status.EXPERIMENTAL)
-public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  BulkStorageListener, BulkItem> implements BulkStorage {
+public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  BulkStorageListener> implements BulkStorage {
 	protected final MutableFraction content = new MutableFraction();
 	protected final MutableFraction calc = new MutableFraction();
 	protected final View view = new View();
-	protected BulkItem bulkItem = BulkItem.NOTHING;
+	protected StorageItem bulkItem = StorageItem.NOTHING;
 	protected Fraction capacity;
 
 	public SimpleTank(Fraction capacity) {
@@ -54,10 +55,10 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 	}
 
 	@Override
-	public FractionView accept(BulkItem item, FractionView volume, boolean simulate) {
+	public FractionView accept(StorageItem item, FractionView volume, boolean simulate) {
 		Preconditions.checkArgument(!volume.isNegative(), "Request to accept negative volume. (%s)", volume);
 
-		if (item == BulkItem.NOTHING || volume.isZero() || (item != bulkItem && bulkItem != BulkItem.NOTHING)) {
+		if (item == StorageItem.NOTHING || volume.isZero() || (item != bulkItem && bulkItem != StorageItem.NOTHING)) {
 			return Fraction.ZERO;
 		}
 
@@ -86,10 +87,10 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 	}
 
 	@Override
-	public FractionView supply(BulkItem item, FractionView volume, boolean simulate) {
+	public FractionView supply(StorageItem item, FractionView volume, boolean simulate) {
 		Preconditions.checkArgument(!volume.isNegative(), "Request to supply negative volume. (%s)", volume);
 
-		if (item == BulkItem.NOTHING || item != bulkItem || content.isZero() || volume.isZero()) {
+		if (item == StorageItem.NOTHING || item != bulkItem || content.isZero() || volume.isZero()) {
 			return Fraction.ZERO;
 		}
 
@@ -106,11 +107,11 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 	}
 
 	@Override
-	public long accept(BulkItem item, long numerator, long divisor, boolean simulate) {
+	public long accept(StorageItem item, long numerator, long divisor, boolean simulate) {
 		Preconditions.checkArgument(numerator >= 0, "Request to accept negative volume. (%s)", numerator);
 		Preconditions.checkArgument(divisor >= 1, "Divisor must be >= 1. (%s)", divisor);
 
-		if (item == BulkItem.NOTHING || numerator == 0 || (item != bulkItem && bulkItem != BulkItem.NOTHING)) {
+		if (item == StorageItem.NOTHING || numerator == 0 || (item != bulkItem && bulkItem != StorageItem.NOTHING)) {
 			return 0;
 		}
 
@@ -145,11 +146,11 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 	}
 
 	@Override
-	public long supply(BulkItem item, long numerator, long divisor, boolean simulate) {
+	public long supply(StorageItem item, long numerator, long divisor, boolean simulate) {
 		Preconditions.checkArgument(numerator >= 0, "Request to supply negative volume. (%s)", numerator);
 		Preconditions.checkArgument(divisor >= 1, "Divisor must be >= 1. (%s)", divisor);
 
-		if (item == BulkItem.NOTHING || item != bulkItem || content.isZero() || numerator == 0) {
+		if (item == StorageItem.NOTHING || item != bulkItem || content.isZero() || numerator == 0) {
 			return 0;
 		}
 
@@ -183,7 +184,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 	public void writeTag(CompoundTag tag) {
 		tag.put("capacity",capacity.toTag());
 		tag.put("content",content.toTag());
-		tag.putString("bulkItem", BulkItemRegistry.INSTANCE.getId(bulkItem).toString());
+		tag.putString("bulkItem", StorageItemRegistry.INSTANCE.getId(bulkItem).toString());
 	}
 
 	@Override
@@ -197,7 +198,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 	public void readTag(CompoundTag tag) {
 		capacity = new Fraction(tag.getCompound("capacity"));
 		content.readTag(tag.getCompound("content"));
-		bulkItem = BulkItemRegistry.INSTANCE.get(tag.getString("bulkItem"));
+		bulkItem = StorageItemRegistry.INSTANCE.get(tag.getString("bulkItem"));
 	}
 
 	protected class View implements BulkArticleView {
@@ -216,9 +217,10 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 			return content;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
-		public BulkItem item() {
-			return bulkItem;
+		public <V extends StorageItem> V item() {
+			return (V) bulkItem;
 		}
 	}
 
@@ -230,8 +232,8 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 	@Override
 	protected void applyRollbackState(Object state) {
 		@SuppressWarnings("unchecked")
-		final Pair<BulkItem, Fraction> pair = (Pair<BulkItem, Fraction>) state;
-		final BulkItem bulkItem = pair.getFirst();
+		final Pair<StorageItem, Fraction> pair = (Pair<StorageItem, Fraction>) state;
+		final StorageItem bulkItem = pair.getFirst();
 		final Fraction newContent = pair.getSecond();
 
 		if(bulkItem == this.bulkItem) {

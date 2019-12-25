@@ -30,9 +30,10 @@ import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;
 
 import grondag.fluidity.Fluidity;
-import grondag.fluidity.api.item.DiscreteItem;
+import grondag.fluidity.api.item.CommonItem;
+import grondag.fluidity.api.storage.CommonStorage;
 import grondag.fluidity.api.storage.DiscreteStorage;
-import grondag.fluidity.api.storage.DiscreteStorageSupplier;
+import grondag.fluidity.api.storage.StorageSupplier;
 
 /**
  * Sent when player interacts with the GUI of an IStorage (vs container slots).
@@ -63,12 +64,12 @@ public class ItemStorageInteractionC2S {
 	}
 
 	private static void acceptInner(StorageAction action, int handle, ServerPlayerEntity player) {
-		if (player.container == null || !(player.container instanceof DiscreteStorageSupplier)) {
+		if (player.container == null || !(player.container instanceof StorageSupplier)) {
 			return;
 		}
 
-		final DiscreteStorage storage = ((DiscreteStorageSupplier) player.container).getDiscreteStorage();
-		final DiscreteItem targetResource = handle == -1 ? null : storage.view(handle).item();
+		final CommonStorage storage = ((StorageSupplier) player.container).getStorage();
+		final CommonItem targetResource = handle == -1 ? null : storage.view(handle).item();
 
 		switch (action) {
 		case PUT_ALL_HELD:
@@ -135,7 +136,7 @@ public class ItemStorageInteractionC2S {
 		}
 	}
 
-	private static void doPut(boolean single, ServerPlayerEntity player, DiscreteStorage container) {
+	private static void doPut(boolean single, ServerPlayerEntity player, CommonStorage container) {
 		final ItemStack cursorStack = player.inventory.getCursorStack();
 
 		if (cursorStack != null && !cursorStack.isEmpty()) {
@@ -151,7 +152,7 @@ public class ItemStorageInteractionC2S {
 		return;
 	}
 
-	private static void doQuickMove(int howMany, ServerPlayerEntity player, DiscreteItem targetResource, DiscreteStorage listener) {
+	private static void doQuickMove(int howMany, ServerPlayerEntity player, CommonItem targetResource, CommonStorage listener) {
 		if (howMany == 0 || targetResource == null || targetResource.isEmpty()) {
 			return;
 		}
@@ -167,7 +168,7 @@ public class ItemStorageInteractionC2S {
 		player.inventory.markDirty();
 	}
 
-	private static void doTake(int howMany, ServerPlayerEntity player, DiscreteItem targetResource, DiscreteStorage container) {
+	private static void doTake(int howMany, ServerPlayerEntity player, CommonItem targetResource, DiscreteStorage container) {
 		if (howMany == 0 || targetResource == null || targetResource.isEmpty()) {
 			return;
 		}

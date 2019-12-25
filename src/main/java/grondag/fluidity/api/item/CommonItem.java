@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -34,12 +35,12 @@ import net.minecraft.util.registry.Registry;
 import grondag.fluidity.base.item.StackHelper;
 
 @API(status = Status.EXPERIMENTAL)
-public class DiscreteItem implements StorageItem {
+public class CommonItem implements StorageItem {
 	protected Item item;
 	protected CompoundTag tag;
 	protected int hashCode;
 
-	public DiscreteItem(Item item, @Nullable CompoundTag tag) {
+	public CommonItem(Item item, @Nullable CompoundTag tag) {
 		this.item = item;
 		this.tag = tag;
 		computeHash();
@@ -72,11 +73,16 @@ public class DiscreteItem implements StorageItem {
 	}
 
 	@Override
-	public boolean isItem() {
+	public Fluid toFluid() {
+		return null;
+	}
+
+	@Override
+	public boolean isCommon() {
 		return true;
 	}
 
-	public DiscreteItem toImmutable() {
+	public CommonItem toImmutable() {
 		return this;
 	}
 
@@ -84,8 +90,8 @@ public class DiscreteItem implements StorageItem {
 	public final boolean equals(Object other) {
 		if (other == this) {
 			return true;
-		} else if(other instanceof DiscreteItem) {
-			final DiscreteItem otherItem = (DiscreteItem) other;
+		} else if(other instanceof CommonItem) {
+			final CommonItem otherItem = (CommonItem) other;
 			return otherItem.item == item && otherItem.tag == tag;
 		} else {
 			return false;
@@ -107,6 +113,7 @@ public class DiscreteItem implements StorageItem {
 		return hashCode;
 	}
 
+	@Override
 	public final ItemStack toStack(long count) {
 		final ItemStack result = new ItemStack(item, (int) Math.min(item.getMaxCount(), count));
 
@@ -117,15 +124,17 @@ public class DiscreteItem implements StorageItem {
 		return result;
 	}
 
+	@Override
 	public final ItemStack toStack() {
 		return toStack(1);
 	}
 
+	@Override
 	public boolean matches(ItemStack stack) {
 		return StackHelper.areItemsEqual(item, tag, stack);
 	}
 
-	public static class Mutable extends DiscreteItem {
+	public static class Mutable extends CommonItem {
 		public Mutable(Item item, CompoundTag tag) {
 			super(item, tag);
 		}
@@ -146,12 +155,12 @@ public class DiscreteItem implements StorageItem {
 		}
 
 		@Override
-		public DiscreteItem toImmutable() {
-			return new DiscreteItem(item, tag);
+		public CommonItem toImmutable() {
+			return new CommonItem(item, tag);
 		}
 	}
 
-	public static final DiscreteItem NOTHING = new DiscreteItem(Items.AIR, null);
+	public static final CommonItem NOTHING = new CommonItem(Items.AIR, null);
 
 	private static final String TAG_KEY = "id"; // same as vanilla item stack
 
@@ -166,11 +175,11 @@ public class DiscreteItem implements StorageItem {
 		}
 	}
 
-	public static DiscreteItem fromTag(CompoundTag tag, String tagName) {
+	public static CommonItem fromTag(CompoundTag tag, String tagName) {
 		final Tag data = tag.get(tagName);
 
 		if(data == null) {
-			return DiscreteItem.NOTHING;
+			return CommonItem.NOTHING;
 		} else if(data.getType() == 8) {
 			return of(Registry.ITEM.get(new Identifier(((StringTag) data).asString())), null);
 		} else {
@@ -183,21 +192,21 @@ public class DiscreteItem implements StorageItem {
 
 	// TODO: this needs to be a cache to prevent memory leaks in long game sessions when there are
 	// many transient stack tag values going in and out of storage.  Implies all discrete comparisons must be equals.
-	private static final ConcurrentHashMap<DiscreteItem, DiscreteItem> ITEMS = new ConcurrentHashMap<>();
+	private static final ConcurrentHashMap<CommonItem, CommonItem> ITEMS = new ConcurrentHashMap<>();
 
 	private static final ThreadLocal<Mutable> KEYS = ThreadLocal.withInitial(Mutable::new);
 
-	public static DiscreteItem of(Item item) {
+	public static CommonItem of(Item item) {
 		return of(item, null);
 	}
 
-	public static DiscreteItem of(ItemStack stack) {
+	public static CommonItem of(ItemStack stack) {
 		return of(stack.getItem(), stack.getTag());
 	}
 
-	public static DiscreteItem of(Item item, @Nullable CompoundTag tag) {
+	public static CommonItem of(Item item, @Nullable CompoundTag tag) {
 		if(item == Items.AIR || item == null) {
-			return DiscreteItem.NOTHING;
+			return CommonItem.NOTHING;
 		} else {
 			return ITEMS.computeIfAbsent(KEYS.get().set(item, tag), k -> k.toImmutable());
 		}

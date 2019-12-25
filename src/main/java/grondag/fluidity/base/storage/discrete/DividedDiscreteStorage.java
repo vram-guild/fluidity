@@ -19,24 +19,24 @@ import com.google.common.base.Preconditions;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.item.DiscreteItem;
-import grondag.fluidity.api.storage.FixedDiscreteStorage;
+import grondag.fluidity.api.item.StorageItem;
+import grondag.fluidity.api.storage.FixedCommonStorage;
 import grondag.fluidity.base.article.DiscreteArticle;
 import grondag.fluidity.base.storage.component.FixedArticleManager;
 
 @API(status = Status.EXPERIMENTAL)
-public class DividedItemStorage extends AbstractItemStorage implements FixedDiscreteStorage  {
+public class DividedDiscreteStorage extends AbstractDiscreteStorage implements FixedCommonStorage  {
 	protected final int divisionCount;
 	protected final long capacityPerDivision;
 
-	public DividedItemStorage(int divisionCount, long capacityPerDivision) {
+	public DividedDiscreteStorage(int divisionCount, long capacityPerDivision) {
 		super(divisionCount, divisionCount * capacityPerDivision, new FixedArticleManager<>(divisionCount, DiscreteArticle::new));
 		this.divisionCount = divisionCount;
 		this.capacityPerDivision = capacityPerDivision;
 	}
 
 	@Override
-	public long accept(DiscreteItem item, long count, boolean simulate) {
+	public long accept(StorageItem item, long count, boolean simulate) {
 		if(notifier.articleCount() >= divisionCount) {
 			final DiscreteArticle a = articles.get(item);
 
@@ -61,11 +61,11 @@ public class DividedItemStorage extends AbstractItemStorage implements FixedDisc
 	}
 
 	@Override
-	public long accept(int handle, DiscreteItem item, long count, boolean simulate) {
+	public long accept(int handle, StorageItem item, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to accept null item");
 
-		if (item.isEmpty() || count == 0 || !filter.test(item)) {
+		if (item.isNothing() || count == 0 || !filter.test(item)) {
 			return 0;
 		}
 
@@ -93,11 +93,11 @@ public class DividedItemStorage extends AbstractItemStorage implements FixedDisc
 	}
 
 	@Override
-	public long supply(int handle, DiscreteItem item, long count, boolean simulate) {
+	public long supply(int handle, StorageItem item, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to supply null item");
 
-		if (item.isEmpty() || isEmpty()) {
+		if (item.isNothing() || isEmpty()) {
 			return 0;
 		}
 

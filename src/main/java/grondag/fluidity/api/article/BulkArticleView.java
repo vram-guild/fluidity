@@ -15,29 +15,15 @@
  ******************************************************************************/
 package grondag.fluidity.api.article;
 
-import javax.annotation.Nullable;
-
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.item.BulkItem;
 
 /**
  * View of a bulk item in storage.
  */
 @API(status = Status.EXPERIMENTAL)
-public interface BulkArticleView extends ArticleView<BulkItem> {
+public interface BulkArticleView extends ArticleView {
 	FractionView volume();
-
-	@Override
-	default boolean isBulk() {
-		return true;
-	}
-
-	@Override
-	@Nullable
-	default BulkArticleView toBulkView() {
-		return  this;
-	}
 }

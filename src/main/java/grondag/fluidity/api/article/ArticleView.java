@@ -15,8 +15,6 @@
  ******************************************************************************/
 package grondag.fluidity.api.article;
 
-import javax.annotation.Nullable;
-
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
@@ -29,8 +27,8 @@ import grondag.fluidity.api.item.StorageItem;
  * Most containers will not need this and should instead use the specific view type for their content.
  */
 @API(status = Status.EXPERIMENTAL)
-public interface ArticleView<I extends StorageItem> {
-	I item();
+public interface ArticleView {
+	<V extends StorageItem> V item();
 
 	/**
 	 * An abstract handle to a quantity of a specific article instance that will
@@ -45,22 +43,4 @@ public interface ArticleView<I extends StorageItem> {
 	 * virtual storage systems that are emulating a fixed slot arrangement for client display.
 	 */
 	boolean isEmpty();
-
-	default boolean isBulk() {
-		return toBulkView() != null;
-	}
-
-	@Nullable
-	default BulkArticleView toBulkView() {
-		return null;
-	}
-
-	default boolean isItem() {
-		return toItemView() != null;
-	}
-
-	@Nullable
-	default DiscreteArticleView toItemView() {
-		return null;
-	}
 }

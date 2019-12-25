@@ -6,14 +6,16 @@ import grondag.fluidity.api.article.ArticleView;
 import grondag.fluidity.api.item.StorageItem;
 import grondag.fluidity.api.storage.Storage;
 
-public abstract class AbstractArticle<S extends Storage<?, ?, I>, I extends StorageItem> implements ArticleView<I> {
-	public I item;
+public abstract class AbstractArticle<S extends Storage<?, ?>> implements ArticleView {
+	// TODO: encapsulate
+	public StorageItem item;
 	public int handle;
 	public final ObjectArraySet<S> stores = new ObjectArraySet<>();
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public I item() {
-		return item;
+	public <V extends StorageItem> V item() {
+		return (V) item;
 	}
 
 	@Override

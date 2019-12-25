@@ -20,14 +20,14 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.item.BulkItem;
+import grondag.fluidity.api.item.StorageItem;
 
 @API(status = Status.EXPERIMENTAL)
 public interface BulkStorageListener extends StorageListener<BulkStorageListener> {
-	FractionView onAccept(int handle, BulkItem item, FractionView delta, FractionView newVolume);
+	FractionView onAccept(int handle, StorageItem item, FractionView delta, FractionView newVolume);
 
-	FractionView onSupply(int handle, BulkItem item, FractionView delta, FractionView newVolume);
+	FractionView onSupply(int handle, StorageItem item, FractionView delta, FractionView newVolume);
 
-	void onCapacityChange(Storage<?, DiscreteStorageListener, ?> storage, long capacityDelta);
+	void onCapacityChange(Storage<?, DiscreteStorageListener> storage, long capacityDelta);
 }
 

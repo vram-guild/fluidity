@@ -24,11 +24,10 @@ import grondag.fluidity.api.article.ArticleView;
 import grondag.fluidity.api.item.StorageItem;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.transact.TransactionContext;
-import grondag.fluidity.base.storage.bulk.AbstractStorage;
 import grondag.fluidity.base.transact.LazyRollbackHandler;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractLazyRollbackStorage<A extends ArticleView<I>, L extends StorageListener<L>, I extends StorageItem> extends AbstractStorage<A, L, I> {
+public abstract class AbstractLazyRollbackStorage<A extends ArticleView, L extends StorageListener<L>, K extends StorageItem> extends AbstractStorage<A, L, K> {
 	protected final LazyRollbackHandler rollbackHandler = new LazyRollbackHandler(this::createRollbackState, this::applyRollbackState);
 
 	protected abstract Object createRollbackState();
