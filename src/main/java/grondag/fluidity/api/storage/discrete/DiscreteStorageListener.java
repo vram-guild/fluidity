@@ -14,18 +14,20 @@
  * the License.
  ******************************************************************************/
 
-package grondag.fluidity.api.storage;
+package grondag.fluidity.api.storage.discrete;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.item.StorageItem;
+import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.StorageListener;
 
 @API(status = Status.EXPERIMENTAL)
 public interface DiscreteStorageListener extends StorageListener<DiscreteStorageListener> {
-	void onAccept(Storage<?, DiscreteStorageListener> storage, int handle, StorageItem item, long delta, long newCount);
+	void onAccept(Storage<?, DiscreteStorageListener> storage, int handle, Article item, long delta, long newCount);
 
-	void onSupply(Storage<?, DiscreteStorageListener> storage, int handle, StorageItem item, long delta, long newCount);
+	void onSupply(Storage<?, DiscreteStorageListener> storage, int handle, Article item, long delta, long newCount);
 
 	void onCapacityChange(Storage<?, DiscreteStorageListener> storage, long capacityDelta);
 }

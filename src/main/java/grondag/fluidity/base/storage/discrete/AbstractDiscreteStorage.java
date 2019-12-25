@@ -23,21 +23,21 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 
 import grondag.fluidity.api.article.DiscreteArticleView;
-import grondag.fluidity.api.item.CommonItem;
-import grondag.fluidity.api.item.StorageItem;
-import grondag.fluidity.api.storage.DiscreteStorage;
-import grondag.fluidity.api.storage.DiscreteStorageListener;
-import grondag.fluidity.base.article.DiscreteArticle;
+import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.storage.discrete.DiscreteStorage;
+import grondag.fluidity.api.storage.discrete.DiscreteStorageListener;
+import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
 import grondag.fluidity.base.storage.component.AbstractArticleManager;
 import grondag.fluidity.base.storage.component.TrackingItemNotifier;
+import grondag.fluidity.impl.CommonItem;
 
 @API(status = Status.EXPERIMENTAL)
 public abstract class AbstractDiscreteStorage extends AbstractLazyRollbackStorage<DiscreteArticleView,  DiscreteStorageListener> implements DiscreteStorage {
-	protected final AbstractArticleManager<StorageItem, DiscreteArticle> articles;
+	protected final AbstractArticleManager<Article, DiscreteStoredArticle> articles;
 	protected final TrackingItemNotifier notifier;
 
-	AbstractDiscreteStorage(int startingHandleCount, long capacity, AbstractArticleManager<StorageItem, DiscreteArticle> articles) {
+	AbstractDiscreteStorage(int startingHandleCount, long capacity, AbstractArticleManager<Article, DiscreteStoredArticle> articles) {
 		this.articles = articles;
 		notifier = new TrackingItemNotifier(capacity, this);
 	}
@@ -51,7 +51,7 @@ public abstract class AbstractDiscreteStorage extends AbstractLazyRollbackStorag
 			final int limit = articles.handleCount();
 
 			for (int i = 0; i < limit; i++) {
-				final DiscreteArticle a = articles.get(i);
+				final DiscreteStoredArticle a = articles.get(i);
 
 				if(!a.isEmpty()) {
 					list.add(a.toTag());
@@ -71,7 +71,7 @@ public abstract class AbstractDiscreteStorage extends AbstractLazyRollbackStorag
 		if(tag.contains(TAG_ITEMS)) {
 			final ListTag list = tag.getList(TAG_ITEMS, 10);
 			final int limit = list.size();
-			final DiscreteArticle lookup = new DiscreteArticle();
+			final DiscreteStoredArticle lookup = new DiscreteStoredArticle();
 
 			for(int i = 0; i < limit; i++) {
 				lookup.readTag(list.getCompound(i));
@@ -119,7 +119,7 @@ public abstract class AbstractDiscreteStorage extends AbstractLazyRollbackStorag
 	}
 
 	@Override
-	public long accept(StorageItem item, long count, boolean simulate) {
+	public long accept(Article item, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to accept null item");
 
@@ -130,7 +130,7 @@ public abstract class AbstractDiscreteStorage extends AbstractLazyRollbackStorag
 		final long result = Math.min(count, notifier.capacity() - notifier.count());
 
 		if(result > 0 && !simulate) {
-			final DiscreteArticle article = articles.findOrCreateArticle(item);
+			final DiscreteStoredArticle article = articles.findOrCreateArticle(item);
 			article.count += result;
 			notifier.notifyAccept(article, result);
 			dirtyNotifier.run();
@@ -140,7 +140,7 @@ public abstract class AbstractDiscreteStorage extends AbstractLazyRollbackStorag
 	}
 
 	@Override
-	public long supply(StorageItem item, long count, boolean simulate) {
+	public long supply(Article item, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to supply null item");
 
@@ -148,7 +148,7 @@ public abstract class AbstractDiscreteStorage extends AbstractLazyRollbackStorag
 			return 0;
 		}
 
-		final DiscreteArticle article = articles.get(item);
+		final DiscreteStoredArticle article = articles.get(item);
 
 		if(article == null || article.isEmpty()) {
 			return 0;
@@ -174,7 +174,7 @@ public abstract class AbstractDiscreteStorage extends AbstractLazyRollbackStorag
 		final int limit = articles.handleCount();
 
 		for (int i = 0; i < limit; i++) {
-			final DiscreteArticle a = articles.get(i);
+			final DiscreteStoredArticle a = articles.get(i);
 
 			if(!a.isEmpty()) {
 				notifier.notifySupply(a, a.count);

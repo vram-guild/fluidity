@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.item;
+package grondag.fluidity.impl;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,10 +32,11 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
+import grondag.fluidity.api.item.Article;
 import grondag.fluidity.base.item.StackHelper;
 
 @API(status = Status.EXPERIMENTAL)
-public class CommonItem implements StorageItem {
+public class CommonItem implements Article {
 	protected Item item;
 	protected CompoundTag tag;
 	protected int hashCode;
@@ -46,14 +47,17 @@ public class CommonItem implements StorageItem {
 		computeHash();
 	}
 
+	@Override
 	public final boolean isEmpty() {
 		return item == Items.AIR;
 	}
 
+	@Override
 	public final Item getItem() {
 		return item;
 	}
 
+	@Override
 	public boolean hasTag() {
 		return tag != null;
 	}
@@ -63,6 +67,7 @@ public class CommonItem implements StorageItem {
 		return tag.copy();
 	}
 
+	@Override
 	public final boolean doesTagMatch(@Nullable CompoundTag otherTag) {
 		return tag == null ? otherTag == null : tag.equals(otherTag);
 	}

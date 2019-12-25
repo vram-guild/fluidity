@@ -21,22 +21,21 @@ import com.google.common.base.Predicates;
 import com.google.common.util.concurrent.Runnables;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
-import org.lwjgl.system.CallbackI.I;
 
-import grondag.fluidity.api.article.ArticleView;
-import grondag.fluidity.api.item.StorageItem;
+import grondag.fluidity.api.article.StoredArticleView;
+import grondag.fluidity.api.item.Article;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.storage.component.ListenerSet;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractStorage<A extends ArticleView, L extends StorageListener<L>> implements Storage<A, L> {
+public abstract class AbstractStorage<A extends StoredArticleView, L extends StorageListener<L>> implements Storage<A, L> {
 	public final ListenerSet<L> listeners = new ListenerSet<>(this::sendFirstListenerUpdate, this::onListenersEmpty);
-	protected Predicate<? super StorageItem> filter = Predicates.alwaysTrue();
+	protected Predicate<Article> filter = Predicates.alwaysTrue();
 	protected Runnable dirtyNotifier = Runnables.doNothing();
 
 	@SuppressWarnings("unchecked")
-	public <S extends AbstractStorage<A, L>> S filter(Predicate<I> filter) {
+	public <S extends AbstractStorage<A, L>> S filter(Predicate<Article> filter) {
 		this.filter = filter == null ? Predicates.alwaysTrue() : filter;
 		return (S) this;
 	}

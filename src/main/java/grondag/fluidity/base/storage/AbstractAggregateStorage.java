@@ -21,20 +21,20 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.article.ArticleView;
-import grondag.fluidity.api.item.StorageItem;
+import grondag.fluidity.api.article.StoredArticleView;
+import grondag.fluidity.api.item.Article;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.Transactor;
-import grondag.fluidity.base.article.AbstractArticle;
+import grondag.fluidity.base.article.AbstractStoredArticle;
 import grondag.fluidity.base.storage.component.FlexibleArticleManager;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractAggregateStorage<A extends ArticleView<I>, L extends StorageListener<L>, I extends StorageItem, K extends AbstractArticle, S extends Storage<A, L, I>> extends AbstractStorage<A, L, I> {
+public abstract class AbstractAggregateStorage<A extends StoredArticleView, L extends StorageListener<L>, K extends AbstractStoredArticle, S extends Storage<A, L>> extends AbstractStorage<A, L> {
 	protected final Consumer<TransactionContext> rollbackHandler = this::handleRollback;
-	protected final FlexibleArticleManager<I, K> articles;
+	protected final FlexibleArticleManager<Article, K> articles;
 	protected final ObjectOpenHashSet<S> stores = new ObjectOpenHashSet<>();
 
 	protected Consumer<Transactor> enlister = t -> {};

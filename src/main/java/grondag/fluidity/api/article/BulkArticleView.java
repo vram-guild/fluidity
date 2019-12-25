@@ -24,6 +24,6 @@ import grondag.fluidity.api.fraction.FractionView;
  * View of a bulk item in storage.
  */
 @API(status = Status.EXPERIMENTAL)
-public interface BulkArticleView extends ArticleView {
+public interface BulkArticleView extends StoredArticleView {
 	FractionView volume();
 }

@@ -13,40 +13,24 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.storage;
+
+package grondag.fluidity.api.storage.bulk;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.recipe.RecipeFinder;
-import net.minecraft.recipe.RecipeInputProvider;
+import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.StorageListener;
+import grondag.fluidity.api.storage.discrete.DiscreteStorageListener;
 
 @API(status = Status.EXPERIMENTAL)
-public interface InventoryStorage extends CommonStorage, Inventory, RecipeInputProvider {
-	@Override default boolean canPlayerUseInv(PlayerEntity player) {
-		return true;
-	}
+public interface BulkStorageListener extends StorageListener<BulkStorageListener> {
+	FractionView onAccept(int handle, Article item, FractionView delta, FractionView newVolume);
 
-	@Override
-	default void provideRecipeInputs(RecipeFinder finder) {
-		this.forEach(v -> {
-			if (!v.isEmpty()) {
-				finder.addItem(v.toStack());
-			}
+	FractionView onSupply(int handle, Article item, FractionView delta, FractionView newVolume);
 
-			return true;
-		});
-	}
-
-	@Override
-	default boolean isInvEmpty() {
-		return isEmpty();
-	}
-
-	@Override
-	default void markDirty() {
-		//NOOP - default implementation doesn't support vanilla inventory listeners
-	}
+	void onCapacityChange(Storage<?, DiscreteStorageListener> storage, long capacityDelta);
 }
+

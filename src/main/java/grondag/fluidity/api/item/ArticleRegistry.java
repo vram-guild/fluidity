@@ -26,26 +26,26 @@ import net.minecraft.util.Identifier;
 import grondag.fluidity.impl.StorageItemRegistryImpl;
 
 @API(status = EXPERIMENTAL)
-public interface StorageItemRegistry {
-	StorageItemRegistry INSTANCE = StorageItemRegistryImpl.INSTANCE;
+public interface ArticleRegistry {
+	ArticleRegistry INSTANCE = StorageItemRegistryImpl.INSTANCE;
 
-	<V extends StorageItem> V get(Identifier id);
+	<V extends Article> V get(Identifier id);
 
-	<V extends StorageItem> V get(String idString);
+	<V extends Article> V get(String idString);
 
-	<V extends StorageItem> V get(int index);
+	<V extends Article> V get(int index);
 
-	<V extends StorageItem> void forEach(Consumer<V> consumer);
+	<V extends Article> void forEach(Consumer<V> consumer);
 
 	boolean contains(Identifier id);
 
-	<V extends StorageItem> V add(Identifier id, V item);
+	<V extends Article> V add(Identifier id, V item);
 
-	default <V extends StorageItem> V add(String idString, V item) {
+	default <V extends Article> V add(String idString, V item) {
 		return add(new Identifier(idString), item);
 	}
 
-	<V extends StorageItem> Identifier getId(V bulkItem);
+	<V extends Article> Identifier getId(V bulkItem);
 
-	<V extends StorageItem> int getRawId(V bulkItem);
+	<V extends Article> int getRawId(V bulkItem);
 }

@@ -26,33 +26,33 @@ import grondag.fluidity.api.article.BulkArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
-import grondag.fluidity.api.item.StorageItem;
-import grondag.fluidity.api.storage.BulkStorage;
+import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.storage.bulk.BulkStorage;
 
 @API(status = Status.EXPERIMENTAL)
-public class BulkArticle extends AbstractArticle<BulkStorage> implements BulkArticleView {
+public class BulkStoredArticle extends AbstractStoredArticle<BulkStorage> implements BulkArticleView {
 	protected MutableFraction fraction;
 	protected int handle;
 
-	public BulkArticle() {
+	public BulkStoredArticle() {
 	}
 
-	public BulkArticle(ItemStack stack, int handle) {
+	public BulkStoredArticle(ItemStack stack, int handle) {
 		prepare(stack, handle);
 	}
 
-	public BulkArticle prepare(ItemStack stack, int handle) {
+	public BulkStoredArticle prepare(ItemStack stack, int handle) {
 		final Item item = stack.getItem();
 		final CompoundTag tag = stack.getTag();
 
 		this.handle = handle;
 
-		if(item instanceof StorageItem) {
-			this.item = (StorageItem) item;
+		if(item instanceof Article) {
+			this.item = (Article) item;
 			fraction.readTag(tag);
 			fraction.multiply(stack.getCount());
 		} else  {
-			this.item = StorageItem.NOTHING;
+			this.item = Article.NOTHING;
 			fraction.set(Fraction.ZERO);
 		}
 
@@ -74,8 +74,8 @@ public class BulkArticle extends AbstractArticle<BulkStorage> implements BulkArt
 		return fraction;
 	}
 
-	public static BulkArticle of(ItemStack stack) {
-		return new  BulkArticle().prepare(stack, 0);
+	public static BulkStoredArticle of(ItemStack stack) {
+		return new  BulkStoredArticle().prepare(stack, 0);
 	}
 
 	@Override

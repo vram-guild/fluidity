@@ -3,11 +3,11 @@ package grondag.fluidity.base.storage.component;
 import java.lang.reflect.Array;
 import java.util.function.Supplier;
 
-import grondag.fluidity.api.item.StorageItem;
-import grondag.fluidity.base.article.AbstractArticle;
+import grondag.fluidity.api.item.Article;
+import grondag.fluidity.base.article.AbstractStoredArticle;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class FixedArticleManager<K extends StorageItem, V extends AbstractArticle> extends AbstractArticleManager<K, V> {
+public class FixedArticleManager<K extends Article, V extends AbstractStoredArticle> extends AbstractArticleManager<K, V> {
 	protected V[] articles;
 	protected final int handleCount;
 

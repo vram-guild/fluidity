@@ -20,14 +20,13 @@ import java.util.function.Consumer;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.article.ArticleView;
-import grondag.fluidity.api.item.StorageItem;
+import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.base.transact.LazyRollbackHandler;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractLazyRollbackStorage<A extends ArticleView, L extends StorageListener<L>, K extends StorageItem> extends AbstractStorage<A, L, K> {
+public abstract class AbstractLazyRollbackStorage<A extends StoredArticleView, L extends StorageListener<L>> extends AbstractStorage<A, L> {
 	protected final LazyRollbackHandler rollbackHandler = new LazyRollbackHandler(this::createRollbackState, this::applyRollbackState);
 
 	protected abstract Object createRollbackState();

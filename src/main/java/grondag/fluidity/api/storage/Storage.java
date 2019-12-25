@@ -25,7 +25,7 @@ import org.apiguardian.api.API.Status;
 
 import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.article.ArticleView;
+import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.transact.Transactor;
 
 /**
@@ -33,7 +33,7 @@ import grondag.fluidity.api.transact.Transactor;
  * Interface supports both discrete items and bulk resources (such as fluids.)
  */
 @API(status = Status.EXPERIMENTAL)
-public interface Storage<A extends ArticleView, L extends StorageListener<L>> extends Transactor {
+public interface Storage<A extends StoredArticleView, L extends StorageListener<L>> extends Transactor {
 	int handleCount();
 
 	default boolean isEmpty() {
@@ -90,7 +90,7 @@ public interface Storage<A extends ArticleView, L extends StorageListener<L>> ex
 
 	void stopListening(L listener);
 
-	Predicate <? super ArticleView> NOT_EMPTY = a -> !a.isEmpty();
+	Predicate <? super StoredArticleView> NOT_EMPTY = a -> !a.isEmpty();
 
 	CompoundTag writeTag();
 

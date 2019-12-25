@@ -23,18 +23,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.DiscreteArticleView;
-import grondag.fluidity.api.item.CommonItem;
-import grondag.fluidity.api.item.StorageItem;
-import grondag.fluidity.api.storage.DiscreteStorageListener;
-import grondag.fluidity.api.storage.InventoryStorage;
-import grondag.fluidity.base.article.CommonArticle;
+import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.storage.discrete.DiscreteStorageListener;
+import grondag.fluidity.api.storage.discrete.InventoryStorage;
+import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
 import grondag.fluidity.base.storage.component.DiscreteItemNotifier;
+import grondag.fluidity.impl.CommonItem;
 
 @API(status = Status.EXPERIMENTAL)
 public class SingleStackCommonStorage extends AbstractLazyRollbackStorage<DiscreteArticleView,  DiscreteStorageListener> implements InventoryStorage {
 	protected ItemStack stack = ItemStack.EMPTY;
-	protected final CommonArticle view = new CommonArticle();
+	protected final DiscreteStoredArticle view = new DiscreteStoredArticle();
 	protected final DiscreteItemNotifier notifier = new DiscreteItemNotifier(this);
 
 	@Override
@@ -167,7 +167,7 @@ public class SingleStackCommonStorage extends AbstractLazyRollbackStorage<Discre
 	}
 
 	@Override
-	public long accept(StorageItem itemIn, long count, boolean simulate) {
+	public long accept(Article itemIn, long count, boolean simulate) {
 		final CommonItem item = (CommonItem) itemIn;
 
 		if(item.isEmpty()) {
@@ -212,7 +212,7 @@ public class SingleStackCommonStorage extends AbstractLazyRollbackStorage<Discre
 	}
 
 	@Override
-	public long supply(StorageItem itemIn, long count, boolean simulate) {
+	public long supply(Article itemIn, long count, boolean simulate) {
 		final CommonItem item = (CommonItem) itemIn;
 
 		if(item.isEmpty() || stack.isEmpty() || !item.matches(stack)) {

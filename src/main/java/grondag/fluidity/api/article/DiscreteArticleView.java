@@ -21,7 +21,7 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.item.ItemStack;
 
 @API(status = Status.EXPERIMENTAL)
-public interface DiscreteArticleView extends ArticleView {
+public interface DiscreteArticleView extends StoredArticleView {
 	long count();
 
 	@Override

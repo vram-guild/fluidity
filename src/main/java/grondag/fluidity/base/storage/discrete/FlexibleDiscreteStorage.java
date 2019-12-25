@@ -18,14 +18,13 @@ package grondag.fluidity.base.storage.discrete;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.storage.CommonStorage;
-import grondag.fluidity.base.article.DiscreteArticle;
+import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.component.FlexibleArticleManager;
 
 @API(status = Status.EXPERIMENTAL)
-public class FlexibleDiscreteStorage extends AbstractDiscreteStorage implements CommonStorage {
+public class FlexibleDiscreteStorage extends AbstractDiscreteStorage {
 	public FlexibleDiscreteStorage(int startingHandleCount, long capacity) {
-		super(startingHandleCount, capacity, new FlexibleArticleManager<>(startingHandleCount, DiscreteArticle::new));
+		super(startingHandleCount, capacity, new FlexibleArticleManager<>(startingHandleCount, DiscreteStoredArticle::new));
 	}
 
 	public FlexibleDiscreteStorage(int capacity) {

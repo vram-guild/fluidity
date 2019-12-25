@@ -18,7 +18,7 @@ package grondag.fluidity.api.article;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.item.StorageItem;
+import grondag.fluidity.api.item.Article;
 
 /**
  * A view of an article stored in a container. (Could be an discrete item or bulk item.) <p>
@@ -27,8 +27,8 @@ import grondag.fluidity.api.item.StorageItem;
  * Most containers will not need this and should instead use the specific view type for their content.
  */
 @API(status = Status.EXPERIMENTAL)
-public interface ArticleView {
-	<V extends StorageItem> V item();
+public interface StoredArticleView {
+	<V extends Article> V item();
 
 	/**
 	 * An abstract handle to a quantity of a specific article instance that will

@@ -13,13 +13,20 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.storage;
+package grondag.fluidity.api.storage.discrete;
+
+import javax.annotation.Nullable;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+
 import grondag.fluidity.api.article.DiscreteArticleView;
-import grondag.fluidity.api.item.StorageItem;
+import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.storage.Storage;
 
 @API(status = Status.EXPERIMENTAL)
 public interface DiscreteStorage extends Storage<DiscreteArticleView, DiscreteStorageListener> {
@@ -32,7 +39,7 @@ public interface DiscreteStorage extends Storage<DiscreteArticleView, DiscreteSt
 	 * @param simulate If true, will forecast result without making changes.
 	 * @return Count added, or that would be added if {@code simulate} = true.
 	 */
-	long accept(StorageItem item, long count, boolean simulate);
+	long accept(Article item, long count, boolean simulate);
 
 	/**
 	 * Removes items from this storage. May return less than requested.
@@ -43,9 +50,9 @@ public interface DiscreteStorage extends Storage<DiscreteArticleView, DiscreteSt
 	 * @param simulate If true, will forecast result without making changes.
 	 * @return Count removed, or that would be removed if {@code simulate} = true.
 	 */
-	long supply(StorageItem item, long count, boolean simulate);
+	long supply(Article item, long count, boolean simulate);
 
-	default long countOf(StorageItem item)  {
+	default long countOf(Article item)  {
 		return supply(item, Long.MAX_VALUE, true);
 	}
 
@@ -54,4 +61,36 @@ public interface DiscreteStorage extends Storage<DiscreteArticleView, DiscreteSt
 	long capacity();
 
 	void clear();
+
+	default long accept(Item item, @Nullable CompoundTag tag, long count, boolean simulate) {
+		return accept(Article.of(item, tag), count, simulate);
+	}
+
+	default long accept(Item item, long count, boolean simulate) {
+		return accept(Article.of(item), count, simulate);
+	}
+
+	default long accept(ItemStack stack, long count, boolean simulate) {
+		return accept(Article.of(stack), count, simulate);
+	}
+
+	default long accept(ItemStack stack, boolean simulate) {
+		return accept(Article.of(stack), stack.getCount(), simulate);
+	}
+
+	default long supply(Item item, @Nullable CompoundTag tag, long count, boolean simulate) {
+		return supply(Article.of(item, tag), count, simulate);
+	}
+
+	default long supply(Item item, long count, boolean simulate) {
+		return supply(Article.of(item), count, simulate);
+	}
+
+	default long supply(ItemStack stack, long count, boolean simulate) {
+		return supply(Article.of(stack), count, simulate);
+	}
+
+	default long supply(ItemStack stack, boolean simulate) {
+		return supply(Article.of(stack), stack.getCount(), simulate);
+	}
 }

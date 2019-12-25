@@ -10,18 +10,17 @@ import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.DiscreteArticleView;
-import grondag.fluidity.api.item.CommonItem;
-import grondag.fluidity.api.item.StorageItem;
-import grondag.fluidity.api.storage.CommonStorage;
-import grondag.fluidity.api.storage.DiscreteStorage;
-import grondag.fluidity.api.storage.DiscreteStorageListener;
+import grondag.fluidity.api.item.Article;
 import grondag.fluidity.api.storage.Storage;
-import grondag.fluidity.base.article.DiscreteArticle;
+import grondag.fluidity.api.storage.discrete.DiscreteStorage;
+import grondag.fluidity.api.storage.discrete.DiscreteStorageListener;
+import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.AbstractAggregateStorage;
 import grondag.fluidity.base.storage.component.TrackingItemNotifier;
+import grondag.fluidity.impl.CommonItem;
 
 @API(status = Status.EXPERIMENTAL)
-public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteArticleView, DiscreteStorageListener, DiscreteArticle, DiscreteStorage> implements CommonStorage, DiscreteStorageListener {
+public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteArticleView, DiscreteStorageListener, DiscreteStoredArticle, DiscreteStorage> implements DiscreteStorage, DiscreteStorageListener {
 	protected final CommonItem.Mutable lookupKey = new CommonItem.Mutable();
 	protected final TrackingItemNotifier notifier;
 
@@ -34,12 +33,12 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteA
 	}
 
 	@Nullable
-	protected DiscreteArticle getArticle(Item item, CompoundTag tag) {
+	protected DiscreteStoredArticle getArticle(Item item, CompoundTag tag) {
 		return articles.get(lookupKey.set(item, tag));
 	}
 
 	@Override
-	public long accept(StorageItem item, long count, boolean simulate) {
+	public long accept(Article item, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to accept null item");
 
@@ -63,7 +62,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteA
 		itMe = false;
 
 		if(result > 0 && !simulate) {
-			final DiscreteArticle article = articles.findOrCreateArticle(item);
+			final DiscreteStoredArticle article = articles.findOrCreateArticle(item);
 			article.count += result;
 			notifier.notifyAccept(article, result);
 		}
@@ -72,7 +71,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteA
 	}
 
 	@Override
-	public long supply(StorageItem item, long count, boolean simulate) {
+	public long supply(Article item, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to supply null item");
 
@@ -80,7 +79,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteA
 			return 0;
 		}
 
-		final DiscreteArticle article = articles.get(item);
+		final DiscreteStoredArticle article = articles.get(item);
 
 		if(article == null || article.isEmpty()) {
 			return 0;
@@ -110,8 +109,8 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteA
 	}
 
 	@Override
-	protected DiscreteArticle newArticle() {
-		return new DiscreteArticle();
+	protected DiscreteStoredArticle newArticle() {
+		return new DiscreteStoredArticle();
 	}
 
 	@Override
@@ -135,14 +134,14 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteA
 	}
 
 	@Override
-	public void onAccept(Storage<?, DiscreteStorageListener> storage, int slot, StorageItem item, long delta, long newCount) {
+	public void onAccept(Storage<?, DiscreteStorageListener> storage, int slot, Article item, long delta, long newCount) {
 		if (!itMe) {
 			// TODO Auto-generated method stub
 		}
 	}
 
 	@Override
-	public void onSupply(Storage<?, DiscreteStorageListener> storage, int slot, StorageItem item, long delta, long newCount) {
+	public void onSupply(Storage<?, DiscreteStorageListener> storage, int slot, Article item, long delta, long newCount) {
 		if (!itMe) {
 			// TODO Auto-generated method stub
 		}

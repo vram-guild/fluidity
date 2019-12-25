@@ -2,20 +2,20 @@ package grondag.fluidity.base.article;
 
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 
-import grondag.fluidity.api.article.ArticleView;
-import grondag.fluidity.api.item.StorageItem;
+import grondag.fluidity.api.article.StoredArticleView;
+import grondag.fluidity.api.item.Article;
 import grondag.fluidity.api.storage.Storage;
 
-public abstract class AbstractArticle<S extends Storage<?, ?>> implements ArticleView {
+public abstract class AbstractStoredArticle<S extends Storage<?, ?>> implements StoredArticleView {
 	// TODO: encapsulate
-	public StorageItem item;
+	public Article item;
 	public int handle;
 	public final ObjectArraySet<S> stores = new ObjectArraySet<>();
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <V extends StorageItem> V item() {
-		return (V) item;
+	public Article item() {
+		return item;
 	}
 
 	@Override
@@ -26,4 +26,5 @@ public abstract class AbstractArticle<S extends Storage<?, ?>> implements Articl
 	public abstract void addStore(S store);
 
 	public abstract void zero();
+
 }

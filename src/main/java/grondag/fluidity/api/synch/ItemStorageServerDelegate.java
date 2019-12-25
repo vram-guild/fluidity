@@ -24,21 +24,21 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.PacketByteBuf;
 
-import grondag.fluidity.api.item.StorageItem;
-import grondag.fluidity.api.storage.CommonStorage;
-import grondag.fluidity.api.storage.DiscreteStorageListener;
+import grondag.fluidity.api.item.Article;
 import grondag.fluidity.api.storage.Storage;
-import grondag.fluidity.base.article.DiscreteArticle;
+import grondag.fluidity.api.storage.discrete.DiscreteStorage;
+import grondag.fluidity.api.storage.discrete.DiscreteStorageListener;
+import grondag.fluidity.base.article.DiscreteStoredArticle;
 
 @API(status = Status.EXPERIMENTAL)
 public class ItemStorageServerDelegate implements DiscreteStorageListener {
 	protected ServerPlayerEntity player;
-	protected CommonStorage storage;
+	protected DiscreteStorage storage;
 	protected boolean isFirstUpdate = true;
 	protected boolean capacityChange = true;
-	protected final Int2ObjectOpenHashMap<DiscreteArticle> updates = new Int2ObjectOpenHashMap<>();
+	protected final Int2ObjectOpenHashMap<DiscreteStoredArticle> updates = new Int2ObjectOpenHashMap<>();
 
-	public ItemStorageServerDelegate(ServerPlayerEntity player, CommonStorage storage) {
+	public ItemStorageServerDelegate(ServerPlayerEntity player, DiscreteStorage storage) {
 		this.player = player;
 		this.storage = storage;
 		storage.startListening(this);
@@ -53,12 +53,12 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 	}
 
 	@Override
-	public void onAccept(Storage<?, DiscreteStorageListener> storage, int handle, StorageItem item, long delta, long newCount) {
+	public void onAccept(Storage<?, DiscreteStorageListener> storage, int handle, Article item, long delta, long newCount) {
 		if(storage != null && storage == this.storage) {
-			final DiscreteArticle update = updates.get(handle);
+			final DiscreteStoredArticle update = updates.get(handle);
 
 			if(update == null) {
-				updates.put(handle, DiscreteArticle.of(item, newCount, handle));
+				updates.put(handle, DiscreteStoredArticle.of(item, newCount, handle));
 			} else {
 				update.prepare(item, newCount, handle);
 			}
@@ -66,7 +66,7 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 	}
 
 	@Override
-	public void onSupply(Storage<?, DiscreteStorageListener> storage, int slot, StorageItem item, long delta, long newCount) {
+	public void onSupply(Storage<?, DiscreteStorageListener> storage, int slot, Article item, long delta, long newCount) {
 		onAccept(storage, slot, item, delta, newCount);
 	}
 
@@ -84,7 +84,7 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 
 		final PacketByteBuf buf = ItemStorageUpdateS2C.begin(updates.size());
 
-		for(final DiscreteArticle a : updates.values()) {
+		for(final DiscreteStoredArticle a : updates.values()) {
 			ItemStorageUpdateS2C.append(buf, a.toStack(), a.count, a.handle);
 		}
 

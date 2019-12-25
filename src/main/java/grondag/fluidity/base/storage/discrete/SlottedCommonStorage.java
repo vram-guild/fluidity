@@ -23,12 +23,12 @@ import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.api.item.CommonItem;
-import grondag.fluidity.api.item.StorageItem;
-import grondag.fluidity.api.storage.InventoryStorage;
-import grondag.fluidity.base.article.DiscreteArticle;
+import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.storage.discrete.InventoryStorage;
+import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.component.FlexibleArticleManager;
 import grondag.fluidity.base.transact.TransactionHelper;
+import grondag.fluidity.impl.CommonItem;
 
 /**
  *
@@ -43,7 +43,7 @@ public class SlottedCommonStorage extends AbstractDiscreteStorage implements Inv
 	protected final ItemStack[] stacks;
 
 	public SlottedCommonStorage(int slotCount) {
-		super(slotCount, slotCount * 64, new FlexibleArticleManager<>(slotCount, DiscreteArticle::new));
+		super(slotCount, slotCount * 64, new FlexibleArticleManager<>(slotCount, DiscreteStoredArticle::new));
 		this.slotCount = slotCount;
 		stacks = new ItemStack[slotCount];
 		Arrays.fill(stacks, ItemStack.EMPTY);
@@ -171,7 +171,7 @@ public class SlottedCommonStorage extends AbstractDiscreteStorage implements Inv
 	}
 
 	@Override
-	public long accept(StorageItem itemIn, long count, boolean simulate) {
+	public long accept(Article itemIn, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
 		final CommonItem item = (CommonItem) itemIn;
 
@@ -227,7 +227,7 @@ public class SlottedCommonStorage extends AbstractDiscreteStorage implements Inv
 	}
 
 	@Override
-	public long supply(StorageItem itemIn, long count, boolean simulate) {
+	public long supply(Article itemIn, long count, boolean simulate) {
 		final CommonItem item = (CommonItem) itemIn;
 
 		if(item.isEmpty() || count == 0) {
@@ -272,7 +272,7 @@ public class SlottedCommonStorage extends AbstractDiscreteStorage implements Inv
 			notifier.changeCapacity(64 - stack.getMaxCount());
 		}
 
-		final DiscreteArticle article = articles.findOrCreateArticle(CommonItem.of(stack));
+		final DiscreteStoredArticle article = articles.findOrCreateArticle(CommonItem.of(stack));
 		notifier.notifySupply(article, count);
 		article.count -= count;
 	}
@@ -284,7 +284,7 @@ public class SlottedCommonStorage extends AbstractDiscreteStorage implements Inv
 			notifier.changeCapacity(stack.getMaxCount() - 64);
 		}
 
-		final DiscreteArticle article = articles.findOrCreateArticle(CommonItem.of(stack));
+		final DiscreteStoredArticle article = articles.findOrCreateArticle(CommonItem.of(stack));
 		article.count += count;
 		notifier.notifyAccept(article, count);
 	}

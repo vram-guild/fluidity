@@ -19,26 +19,26 @@ import com.google.common.base.Preconditions;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.item.StorageItem;
-import grondag.fluidity.api.storage.FixedCommonStorage;
-import grondag.fluidity.base.article.DiscreteArticle;
+import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.storage.discrete.FixedDiscreteStorage;
+import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.component.FixedArticleManager;
 
 @API(status = Status.EXPERIMENTAL)
-public class DividedDiscreteStorage extends AbstractDiscreteStorage implements FixedCommonStorage  {
+public class DividedDiscreteStorage extends AbstractDiscreteStorage implements FixedDiscreteStorage {
 	protected final int divisionCount;
 	protected final long capacityPerDivision;
 
 	public DividedDiscreteStorage(int divisionCount, long capacityPerDivision) {
-		super(divisionCount, divisionCount * capacityPerDivision, new FixedArticleManager<>(divisionCount, DiscreteArticle::new));
+		super(divisionCount, divisionCount * capacityPerDivision, new FixedArticleManager<>(divisionCount, DiscreteStoredArticle::new));
 		this.divisionCount = divisionCount;
 		this.capacityPerDivision = capacityPerDivision;
 	}
 
 	@Override
-	public long accept(StorageItem item, long count, boolean simulate) {
+	public long accept(Article item, long count, boolean simulate) {
 		if(notifier.articleCount() >= divisionCount) {
-			final DiscreteArticle a = articles.get(item);
+			final DiscreteStoredArticle a = articles.get(item);
 
 			if(a == null || a.isEmpty()) {
 				return 0;
@@ -50,7 +50,7 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage implements F
 		return super.accept(item, count, simulate);
 	}
 
-	protected long limit(DiscreteArticle a, long requested) {
+	protected long limit(DiscreteStoredArticle a, long requested) {
 		final long cap = capacityPerDivision - a.count;
 
 		if (cap <= 0) {
@@ -61,7 +61,7 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage implements F
 	}
 
 	@Override
-	public long accept(int handle, StorageItem item, long count, boolean simulate) {
+	public long accept(int handle, Article item, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to accept null item");
 
@@ -69,7 +69,7 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage implements F
 			return 0;
 		}
 
-		final DiscreteArticle a = articles.get(handle);
+		final DiscreteStoredArticle a = articles.get(handle);
 
 		if(a.isEmpty() || a.item.equals(item)) {
 			final long result = limit(a, count);
@@ -93,7 +93,7 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage implements F
 	}
 
 	@Override
-	public long supply(int handle, StorageItem item, long count, boolean simulate) {
+	public long supply(int handle, Article item, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to supply null item");
 
@@ -101,7 +101,7 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage implements F
 			return 0;
 		}
 
-		final DiscreteArticle a = articles.get(handle);
+		final DiscreteStoredArticle a = articles.get(handle);
 
 		if(a == null || a.isEmpty() || !a.item.equals(item)) {
 			return 0;

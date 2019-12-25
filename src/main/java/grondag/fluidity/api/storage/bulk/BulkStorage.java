@@ -13,14 +13,15 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.storage;
+package grondag.fluidity.api.storage.bulk;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.BulkArticleView;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.item.StorageItem;
+import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.storage.Storage;
 
 @API(status = Status.EXPERIMENTAL)
 public interface BulkStorage extends Storage<BulkArticleView, BulkStorageListener> {
@@ -38,7 +39,7 @@ public interface BulkStorage extends Storage<BulkArticleView, BulkStorageListene
 	 * @param simulate If true, forecasts the result without making any changes.
 	 * @return How much stuff was added
 	 */
-	FractionView accept(StorageItem item, FractionView volume, boolean simulate);
+	FractionView accept(Article item, FractionView volume, boolean simulate);
 
 	/**
 	 * Removes up to {@code volume} units of the bulk item to this storage and
@@ -54,7 +55,7 @@ public interface BulkStorage extends Storage<BulkArticleView, BulkStorageListene
 	 * @param simulate If true, forecasts the result without making any changes.
 	 * @return How much stuff was removed
 	 */
-	FractionView supply(StorageItem item, FractionView volume, boolean simulate);
+	FractionView supply(Article item, FractionView volume, boolean simulate);
 
 	/**
 	 * As with {@link #accept(BulkItem, FractionView, boolean)} BUT the result
@@ -72,7 +73,7 @@ public interface BulkStorage extends Storage<BulkArticleView, BulkStorageListene
 	 * @param simulate If true, forecasts the result without making any changes.
 	 * @return How much was added, in units of given denominator.
 	 */
-	long accept(StorageItem item, long numerator, long divisor, boolean simulate);
+	long accept(Article item, long numerator, long divisor, boolean simulate);
 
 	/**
 	 * As with {@link #supply(BulkItem, FractionView, boolean)} BUT the result
@@ -90,5 +91,5 @@ public interface BulkStorage extends Storage<BulkArticleView, BulkStorageListene
 	 * @param simulate If true, forecasts the result without making any changes.
 	 * @return How much was removed, in units of given denominator.
 	 */
-	long supply(StorageItem item, long numerator, long divisor, boolean simulate);
+	long supply(Article item, long numerator, long divisor, boolean simulate);
 }

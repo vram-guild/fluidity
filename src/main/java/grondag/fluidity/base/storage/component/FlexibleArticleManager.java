@@ -7,11 +7,11 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 import net.minecraft.util.math.MathHelper;
 
-import grondag.fluidity.api.item.StorageItem;
-import grondag.fluidity.base.article.AbstractArticle;
+import grondag.fluidity.api.item.Article;
+import grondag.fluidity.base.article.AbstractStoredArticle;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class FlexibleArticleManager<K extends StorageItem, V extends AbstractArticle> extends AbstractArticleManager<K, V> {
+public class FlexibleArticleManager<K extends Article, V extends AbstractStoredArticle> extends AbstractArticleManager<K, V> {
 	protected final Object2ObjectOpenHashMap<K, V> articles = new Object2ObjectOpenHashMap<>();
 
 	protected int nextUnusedHandle = 0;

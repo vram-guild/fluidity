@@ -26,55 +26,55 @@ import net.minecraft.util.registry.DefaultedRegistry;
 import net.minecraft.util.registry.MutableRegistry;
 import net.minecraft.util.registry.Registry;
 
-import grondag.fluidity.api.item.StorageItem;
-import grondag.fluidity.api.item.StorageItemRegistry;
+import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.item.ArticleRegistry;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 @API(status = INTERNAL)
-public class StorageItemRegistryImpl implements StorageItemRegistry {
+public class StorageItemRegistryImpl implements ArticleRegistry {
 	public static StorageItemRegistryImpl INSTANCE = new StorageItemRegistryImpl();
 
 	private static final MutableRegistry REGISTRY;
 
 	static {
 		REGISTRY = Registry.REGISTRIES.add(new Identifier("c:storage_items"),
-				(MutableRegistry<? extends StorageItem>) new DefaultedRegistry("c:nothing"));
+				(MutableRegistry<? extends Article>) new DefaultedRegistry("c:nothing"));
 
-		REGISTRY.add(new Identifier("c:nothing"), StorageItem.NOTHING);
+		REGISTRY.add(new Identifier("c:nothing"), Article.NOTHING);
 	}
 
 	@Override
-	public <V extends StorageItem> Identifier getId(V bulkItem) {
+	public <V extends Article> Identifier getId(V bulkItem) {
 		return REGISTRY.getId(bulkItem);
 	}
 
 	@Override
-	public <V extends StorageItem> int getRawId(V bulkItem) {
+	public <V extends Article> int getRawId(V bulkItem) {
 		return REGISTRY.getRawId(bulkItem);
 	}
 
 	@Override
-	public <V extends StorageItem> V get(Identifier id) {
+	public <V extends Article> V get(Identifier id) {
 		return (V) REGISTRY.get(id);
 	}
 
 	@Override
-	public <V extends StorageItem> V get(String idString) {
+	public <V extends Article> V get(String idString) {
 		return (V) REGISTRY.get(new Identifier(idString));
 	}
 
 	@Override
-	public <V extends StorageItem> V get(int index) {
+	public <V extends Article> V get(int index) {
 		return (V) REGISTRY.get(index);
 	}
 
 	@Override
-	public <V extends StorageItem> void forEach(Consumer<V> consumer) {
+	public <V extends Article> void forEach(Consumer<V> consumer) {
 		REGISTRY.forEach(consumer);
 	}
 
 	@Override
-	public <V extends StorageItem> V add(Identifier id, V item) {
+	public <V extends Article> V add(Identifier id, V item) {
 		return (V) REGISTRY.add(id, item);
 	}
 

@@ -1,9 +1,9 @@
 package grondag.fluidity.base.storage.component;
 
 import grondag.fluidity.api.article.DiscreteArticleView;
-import grondag.fluidity.api.item.StorageItem;
-import grondag.fluidity.api.storage.DiscreteStorageListener;
-import grondag.fluidity.base.article.DiscreteArticle;
+import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.storage.discrete.DiscreteStorageListener;
+import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.AbstractStorage;
 
 public class TrackingItemNotifier extends DiscreteItemNotifier{
@@ -17,7 +17,7 @@ public class TrackingItemNotifier extends DiscreteItemNotifier{
 	}
 
 	@Override
-	public void notifySupply(StorageItem item, int handle, long delta, long newCount) {
+	public void notifySupply(Article item, int handle, long delta, long newCount) {
 		if (delta > 0) {
 			count -= delta;
 			super.notifySupply(item, handle, delta, newCount);
@@ -29,7 +29,7 @@ public class TrackingItemNotifier extends DiscreteItemNotifier{
 	}
 
 	@Override
-	public void notifySupply(DiscreteArticle article, long delta) {
+	public void notifySupply(DiscreteStoredArticle article, long delta) {
 		if (delta > 0) {
 			count -= delta;
 			super.notifySupply(article, delta);
@@ -41,7 +41,7 @@ public class TrackingItemNotifier extends DiscreteItemNotifier{
 	}
 
 	@Override
-	public void notifyAccept(StorageItem item, int handle, long delta, long newCount) {
+	public void notifyAccept(Article item, int handle, long delta, long newCount) {
 		if (delta > 0) {
 			count += delta;
 			super.notifyAccept(item, handle, delta, newCount);
@@ -53,7 +53,7 @@ public class TrackingItemNotifier extends DiscreteItemNotifier{
 	}
 
 	@Override
-	public void notifyAccept(DiscreteArticle article, long delta) {
+	public void notifyAccept(DiscreteStoredArticle article, long delta) {
 		if (delta > 0) {
 			count += delta;
 			super.notifyAccept(article, delta);

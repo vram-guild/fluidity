@@ -1,9 +1,9 @@
 package grondag.fluidity.base.storage.component;
 
 import grondag.fluidity.api.article.DiscreteArticleView;
-import grondag.fluidity.api.item.StorageItem;
-import grondag.fluidity.api.storage.DiscreteStorageListener;
-import grondag.fluidity.base.article.DiscreteArticle;
+import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.storage.discrete.DiscreteStorageListener;
+import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.AbstractStorage;
 
 public class DiscreteItemNotifier {
@@ -13,7 +13,7 @@ public class DiscreteItemNotifier {
 		this.owner = owner;
 	}
 
-	public void notifySupply(StorageItem item, int handle, long delta, long newCount) {
+	public void notifySupply(Article item, int handle, long delta, long newCount) {
 		if(!owner.listeners.isEmpty()) {
 			for(final DiscreteStorageListener l : owner.listeners) {
 				l.onSupply(owner, handle, item, delta, newCount);
@@ -21,10 +21,10 @@ public class DiscreteItemNotifier {
 		}
 	}
 
-	public void notifySupply(DiscreteArticle article, long delta) {
+	public void notifySupply(DiscreteStoredArticle article, long delta) {
 		if(!owner.listeners.isEmpty()) {
 			final long newCount = article.count() - delta;
-			final StorageItem item = article.item();
+			final Article item = article.item();
 			final int handle = article.handle;
 
 			for(final DiscreteStorageListener l : owner.listeners) {
@@ -33,7 +33,7 @@ public class DiscreteItemNotifier {
 		}
 	}
 
-	public void notifyAccept(StorageItem item, int handle, long delta, long newCount) {
+	public void notifyAccept(Article item, int handle, long delta, long newCount) {
 		if(!owner.listeners.isEmpty()) {
 			for(final DiscreteStorageListener l : owner.listeners) {
 				l.onAccept(owner, handle, item, delta, newCount);
@@ -41,10 +41,10 @@ public class DiscreteItemNotifier {
 		}
 	}
 
-	public void notifyAccept(DiscreteArticle article, long delta) {
+	public void notifyAccept(DiscreteStoredArticle article, long delta) {
 		if(!owner.listeners.isEmpty()) {
 			final long newCount = article.count();
-			final StorageItem item = article.item();
+			final Article item = article.item();
 			final int handle = article.handle;
 
 			for(final DiscreteStorageListener l : owner.listeners) {

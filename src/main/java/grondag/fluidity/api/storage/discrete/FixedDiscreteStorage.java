@@ -13,34 +13,56 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.storage;
+package grondag.fluidity.api.storage.discrete;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.api.item.CommonItem;
+import grondag.fluidity.api.item.Article;
 
 /**
  * Storage with fixed handles - similar to slots but they don't have aribtrary limits
  * and request to accept or supply incompatible with existing content is rejected.
  */
 @API(status = Status.EXPERIMENTAL)
-public interface FixedCommonStorage extends FixedDiscreteStorage {
+public interface FixedDiscreteStorage extends DiscreteStorage {
+	/**
+	 * Will return zero if handle slot is already occupied and different.
+	 * @param item
+	 * @param count
+	 * @param simulate
+	 * @param handle
+	 * @return
+	 */
+	long accept(int handle, Article item, long count, boolean simulate);
+
+	/**
+	 *
+	 * Will return zero if handle slot is not occupied by the requested item.
+	 *
+	 * @param handle
+	 * @param item
+	 * @param count
+	 * @param simulate
+	 * @return
+	 */
+	long supply(int handle, Article item, long count, boolean simulate);
+
 	default long accept(int handle, ItemStack stack, long count, boolean simulate) {
-		return accept(handle, CommonItem.of(stack), count, simulate);
+		return accept(handle, Article.of(stack), count, simulate);
 	}
 
 	default long accept(int handle, ItemStack stack, boolean simulate) {
-		return accept(handle, CommonItem.of(stack), stack.getCount(), simulate);
+		return accept(handle, Article.of(stack), stack.getCount(), simulate);
 	}
 
 	default long supply(int handle, ItemStack stack, long count, boolean simulate) {
-		return supply(handle, CommonItem.of(stack), count, simulate);
+		return supply(handle, Article.of(stack), count, simulate);
 	}
 
 	default long supply(int handle, ItemStack stack, boolean simulate) {
-		return supply(handle, CommonItem.of(stack), stack.getCount(), simulate);
+		return supply(handle, Article.of(stack), stack.getCount(), simulate);
 	}
 }
