@@ -6,8 +6,8 @@ import java.util.function.Supplier;
 import grondag.fluidity.api.item.Article;
 import grondag.fluidity.base.article.AbstractStoredArticle;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
-public class FixedArticleManager<K extends Article, V extends AbstractStoredArticle> extends AbstractArticleManager<K, V> {
+@SuppressWarnings("unchecked")
+public class FixedArticleManager<V extends AbstractStoredArticle> extends AbstractArticleManager<V> {
 	protected V[] articles;
 	protected final int handleCount;
 
@@ -26,7 +26,7 @@ public class FixedArticleManager<K extends Article, V extends AbstractStoredArti
 	}
 
 	@Override
-	public V findOrCreateArticle(K key) {
+	public V findOrCreateArticle(Article key) {
 		int firstUnused = -1;
 
 		for(int i = 0; i < handleCount; i++) {
@@ -64,7 +64,7 @@ public class FixedArticleManager<K extends Article, V extends AbstractStoredArti
 	}
 
 	@Override
-	public V get(K key) {
+	public V get(Article key) {
 		for(int i = 0; i < handleCount; i++) {
 			final V candidate = articles[i];
 

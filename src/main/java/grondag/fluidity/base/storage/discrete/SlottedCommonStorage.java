@@ -38,7 +38,7 @@ import grondag.fluidity.impl.CommonItem;
  * is likely to be preferable for performant implementations.
  */
 @API(status = Status.EXPERIMENTAL)
-public class SlottedCommonStorage extends AbstractDiscreteStorage implements InventoryStorage {
+public class SlottedCommonStorage extends AbstractDiscreteStorage<SlottedCommonStorage> implements InventoryStorage {
 	protected final int slotCount;
 	protected final ItemStack[] stacks;
 

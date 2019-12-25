@@ -28,21 +28,21 @@ import org.apiguardian.api.API.Status;
 import grondag.fluidity.api.storage.StorageListener;
 
 @API(status = Status.EXPERIMENTAL)
-public class ListenerSet<L extends StorageListener<L>> implements Iterable<L>, Iterator<L> {
-	protected final ObjectArrayList<WeakReference<L>> listeners = new ObjectArrayList<>();
+public class ListenerSet implements Iterable<StorageListener>, Iterator<StorageListener> {
+	protected final ObjectArrayList<WeakReference<StorageListener>> listeners = new ObjectArrayList<>();
 	protected int index = -1;
-	protected L next = null;
+	protected StorageListener next = null;
 	protected boolean hasMissing = false;
 
-	protected final Consumer<L>  firstUpdateHandler;
+	protected final Consumer<StorageListener>  firstUpdateHandler;
 	protected final @Nullable Runnable onEmptyCallback;
 
-	public ListenerSet(Consumer<L>  firstUpdateHandler, @Nullable Runnable onEmptyCallback) {
+	public ListenerSet(Consumer<StorageListener>  firstUpdateHandler, @Nullable Runnable onEmptyCallback) {
 		this.firstUpdateHandler = firstUpdateHandler;
 		this.onEmptyCallback = onEmptyCallback;
 	}
 
-	public void startListening(L listener) {
+	public void startListening(StorageListener listener) {
 		listeners.add(new WeakReference<>(listener));
 
 		firstUpdateHandler.accept(listener);
@@ -66,12 +66,12 @@ public class ListenerSet<L extends StorageListener<L>> implements Iterable<L>, I
 		}
 	}
 
-	public void stopListening(L listener) {
+	public void stopListening(StorageListener listener) {
 		final int limit = listeners.size();
 
 		if (limit > 0) {
 			for(int i = limit - 1; i >= 0; i--) {
-				final L l = listeners.get(i).get();
+				final StorageListener l = listeners.get(i).get();
 
 				if(l ==null || l == listener) {
 					listeners.remove(i);
@@ -90,14 +90,14 @@ public class ListenerSet<L extends StorageListener<L>> implements Iterable<L>, I
 	}
 
 	@Override
-	public L next() {
-		final L result = next;
+	public StorageListener next() {
+		final StorageListener result = next;
 		moveNext();
 		return result;
 	}
 
 	@Override
-	public Iterator<L> iterator() {
+	public Iterator<StorageListener> iterator() {
 		cleanMissing();
 		index = -1;
 		moveNext();

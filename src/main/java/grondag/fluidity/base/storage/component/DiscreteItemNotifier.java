@@ -1,21 +1,20 @@
 package grondag.fluidity.base.storage.component;
 
-import grondag.fluidity.api.article.DiscreteArticleView;
 import grondag.fluidity.api.item.Article;
-import grondag.fluidity.api.storage.discrete.DiscreteStorageListener;
+import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.AbstractStorage;
 
 public class DiscreteItemNotifier {
-	protected final AbstractStorage<DiscreteArticleView,  DiscreteStorageListener> owner;
+	protected final AbstractStorage<DiscreteStoredArticle, ?> owner;
 
-	public DiscreteItemNotifier(AbstractStorage<DiscreteArticleView,  DiscreteStorageListener> owner) {
+	public DiscreteItemNotifier(AbstractStorage<DiscreteStoredArticle, ?> owner) {
 		this.owner = owner;
 	}
 
 	public void notifySupply(Article item, int handle, long delta, long newCount) {
 		if(!owner.listeners.isEmpty()) {
-			for(final DiscreteStorageListener l : owner.listeners) {
+			for(final StorageListener l : owner.listeners) {
 				l.onSupply(owner, handle, item, delta, newCount);
 			}
 		}
@@ -27,7 +26,7 @@ public class DiscreteItemNotifier {
 			final Article item = article.item();
 			final int handle = article.handle;
 
-			for(final DiscreteStorageListener l : owner.listeners) {
+			for(final StorageListener l : owner.listeners) {
 				l.onAccept(owner, handle, item, delta, newCount);
 			}
 		}
@@ -35,7 +34,7 @@ public class DiscreteItemNotifier {
 
 	public void notifyAccept(Article item, int handle, long delta, long newCount) {
 		if(!owner.listeners.isEmpty()) {
-			for(final DiscreteStorageListener l : owner.listeners) {
+			for(final StorageListener l : owner.listeners) {
 				l.onAccept(owner, handle, item, delta, newCount);
 			}
 		}
@@ -47,7 +46,7 @@ public class DiscreteItemNotifier {
 			final Article item = article.item();
 			final int handle = article.handle;
 
-			for(final DiscreteStorageListener l : owner.listeners) {
+			for(final StorageListener l : owner.listeners) {
 				l.onAccept(owner, handle, item, delta, newCount);
 			}
 		}
@@ -55,13 +54,13 @@ public class DiscreteItemNotifier {
 
 	public void notifyCapacityChange(long capacityDelta) {
 		if(!owner.listeners.isEmpty()) {
-			for(final DiscreteStorageListener l : owner.listeners) {
+			for(final StorageListener l : owner.listeners) {
 				l.onCapacityChange(owner, capacityDelta);
 			}
 		}
 	}
 
-	public void sendFirstListenerUpdate(DiscreteStorageListener listener, long capacity) {
+	public void sendFirstListenerUpdate(StorageListener listener, long capacity) {
 		listener.onCapacityChange(owner, capacity);
 
 		owner.forEach(a -> {

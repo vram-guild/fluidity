@@ -16,6 +16,8 @@ import grondag.fluidity.impl.CommonItem;
 /**
  * Represents a game resource that may be a fluid, xp, power or may be some other
  * thing that is quantified, stored or transported.<p>
+ *
+ * TODO: other article metadata: units (w/ registry, fixed for items and fluids)
  */
 @API(status = Status.EXPERIMENTAL)
 public interface Article {

@@ -6,13 +6,12 @@ import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.item.Article;
 import grondag.fluidity.api.storage.Storage;
 
-public abstract class AbstractStoredArticle<S extends Storage<?, ?>> implements StoredArticleView {
+public abstract class AbstractStoredArticle implements StoredArticleView {
 	// TODO: encapsulate
 	public Article item;
 	public int handle;
-	public final ObjectArraySet<S> stores = new ObjectArraySet<>();
+	public final ObjectArraySet<Storage> stores = new ObjectArraySet<>();
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Article item() {
 		return item;
@@ -23,7 +22,7 @@ public abstract class AbstractStoredArticle<S extends Storage<?, ?>> implements 
 		return handle;
 	}
 
-	public abstract void addStore(S store);
+	public abstract void addStore(Storage store);
 
 	public abstract void zero();
 

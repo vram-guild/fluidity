@@ -22,18 +22,18 @@ import org.apiguardian.api.API.Status;
 
 import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.article.BulkArticleView;
+import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.item.Article;
 import grondag.fluidity.api.item.ArticleRegistry;
-import grondag.fluidity.api.storage.bulk.BulkStorage;
-import grondag.fluidity.api.storage.bulk.BulkStorageListener;
+import grondag.fluidity.api.storage.StorageListener;
+import grondag.fluidity.base.article.BulkStoredArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
 
 @API(status = Status.EXPERIMENTAL)
-public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  BulkStorageListener> implements BulkStorage {
+public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, SimpleTank>  {
 	protected final MutableFraction content = new MutableFraction();
 	protected final MutableFraction calc = new MutableFraction();
 	protected final View view = new View();
@@ -50,7 +50,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 	}
 
 	@Override
-	public BulkArticleView view(int handle) {
+	public StoredArticleView view(int handle) {
 		return  handle == 0 ? view : null;
 	}
 
@@ -201,7 +201,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 		bulkItem = ArticleRegistry.INSTANCE.get(tag.getString("bulkItem"));
 	}
 
-	protected class View implements BulkArticleView {
+	protected class View implements StoredArticleView {
 		@Override
 		public int handle() {
 			return 0;
@@ -217,10 +217,15 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 			return content;
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
-		public <V extends Article> V item() {
-			return (V) bulkItem;
+		public Article item() {
+			return bulkItem;
+		}
+
+		@Override
+		public long count() {
+			// TODO Auto-generated method stub
+			return 0;
 		}
 	}
 
@@ -253,7 +258,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 	}
 
 	@Override
-	protected void sendFirstListenerUpdate(BulkStorageListener listener) {
+	protected void sendFirstListenerUpdate(StorageListener listener) {
 		listener.onAccept(0, bulkItem, content, content);
 	}
 
@@ -262,9 +267,34 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkArticleView,  Bu
 		// NOOP
 	}
 
+	@Override
 	public void clear() {
 		//TODO: implement rest of it
 
 		dirtyNotifier.run();
+	}
+
+	@Override
+	public long accept(Article item, long count, boolean simulate) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public long supply(Article item, long count, boolean simulate) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public long count() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public long capacity() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

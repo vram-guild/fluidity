@@ -22,7 +22,6 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.StoredArticleView;
-import grondag.fluidity.api.item.Article;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.transact.TransactionContext;
@@ -30,12 +29,11 @@ import grondag.fluidity.api.transact.Transactor;
 import grondag.fluidity.base.article.AbstractStoredArticle;
 import grondag.fluidity.base.storage.component.FlexibleArticleManager;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractAggregateStorage<A extends StoredArticleView, L extends StorageListener<L>, K extends AbstractStoredArticle, S extends Storage<A, L>> extends AbstractStorage<A, L> {
+public abstract class AbstractAggregateStorage<V extends AbstractStoredArticle, T extends AbstractAggregateStorage<V, T>> extends AbstractStorage<V, T> {
 	protected final Consumer<TransactionContext> rollbackHandler = this::handleRollback;
-	protected final FlexibleArticleManager<Article, K> articles;
-	protected final ObjectOpenHashSet<S> stores = new ObjectOpenHashSet<>();
+	protected final FlexibleArticleManager<V> articles;
+	protected final ObjectOpenHashSet<Storage> stores = new ObjectOpenHashSet<>();
 
 	protected Consumer<Transactor> enlister = t -> {};
 	protected boolean itMe = false;
@@ -44,11 +42,11 @@ public abstract class AbstractAggregateStorage<A extends StoredArticleView, L ex
 		articles = new FlexibleArticleManager<>(startingHandleCount, this::newArticle);
 	}
 
-	protected abstract K newArticle();
+	protected abstract V newArticle();
 
-	protected abstract L listener();
+	protected abstract StorageListener listener();
 
-	public void addStore(S store) {
+	public void addStore(Storage store) {
 		if(stores.add(store)) {
 			store.forEach(Storage.NOT_EMPTY, a -> {
 				articles.findOrCreateArticle(a.item()).addStore(store);
@@ -80,7 +78,7 @@ public abstract class AbstractAggregateStorage<A extends StoredArticleView, L ex
 	}
 
 	@Override
-	public A view(int handle) {
-		return (A) articles.get(handle);
+	public StoredArticleView view(int handle) {
+		return articles.get(handle);
 	}
 }

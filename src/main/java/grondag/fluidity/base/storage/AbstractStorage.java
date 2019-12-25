@@ -22,40 +22,40 @@ import com.google.common.util.concurrent.Runnables;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.item.Article;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
+import grondag.fluidity.base.article.AbstractStoredArticle;
 import grondag.fluidity.base.storage.component.ListenerSet;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractStorage<A extends StoredArticleView, L extends StorageListener<L>> implements Storage<A, L> {
-	public final ListenerSet<L> listeners = new ListenerSet<>(this::sendFirstListenerUpdate, this::onListenersEmpty);
+public abstract class AbstractStorage<V extends AbstractStoredArticle, T extends AbstractStorage<V, T>> implements Storage {
+	public final ListenerSet listeners = new ListenerSet(this::sendFirstListenerUpdate, this::onListenersEmpty);
 	protected Predicate<Article> filter = Predicates.alwaysTrue();
 	protected Runnable dirtyNotifier = Runnables.doNothing();
 
 	@SuppressWarnings("unchecked")
-	public <S extends AbstractStorage<A, L>> S filter(Predicate<Article> filter) {
+	public T filter(Predicate<Article> filter) {
 		this.filter = filter == null ? Predicates.alwaysTrue() : filter;
-		return (S) this;
+		return (T) this;
 	}
 
 	@Override
-	public final void startListening(L listener) {
+	public final void startListening(StorageListener listener) {
 		listeners.startListening(listener);
 	}
 
-	protected abstract void sendFirstListenerUpdate(L listener);
+	protected abstract void sendFirstListenerUpdate(StorageListener listener);
 
 	protected abstract void onListenersEmpty();
 
 	@Override
-	public final void stopListening(L listener) {
+	public final void stopListening(StorageListener listener) {
 		listeners.stopListening(listener);
 	}
 
 	@Override
-	public Iterable<L> listeners() {
+	public Iterable<StorageListener> listeners() {
 		return listeners;
 	}
 

@@ -22,10 +22,10 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 
-import grondag.fluidity.api.article.DiscreteArticleView;
+import grondag.fluidity.api.article.StoredArticleView;
+import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.item.Article;
-import grondag.fluidity.api.storage.discrete.DiscreteStorage;
-import grondag.fluidity.api.storage.discrete.DiscreteStorageListener;
+import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
 import grondag.fluidity.base.storage.component.AbstractArticleManager;
@@ -33,11 +33,11 @@ import grondag.fluidity.base.storage.component.TrackingItemNotifier;
 import grondag.fluidity.impl.CommonItem;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractDiscreteStorage extends AbstractLazyRollbackStorage<DiscreteArticleView,  DiscreteStorageListener> implements DiscreteStorage {
-	protected final AbstractArticleManager<Article, DiscreteStoredArticle> articles;
+public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<T>> extends AbstractLazyRollbackStorage<DiscreteStoredArticle, T> {
+	protected final AbstractArticleManager<DiscreteStoredArticle> articles;
 	protected final TrackingItemNotifier notifier;
 
-	AbstractDiscreteStorage(int startingHandleCount, long capacity, AbstractArticleManager<Article, DiscreteStoredArticle> articles) {
+	AbstractDiscreteStorage(int startingHandleCount, long capacity, AbstractArticleManager<DiscreteStoredArticle> articles) {
 		this.articles = articles;
 		notifier = new TrackingItemNotifier(capacity, this);
 	}
@@ -89,7 +89,7 @@ public abstract class AbstractDiscreteStorage extends AbstractLazyRollbackStorag
 	}
 
 	@Override
-	public DiscreteArticleView view(int handle) {
+	public StoredArticleView view(int handle) {
 		return articles.get(handle);
 	}
 
@@ -109,7 +109,7 @@ public abstract class AbstractDiscreteStorage extends AbstractLazyRollbackStorag
 	}
 
 	@Override
-	protected final void sendFirstListenerUpdate(DiscreteStorageListener listener) {
+	protected final void sendFirstListenerUpdate(StorageListener listener) {
 		notifier.sendFirstListenerUpdate(listener);
 	}
 
@@ -185,6 +185,30 @@ public abstract class AbstractDiscreteStorage extends AbstractLazyRollbackStorag
 
 		articles.clear();
 		dirtyNotifier.run();
+	}
+
+	@Override
+	public FractionView accept(Article item, FractionView volume, boolean simulate) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public FractionView supply(Article item, FractionView volume, boolean simulate) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long accept(Article item, long numerator, long divisor, boolean simulate) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public long supply(Article item, long numerator, long divisor, boolean simulate) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override

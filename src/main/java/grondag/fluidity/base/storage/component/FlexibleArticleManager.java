@@ -10,9 +10,9 @@ import net.minecraft.util.math.MathHelper;
 import grondag.fluidity.api.item.Article;
 import grondag.fluidity.base.article.AbstractStoredArticle;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
-public class FlexibleArticleManager<K extends Article, V extends AbstractStoredArticle> extends AbstractArticleManager<K, V> {
-	protected final Object2ObjectOpenHashMap<K, V> articles = new Object2ObjectOpenHashMap<>();
+@SuppressWarnings("unchecked")
+public class FlexibleArticleManager<V extends AbstractStoredArticle> extends AbstractArticleManager<V> {
+	protected final Object2ObjectOpenHashMap<Article, V> articles = new Object2ObjectOpenHashMap<>();
 
 	protected int nextUnusedHandle = 0;
 	protected V[] handles;
@@ -35,7 +35,7 @@ public class FlexibleArticleManager<K extends Article, V extends AbstractStoredA
 	}
 
 	@Override
-	public V findOrCreateArticle(K key) {
+	public V findOrCreateArticle(Article key) {
 		V candidate = articles.get(key);
 
 		if(candidate == null) {
@@ -115,7 +115,7 @@ public class FlexibleArticleManager<K extends Article, V extends AbstractStoredA
 	}
 
 	@Override
-	public V get(K key) {
+	public V get(Article key) {
 		return articles.get(key);
 	}
 

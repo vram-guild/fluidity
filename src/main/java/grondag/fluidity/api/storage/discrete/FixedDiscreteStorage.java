@@ -21,13 +21,14 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.item.ItemStack;
 
 import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.storage.Storage;
 
 /**
  * Storage with fixed handles - similar to slots but they don't have aribtrary limits
  * and request to accept or supply incompatible with existing content is rejected.
  */
 @API(status = Status.EXPERIMENTAL)
-public interface FixedDiscreteStorage extends DiscreteStorage {
+public interface FixedDiscreteStorage extends Storage {
 	/**
 	 * Will return zero if handle slot is already occupied and different.
 	 * @param item

@@ -9,18 +9,18 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.article.DiscreteArticleView;
+import grondag.fluidity.api.article.StoredArticleView;
+import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.item.Article;
 import grondag.fluidity.api.storage.Storage;
-import grondag.fluidity.api.storage.discrete.DiscreteStorage;
-import grondag.fluidity.api.storage.discrete.DiscreteStorageListener;
+import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.AbstractAggregateStorage;
 import grondag.fluidity.base.storage.component.TrackingItemNotifier;
 import grondag.fluidity.impl.CommonItem;
 
 @API(status = Status.EXPERIMENTAL)
-public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteArticleView, DiscreteStorageListener, DiscreteStoredArticle, DiscreteStorage> implements DiscreteStorage, DiscreteStorageListener {
+public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteStoredArticle, AggregateDiscreteStorage> implements StorageListener {
 	protected final CommonItem.Mutable lookupKey = new CommonItem.Mutable();
 	protected final TrackingItemNotifier notifier;
 
@@ -50,7 +50,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteA
 		itMe  = true;
 		long result = 0;
 
-		for (final DiscreteStorage store : stores) {
+		for (final Storage store : stores) {
 			enlister.accept(store);
 			result += store.accept(item, count - result, simulate);
 
@@ -89,7 +89,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteA
 		itMe  = true;
 		long result = 0;
 
-		for (final DiscreteStorage store : article.stores) {
+		for (final Storage store : article.stores) {
 			enlister.accept(store);
 			result += store.supply(item, count - result, simulate);
 
@@ -114,12 +114,12 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteA
 	}
 
 	@Override
-	public DiscreteArticleView view(int slot) {
+	public StoredArticleView view(int slot) {
 		return articles.get(slot);
 	}
 
 	@Override
-	protected DiscreteStorageListener listener() {
+	protected StorageListener listener() {
 		return this;
 	}
 
@@ -134,26 +134,26 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteA
 	}
 
 	@Override
-	public void onAccept(Storage<?, DiscreteStorageListener> storage, int slot, Article item, long delta, long newCount) {
+	public void onAccept(Storage storage, int slot, Article item, long delta, long newCount) {
 		if (!itMe) {
 			// TODO Auto-generated method stub
 		}
 	}
 
 	@Override
-	public void onSupply(Storage<?, DiscreteStorageListener> storage, int slot, Article item, long delta, long newCount) {
+	public void onSupply(Storage storage, int slot, Article item, long delta, long newCount) {
 		if (!itMe) {
 			// TODO Auto-generated method stub
 		}
 	}
 
 	@Override
-	public void onCapacityChange(Storage<?, DiscreteStorageListener> storage, long capacityDelta) {
+	public void onCapacityChange(Storage storage, long capacityDelta) {
 		notifier.changeCapacity(capacityDelta);
 	}
 
 	@Override
-	public void disconnect(Storage<?, DiscreteStorageListener> target) {
+	public void disconnect(Storage target) {
 		// TODO Auto-generated method stub
 
 	}
@@ -164,7 +164,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteA
 	}
 
 	@Override
-	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
+	protected void sendFirstListenerUpdate(StorageListener listener) {
 		notifier.sendFirstListenerUpdate(listener);
 	}
 
@@ -181,5 +181,40 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteA
 	@Override
 	protected void onListenersEmpty() {
 		articles.compact();
+	}
+	@Override
+	public FractionView accept(Article item, FractionView volume, boolean simulate) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public FractionView supply(Article item, FractionView volume, boolean simulate) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public long accept(Article item, long numerator, long divisor, boolean simulate) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	@Override
+	public long supply(Article item, long numerator, long divisor, boolean simulate) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	@Override
+	public FractionView onAccept(int handle, Article item, FractionView delta, FractionView newVolume) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public FractionView onSupply(int handle, Article item, FractionView delta, FractionView newVolume) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void onCapacityChange(Storage storage, FractionView capacityDelta) {
+		// TODO Auto-generated method stub
+
 	}
 }

@@ -22,9 +22,10 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.article.DiscreteArticleView;
+import grondag.fluidity.api.article.StoredArticleView;
+import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.item.Article;
-import grondag.fluidity.api.storage.discrete.DiscreteStorageListener;
+import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.storage.discrete.InventoryStorage;
 import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
@@ -32,7 +33,7 @@ import grondag.fluidity.base.storage.component.DiscreteItemNotifier;
 import grondag.fluidity.impl.CommonItem;
 
 @API(status = Status.EXPERIMENTAL)
-public class SingleStackCommonStorage extends AbstractLazyRollbackStorage<DiscreteArticleView,  DiscreteStorageListener> implements InventoryStorage {
+public class SingleStackCommonStorage extends AbstractLazyRollbackStorage<DiscreteStoredArticle,  SingleStackCommonStorage> implements InventoryStorage {
 	protected ItemStack stack = ItemStack.EMPTY;
 	protected final DiscreteStoredArticle view = new DiscreteStoredArticle();
 	protected final DiscreteItemNotifier notifier = new DiscreteItemNotifier(this);
@@ -48,7 +49,7 @@ public class SingleStackCommonStorage extends AbstractLazyRollbackStorage<Discre
 	}
 
 	@Override
-	public DiscreteArticleView view(int handle) {
+	public StoredArticleView view(int handle) {
 		return view.prepare(handle == 0 ? stack : ItemStack.EMPTY, handle);
 	}
 
@@ -240,7 +241,7 @@ public class SingleStackCommonStorage extends AbstractLazyRollbackStorage<Discre
 	}
 
 	@Override
-	protected void sendFirstListenerUpdate(DiscreteStorageListener listener) {
+	protected void sendFirstListenerUpdate(StorageListener listener) {
 		listener.onCapacityChange(this, stack.getMaxCount());
 		listener.onAccept(this, 0, CommonItem.of(stack), stack.getCount(), stack.getCount());
 	}
@@ -268,5 +269,29 @@ public class SingleStackCommonStorage extends AbstractLazyRollbackStorage<Discre
 	@Override
 	protected void onListenersEmpty() {
 		// NOOP
+	}
+
+	@Override
+	public FractionView accept(Article item, FractionView volume, boolean simulate) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public FractionView supply(Article item, FractionView volume, boolean simulate) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long accept(Article item, long numerator, long divisor, boolean simulate) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public long supply(Article item, long numerator, long divisor, boolean simulate) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

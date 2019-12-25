@@ -3,11 +3,11 @@ package grondag.fluidity.base.article;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.article.DiscreteArticleView;
+import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.item.Article;
-import grondag.fluidity.api.storage.discrete.DiscreteStorage;
+import grondag.fluidity.api.storage.Storage;
 
-public class DiscreteStoredArticle extends AbstractStoredArticle<DiscreteStorage> implements DiscreteArticleView {
+public class DiscreteStoredArticle extends AbstractStoredArticle {
 	public long count;
 
 	public DiscreteStoredArticle() {
@@ -45,8 +45,8 @@ public class DiscreteStoredArticle extends AbstractStoredArticle<DiscreteStorage
 	}
 
 	@Override
-	public void addStore(DiscreteStorage store) {
-		// TODO Auto-generated method stub
+	public void addStore(Storage store) {
+		// TODO move to parent
 
 	}
 
@@ -72,5 +72,11 @@ public class DiscreteStoredArticle extends AbstractStoredArticle<DiscreteStorage
 	public void readTag(CompoundTag tag) {
 		item = Article.fromTag(tag, "item");
 		count = tag.getLong("count");
+	}
+
+	@Override
+	public FractionView volume() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

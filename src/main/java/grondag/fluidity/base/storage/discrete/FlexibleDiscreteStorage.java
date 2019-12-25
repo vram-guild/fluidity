@@ -22,7 +22,7 @@ import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.component.FlexibleArticleManager;
 
 @API(status = Status.EXPERIMENTAL)
-public class FlexibleDiscreteStorage extends AbstractDiscreteStorage {
+public class FlexibleDiscreteStorage extends AbstractDiscreteStorage<FlexibleDiscreteStorage> {
 	public FlexibleDiscreteStorage(int startingHandleCount, long capacity) {
 		super(startingHandleCount, capacity, new FlexibleArticleManager<>(startingHandleCount, DiscreteStoredArticle::new));
 	}

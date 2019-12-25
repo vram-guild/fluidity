@@ -22,15 +22,14 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.article.BulkArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.item.Article;
-import grondag.fluidity.api.storage.bulk.BulkStorage;
+import grondag.fluidity.api.storage.Storage;
 
 @API(status = Status.EXPERIMENTAL)
-public class BulkStoredArticle extends AbstractStoredArticle<BulkStorage> implements BulkArticleView {
+public class BulkStoredArticle extends AbstractStoredArticle {
 	protected MutableFraction fraction;
 	protected int handle;
 
@@ -79,8 +78,14 @@ public class BulkStoredArticle extends AbstractStoredArticle<BulkStorage> implem
 	}
 
 	@Override
-	public void addStore(BulkStorage store) {
+	public void addStore(Storage store) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public long count() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

@@ -19,11 +19,26 @@ package grondag.fluidity.api.storage;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.item.Article;
+
 @API(status = Status.EXPERIMENTAL)
-public interface StorageListener<L extends StorageListener<L>> {
+public interface StorageListener {
 
 	/**
 	 * Called when storage being listened to becomes unavailable
 	 */
-	void disconnect(Storage<?, L> target);
+	void disconnect(Storage target);
+
+	void onAccept(Storage storage, int handle, Article item, long delta, long newCount);
+
+	void onSupply(Storage storage, int handle, Article item, long delta, long newCount);
+
+	void onCapacityChange(Storage storage, long capacityDelta);
+
+	FractionView onAccept(int handle, Article item, FractionView delta, FractionView newVolume);
+
+	FractionView onSupply(int handle, Article item, FractionView delta, FractionView newVolume);
+
+	void onCapacityChange(Storage storage, FractionView capacityDelta);
 }

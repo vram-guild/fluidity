@@ -24,28 +24,28 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.PacketByteBuf;
 
+import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.item.Article;
 import grondag.fluidity.api.storage.Storage;
-import grondag.fluidity.api.storage.discrete.DiscreteStorage;
-import grondag.fluidity.api.storage.discrete.DiscreteStorageListener;
+import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.DiscreteStoredArticle;
 
 @API(status = Status.EXPERIMENTAL)
-public class ItemStorageServerDelegate implements DiscreteStorageListener {
+public class ItemStorageServerDelegate implements StorageListener {
 	protected ServerPlayerEntity player;
-	protected DiscreteStorage storage;
+	protected Storage storage;
 	protected boolean isFirstUpdate = true;
 	protected boolean capacityChange = true;
 	protected final Int2ObjectOpenHashMap<DiscreteStoredArticle> updates = new Int2ObjectOpenHashMap<>();
 
-	public ItemStorageServerDelegate(ServerPlayerEntity player, DiscreteStorage storage) {
+	public ItemStorageServerDelegate(ServerPlayerEntity player, Storage storage) {
 		this.player = player;
 		this.storage = storage;
 		storage.startListening(this);
 	}
 
 	@Override
-	public void disconnect(Storage<?, DiscreteStorageListener> storage) {
+	public void disconnect(Storage storage) {
 		if(storage == this.storage) {
 			player = null;
 			this.storage = null;
@@ -53,7 +53,7 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 	}
 
 	@Override
-	public void onAccept(Storage<?, DiscreteStorageListener> storage, int handle, Article item, long delta, long newCount) {
+	public void onAccept(Storage storage, int handle, Article item, long delta, long newCount) {
 		if(storage != null && storage == this.storage) {
 			final DiscreteStoredArticle update = updates.get(handle);
 
@@ -66,12 +66,12 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 	}
 
 	@Override
-	public void onSupply(Storage<?, DiscreteStorageListener> storage, int slot, Article item, long delta, long newCount) {
+	public void onSupply(Storage storage, int slot, Article item, long delta, long newCount) {
 		onAccept(storage, slot, item, delta, newCount);
 	}
 
 	@Override
-	public void onCapacityChange(Storage<?, DiscreteStorageListener> storage, long capacityDelta) {
+	public void onCapacityChange(Storage storage, long capacityDelta) {
 		if(storage != null && storage == this.storage) {
 			capacityChange = true;
 		}
@@ -108,5 +108,23 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 			storage = null;
 			player = null;
 		}
+	}
+
+	@Override
+	public FractionView onAccept(int handle, Article item, FractionView delta, FractionView newVolume) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public FractionView onSupply(int handle, Article item, FractionView delta, FractionView newVolume) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void onCapacityChange(Storage storage, FractionView capacityDelta) {
+		// TODO Auto-generated method stub
+
 	}
 }

@@ -23,8 +23,10 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.recipe.RecipeFinder;
 import net.minecraft.recipe.RecipeInputProvider;
 
+import grondag.fluidity.api.storage.Storage;
+
 @API(status = Status.EXPERIMENTAL)
-public interface InventoryStorage extends DiscreteStorage, Inventory, RecipeInputProvider {
+public interface InventoryStorage extends Storage, Inventory, RecipeInputProvider {
 	@Override default boolean canPlayerUseInv(PlayerEntity player) {
 		return true;
 	}

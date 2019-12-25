@@ -22,5 +22,5 @@ import org.apiguardian.api.API.Status;
 @API(status = Status.EXPERIMENTAL)
 @FunctionalInterface
 public interface StorageSupplier {
-	<V extends Storage<?,?>> V getStorage();
+	Storage getStorage();
 }

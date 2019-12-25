@@ -18,6 +18,9 @@ package grondag.fluidity.api.article;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import net.minecraft.item.ItemStack;
+
+import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.item.Article;
 
 /**
@@ -28,7 +31,7 @@ import grondag.fluidity.api.item.Article;
  */
 @API(status = Status.EXPERIMENTAL)
 public interface StoredArticleView {
-	<V extends Article> V item();
+	Article item();
 
 	/**
 	 * An abstract handle to a quantity of a specific article instance that will
@@ -38,9 +41,20 @@ public interface StoredArticleView {
 	 */
 	int handle();
 
+
+	long count();
+
+	FractionView volume();
+
 	/**
 	 * Item is removed/depleted.  Of use when viewed fixed-slot containers or views of
 	 * virtual storage systems that are emulating a fixed slot arrangement for client display.
 	 */
-	boolean isEmpty();
+	default boolean isEmpty() {
+		return count() == 0;
+	}
+
+	default ItemStack toStack() {
+		return item().toStack(count());
+	}
 }
