@@ -9,24 +9,22 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundTag;
 
+import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.item.Article;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.AbstractAggregateStorage;
-import grondag.fluidity.base.storage.component.TrackingItemNotifier;
-import grondag.fluidity.impl.CommonItem;
+import grondag.fluidity.base.storage.component.DiscreteTrackingNotifier;
 
 @API(status = Status.EXPERIMENTAL)
 public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteStoredArticle, AggregateDiscreteStorage> implements StorageListener {
-	protected final CommonItem.Mutable lookupKey = new CommonItem.Mutable();
-	protected final TrackingItemNotifier notifier;
+	protected final DiscreteTrackingNotifier notifier;
 
 	public AggregateDiscreteStorage(int startingSlotCount) {
 		super(startingSlotCount);
-		notifier = new TrackingItemNotifier(0, this);
+		notifier = new DiscreteTrackingNotifier(0, this);
 	}
 	public AggregateDiscreteStorage() {
 		this(32);
@@ -34,7 +32,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteS
 
 	@Nullable
 	protected DiscreteStoredArticle getArticle(Item item, CompoundTag tag) {
-		return articles.get(lookupKey.set(item, tag));
+		return articles.get(Article.of(item, tag));
 	}
 
 	@Override

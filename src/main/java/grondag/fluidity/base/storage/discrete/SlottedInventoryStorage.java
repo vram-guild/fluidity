@@ -23,12 +23,12 @@ import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.api.item.Article;
-import grondag.fluidity.api.storage.discrete.InventoryStorage;
+import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.storage.InventoryStorage;
 import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.component.FlexibleArticleManager;
 import grondag.fluidity.base.transact.TransactionHelper;
-import grondag.fluidity.impl.CommonItem;
+import grondag.fluidity.impl.ArticleImpl;
 
 /**
  *
@@ -38,11 +38,11 @@ import grondag.fluidity.impl.CommonItem;
  * is likely to be preferable for performant implementations.
  */
 @API(status = Status.EXPERIMENTAL)
-public class SlottedCommonStorage extends AbstractDiscreteStorage<SlottedCommonStorage> implements InventoryStorage {
+public class SlottedInventoryStorage extends AbstractDiscreteStorage<SlottedInventoryStorage> implements InventoryStorage {
 	protected final int slotCount;
 	protected final ItemStack[] stacks;
 
-	public SlottedCommonStorage(int slotCount) {
+	public SlottedInventoryStorage(int slotCount) {
 		super(slotCount, slotCount * 64, new FlexibleArticleManager<>(slotCount, DiscreteStoredArticle::new));
 		this.slotCount = slotCount;
 		stacks = new ItemStack[slotCount];
@@ -162,7 +162,7 @@ public class SlottedCommonStorage extends AbstractDiscreteStorage<SlottedCommonS
 
 	@Override
 	protected Object createRollbackState() {
-		return TransactionHelper.prepareInventoryRollbackState(SlottedCommonStorage.this);
+		return TransactionHelper.prepareInventoryRollbackState(SlottedInventoryStorage.this);
 	}
 
 	@Override
@@ -171,11 +171,10 @@ public class SlottedCommonStorage extends AbstractDiscreteStorage<SlottedCommonS
 	}
 
 	@Override
-	public long accept(Article itemIn, long count, boolean simulate) {
+	public long accept(Article article, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
-		final CommonItem item = (CommonItem) itemIn;
 
-		if(item.isEmpty() || count == 0 || !filter.test(item)) {
+		if(article.isNothing() || count == 0 || !filter.test(article)) {
 			return 0;
 		}
 
@@ -186,7 +185,7 @@ public class SlottedCommonStorage extends AbstractDiscreteStorage<SlottedCommonS
 			final ItemStack stack = stacks[i];
 
 			if(stack.isEmpty()) {
-				final int n = (int) Math.min(count - result, item.getItem().getMaxCount());
+				final int n = (int) Math.min(count - result, article.toItem().getMaxCount());
 
 				if(!simulate) {
 					if(needsRollback) {
@@ -194,15 +193,15 @@ public class SlottedCommonStorage extends AbstractDiscreteStorage<SlottedCommonS
 						needsRollback = false;
 					}
 
-					final ItemStack newStack = item.toStack(n);
+					final ItemStack newStack = article.toStack(n);
 					notifyAccept(newStack, n);
 					stacks[i] = newStack;
 					dirtyNotifier.run();
 				}
 
 				result += n;
-			} else if(item.matches(stack)) {
-				final int n = (int) Math.min(count - result, item.getItem().getMaxCount() - stack.getCount());
+			} else if(article.matches(stack)) {
+				final int n = (int) Math.min(count - result, article.toItem().getMaxCount() - stack.getCount());
 
 				if(!simulate) {
 					if(needsRollback) {
@@ -227,10 +226,9 @@ public class SlottedCommonStorage extends AbstractDiscreteStorage<SlottedCommonS
 	}
 
 	@Override
-	public long supply(Article itemIn, long count, boolean simulate) {
-		final CommonItem item = (CommonItem) itemIn;
+	public long supply(Article article, long count, boolean simulate) {
 
-		if(item.isEmpty() || count == 0) {
+		if(article.isNothing() || count == 0) {
 			return 0;
 		}
 
@@ -240,7 +238,7 @@ public class SlottedCommonStorage extends AbstractDiscreteStorage<SlottedCommonS
 		for(int i = 0 ; i < slotCount; i++) {
 			final ItemStack stack = stacks[i];
 
-			if(item.matches(stack)) {
+			if(article.matches(stack)) {
 				final int n = (int) Math.min(count - result, stack.getCount());
 
 				if(!simulate) {
@@ -272,7 +270,7 @@ public class SlottedCommonStorage extends AbstractDiscreteStorage<SlottedCommonS
 			notifier.changeCapacity(64 - stack.getMaxCount());
 		}
 
-		final DiscreteStoredArticle article = articles.findOrCreateArticle(CommonItem.of(stack));
+		final DiscreteStoredArticle article = articles.findOrCreateArticle(ArticleImpl.of(stack));
 		notifier.notifySupply(article, count);
 		article.count -= count;
 	}
@@ -284,7 +282,7 @@ public class SlottedCommonStorage extends AbstractDiscreteStorage<SlottedCommonS
 			notifier.changeCapacity(stack.getMaxCount() - 64);
 		}
 
-		final DiscreteStoredArticle article = articles.findOrCreateArticle(CommonItem.of(stack));
+		final DiscreteStoredArticle article = articles.findOrCreateArticle(ArticleImpl.of(stack));
 		article.count += count;
 		notifier.notifyAccept(article, count);
 	}

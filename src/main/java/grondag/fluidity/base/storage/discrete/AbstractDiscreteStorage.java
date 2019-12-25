@@ -22,24 +22,24 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 
+import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.item.Article;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
 import grondag.fluidity.base.storage.component.AbstractArticleManager;
-import grondag.fluidity.base.storage.component.TrackingItemNotifier;
-import grondag.fluidity.impl.CommonItem;
+import grondag.fluidity.base.storage.component.DiscreteTrackingNotifier;
+import grondag.fluidity.impl.ArticleImpl;
 
 @API(status = Status.EXPERIMENTAL)
 public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<T>> extends AbstractLazyRollbackStorage<DiscreteStoredArticle, T> {
 	protected final AbstractArticleManager<DiscreteStoredArticle> articles;
-	protected final TrackingItemNotifier notifier;
+	protected final DiscreteTrackingNotifier notifier;
 
 	AbstractDiscreteStorage(int startingHandleCount, long capacity, AbstractArticleManager<DiscreteStoredArticle> articles) {
 		this.articles = articles;
-		notifier = new TrackingItemNotifier(capacity, this);
+		notifier = new DiscreteTrackingNotifier(capacity, this);
 	}
 
 	@Override
@@ -178,7 +178,7 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 
 			if(!a.isEmpty()) {
 				notifier.notifySupply(a, a.count);
-				a.item = CommonItem.NOTHING;
+				a.article = ArticleImpl.NOTHING;
 				a.count = 0;
 			}
 		}

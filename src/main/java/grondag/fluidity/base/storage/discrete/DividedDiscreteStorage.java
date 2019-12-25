@@ -19,13 +19,13 @@ import com.google.common.base.Preconditions;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.item.Article;
-import grondag.fluidity.api.storage.discrete.FixedDiscreteStorage;
+import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.storage.FixedStorage;
 import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.component.FixedArticleManager;
 
 @API(status = Status.EXPERIMENTAL)
-public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscreteStorage> implements FixedDiscreteStorage {
+public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscreteStorage> implements FixedStorage {
 	protected final int divisionCount;
 	protected final long capacityPerDivision;
 
@@ -71,12 +71,12 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscr
 
 		final DiscreteStoredArticle a = articles.get(handle);
 
-		if(a.isEmpty() || a.item.equals(item)) {
+		if(a.isEmpty() || a.article.equals(item)) {
 			final long result = limit(a, count);
 
 			if(result > 0 && !simulate) {
 				if(a.isEmpty()) {
-					a.item = item;
+					a.article = item;
 					a.count = count;
 				} else {
 					a.count += result;
@@ -103,7 +103,7 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscr
 
 		final DiscreteStoredArticle a = articles.get(handle);
 
-		if(a == null || a.isEmpty() || !a.item.equals(item)) {
+		if(a == null || a.isEmpty() || !a.article.equals(item)) {
 			return 0;
 		}
 

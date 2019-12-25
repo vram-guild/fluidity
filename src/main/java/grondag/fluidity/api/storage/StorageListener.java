@@ -19,8 +19,8 @@ package grondag.fluidity.api.storage;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.item.Article;
 
 @API(status = Status.EXPERIMENTAL)
 public interface StorageListener {

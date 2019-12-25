@@ -26,56 +26,56 @@ import net.minecraft.util.registry.DefaultedRegistry;
 import net.minecraft.util.registry.MutableRegistry;
 import net.minecraft.util.registry.Registry;
 
-import grondag.fluidity.api.item.Article;
-import grondag.fluidity.api.item.ArticleRegistry;
+import grondag.fluidity.api.article.ArticleType;
+import grondag.fluidity.api.article.ArticleTypeRegistry;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 @API(status = INTERNAL)
-public class StorageItemRegistryImpl implements ArticleRegistry {
-	public static StorageItemRegistryImpl INSTANCE = new StorageItemRegistryImpl();
+public class ArticleTypeRegistryImpl implements ArticleTypeRegistry {
+	public static ArticleTypeRegistryImpl INSTANCE = new ArticleTypeRegistryImpl();
 
-	private static final MutableRegistry REGISTRY;
+	private static final MutableRegistry<ArticleType> REGISTRY;
 
 	static {
-		REGISTRY = Registry.REGISTRIES.add(new Identifier("c:storage_items"),
-				(MutableRegistry<? extends Article>) new DefaultedRegistry("c:nothing"));
+		REGISTRY = Registry.REGISTRIES.add(new Identifier("c:article_types"),
+				(MutableRegistry<ArticleType>) new DefaultedRegistry("c:nothing"));
 
-		REGISTRY.add(new Identifier("c:nothing"), Article.NOTHING);
+		REGISTRY.add(new Identifier("c:nothing"), ArticleType.NOTHING);
 	}
 
 	@Override
-	public <V extends Article> Identifier getId(V bulkItem) {
-		return REGISTRY.getId(bulkItem);
+	public <T> Identifier getId(ArticleType<T> article) {
+		return REGISTRY.getId(article);
 	}
 
 	@Override
-	public <V extends Article> int getRawId(V bulkItem) {
-		return REGISTRY.getRawId(bulkItem);
+	public int getRawId(ArticleType article) {
+		return REGISTRY.getRawId(article);
 	}
 
 	@Override
-	public <V extends Article> V get(Identifier id) {
-		return (V) REGISTRY.get(id);
+	public ArticleType get(Identifier id) {
+		return REGISTRY.get(id);
 	}
 
 	@Override
-	public <V extends Article> V get(String idString) {
-		return (V) REGISTRY.get(new Identifier(idString));
+	public ArticleType get(String idString) {
+		return REGISTRY.get(new Identifier(idString));
 	}
 
 	@Override
-	public <V extends Article> V get(int index) {
-		return (V) REGISTRY.get(index);
+	public ArticleType get(int index) {
+		return REGISTRY.get(index);
 	}
 
 	@Override
-	public <V extends Article> void forEach(Consumer<V> consumer) {
-		REGISTRY.forEach(consumer);
+	public void forEach(Consumer<? super ArticleType<?>> consumer) {
+		REGISTRY.forEach((Consumer<? super ArticleType>) consumer);
 	}
 
 	@Override
-	public <V extends Article> V add(Identifier id, V item) {
-		return (V) REGISTRY.add(id, item);
+	public ArticleType add(Identifier id, ArticleType articleType) {
+		return REGISTRY.add(id, articleType);
 	}
 
 	@Override

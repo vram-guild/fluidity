@@ -30,7 +30,7 @@ import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;
 
 import grondag.fluidity.Fluidity;
-import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageSupplier;
 
@@ -84,7 +84,7 @@ public class ItemStorageInteractionC2S {
 				return;
 			}
 
-			final int toMove = (int) Math.max(1, Math.min(targetResource.getItem().getMaxCount() / 2, storage.countOf(targetResource)) / 2);
+			final int toMove = (int) Math.max(1, Math.min(targetResource.toItem().getMaxCount() / 2, storage.countOf(targetResource)) / 2);
 			doQuickMove(toMove, player, targetResource, storage);
 			return;
 		}
@@ -101,7 +101,7 @@ public class ItemStorageInteractionC2S {
 				return;
 			}
 
-			final int toMove = (int) Math.min(targetResource.getItem().getMaxCount(), storage.countOf(targetResource));
+			final int toMove = (int) Math.min(targetResource.toItem().getMaxCount(), storage.countOf(targetResource));
 			doQuickMove(toMove, player, targetResource, storage);
 			return;
 		}
@@ -115,7 +115,7 @@ public class ItemStorageInteractionC2S {
 				return;
 			}
 
-			final int toTake = (int) Math.max(1, Math.min(targetResource.getItem().getMaxCount() / 2, storage.countOf(targetResource) / 2));
+			final int toTake = (int) Math.max(1, Math.min(targetResource.toItem().getMaxCount() / 2, storage.countOf(targetResource) / 2));
 			doTake(toTake, player, targetResource, storage);
 			return;
 		}
@@ -125,7 +125,7 @@ public class ItemStorageInteractionC2S {
 				return;
 			}
 
-			final int toTake = (int) Math.min(targetResource.getItem().getMaxCount(), storage.countOf(targetResource));
+			final int toTake = (int) Math.min(targetResource.toItem().getMaxCount(), storage.countOf(targetResource));
 			doTake(toTake, player, targetResource, storage);
 			return;
 		}
@@ -152,7 +152,7 @@ public class ItemStorageInteractionC2S {
 	}
 
 	private static void doQuickMove(int howMany, ServerPlayerEntity player, Article targetResource, Storage listener) {
-		if (howMany == 0 || targetResource == null || targetResource.isEmpty()) {
+		if (howMany == 0 || targetResource == null || targetResource.isNothing()) {
 			return;
 		}
 
@@ -168,7 +168,7 @@ public class ItemStorageInteractionC2S {
 	}
 
 	private static void doTake(int howMany, ServerPlayerEntity player, Article targetResource, Storage container) {
-		if (howMany == 0 || targetResource == null || targetResource.isEmpty()) {
+		if (howMany == 0 || targetResource == null || targetResource.isNothing()) {
 			return;
 		}
 
@@ -190,7 +190,7 @@ public class ItemStorageInteractionC2S {
 			player.inventory.markDirty();
 			player.method_14241();
 		} else {
-			howMany = Math.min(howMany, targetResource.getItem().getMaxCount());
+			howMany = Math.min(howMany, targetResource.toItem().getMaxCount());
 
 			final int toAdd = (int) container.supply(targetResource, howMany, false);
 

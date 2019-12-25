@@ -27,9 +27,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
+import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.item.Article;
 import grondag.fluidity.api.transact.Transactor;
 
 /**

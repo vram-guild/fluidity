@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.base.item;
+package grondag.fluidity.impl;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;

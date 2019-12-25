@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 import net.minecraft.util.math.MathHelper;
 
-import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.article.Article;
 import grondag.fluidity.base.article.AbstractStoredArticle;
 
 @SuppressWarnings("unchecked")
@@ -40,7 +40,7 @@ public class FlexibleArticleManager<V extends AbstractStoredArticle> extends Abs
 
 		if(candidate == null) {
 			candidate = getEmptyArticle();
-			candidate.item = key;
+			candidate.article = key;
 			articles.put(key, candidate);
 		}
 
@@ -99,7 +99,7 @@ public class FlexibleArticleManager<V extends AbstractStoredArticle> extends Abs
 					handles[target] = swap;
 				}
 
-				articles.remove(a.item);
+				articles.remove(a.article);
 			}
 		}
 	}

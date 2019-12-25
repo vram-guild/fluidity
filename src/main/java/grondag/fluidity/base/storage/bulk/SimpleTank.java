@@ -22,12 +22,12 @@ import org.apiguardian.api.API.Status;
 
 import net.minecraft.nbt.CompoundTag;
 
+import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.article.ArticleRegistry;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
-import grondag.fluidity.api.item.Article;
-import grondag.fluidity.api.item.ArticleRegistry;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.BulkStoredArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;

@@ -3,23 +3,23 @@ package grondag.fluidity.base.article;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
+import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.item.Article;
 import grondag.fluidity.api.storage.Storage;
 
 public class DiscreteStoredArticle extends AbstractStoredArticle {
 	public long count;
 
 	public DiscreteStoredArticle() {
-		item = Article.NOTHING;
+		article = Article.NOTHING;
 	}
 
-	public DiscreteStoredArticle(Article item, final long count, final int handle) {
-		prepare(item, count, handle);
+	public DiscreteStoredArticle(Article article, final long count, final int handle) {
+		prepare(article, count, handle);
 	}
 
-	public DiscreteStoredArticle prepare(Article item, long count, int handle) {
-		this.item = item == null ? Article.NOTHING : item;
+	public DiscreteStoredArticle prepare(Article article, long count, int handle) {
+		this.article = article == null ? Article.NOTHING : article;
 		this.handle = handle;
 		this.count = count;
 		return this;
@@ -31,7 +31,7 @@ public class DiscreteStoredArticle extends AbstractStoredArticle {
 
 	@Override
 	public boolean isEmpty() {
-		return count == 0 || item == Article.NOTHING;
+		return count == 0 || article == Article.NOTHING;
 	}
 
 	@Override
@@ -50,8 +50,8 @@ public class DiscreteStoredArticle extends AbstractStoredArticle {
 
 	}
 
-	public static DiscreteStoredArticle of(Article item, long count, int handle) {
-		return new DiscreteStoredArticle(item, count, handle);
+	public static DiscreteStoredArticle of(Article article, long count, int handle) {
+		return new DiscreteStoredArticle(article, count, handle);
 	}
 
 	public static DiscreteStoredArticle of(ItemStack stack) {
@@ -64,13 +64,13 @@ public class DiscreteStoredArticle extends AbstractStoredArticle {
 
 	public CompoundTag toTag() {
 		final CompoundTag result = new CompoundTag();
-		item.writeTag(result, "item");
+		result.put("art", article.toTag());
 		result.putLong("count", count);
 		return result;
 	}
 
 	public void readTag(CompoundTag tag) {
-		item = Article.fromTag(tag, "item");
+		article = Article.fromTag(tag.get("art"));
 		count = tag.getLong("count");
 	}
 

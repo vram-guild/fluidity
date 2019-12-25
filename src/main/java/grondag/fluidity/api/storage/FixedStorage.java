@@ -13,22 +13,21 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.storage.discrete;
+package grondag.fluidity.api.storage;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.api.item.Article;
-import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.article.Article;
 
 /**
  * Storage with fixed handles - similar to slots but they don't have aribtrary limits
  * and request to accept or supply incompatible with existing content is rejected.
  */
 @API(status = Status.EXPERIMENTAL)
-public interface FixedDiscreteStorage extends Storage {
+public interface FixedStorage extends Storage {
 	/**
 	 * Will return zero if handle slot is already occupied and different.
 	 * @param item

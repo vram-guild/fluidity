@@ -1,6 +1,6 @@
 package grondag.fluidity.base.storage.component;
 
-import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.article.Article;
 import grondag.fluidity.base.article.AbstractStoredArticle;
 
 public interface ArticleManager<V extends AbstractStoredArticle> {

@@ -1,16 +1,16 @@
 package grondag.fluidity.base.storage.component;
 
-import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.AbstractStorage;
 
-public class TrackingItemNotifier extends DiscreteItemNotifier{
+public class DiscreteTrackingNotifier extends DiscreteNotifier{
 	protected long capacity;
 	protected long count;
 	protected int articleCount = 0;
 
-	public TrackingItemNotifier(long capacity, AbstractStorage<DiscreteStoredArticle, ?> owner) {
+	public DiscreteTrackingNotifier(long capacity, AbstractStorage<DiscreteStoredArticle, ?> owner) {
 		super(owner);
 		this.capacity = capacity;
 	}

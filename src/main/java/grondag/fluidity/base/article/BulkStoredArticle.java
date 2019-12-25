@@ -22,10 +22,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
+import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
-import grondag.fluidity.api.item.Article;
 import grondag.fluidity.api.storage.Storage;
 
 @API(status = Status.EXPERIMENTAL)
@@ -47,11 +47,11 @@ public class BulkStoredArticle extends AbstractStoredArticle {
 		this.handle = handle;
 
 		if(item instanceof Article) {
-			this.item = (Article) item;
+			this.article = (Article) item;
 			fraction.readTag(tag);
 			fraction.multiply(stack.getCount());
 		} else  {
-			this.item = Article.NOTHING;
+			this.article = Article.NOTHING;
 			fraction.set(Fraction.ZERO);
 		}
 

@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.storage.discrete;
+package grondag.fluidity.api.storage;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
@@ -22,8 +22,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.recipe.RecipeFinder;
 import net.minecraft.recipe.RecipeInputProvider;
-
-import grondag.fluidity.api.storage.Storage;
 
 @API(status = Status.EXPERIMENTAL)
 public interface InventoryStorage extends Storage, Inventory, RecipeInputProvider {

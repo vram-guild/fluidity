@@ -1,14 +1,14 @@
 package grondag.fluidity.base.storage.component;
 
-import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.AbstractStorage;
 
-public class DiscreteItemNotifier {
+public class DiscreteNotifier {
 	protected final AbstractStorage<DiscreteStoredArticle, ?> owner;
 
-	public DiscreteItemNotifier(AbstractStorage<DiscreteStoredArticle, ?> owner) {
+	public DiscreteNotifier(AbstractStorage<DiscreteStoredArticle, ?> owner) {
 		this.owner = owner;
 	}
 

@@ -21,7 +21,6 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.item.ItemStack;
 
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.item.Article;
 
 /**
  * A view of an article stored in a container. (Could be an discrete item or bulk item.) <p>

@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.item;
+package grondag.fluidity.api.article;
 
 import static org.apiguardian.api.API.Status.EXPERIMENTAL;
 
@@ -23,29 +23,29 @@ import org.apiguardian.api.API;
 
 import net.minecraft.util.Identifier;
 
-import grondag.fluidity.impl.StorageItemRegistryImpl;
+import grondag.fluidity.impl.ArticleRegistryImpl;
 
 @API(status = EXPERIMENTAL)
 public interface ArticleRegistry {
-	ArticleRegistry INSTANCE = StorageItemRegistryImpl.INSTANCE;
+	ArticleRegistry INSTANCE = ArticleRegistryImpl.INSTANCE;
 
-	<V extends Article> V get(Identifier id);
+	Article get(Identifier id);
 
-	<V extends Article> V get(String idString);
+	Article get(String idString);
 
-	<V extends Article> V get(int index);
+	Article get(int index);
 
-	<V extends Article> void forEach(Consumer<V> consumer);
+	void forEach(Consumer<Article> consumer);
 
 	boolean contains(Identifier id);
 
-	<V extends Article> V add(Identifier id, V item);
+	Article add(Identifier id, Article article);
 
-	default <V extends Article> V add(String idString, V item) {
-		return add(new Identifier(idString), item);
+	default Article add(String idString, Article article) {
+		return add(new Identifier(idString), article);
 	}
 
-	<V extends Article> Identifier getId(V bulkItem);
+	Identifier getId(Article article);
 
-	<V extends Article> int getRawId(V bulkItem);
+	int getRawId(Article article);
 }

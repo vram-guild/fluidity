@@ -3,7 +3,7 @@ package grondag.fluidity.base.storage.component;
 import java.lang.reflect.Array;
 import java.util.function.Supplier;
 
-import grondag.fluidity.api.item.Article;
+import grondag.fluidity.api.article.Article;
 import grondag.fluidity.base.article.AbstractStoredArticle;
 
 @SuppressWarnings("unchecked")
@@ -32,7 +32,7 @@ public class FixedArticleManager<V extends AbstractStoredArticle> extends Abstra
 		for(int i = 0; i < handleCount; i++) {
 			final V candidate = articles[i];
 
-			if(candidate.item.equals(key)) {
+			if(candidate.article.equals(key)) {
 				return candidate;
 			} else if (firstUnused == -1 && candidate.isEmpty()) {
 				firstUnused = i;
@@ -41,7 +41,7 @@ public class FixedArticleManager<V extends AbstractStoredArticle> extends Abstra
 
 		if(firstUnused > -1) {
 			final V result = articles[firstUnused];
-			result.item = key;
+			result.article = key;
 			return result;
 		} else {
 			return null;
@@ -68,7 +68,7 @@ public class FixedArticleManager<V extends AbstractStoredArticle> extends Abstra
 		for(int i = 0; i < handleCount; i++) {
 			final V candidate = articles[i];
 
-			if(candidate.item.equals(key)) {
+			if(candidate.article.equals(key)) {
 				return candidate;
 			}
 		}
