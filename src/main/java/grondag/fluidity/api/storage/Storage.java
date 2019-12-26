@@ -32,6 +32,8 @@ import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.transact.Transactor;
+import grondag.fluidity.impl.EmptyStorage;
+import grondag.fluidity.impl.VoidStorage;
 
 /**
  * Flexible storage interface for tanks, containers.
@@ -242,4 +244,7 @@ public interface Storage extends Transactor {
 	void readTag(CompoundTag tag);
 
 	String TAG_ITEMS = "items";
+
+	Storage EMPTY = EmptyStorage.INSTANCE;
+	Storage VOID = VoidStorage.INSTANCE;
 }

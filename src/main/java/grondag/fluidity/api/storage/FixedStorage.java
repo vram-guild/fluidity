@@ -21,6 +21,9 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.item.ItemStack;
 
 import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.impl.EmptyStorage;
+import grondag.fluidity.impl.VoidStorage;
 
 /**
  * Storage with fixed handles - similar to slots but they don't have aribtrary limits
@@ -65,4 +68,15 @@ public interface FixedStorage extends Storage {
 	default long supply(int handle, ItemStack stack, boolean simulate) {
 		return supply(handle, Article.of(stack), stack.getCount(), simulate);
 	}
+
+	FractionView accept(int handle, Article item, FractionView volume, boolean simulate);
+
+	FractionView supply(int handle, Article item, FractionView volume, boolean simulate);
+
+	long accept(int handle, Article item, long numerator, long divisor, boolean simulate);
+
+	long supply(int handle, Article item, long numerator, long divisor, boolean simulate);
+
+	FixedStorage EMPTY = EmptyStorage.INSTANCE;
+	FixedStorage VOID = VoidStorage.INSTANCE;
 }

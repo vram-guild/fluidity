@@ -20,6 +20,7 @@ import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.ItemStack;
 
+import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 
 /**
@@ -56,4 +57,28 @@ public interface StoredArticleView {
 	default ItemStack toStack() {
 		return item().toStack(count());
 	}
+
+	StoredArticleView EMPTY = new StoredArticleView() {
+		@Override
+		public Article item() {
+			return Article.NOTHING;
+		}
+
+		@Override
+		public int handle() {
+			return NO_HANDLE;
+		}
+
+		@Override
+		public long count() {
+			return 0;
+		}
+
+		@Override
+		public FractionView volume() {
+			return Fraction.ZERO;
+		}
+	};
+
+	int NO_HANDLE = -1;
 }

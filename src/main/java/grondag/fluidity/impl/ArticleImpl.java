@@ -31,7 +31,7 @@ import net.minecraft.util.PacketByteBuf;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
 
-@API(status = Status.EXPERIMENTAL)
+@API(status = Status.INTERNAL)
 public class ArticleImpl<T> implements Article {
 	final ArticleType<T> type;
 	final T resource;

@@ -23,7 +23,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 
-@API(status = Status.EXPERIMENTAL)
+@API(status = Status.INTERNAL)
 public class StackHelper {
 	public static ItemStack newStack(Item item, CompoundTag tag, long count) {
 		if (item == null || item == Items.AIR || count <= 0) {
