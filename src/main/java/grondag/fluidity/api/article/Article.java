@@ -71,7 +71,12 @@ public interface Article {
 	}
 
 	default ItemStack toStack(long count) {
-		final ItemStack result = isItem() ? new ItemStack(resource(), (int) count) : ItemStack.EMPTY;
+		if(!isItem()) {
+			return ItemStack.EMPTY;
+		}
+
+		final Item item = resource();
+		final ItemStack result = new ItemStack(item, (int) Math.min(item.getMaxCount(), count));
 
 		if(hasTag()) {
 			result.setTag(copyTag());
@@ -86,7 +91,7 @@ public interface Article {
 
 	default boolean matches(ItemStack stack) {
 		if (isItem()) {
-			return stack.getItem() == toItem() && hasTag() ? doesTagMatch(stack.getTag()) : !stack.hasTag();
+			return stack.getItem() == toItem() && (hasTag() ? doesTagMatch(stack.getTag()) : !stack.hasTag());
 		} else {
 			return stack == ItemStack.EMPTY;
 		}

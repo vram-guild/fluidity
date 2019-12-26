@@ -27,7 +27,9 @@ import grondag.fluidity.impl.ArticleTypeRegistryImpl;
 
 @API(status = EXPERIMENTAL)
 public interface ArticleTypeRegistry {
-	ArticleTypeRegistry INSTANCE = ArticleTypeRegistryImpl.INSTANCE;
+	static ArticleTypeRegistry instance() {
+		return ArticleTypeRegistryImpl.INSTANCE;
+	}
 
 	<T> ArticleType<T> get(Identifier id);
 

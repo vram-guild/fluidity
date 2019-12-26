@@ -31,16 +31,18 @@ import grondag.fluidity.api.article.ArticleTypeRegistry;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 @API(status = INTERNAL)
-public class ArticleTypeRegistryImpl implements ArticleTypeRegistry {
+public final class ArticleTypeRegistryImpl implements ArticleTypeRegistry {
+	private ArticleTypeRegistryImpl() {
+
+	}
+
 	public static ArticleTypeRegistryImpl INSTANCE = new ArticleTypeRegistryImpl();
 
 	private static final MutableRegistry<ArticleType> REGISTRY;
 
 	static {
-		REGISTRY = Registry.REGISTRIES.add(new Identifier("c:article_types"),
+		REGISTRY = Registry.REGISTRIES.add(new Identifier("fluidity:article_types"),
 				(MutableRegistry<ArticleType>) new DefaultedRegistry("c:nothing"));
-
-		REGISTRY.add(new Identifier("c:nothing"), ArticleType.NOTHING);
 	}
 
 	@Override

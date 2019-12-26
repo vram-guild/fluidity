@@ -79,12 +79,18 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 
 	@Override
 	public Tag toTag() {
-		return StringTag.of(ArticleTypeRegistry.INSTANCE.getId(this).toString());
+		//TODO: remove
+		final Identifier id = ArticleTypeRegistryImpl.INSTANCE.getId(this);
+		if(id == null) {
+			System.out.println("boop");
+		}
+
+		return StringTag.of(ArticleTypeRegistry.instance().getId(this).toString());
 	}
 
 	@Override
 	public void toPacket(PacketByteBuf buf) {
-		buf.writeVarInt(ArticleTypeRegistry.INSTANCE.getRawId(this));
+		buf.writeVarInt(ArticleTypeRegistryImpl.INSTANCE.getRawId(this));
 	}
 
 	private static class BuilderImpl<U> implements Builder<U> {
@@ -168,11 +174,13 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 		return new BuilderImpl<>(clazz);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> ArticleType<T> fromTag(Tag tag) {
-		return ArticleTypeRegistry.INSTANCE.get(tag.asString());
+		return ArticleTypeRegistryImpl.INSTANCE.get(tag.asString());
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> ArticleType<T> fromPacket(PacketByteBuf buf) {
-		return ArticleTypeRegistry.INSTANCE.get(buf.readVarInt());
+		return ArticleTypeRegistryImpl.INSTANCE.get(buf.readVarInt());
 	}
 }

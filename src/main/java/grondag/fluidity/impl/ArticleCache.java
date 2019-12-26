@@ -14,7 +14,7 @@ public class ArticleCache {
 		private int hashCode;
 
 		ArticleKey() {
-			this(ArticleType.NOTHING, null);
+			this(ArticleType.NOTHING, new Object());
 		}
 
 		ArticleKey(ArticleType<?> type, Object resource) {

@@ -43,7 +43,7 @@ public class ArticleImpl<T> implements Article {
 		this.resource = resource;
 		this.tag = tag;
 
-		int hashCode = resource.hashCode();
+		int hashCode = resource == null ? 0 : resource.hashCode();
 
 		if(tag != null) {
 			hashCode += tag.hashCode();
