@@ -24,7 +24,6 @@ import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
-import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.InventoryStorage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.DiscreteStoredArticle;
@@ -33,7 +32,7 @@ import grondag.fluidity.base.storage.component.DiscreteNotifier;
 import grondag.fluidity.impl.ArticleImpl;
 
 @API(status = Status.EXPERIMENTAL)
-public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<DiscreteStoredArticle,  SingleStackInventoryStorage> implements InventoryStorage {
+public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<DiscreteStoredArticle,  SingleStackInventoryStorage> implements DiscreteStorage, InventoryStorage {
 	protected ItemStack stack = ItemStack.EMPTY;
 	protected final DiscreteStoredArticle view = new DiscreteStoredArticle();
 	protected final DiscreteNotifier notifier = new DiscreteNotifier(this);
@@ -266,29 +265,5 @@ public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<Dis
 	@Override
 	protected void onListenersEmpty() {
 		// NOOP
-	}
-
-	@Override
-	public FractionView accept(Article item, FractionView volume, boolean simulate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public FractionView supply(Article item, FractionView volume, boolean simulate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public long accept(Article item, long numerator, long divisor, boolean simulate) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public long supply(Article item, long numerator, long divisor, boolean simulate) {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 }

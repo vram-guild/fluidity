@@ -29,6 +29,7 @@ import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
+import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.transact.Transactor;
 
@@ -110,13 +111,21 @@ public interface Storage extends Transactor {
 	 */
 	long supply(Article item, long count, boolean simulate);
 
+	long count();
+
 	default long countOf(Article item)  {
 		return supply(item, Long.MAX_VALUE, true);
 	}
 
-	long count();
+	FractionView amount();
+
+	default FractionView amountOf(Article item)  {
+		return supply(item, Fraction.MAX_VALUE, true);
+	}
 
 	long capacity();
+
+	FractionView volume();
 
 	void clear();
 

@@ -25,13 +25,12 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.PacketByteBuf;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.Storage;
-import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.DiscreteStoredArticle;
+import grondag.fluidity.base.storage.discrete.DiscreteStorageListener;
 
 @API(status = Status.EXPERIMENTAL)
-public class ItemStorageServerDelegate implements StorageListener {
+public class ItemStorageServerDelegate implements DiscreteStorageListener {
 	protected ServerPlayerEntity player;
 	protected Storage storage;
 	protected boolean isFirstUpdate = true;
@@ -108,23 +107,5 @@ public class ItemStorageServerDelegate implements StorageListener {
 			storage = null;
 			player = null;
 		}
-	}
-
-	@Override
-	public FractionView onAccept(int handle, Article item, FractionView delta, FractionView newVolume) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public FractionView onSupply(int handle, Article item, FractionView delta, FractionView newVolume) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void onCapacityChange(Storage storage, FractionView capacityDelta) {
-		// TODO Auto-generated method stub
-
 	}
 }

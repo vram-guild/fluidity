@@ -24,7 +24,6 @@ import net.minecraft.nbt.ListTag;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
-import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.DiscreteStoredArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
@@ -33,7 +32,7 @@ import grondag.fluidity.base.storage.component.DiscreteTrackingNotifier;
 import grondag.fluidity.impl.ArticleImpl;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<T>> extends AbstractLazyRollbackStorage<DiscreteStoredArticle, T> {
+public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<T>> extends AbstractLazyRollbackStorage<DiscreteStoredArticle, T> implements DiscreteStorage {
 	protected final AbstractArticleManager<DiscreteStoredArticle> articles;
 	protected final DiscreteTrackingNotifier notifier;
 
@@ -185,30 +184,6 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 
 		articles.clear();
 		dirtyNotifier.run();
-	}
-
-	@Override
-	public FractionView accept(Article item, FractionView volume, boolean simulate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public FractionView supply(Article item, FractionView volume, boolean simulate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public long accept(Article item, long numerator, long divisor, boolean simulate) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public long supply(Article item, long numerator, long divisor, boolean simulate) {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 	@Override

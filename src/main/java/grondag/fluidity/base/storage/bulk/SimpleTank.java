@@ -32,7 +32,7 @@ import grondag.fluidity.base.article.BulkStoredArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
 
 @API(status = Status.EXPERIMENTAL)
-public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, SimpleTank>  {
+public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, SimpleTank> implements BulkStorage {
 	protected final MutableFraction content = new MutableFraction();
 	protected final MutableFraction calc = new MutableFraction();
 	protected final View view = new View();
@@ -79,7 +79,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 			rollbackHandler.prepareIfNeeded();
 			content.add(calc);
 			dirtyNotifier.run();
-			listeners.forEach(l -> l.onSupply(0, article, calc, content));
+			listeners.forEach(l -> l.onSupply(this, 0, article, calc, content));
 		}
 
 		return calc;
@@ -99,7 +99,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 			rollbackHandler.prepareIfNeeded();
 			content.subtract(calc);
 			dirtyNotifier.run();
-			listeners.forEach(l -> l.onSupply(0, article, calc, content));
+			listeners.forEach(l -> l.onSupply(this, 0, article, calc, content));
 		}
 
 		return calc;
@@ -137,7 +137,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 
 			if(!listeners.isEmpty()) {
 				calc.set(result, divisor);
-				listeners.forEach(l -> l.onAccept(0, item, calc, content));
+				listeners.forEach(l -> l.onAccept(this, 0, item, calc, content));
 			}
 		}
 
@@ -173,7 +173,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 
 			if(!listeners.isEmpty()) {
 				calc.set(result, divisor);
-				listeners.forEach(l -> l.onAccept(0, item, calc, content));
+				listeners.forEach(l -> l.onAccept(this, 0, item, calc, content));
 			}
 		}
 
@@ -240,7 +240,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 		final Article bulkItem = pair.getFirst();
 		final Fraction newContent = pair.getSecond();
 
-		if(bulkItem == this.article) {
+		if(bulkItem == article) {
 			if(newContent.isGreaterThan(content)) {
 				calc.set(newContent);
 				calc.subtract(content);
@@ -251,14 +251,14 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 				supply(bulkItem, calc, false);
 			}
 		} else {
-			supply(this.article, content, false);
+			supply(article, content, false);
 			accept(bulkItem, newContent, false);
 		}
 	}
 
 	@Override
 	protected void sendFirstListenerUpdate(StorageListener listener) {
-		listener.onAccept(0, article, content, content);
+		listener.onAccept(this, 0, article, content, content);
 	}
 
 	@Override
@@ -274,26 +274,14 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 	}
 
 	@Override
-	public long accept(Article item, long count, boolean simulate) {
+	public FractionView amount() {
 		// TODO Auto-generated method stub
-		return 0;
+		return null;
 	}
 
 	@Override
-	public long supply(Article item, long count, boolean simulate) {
+	public FractionView volume() {
 		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public long count() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public long capacity() {
-		// TODO Auto-generated method stub
-		return 0;
+		return null;
 	}
 }

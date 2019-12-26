@@ -11,7 +11,6 @@ import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
-import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.DiscreteStoredArticle;
@@ -19,7 +18,7 @@ import grondag.fluidity.base.storage.AbstractAggregateStorage;
 import grondag.fluidity.base.storage.component.DiscreteTrackingNotifier;
 
 @API(status = Status.EXPERIMENTAL)
-public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteStoredArticle, AggregateDiscreteStorage> implements StorageListener {
+public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteStoredArticle, AggregateDiscreteStorage> implements DiscreteStorage, DiscreteStorageListener {
 	protected final DiscreteTrackingNotifier notifier;
 
 	public AggregateDiscreteStorage(int startingSlotCount) {
@@ -179,40 +178,5 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteS
 	@Override
 	protected void onListenersEmpty() {
 		articles.compact();
-	}
-	@Override
-	public FractionView accept(Article item, FractionView volume, boolean simulate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public FractionView supply(Article item, FractionView volume, boolean simulate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public long accept(Article item, long numerator, long divisor, boolean simulate) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-	@Override
-	public long supply(Article item, long numerator, long divisor, boolean simulate) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-	@Override
-	public FractionView onAccept(int handle, Article item, FractionView delta, FractionView newVolume) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public FractionView onSupply(int handle, Article item, FractionView delta, FractionView newVolume) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public void onCapacityChange(Storage storage, FractionView capacityDelta) {
-		// TODO Auto-generated method stub
-
 	}
 }

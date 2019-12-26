@@ -30,15 +30,16 @@ public interface StorageListener {
 	 */
 	void disconnect(Storage target);
 
+
 	void onAccept(Storage storage, int handle, Article item, long delta, long newCount);
 
 	void onSupply(Storage storage, int handle, Article item, long delta, long newCount);
 
 	void onCapacityChange(Storage storage, long capacityDelta);
 
-	FractionView onAccept(int handle, Article item, FractionView delta, FractionView newVolume);
+	void onAccept(Storage storage, int handle, Article item, FractionView delta, FractionView newVolume);
 
-	FractionView onSupply(int handle, Article item, FractionView delta, FractionView newVolume);
+	void onSupply(Storage storage, int handle, Article item, FractionView delta, FractionView newVolume);
 
 	void onCapacityChange(Storage storage, FractionView capacityDelta);
 }
