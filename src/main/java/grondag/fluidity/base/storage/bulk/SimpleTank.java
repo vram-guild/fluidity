@@ -23,7 +23,6 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.article.ArticleRegistry;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
@@ -37,7 +36,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 	protected final MutableFraction content = new MutableFraction();
 	protected final MutableFraction calc = new MutableFraction();
 	protected final View view = new View();
-	protected Article bulkItem = Article.NOTHING;
+	protected Article article = Article.NOTHING;
 	protected Fraction capacity;
 
 	public SimpleTank(Fraction capacity) {
@@ -58,7 +57,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 	public FractionView accept(Article item, FractionView volume, boolean simulate) {
 		Preconditions.checkArgument(!volume.isNegative(), "Request to accept negative volume. (%s)", volume);
 
-		if (item == Article.NOTHING || volume.isZero() || (item != bulkItem && bulkItem != Article.NOTHING)) {
+		if (item == Article.NOTHING || volume.isZero() || (item != article && article != Article.NOTHING)) {
 			return Fraction.ZERO;
 		}
 
@@ -80,7 +79,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 			rollbackHandler.prepareIfNeeded();
 			content.add(calc);
 			dirtyNotifier.run();
-			listeners.forEach(l -> l.onSupply(0, bulkItem, calc, content));
+			listeners.forEach(l -> l.onSupply(0, article, calc, content));
 		}
 
 		return calc;
@@ -90,7 +89,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 	public FractionView supply(Article item, FractionView volume, boolean simulate) {
 		Preconditions.checkArgument(!volume.isNegative(), "Request to supply negative volume. (%s)", volume);
 
-		if (item == Article.NOTHING || item != bulkItem || content.isZero() || volume.isZero()) {
+		if (item == Article.NOTHING || item != article || content.isZero() || volume.isZero()) {
 			return Fraction.ZERO;
 		}
 
@@ -100,7 +99,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 			rollbackHandler.prepareIfNeeded();
 			content.subtract(calc);
 			dirtyNotifier.run();
-			listeners.forEach(l -> l.onSupply(0, bulkItem, calc, content));
+			listeners.forEach(l -> l.onSupply(0, article, calc, content));
 		}
 
 		return calc;
@@ -111,7 +110,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 		Preconditions.checkArgument(numerator >= 0, "Request to accept negative volume. (%s)", numerator);
 		Preconditions.checkArgument(divisor >= 1, "Divisor must be >= 1. (%s)", divisor);
 
-		if (item == Article.NOTHING || numerator == 0 || (item != bulkItem && bulkItem != Article.NOTHING)) {
+		if (item == Article.NOTHING || numerator == 0 || (item != article && article != Article.NOTHING)) {
 			return 0;
 		}
 
@@ -150,7 +149,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 		Preconditions.checkArgument(numerator >= 0, "Request to supply negative volume. (%s)", numerator);
 		Preconditions.checkArgument(divisor >= 1, "Divisor must be >= 1. (%s)", divisor);
 
-		if (item == Article.NOTHING || item != bulkItem || content.isZero() || numerator == 0) {
+		if (item == Article.NOTHING || item != article || content.isZero() || numerator == 0) {
 			return 0;
 		}
 
@@ -184,7 +183,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 	public void writeTag(CompoundTag tag) {
 		tag.put("capacity",capacity.toTag());
 		tag.put("content",content.toTag());
-		tag.putString("bulkItem", ArticleRegistry.INSTANCE.getId(bulkItem).toString());
+		tag.put("art", article.toTag());
 	}
 
 	@Override
@@ -198,7 +197,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 	public void readTag(CompoundTag tag) {
 		capacity = new Fraction(tag.getCompound("capacity"));
 		content.readTag(tag.getCompound("content"));
-		bulkItem = ArticleRegistry.INSTANCE.get(tag.getString("bulkItem"));
+		article = Article.fromTag(tag.get("art"));
 	}
 
 	protected class View implements StoredArticleView {
@@ -219,7 +218,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 
 		@Override
 		public Article item() {
-			return bulkItem;
+			return article;
 		}
 
 		@Override
@@ -231,7 +230,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 
 	@Override
 	protected Object createRollbackState() {
-		return Pair.of(bulkItem, content.toImmutable());
+		return Pair.of(article, content.toImmutable());
 	}
 
 	@Override
@@ -241,7 +240,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 		final Article bulkItem = pair.getFirst();
 		final Fraction newContent = pair.getSecond();
 
-		if(bulkItem == this.bulkItem) {
+		if(bulkItem == this.article) {
 			if(newContent.isGreaterThan(content)) {
 				calc.set(newContent);
 				calc.subtract(content);
@@ -252,14 +251,14 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 				supply(bulkItem, calc, false);
 			}
 		} else {
-			supply(this.bulkItem, content, false);
+			supply(this.article, content, false);
 			accept(bulkItem, newContent, false);
 		}
 	}
 
 	@Override
 	protected void sendFirstListenerUpdate(StorageListener listener) {
-		listener.onAccept(0, bulkItem, content, content);
+		listener.onAccept(0, article, content, content);
 	}
 
 	@Override

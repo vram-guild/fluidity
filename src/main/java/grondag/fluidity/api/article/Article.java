@@ -17,9 +17,7 @@ import grondag.fluidity.impl.ArticleImpl;
 
 /**
  * Represents a game resource that may be a fluid, xp, power or may be some other
- * thing that is quantified, stored or transported.<p>
- *
- * TODO: other article metadata: units (w/ registry, fixed for items and fluids)
+ * thing that is quantifiable and stored or transported.
  */
 @API(status = Status.EXPERIMENTAL)
 public interface Article {
