@@ -13,42 +13,18 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
+
 package grondag.fluidity.api.storage;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.recipe.RecipeFinder;
-import net.minecraft.recipe.RecipeInputProvider;
-
-import grondag.fluidity.base.storage.discrete.DiscreteStorage;
-
 @API(status = Status.EXPERIMENTAL)
-public interface InventoryStorage extends DiscreteStorage, Inventory, RecipeInputProvider {
-	@Override default boolean canPlayerUseInv(PlayerEntity player) {
-		return true;
-	}
+@FunctionalInterface
+public interface StorageDevice {
+	Storage getStorage();
 
-	@Override
-	default void provideRecipeInputs(RecipeFinder finder) {
-		this.forEach(v -> {
-			if (!v.isEmpty()) {
-				finder.addItem(v.toStack());
-			}
-
-			return true;
-		});
-	}
-
-	@Override
-	default boolean isInvEmpty() {
-		return isEmpty();
-	}
-
-	@Override
-	default void markDirty() {
-		//NOOP - default implementation doesn't support vanilla inventory listeners
+	default Storage getStorage(Object connection) {
+		return getStorage();
 	}
 }

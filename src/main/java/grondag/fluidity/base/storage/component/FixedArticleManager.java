@@ -37,7 +37,7 @@ public class FixedArticleManager<V extends AbstractStoredArticle> extends Abstra
 
 		for(int i = 0; i < handleCount; i++) {
 			final V a = articleFactory.get();
-			a.handle = i;
+			a.setHandle(i);
 			handles[i] = a;
 		}
 
@@ -51,7 +51,7 @@ public class FixedArticleManager<V extends AbstractStoredArticle> extends Abstra
 		for(int i = 0; i < handleCount; i++) {
 			final V candidate = articles[i];
 
-			if(candidate.article.equals(key)) {
+			if(candidate.article().equals(key)) {
 				return candidate;
 			} else if (firstUnused == -1 && candidate.isEmpty()) {
 				firstUnused = i;
@@ -60,7 +60,7 @@ public class FixedArticleManager<V extends AbstractStoredArticle> extends Abstra
 
 		if(firstUnused > -1) {
 			final V result = articles[firstUnused];
-			result.article = key;
+			result.setArticle(key);
 			return result;
 		} else {
 			return null;
@@ -87,7 +87,7 @@ public class FixedArticleManager<V extends AbstractStoredArticle> extends Abstra
 		for(int i = 0; i < handleCount; i++) {
 			final V candidate = articles[i];
 
-			if(candidate.article.equals(key)) {
+			if(candidate.article().equals(key)) {
 				return candidate;
 			}
 		}

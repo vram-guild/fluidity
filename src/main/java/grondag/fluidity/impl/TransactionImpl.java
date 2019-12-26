@@ -86,7 +86,6 @@ public final class TransactionImpl implements Transaction {
 	}
 
 	private void validate() {
-		// TODO: consider custom exceptions or at least revisit these
 		if (!isOpen) {
 			throw new IllegalStateException("Encountered transaction operation for closed transaction.");
 		}

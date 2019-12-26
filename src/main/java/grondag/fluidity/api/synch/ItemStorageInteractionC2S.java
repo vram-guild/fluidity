@@ -32,7 +32,7 @@ import net.fabricmc.fabric.api.network.PacketContext;
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.Storage;
-import grondag.fluidity.api.storage.StorageSupplier;
+import grondag.fluidity.api.storage.StorageDevice;
 
 /**
  * Sent when player interacts with the GUI of an IStorage (vs container slots).
@@ -63,12 +63,12 @@ public class ItemStorageInteractionC2S {
 	}
 
 	private static void acceptInner(StorageAction action, int handle, ServerPlayerEntity player) {
-		if (player.container == null || !(player.container instanceof StorageSupplier)) {
+		if (player.container == null || !(player.container instanceof StorageDevice)) {
 			return;
 		}
 
-		final Storage storage = ((StorageSupplier) player.container).getStorage();
-		final Article targetResource = handle == -1 ? null : storage.view(handle).item();
+		final Storage storage = ((StorageDevice) player.container).getStorage();
+		final Article targetResource = handle == -1 ? null : storage.view(handle).article();
 
 		switch (action) {
 		case PUT_ALL_HELD:

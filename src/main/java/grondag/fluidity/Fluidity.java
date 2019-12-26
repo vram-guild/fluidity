@@ -15,6 +15,8 @@
  ******************************************************************************/
 package grondag.fluidity;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
@@ -28,6 +30,7 @@ import grondag.fluidity.impl.TransactionImpl;
 @API(status = Status.INTERNAL)
 public class Fluidity implements ModInitializer {
 	public static final String MOD_ID = "fluidity";
+	public static final Logger LOG = LogManager.getLogger("Fluidity");
 
 	@Override
 	public void onInitialize() {

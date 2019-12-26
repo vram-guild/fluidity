@@ -26,7 +26,7 @@ import net.minecraft.util.PacketByteBuf;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.Storage;
-import grondag.fluidity.base.article.DiscreteStoredArticle;
+import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.discrete.DiscreteStorageListener;
 
 @API(status = Status.EXPERIMENTAL)
@@ -35,16 +35,16 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 	protected Storage storage;
 	protected boolean isFirstUpdate = true;
 	protected boolean capacityChange = true;
-	protected final Int2ObjectOpenHashMap<DiscreteStoredArticle> updates = new Int2ObjectOpenHashMap<>();
+	protected final Int2ObjectOpenHashMap<StoredDiscreteArticle> updates = new Int2ObjectOpenHashMap<>();
 
 	public ItemStorageServerDelegate(ServerPlayerEntity player, Storage storage) {
 		this.player = player;
 		this.storage = storage;
-		storage.startListening(this);
+		storage.startListening(this, true);
 	}
 
 	@Override
-	public void disconnect(Storage storage) {
+	public void disconnect(Storage storage, boolean didNotify, boolean isValid) {
 		if(storage == this.storage) {
 			player = null;
 			this.storage = null;
@@ -54,10 +54,10 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 	@Override
 	public void onAccept(Storage storage, int handle, Article item, long delta, long newCount) {
 		if(storage != null && storage == this.storage) {
-			final DiscreteStoredArticle update = updates.get(handle);
+			final StoredDiscreteArticle update = updates.get(handle);
 
 			if(update == null) {
-				updates.put(handle, DiscreteStoredArticle.of(item, newCount, handle));
+				updates.put(handle, StoredDiscreteArticle.of(item, newCount, handle));
 			} else {
 				update.prepare(item, newCount, handle);
 			}
@@ -83,8 +83,8 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 
 		final PacketByteBuf buf = ItemStorageUpdateS2C.begin(updates.size());
 
-		for(final DiscreteStoredArticle a : updates.values()) {
-			ItemStorageUpdateS2C.append(buf, a.toStack(), a.count, a.handle);
+		for(final StoredDiscreteArticle a : updates.values()) {
+			ItemStorageUpdateS2C.append(buf, a.toStack(), a.count(), a.handle());
 		}
 
 		if(isFirstUpdate) {
@@ -103,7 +103,7 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 
 	public void close(PlayerEntity playerEntity) {
 		if(playerEntity == player && storage != null) {
-			storage.stopListening(this);
+			storage.stopListening(this, false);
 			storage = null;
 			player = null;
 		}

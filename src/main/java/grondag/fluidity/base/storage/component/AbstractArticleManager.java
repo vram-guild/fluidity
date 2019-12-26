@@ -20,10 +20,10 @@ import java.util.function.Supplier;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.base.article.AbstractStoredArticle;
+import grondag.fluidity.base.article.StoredArticle;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractArticleManager<V extends AbstractStoredArticle> implements ArticleManager<V> {
+public abstract class AbstractArticleManager<V extends StoredArticle> implements ArticleManager<V> {
 	protected final Supplier<V> articleFactory;
 
 	protected AbstractArticleManager(Supplier<V> articleFactory) {

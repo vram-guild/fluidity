@@ -15,23 +15,18 @@
  ******************************************************************************/
 package grondag.fluidity.base.article;
 
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.article.StoredArticleView;
-import grondag.fluidity.api.storage.Storage;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractStoredArticle implements StoredArticleView {
-	// TODO: encapsulate
-	public Article article;
-	public int handle;
-	public final ObjectArraySet<Storage> stores = new ObjectArraySet<>();
+public abstract class AbstractStoredArticle implements StoredArticle {
+	protected Article article;
+	protected int handle;
 
 	@Override
-	public Article item() {
+	public Article article() {
 		return article;
 	}
 
@@ -40,8 +35,13 @@ public abstract class AbstractStoredArticle implements StoredArticleView {
 		return handle;
 	}
 
-	public abstract void addStore(Storage store);
+	@Override
+	public void setArticle(Article article) {
+		this.article = article;
+	}
 
-	public abstract void zero();
-
+	@Override
+	public void setHandle(int handle) {
+		this.handle = handle;
+	}
 }

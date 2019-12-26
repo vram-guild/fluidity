@@ -30,7 +30,7 @@ public abstract class AbstractLazyRollbackStorage<V extends AbstractStoredArticl
 
 	protected abstract Object createRollbackState();
 
-	protected abstract void applyRollbackState(Object state);
+	protected abstract void applyRollbackState(Object state, boolean isCommitted);
 
 	@Override
 	public final Consumer<TransactionContext> prepareRollback(TransactionContext context) {

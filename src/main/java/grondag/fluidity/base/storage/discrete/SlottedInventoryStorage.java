@@ -25,7 +25,7 @@ import net.minecraft.item.ItemStack;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.InventoryStorage;
-import grondag.fluidity.base.article.DiscreteStoredArticle;
+import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.component.FlexibleArticleManager;
 import grondag.fluidity.base.transact.TransactionHelper;
 import grondag.fluidity.impl.ArticleImpl;
@@ -43,7 +43,7 @@ public class SlottedInventoryStorage extends AbstractDiscreteStorage<SlottedInve
 	protected final ItemStack[] stacks;
 
 	public SlottedInventoryStorage(int slotCount) {
-		super(slotCount, slotCount * 64, new FlexibleArticleManager<>(slotCount, DiscreteStoredArticle::new));
+		super(slotCount, slotCount * 64, new FlexibleArticleManager<>(slotCount, StoredDiscreteArticle::new));
 		this.slotCount = slotCount;
 		stacks = new ItemStack[slotCount];
 		Arrays.fill(stacks, ItemStack.EMPTY);
@@ -166,8 +166,10 @@ public class SlottedInventoryStorage extends AbstractDiscreteStorage<SlottedInve
 	}
 
 	@Override
-	protected void applyRollbackState(Object state) {
-		TransactionHelper.applyInventoryRollbackState(state, this);
+	protected void applyRollbackState(Object state, boolean isCommitted) {
+		if(!isCommitted) {
+			TransactionHelper.applyInventoryRollbackState(state, this);
+		}
 	}
 
 	@Override
@@ -267,23 +269,23 @@ public class SlottedInventoryStorage extends AbstractDiscreteStorage<SlottedInve
 		final boolean isEmpty = stack.getCount() == count;
 
 		if(isEmpty && stack.getMaxCount() != 64) {
-			notifier.changeCapacity(64 - stack.getMaxCount());
+			notifier.addToCapacity(64 - stack.getMaxCount());
 		}
 
-		final DiscreteStoredArticle article = articles.findOrCreateArticle(ArticleImpl.of(stack));
+		final StoredDiscreteArticle article = articles.findOrCreateArticle(ArticleImpl.of(stack));
 		notifier.notifySupply(article, count);
-		article.count -= count;
+		article.addToCount(-count);
 	}
 
 	protected void notifyAccept(ItemStack stack, int count) {
 		final int newCount = stack.getCount();
 
 		if(newCount == count && stack.getMaxCount() != 64) {
-			notifier.changeCapacity(stack.getMaxCount() - 64);
+			notifier.addToCapacity(stack.getMaxCount() - 64);
 		}
 
-		final DiscreteStoredArticle article = articles.findOrCreateArticle(ArticleImpl.of(stack));
-		article.count += count;
+		final StoredDiscreteArticle article = articles.findOrCreateArticle(ArticleImpl.of(stack));
+		article.addToCount(count);
 		notifier.notifyAccept(article, count);
 	}
 

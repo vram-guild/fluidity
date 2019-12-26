@@ -16,6 +16,8 @@
 package grondag.fluidity.base.storage.discrete;
 
 import com.google.common.base.Preconditions;
+import it.unimi.dsi.fastutil.objects.Object2LongMap.Entry;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
@@ -25,18 +27,19 @@ import net.minecraft.nbt.ListTag;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.storage.StorageListener;
-import grondag.fluidity.base.article.DiscreteStoredArticle;
+import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
 import grondag.fluidity.base.storage.component.AbstractArticleManager;
+import grondag.fluidity.base.storage.component.DiscreteTrackingJournal;
 import grondag.fluidity.base.storage.component.DiscreteTrackingNotifier;
 import grondag.fluidity.impl.ArticleImpl;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<T>> extends AbstractLazyRollbackStorage<DiscreteStoredArticle, T> implements DiscreteStorage {
-	protected final AbstractArticleManager<DiscreteStoredArticle> articles;
+public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<T>> extends AbstractLazyRollbackStorage<StoredDiscreteArticle, T> implements DiscreteStorage {
+	protected final AbstractArticleManager<StoredDiscreteArticle> articles;
 	protected final DiscreteTrackingNotifier notifier;
 
-	AbstractDiscreteStorage(int startingHandleCount, long capacity, AbstractArticleManager<DiscreteStoredArticle> articles) {
+	AbstractDiscreteStorage(int startingHandleCount, long capacity, AbstractArticleManager<StoredDiscreteArticle> articles) {
 		this.articles = articles;
 		notifier = new DiscreteTrackingNotifier(capacity, this);
 	}
@@ -50,14 +53,14 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 			final int limit = articles.handleCount();
 
 			for (int i = 0; i < limit; i++) {
-				final DiscreteStoredArticle a = articles.get(i);
+				final StoredDiscreteArticle a = articles.get(i);
 
 				if(!a.isEmpty()) {
 					list.add(a.toTag());
 				}
 			}
 
-			result.put(TAG_ITEMS, list);
+			result.put(AbstractDiscreteStorage.TAG_ITEMS, list);
 		}
 
 		return result;
@@ -67,16 +70,16 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 	public void readTag(CompoundTag tag) {
 		clear();
 
-		if(tag.contains(TAG_ITEMS)) {
-			final ListTag list = tag.getList(TAG_ITEMS, 10);
+		if(tag.contains(AbstractDiscreteStorage.TAG_ITEMS)) {
+			final ListTag list = tag.getList(AbstractDiscreteStorage.TAG_ITEMS, 10);
 			final int limit = list.size();
-			final DiscreteStoredArticle lookup = new DiscreteStoredArticle();
+			final StoredDiscreteArticle lookup = new StoredDiscreteArticle();
 
 			for(int i = 0; i < limit; i++) {
 				lookup.readTag(list.getCompound(i));
 
 				if(!lookup.isEmpty()) {
-					accept(lookup.item(), lookup.count, false);
+					accept(lookup.article(), lookup.count(), false);
 				}
 			}
 		}
@@ -89,7 +92,7 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 
 	@Override
 	public StoredArticleView view(int handle) {
-		return articles.get(handle);
+		return ObjectUtils.defaultIfNull(articles.get(handle), StoredArticleView.EMPTY);
 	}
 
 	@Override
@@ -113,6 +116,11 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 	}
 
 	@Override
+	protected final void sendLastListenerUpdate(StorageListener listener) {
+		notifier.sendLastListenerUpdate(listener);
+	}
+
+	@Override
 	protected void onListenersEmpty() {
 		articles.compact();
 	}
@@ -129,8 +137,8 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 		final long result = Math.min(count, notifier.capacity() - notifier.count());
 
 		if(result > 0 && !simulate) {
-			final DiscreteStoredArticle article = articles.findOrCreateArticle(item);
-			article.count += result;
+			final StoredDiscreteArticle article = articles.findOrCreateArticle(item);
+			article.addToCount(result);
 			notifier.notifyAccept(article, result);
 			dirtyNotifier.run();
 		}
@@ -147,17 +155,17 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 			return 0;
 		}
 
-		final DiscreteStoredArticle article = articles.get(item);
+		final StoredDiscreteArticle article = articles.get(item);
 
 		if(article == null || article.isEmpty()) {
 			return 0;
 		}
 
-		final long result = Math.min(count, article.count);
+		final long result = Math.min(count, article.count());
 
 		if(result > 0 && !simulate) {
 			notifier.notifySupply(article, result);
-			article.count -= result;
+			article.addToCount(-result);
 			dirtyNotifier.run();
 		}
 
@@ -173,12 +181,12 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 		final int limit = articles.handleCount();
 
 		for (int i = 0; i < limit; i++) {
-			final DiscreteStoredArticle a = articles.get(i);
+			final StoredDiscreteArticle a = articles.get(i);
 
 			if(!a.isEmpty()) {
-				notifier.notifySupply(a, a.count);
-				a.article = ArticleImpl.NOTHING;
-				a.count = 0;
+				notifier.notifySupply(a, a.count());
+				a.setArticle(ArticleImpl.NOTHING);
+				a.zero();
 			}
 		}
 
@@ -188,13 +196,42 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 
 	@Override
 	protected Object createRollbackState() {
-		// TODO Auto-generated method stub
-		return null;
+		return notifier.beginNewJournalAndReturnPrior();
 	}
 
 	@Override
-	protected void applyRollbackState(Object state) {
-		// TODO Auto-generated method stub
+	protected void applyRollbackState(Object state, boolean isCommitted) {
+		final DiscreteTrackingJournal journal = notifier.journal();
+
+		if(!isCommitted && journal != null) {
+			if(journal.capacityDelta < 0) {
+				notifier.addToCapacity(-journal.capacityDelta);
+			}
+
+			for(final Entry<Article> e : journal.changes.object2LongEntrySet() ) {
+				final long q = e.getLongValue();
+
+				if(q > 0) {
+					supply(e.getKey(), q, false);
+				}
+			}
+
+			for(final Entry<Article> e : journal.changes.object2LongEntrySet() ) {
+				final long q = e.getLongValue();
+
+				if(q < 0) {
+					accept(e.getKey(), -q, false);
+				}
+			}
+
+			if(journal.capacityDelta > 0) {
+				notifier.addToCapacity(-journal.capacityDelta);
+			}
+		}
+
+		notifier.restoreJournal((DiscreteTrackingJournal) state);
 
 	}
+
+	public static final String TAG_ITEMS = "items";
 }

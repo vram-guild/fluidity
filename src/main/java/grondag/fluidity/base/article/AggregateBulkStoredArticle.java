@@ -13,42 +13,22 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.storage;
+package grondag.fluidity.base.article;
 
+import java.util.Set;
+
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.recipe.RecipeFinder;
-import net.minecraft.recipe.RecipeInputProvider;
-
-import grondag.fluidity.base.storage.discrete.DiscreteStorage;
+import grondag.fluidity.api.storage.Storage;
 
 @API(status = Status.EXPERIMENTAL)
-public interface InventoryStorage extends DiscreteStorage, Inventory, RecipeInputProvider {
-	@Override default boolean canPlayerUseInv(PlayerEntity player) {
-		return true;
-	}
+public class AggregateBulkStoredArticle extends StoredBulkArticle implements AggregateStoredArticle {
+	protected final ObjectOpenHashSet<Storage> stores = new ObjectOpenHashSet<>();
 
 	@Override
-	default void provideRecipeInputs(RecipeFinder finder) {
-		this.forEach(v -> {
-			if (!v.isEmpty()) {
-				finder.addItem(v.toStack());
-			}
-
-			return true;
-		});
-	}
-
-	@Override
-	default boolean isInvEmpty() {
-		return isEmpty();
-	}
-
-	@Override
-	default void markDirty() {
-		//NOOP - default implementation doesn't support vanilla inventory listeners
+	public Set<Storage> stores() {
+		return stores;
 	}
 }

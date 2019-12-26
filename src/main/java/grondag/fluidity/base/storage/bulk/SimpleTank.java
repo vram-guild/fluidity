@@ -28,11 +28,12 @@ import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.storage.StorageListener;
-import grondag.fluidity.base.article.BulkStoredArticle;
+import grondag.fluidity.base.article.StoredBulkArticle;
+import grondag.fluidity.base.article.StoredBulkArticleView;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
 
 @API(status = Status.EXPERIMENTAL)
-public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, SimpleTank> implements BulkStorage {
+public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, SimpleTank> implements BulkStorage {
 	protected final MutableFraction content = new MutableFraction();
 	protected final MutableFraction calc = new MutableFraction();
 	protected final View view = new View();
@@ -50,7 +51,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 
 	@Override
 	public StoredArticleView view(int handle) {
-		return  handle == 0 ? view : null;
+		return  handle == 0 ? view : StoredArticleView.EMPTY;
 	}
 
 	@Override
@@ -200,7 +201,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 		article = Article.fromTag(tag.get("art"));
 	}
 
-	protected class View implements StoredArticleView {
+	protected class View implements StoredBulkArticleView {
 		@Override
 		public int handle() {
 			return 0;
@@ -217,14 +218,8 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 		}
 
 		@Override
-		public Article item() {
+		public Article article() {
 			return article;
-		}
-
-		@Override
-		public long count() {
-			// TODO Auto-generated method stub
-			return 0;
 		}
 	}
 
@@ -234,25 +229,27 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 	}
 
 	@Override
-	protected void applyRollbackState(Object state) {
-		@SuppressWarnings("unchecked")
-		final Pair<Article, Fraction> pair = (Pair<Article, Fraction>) state;
-		final Article bulkItem = pair.getFirst();
-		final Fraction newContent = pair.getSecond();
+	protected void applyRollbackState(Object state, boolean isCommitted) {
+		if(!isCommitted) {
+			@SuppressWarnings("unchecked")
+			final Pair<Article, Fraction> pair = (Pair<Article, Fraction>) state;
+			final Article bulkItem = pair.getFirst();
+			final Fraction newContent = pair.getSecond();
 
-		if(bulkItem == article) {
-			if(newContent.isGreaterThan(content)) {
-				calc.set(newContent);
-				calc.subtract(content);
-				accept(bulkItem, calc, false);
-			} else if (newContent.isLessThan(content)) {
-				calc.set(content);
-				calc.subtract(newContent);
-				supply(bulkItem, calc, false);
+			if(bulkItem == article) {
+				if(newContent.isGreaterThan(content)) {
+					calc.set(newContent);
+					calc.subtract(content);
+					accept(bulkItem, calc, false);
+				} else if (newContent.isLessThan(content)) {
+					calc.set(content);
+					calc.subtract(newContent);
+					supply(bulkItem, calc, false);
+				}
+			} else {
+				supply(article, content, false);
+				accept(bulkItem, newContent, false);
 			}
-		} else {
-			supply(article, content, false);
-			accept(bulkItem, newContent, false);
 		}
 	}
 
@@ -262,26 +259,29 @@ public class SimpleTank extends AbstractLazyRollbackStorage<BulkStoredArticle, S
 	}
 
 	@Override
+	protected void sendLastListenerUpdate(StorageListener listener) {
+		listener.onSupply(this, 0, article, content, Fraction.ZERO);
+	}
+
+	@Override
 	protected void onListenersEmpty() {
 		// NOOP
 	}
 
 	@Override
 	public void clear() {
-		//TODO: implement rest of it
-
+		listeners.forEach(l -> l.onSupply(this, 0, article, content, Fraction.ZERO));
+		content.set(0);
 		dirtyNotifier.run();
 	}
 
 	@Override
 	public FractionView amount() {
-		// TODO Auto-generated method stub
-		return null;
+		return content;
 	}
 
 	@Override
 	public FractionView volume() {
-		// TODO Auto-generated method stub
-		return null;
+		return capacity;
 	}
 }

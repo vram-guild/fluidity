@@ -22,29 +22,27 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.storage.Storage;
 
 @API(status = Status.EXPERIMENTAL)
-public class DiscreteStoredArticle extends AbstractStoredArticle {
-	public long count;
+public class StoredDiscreteArticle extends AbstractStoredArticle implements StoredDiscreteArticleView {
+	protected long count;
 
-	public DiscreteStoredArticle() {
-		article = Article.NOTHING;
+	public StoredDiscreteArticle() {
+		setArticle(Article.NOTHING);
 	}
 
-	public DiscreteStoredArticle(Article article, final long count, final int handle) {
+	public StoredDiscreteArticle(Article article, final long count, final int handle) {
 		prepare(article, count, handle);
 	}
 
-	public DiscreteStoredArticle prepare(Article article, long count, int handle) {
-		this.article = article == null ? Article.NOTHING : article;
+	public StoredDiscreteArticle prepare(Article article, long count, int handle) {
+		setArticle(article == null ? Article.NOTHING : article);
 		this.handle = handle;
 		this.count = count;
 		return this;
 	}
 
-	public DiscreteStoredArticle prepare(ItemStack stack, int handle) {
+	public StoredDiscreteArticle prepare(ItemStack stack, int handle) {
 		return prepare(Article.of(stack), stack.getCount(), handle);
 	}
 
@@ -63,21 +61,15 @@ public class DiscreteStoredArticle extends AbstractStoredArticle {
 		count = 0;
 	}
 
-	@Override
-	public void addStore(Storage store) {
-		// TODO move to parent
-
+	public static StoredDiscreteArticle of(Article article, long count, int handle) {
+		return new StoredDiscreteArticle(article, count, handle);
 	}
 
-	public static DiscreteStoredArticle of(Article article, long count, int handle) {
-		return new DiscreteStoredArticle(article, count, handle);
-	}
-
-	public static DiscreteStoredArticle of(ItemStack stack) {
+	public static StoredDiscreteArticle of(ItemStack stack) {
 		return of(stack, stack.getCount(), 0);
 	}
 
-	public static DiscreteStoredArticle of(ItemStack item, long count, int handle) {
+	public static StoredDiscreteArticle of(ItemStack item, long count, int handle) {
 		return of(Article.of(item), count, handle);
 	}
 
@@ -89,13 +81,15 @@ public class DiscreteStoredArticle extends AbstractStoredArticle {
 	}
 
 	public void readTag(CompoundTag tag) {
-		article = Article.fromTag(tag.get("art"));
+		setArticle(Article.fromTag(tag.get("art")));
 		count = tag.getLong("count");
 	}
 
-	@Override
-	public FractionView volume() {
-		// TODO Auto-generated method stub
-		return null;
+	public void setCount(long count) {
+		this.count = count;
+	}
+
+	public void addToCount(long delta) {
+		count += delta;
 	}
 }

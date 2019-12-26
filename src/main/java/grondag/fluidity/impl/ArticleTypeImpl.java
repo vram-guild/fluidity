@@ -97,12 +97,6 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 
 	@Override
 	public Tag toTag() {
-		//TODO: remove
-		final Identifier id = ArticleTypeRegistryImpl.INSTANCE.getId(this);
-		if(id == null) {
-			System.out.println("boop");
-		}
-
 		return StringTag.of(ArticleTypeRegistry.instance().getId(this).toString());
 	}
 

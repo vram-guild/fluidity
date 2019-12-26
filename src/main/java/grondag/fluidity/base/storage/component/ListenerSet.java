@@ -34,18 +34,22 @@ public class ListenerSet implements Iterable<StorageListener>, Iterator<StorageL
 	protected StorageListener next = null;
 	protected boolean hasMissing = false;
 
-	protected final Consumer<StorageListener>  firstUpdateHandler;
+	protected final Consumer<StorageListener>  additionHandler;
+	protected final Consumer<StorageListener>  removalHandler;
 	protected final @Nullable Runnable onEmptyCallback;
 
-	public ListenerSet(Consumer<StorageListener>  firstUpdateHandler, @Nullable Runnable onEmptyCallback) {
-		this.firstUpdateHandler = firstUpdateHandler;
+	public ListenerSet(Consumer<StorageListener>  additionHandler, Consumer<StorageListener> removalHandler, @Nullable Runnable onEmptyCallback) {
+		this.additionHandler = additionHandler;
+		this.removalHandler = additionHandler;
 		this.onEmptyCallback = onEmptyCallback;
 	}
 
-	public void startListening(StorageListener listener) {
+	public void startListening(StorageListener listener, boolean sendNotifications) {
 		listeners.add(new WeakReference<>(listener));
 
-		firstUpdateHandler.accept(listener);
+		if(sendNotifications) {
+			additionHandler.accept(listener);
+		}
 	}
 
 	protected void cleanMissing() {
@@ -66,7 +70,7 @@ public class ListenerSet implements Iterable<StorageListener>, Iterator<StorageL
 		}
 	}
 
-	public void stopListening(StorageListener listener) {
+	public void stopListening(StorageListener listener, boolean sendNotifications) {
 		final int limit = listeners.size();
 
 		if (limit > 0) {
@@ -74,6 +78,10 @@ public class ListenerSet implements Iterable<StorageListener>, Iterator<StorageL
 				final StorageListener l = listeners.get(i).get();
 
 				if(l ==null || l == listener) {
+					if(sendNotifications) {
+						removalHandler.accept(listener);
+					}
+
 					listeners.remove(i);
 				}
 			}

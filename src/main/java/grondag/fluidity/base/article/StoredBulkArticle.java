@@ -18,44 +18,33 @@ package grondag.fluidity.base.article;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
-import grondag.fluidity.api.storage.Storage;
 
 @API(status = Status.EXPERIMENTAL)
-public class BulkStoredArticle extends AbstractStoredArticle {
-	protected MutableFraction fraction;
-	protected int handle;
+public class StoredBulkArticle extends AbstractStoredArticle implements StoredBulkArticleView {
+	protected final MutableFraction fraction = new MutableFraction();
 
-	public BulkStoredArticle() {
+	public StoredBulkArticle() {
+		setArticle(Article.NOTHING);
 	}
 
-	public BulkStoredArticle(ItemStack stack, int handle) {
-		prepare(stack, handle);
+	public StoredBulkArticle(Article article, final long count, final int handle) {
+		prepare(article, count, handle);
 	}
 
-	public BulkStoredArticle prepare(ItemStack stack, int handle) {
-		final Item item = stack.getItem();
-		final CompoundTag tag = stack.getTag();
-
+	public StoredBulkArticle prepare(Article article, long count, int handle) {
+		setArticle(article == null ? Article.NOTHING : article);
 		this.handle = handle;
-
-		if(item instanceof Article) {
-			this.article = (Article) item;
-			fraction.readTag(tag);
-			fraction.multiply(stack.getCount());
-		} else  {
-			this.article = Article.NOTHING;
-			fraction.set(Fraction.ZERO);
-		}
-
+		fraction.set(count);
 		return this;
+	}
+
+	public StoredBulkArticle prepare(ItemStack stack, int handle) {
+		return prepare(Article.of(stack), stack.getCount(), handle);
 	}
 
 	@Override
@@ -73,19 +62,7 @@ public class BulkStoredArticle extends AbstractStoredArticle {
 		return fraction;
 	}
 
-	public static BulkStoredArticle of(ItemStack stack) {
-		return new  BulkStoredArticle().prepare(stack, 0);
-	}
-
-	@Override
-	public void addStore(Storage store) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public long count() {
-		// TODO Auto-generated method stub
-		return 0;
+	public static StoredBulkArticle of(ItemStack stack) {
+		return new  StoredBulkArticle().prepare(stack, 0);
 	}
 }

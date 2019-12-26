@@ -25,11 +25,11 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.util.math.MathHelper;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.base.article.AbstractStoredArticle;
+import grondag.fluidity.base.article.StoredArticle;
 
 @SuppressWarnings("unchecked")
 @API(status = Status.EXPERIMENTAL)
-public class FlexibleArticleManager<V extends AbstractStoredArticle> extends AbstractArticleManager<V> {
+public class FlexibleArticleManager<V extends StoredArticle> extends AbstractArticleManager<V> {
 	protected final Object2ObjectOpenHashMap<Article, V> articles = new Object2ObjectOpenHashMap<>();
 
 	protected int nextUnusedHandle = 0;
@@ -45,7 +45,7 @@ public class FlexibleArticleManager<V extends AbstractStoredArticle> extends Abs
 
 		for(int i = 0; i < startingHandleCount; i++) {
 			final V a = articleFactory.get();
-			a.handle = i;
+			a.setHandle(i);
 			handles[i] = a;
 		}
 
@@ -58,7 +58,7 @@ public class FlexibleArticleManager<V extends AbstractStoredArticle> extends Abs
 
 		if(candidate == null) {
 			candidate = getEmptyArticle();
-			candidate.article = key;
+			candidate.setArticle(key);
 			articles.put(key, candidate);
 		}
 
@@ -86,7 +86,7 @@ public class FlexibleArticleManager<V extends AbstractStoredArticle> extends Abs
 
 		for(int i = handleCount; i < newCount; i++) {
 			final V a = articleFactory.get();
-			a.handle = i;
+			a.setHandle(i);
 			newHandles[i] = a;
 		}
 
@@ -109,15 +109,15 @@ public class FlexibleArticleManager<V extends AbstractStoredArticle> extends Abs
 				} else {
 					// swap with last non-empty and renumber
 					final V swap = handles[i];
-					swap.handle = target;
+					swap.setHandle(target);
 
 					handles[i] = handles[target];
-					handles[i].handle = i;
+					handles[i].setHandle(i);
 
 					handles[target] = swap;
 				}
 
-				articles.remove(a.article);
+				articles.remove(a.article());
 			}
 		}
 	}

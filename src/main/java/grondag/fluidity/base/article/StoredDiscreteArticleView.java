@@ -13,42 +13,25 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.storage;
+package grondag.fluidity.base.article;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.recipe.RecipeFinder;
-import net.minecraft.recipe.RecipeInputProvider;
+import grondag.fluidity.api.article.StoredArticleView;
+import grondag.fluidity.api.fraction.Fraction;
+import grondag.fluidity.api.fraction.FractionView;
 
-import grondag.fluidity.base.storage.discrete.DiscreteStorage;
-
+/**
+ * A view of an article stored in a container. (Could be an discrete item or bulk item.) <p>
+ *
+ * Containers (especially virtual ones) could contain both types of article.
+ * Most containers will not need this and should instead use the specific view type for their content.
+ */
 @API(status = Status.EXPERIMENTAL)
-public interface InventoryStorage extends DiscreteStorage, Inventory, RecipeInputProvider {
-	@Override default boolean canPlayerUseInv(PlayerEntity player) {
-		return true;
-	}
-
+public interface StoredDiscreteArticleView extends StoredArticleView{
 	@Override
-	default void provideRecipeInputs(RecipeFinder finder) {
-		this.forEach(v -> {
-			if (!v.isEmpty()) {
-				finder.addItem(v.toStack());
-			}
-
-			return true;
-		});
-	}
-
-	@Override
-	default boolean isInvEmpty() {
-		return isEmpty();
-	}
-
-	@Override
-	default void markDirty() {
-		//NOOP - default implementation doesn't support vanilla inventory listeners
+	default FractionView volume() {
+		return Fraction.of(count());
 	}
 }

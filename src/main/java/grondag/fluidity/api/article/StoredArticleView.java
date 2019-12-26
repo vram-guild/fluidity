@@ -31,7 +31,7 @@ import grondag.fluidity.api.fraction.FractionView;
  */
 @API(status = Status.EXPERIMENTAL)
 public interface StoredArticleView {
-	Article item();
+	Article article();
 
 	/**
 	 * An abstract handle to a quantity of a specific article instance that will
@@ -55,12 +55,12 @@ public interface StoredArticleView {
 	}
 
 	default ItemStack toStack() {
-		return item().toStack(count());
+		return article().toStack(count());
 	}
 
 	StoredArticleView EMPTY = new StoredArticleView() {
 		@Override
-		public Article item() {
+		public Article article() {
 			return Article.NOTHING;
 		}
 

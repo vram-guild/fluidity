@@ -20,16 +20,17 @@ import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.StorageListener;
-import grondag.fluidity.base.article.DiscreteStoredArticle;
+import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractStorage;
 
 @API(status = Status.EXPERIMENTAL)
-public class DiscreteTrackingNotifier extends DiscreteNotifier{
+public class DiscreteTrackingNotifier extends DiscreteNotifier {
 	protected long capacity;
 	protected long count;
 	protected int articleCount = 0;
+	protected DiscreteTrackingJournal journal = null;
 
-	public DiscreteTrackingNotifier(long capacity, AbstractStorage<DiscreteStoredArticle, ?> owner) {
+	public DiscreteTrackingNotifier(long capacity, AbstractStorage<? extends StoredDiscreteArticle, ?> owner) {
 		super(owner);
 		this.capacity = capacity;
 	}
@@ -37,6 +38,7 @@ public class DiscreteTrackingNotifier extends DiscreteNotifier{
 	@Override
 	public void notifySupply(Article item, int handle, long delta, long newCount) {
 		if (delta > 0) {
+			journal(item, -delta);
 			count -= delta;
 			super.notifySupply(item, handle, delta, newCount);
 
@@ -47,36 +49,13 @@ public class DiscreteTrackingNotifier extends DiscreteNotifier{
 	}
 
 	@Override
-	public void notifySupply(DiscreteStoredArticle article, long delta) {
-		if (delta > 0) {
-			count -= delta;
-			super.notifySupply(article, delta);
-
-			if(article.count == delta) {
-				--articleCount;
-			}
-		}
-	}
-
-	@Override
 	public void notifyAccept(Article item, int handle, long delta, long newCount) {
 		if (delta > 0) {
+			journal(item, delta);
 			count += delta;
 			super.notifyAccept(item, handle, delta, newCount);
 
 			if(newCount == delta) {
-				++articleCount;
-			}
-		}
-	}
-
-	@Override
-	public void notifyAccept(DiscreteStoredArticle article, long delta) {
-		if (delta > 0) {
-			count += delta;
-			super.notifyAccept(article, delta);
-
-			if(article.count == delta) {
 				++articleCount;
 			}
 		}
@@ -88,18 +67,28 @@ public class DiscreteTrackingNotifier extends DiscreteNotifier{
 		}
 	}
 
-	public void changeCapacity(long delta) {
-		setCapacity(capacity + delta);
+	public void addToCapacity(long delta) {
+		if(delta != 0) {
+			notifyCapacityChange(delta);
+		}
 	}
 
 	@Override
 	public void notifyCapacityChange(long capacityDelta) {
+		if(journal != null) {
+			journal.capacityDelta += capacityDelta;
+		}
+
 		capacity += capacityDelta;
 		super.notifyCapacityChange(capacityDelta);
 	}
 
 	public void sendFirstListenerUpdate(StorageListener listener) {
 		super.sendFirstListenerUpdate(listener, capacity);
+	}
+
+	public void sendLastListenerUpdate(StorageListener listener) {
+		super.sendLastListenerUpdate(listener, capacity);
 	}
 
 	public long count() {
@@ -112,5 +101,36 @@ public class DiscreteTrackingNotifier extends DiscreteNotifier{
 
 	public int articleCount() {
 		return articleCount;
+	}
+
+	public void clear() {
+		count = 0;
+		articleCount = 0;
+	}
+
+	protected void journal(Article article, long delta) {
+		if(journal != null) {
+			journal.changes.addTo(article, delta);
+		}
+	}
+
+	public DiscreteTrackingJournal beginNewJournalAndReturnPrior() {
+		final DiscreteTrackingJournal result = journal;
+		journal = DiscreteTrackingJournal.claim();
+		return result;
+	}
+
+	public void restoreJournal(DiscreteTrackingJournal journal) {
+		final DiscreteTrackingJournal old = this.journal;
+
+		if(old != null ) {
+			DiscreteTrackingJournal.release(old);
+		}
+
+		this.journal = journal;
+	}
+
+	public DiscreteTrackingJournal journal() {
+		return journal;
 	}
 }

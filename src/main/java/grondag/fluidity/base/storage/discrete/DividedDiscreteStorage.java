@@ -20,16 +20,16 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.base.article.DiscreteStoredArticle;
+import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.component.FixedArticleManager;
 
 @API(status = Status.EXPERIMENTAL)
-public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscreteStorage> implements DiscreteFixedStorage {
+public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscreteStorage> implements FixedDiscreteStorage {
 	protected final int divisionCount;
 	protected final long capacityPerDivision;
 
 	public DividedDiscreteStorage(int divisionCount, long capacityPerDivision) {
-		super(divisionCount, divisionCount * capacityPerDivision, new FixedArticleManager<>(divisionCount, DiscreteStoredArticle::new));
+		super(divisionCount, divisionCount * capacityPerDivision, new FixedArticleManager<>(divisionCount, StoredDiscreteArticle::new));
 		this.divisionCount = divisionCount;
 		this.capacityPerDivision = capacityPerDivision;
 	}
@@ -37,7 +37,7 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscr
 	@Override
 	public long accept(Article item, long count, boolean simulate) {
 		if(notifier.articleCount() >= divisionCount) {
-			final DiscreteStoredArticle a = articles.get(item);
+			final StoredDiscreteArticle a = articles.get(item);
 
 			if(a == null || a.isEmpty()) {
 				return 0;
@@ -49,8 +49,8 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscr
 		return super.accept(item, count, simulate);
 	}
 
-	protected long limit(DiscreteStoredArticle a, long requested) {
-		final long cap = capacityPerDivision - a.count;
+	protected long limit(StoredDiscreteArticle a, long requested) {
+		final long cap = capacityPerDivision - a.count();
 
 		if (cap <= 0) {
 			return 0;
@@ -68,17 +68,17 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscr
 			return 0;
 		}
 
-		final DiscreteStoredArticle a = articles.get(handle);
+		final StoredDiscreteArticle a = articles.get(handle);
 
-		if(a.isEmpty() || a.article.equals(item)) {
+		if(a.isEmpty() || a.article().equals(item)) {
 			final long result = limit(a, count);
 
 			if(result > 0 && !simulate) {
 				if(a.isEmpty()) {
-					a.article = item;
-					a.count = count;
+					a.setArticle(item);
+					a.setCount(count);
 				} else {
-					a.count += result;
+					a.addToCount(result);
 				}
 
 				notifier.notifyAccept(a, result);
@@ -100,17 +100,17 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscr
 			return 0;
 		}
 
-		final DiscreteStoredArticle a = articles.get(handle);
+		final StoredDiscreteArticle a = articles.get(handle);
 
-		if(a == null || a.isEmpty() || !a.article.equals(item)) {
+		if(a == null || a.isEmpty() || !a.article().equals(item)) {
 			return 0;
 		}
 
-		final long result = Math.min(count, a.count);
+		final long result = Math.min(count, a.count());
 
 		if(result > 0 && !simulate) {
 			notifier.notifySupply(a, result);
-			a.count -= result;
+			a.addToCount(-result);
 			dirtyNotifier.run();
 		}
 

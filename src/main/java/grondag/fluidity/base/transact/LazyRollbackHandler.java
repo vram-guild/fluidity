@@ -27,13 +27,13 @@ import grondag.fluidity.api.transact.TransactionContext;
 public class LazyRollbackHandler {
 	public  final Consumer<TransactionContext> externalHandler = this::handleExternal;
 	protected final Supplier<Object> rollbackSupplier;
-	protected final Consumer<Object> rollbackConsumer;
+	protected final RollbackHandler rollbackHandler;
 
 	private Object rollbackState = NO_TRANSACTION;
 
-	public LazyRollbackHandler(Supplier<Object> rollbackSupplier, Consumer<Object> rollbackConsumer) {
+	public LazyRollbackHandler(Supplier<Object> rollbackSupplier, RollbackHandler rollbackHandler) {
 		this.rollbackSupplier = rollbackSupplier;
-		this.rollbackConsumer = rollbackConsumer;
+		this.rollbackHandler = rollbackHandler;
 	}
 
 	public void prepareIfNeeded() {
@@ -43,8 +43,8 @@ public class LazyRollbackHandler {
 	}
 
 	private void handleExternal(TransactionContext context) {
-		if(!context.isCommited() && rollbackState != NOT_PREPARED) {
-			rollbackConsumer.accept(rollbackState);
+		if(rollbackState != NOT_PREPARED) {
+			rollbackHandler.accept(rollbackState, context.isCommited());
 		}
 
 		rollbackState = context.getState();
@@ -58,4 +58,9 @@ public class LazyRollbackHandler {
 
 	private static final Object NO_TRANSACTION = new Object();
 	private static final Object NOT_PREPARED = new Object();
+
+	@FunctionalInterface
+	public interface RollbackHandler {
+		void accept(Object rollbackState, boolean isCommitted);
+	}
 }

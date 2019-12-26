@@ -24,7 +24,7 @@ import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.FixedStorage;
 
 @API(status = Status.EXPERIMENTAL)
-public interface DiscreteFixedStorage extends DiscreteStorage, FixedStorage {
+public interface FixedDiscreteStorage extends DiscreteStorage, FixedStorage {
 	@Override
 	default FractionView accept(int handle, Article item, FractionView volume, boolean simulate) {
 		return Fraction.of(accept(handle, item, volume.whole(), simulate));

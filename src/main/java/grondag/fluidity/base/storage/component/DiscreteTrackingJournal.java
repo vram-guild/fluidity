@@ -15,24 +15,39 @@
  ******************************************************************************/
 package grondag.fluidity.base.storage.component;
 
+import java.util.concurrent.ArrayBlockingQueue;
+
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import net.minecraft.util.math.BlockPos;
+
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.base.article.StoredArticle;
 
 @API(status = Status.EXPERIMENTAL)
-public interface ArticleManager<V extends StoredArticle> {
-	V findOrCreateArticle(Article key);
+public class DiscreteTrackingJournal {
+	private DiscreteTrackingJournal() {}
 
-	/** Do not call while listeners are active */
-	void compact();
+	private static final ArrayBlockingQueue<DiscreteTrackingJournal> POOL = new ArrayBlockingQueue<>(4096);
 
-	int handleCount();
+	public long capacityDelta;
+	public final Object2LongOpenHashMap<Article> changes = new Object2LongOpenHashMap<>();
 
-	V get(int handle);
+	public void clear() {
+		capacityDelta = 0;
+		changes.clear();
+	}
 
-	V get(Article key);
+	BlockPos pos;
 
-	void clear();
+	static DiscreteTrackingJournal claim() {
+		final DiscreteTrackingJournal result = POOL.poll();
+		return result == null ? new DiscreteTrackingJournal() : result;
+	}
+
+	static void release(DiscreteTrackingJournal journal) {
+		journal.clear();
+		POOL.offer(journal);
+	}
 }

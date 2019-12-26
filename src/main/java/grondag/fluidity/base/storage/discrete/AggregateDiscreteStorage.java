@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -15,25 +15,31 @@
  ******************************************************************************/
 package grondag.fluidity.base.storage.discrete;
 
+import java.util.Collections;
+import java.util.Set;
+
 import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundTag;
 
+import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
-import grondag.fluidity.base.article.DiscreteStoredArticle;
+import grondag.fluidity.base.article.AggregateDiscreteStoredArticle;
+import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractAggregateStorage;
 import grondag.fluidity.base.storage.component.DiscreteTrackingNotifier;
 
 @API(status = Status.EXPERIMENTAL)
-public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteStoredArticle, AggregateDiscreteStorage> implements DiscreteStorage, DiscreteStorageListener {
+public class AggregateDiscreteStorage extends AbstractAggregateStorage<AggregateDiscreteStoredArticle, AggregateDiscreteStorage> implements DiscreteStorage, DiscreteStorageListener {
 	protected final DiscreteTrackingNotifier notifier;
 
 	public AggregateDiscreteStorage(int startingSlotCount) {
@@ -45,7 +51,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteS
 	}
 
 	@Nullable
-	protected DiscreteStoredArticle getArticle(Item item, CompoundTag tag) {
+	protected StoredDiscreteArticle getArticle(Item item, CompoundTag tag) {
 		return articles.get(Article.of(item, tag));
 	}
 
@@ -62,20 +68,52 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteS
 		itMe  = true;
 		long result = 0;
 
-		for (final Storage store : stores) {
-			enlister.accept(store);
-			result += store.accept(item, count - result, simulate);
+		// Try stores that already have article first
+		AggregateDiscreteStoredArticle article = articles.get(item);
 
-			if (result == count) {
-				break;
+		final Set<Storage> existing = article == null ? Collections.emptySet() : article.stores();
+
+		if(!existing.isEmpty()) {
+			for (final Storage store : existing) {
+				enlister.accept(store);
+				result += store.accept(item, count - result, simulate);
+
+				if (result == count) {
+					break;
+				}
+			}
+		}
+
+		if(result != count) {
+			for (final Storage store : stores) {
+				if(!existing.contains(store)) {
+					enlister.accept(store);
+					final long delta = store.accept(item, count - result, simulate);
+
+					if(delta != 0) {
+						result += delta;
+
+						// add new stores to per-article tracking
+						if(!simulate) {
+							existing.add(store);
+						}
+
+						if (result == count) {
+							break;
+						}
+					}
+				}
 			}
 		}
 
 		itMe = false;
 
 		if(result > 0 && !simulate) {
-			final DiscreteStoredArticle article = articles.findOrCreateArticle(item);
-			article.count += result;
+			if(article == null) {
+				article = articles.findOrCreateArticle(item);
+			}
+
+			article.addToCount(result);
 			notifier.notifyAccept(article, result);
 		}
 
@@ -91,7 +129,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteS
 			return 0;
 		}
 
-		final DiscreteStoredArticle article = articles.get(item);
+		final AggregateDiscreteStoredArticle article = articles.get(item);
 
 		if(article == null || article.isEmpty()) {
 			return 0;
@@ -101,12 +139,23 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteS
 		itMe  = true;
 		long result = 0;
 
-		for (final Storage store : article.stores) {
-			enlister.accept(store);
-			result += store.supply(item, count - result, simulate);
+		final Set<Storage> existing = article.stores();
 
-			if (result == count) {
-				break;
+		for (final Storage store : existing) {
+			enlister.accept(store);
+			final long delta = store.supply(item, count - result, simulate);
+
+			if(delta != 0) {
+				result += delta;
+
+				// remove from per-article tracking if store no longer contains
+				if(!simulate && store.countOf(item) == 0) {
+					existing.remove(store);
+				}
+
+				if (result == count) {
+					break;
+				}
 			}
 		}
 
@@ -114,20 +163,20 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteS
 
 		if(result > 0 && !simulate) {
 			notifier.notifySupply(article, result);
-			article.count -= result;
+			article.addToCount(-result);
 		}
 
 		return result;
 	}
 
 	@Override
-	protected DiscreteStoredArticle newArticle() {
-		return new DiscreteStoredArticle();
+	protected AggregateDiscreteStoredArticle newArticle() {
+		return new AggregateDiscreteStoredArticle();
 	}
 
 	@Override
 	public StoredArticleView view(int slot) {
-		return articles.get(slot);
+		return ObjectUtils.defaultIfNull(articles.get(slot), StoredArticleView.EMPTY);
 	}
 
 	@Override
@@ -148,36 +197,75 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<DiscreteS
 	@Override
 	public void onAccept(Storage storage, int slot, Article item, long delta, long newCount) {
 		if (!itMe) {
-			// TODO Auto-generated method stub
+			final AggregateDiscreteStoredArticle article = articles.findOrCreateArticle(item);
+			article.addToCount(delta);
+			article.stores().add(storage);
+			notifier.notifyAccept(article, delta);
 		}
 	}
+
+	static boolean warnIgnore = true;
+	static boolean warnPartialIgnore = true;
 
 	@Override
 	public void onSupply(Storage storage, int slot, Article item, long delta, long newCount) {
 		if (!itMe) {
-			// TODO Auto-generated method stub
+			final AggregateDiscreteStoredArticle article = articles.get(item);
+
+			if(article == null) {
+				if(warnIgnore) {
+					Fluidity.LOG.warn("AggregateStorage ignored notification of supply for non-tracked article.");
+					Fluidity.LOG.warn("This probably indicates a bug in a mod using Fludity. Warnings for subsequent events are suppressed.");
+					warnIgnore = false;
+				}
+
+				return;
+			}
+
+			if(delta > article.count()) {
+				if(warnPartialIgnore) {
+					Fluidity.LOG.warn("AggregateStorage partially ignored notification of supply for article with mimatched amount.");
+					Fluidity.LOG.warn("This probably indicates a bug in a mod using Fludity. Warnings for subsequent events are suppressed.");
+					warnPartialIgnore = false;
+				}
+
+				delta = article.count();
+			}
+
+			if(newCount == 0) {
+				article.stores().remove(storage);
+			}
+
+			article.addToCount(-delta);
+			notifier.notifySupply(article, delta);
 		}
 	}
 
 	@Override
 	public void onCapacityChange(Storage storage, long capacityDelta) {
-		notifier.changeCapacity(capacityDelta);
+		notifier.addToCapacity(capacityDelta);
 	}
 
-	@Override
-	public void disconnect(Storage target) {
-		// TODO Auto-generated method stub
-
-	}
-
+	/** Removes all stores, not the underlying storages */
 	@Override
 	public void clear() {
-		// NOOP - unsupported
+		if(stores.isEmpty()) {
+			return;
+		}
+
+		for(final Storage store : stores.toArray(new Storage[stores.size()])) {
+			removeStore(store);
+		}
 	}
 
 	@Override
 	protected void sendFirstListenerUpdate(StorageListener listener) {
 		notifier.sendFirstListenerUpdate(listener);
+	}
+
+	@Override
+	protected void sendLastListenerUpdate(StorageListener listener) {
+		notifier.sendLastListenerUpdate(listener);
 	}
 
 	@Override

@@ -59,13 +59,31 @@ public interface Storage extends Transactor {
 		return handle >=0  && handle < handleCount();
 	}
 
-	@Nullable StoredArticleView view(int handle);
+	/**
+	 *
+	 * @param handle
+	 * @return View of article store at handle if handle is valid - view may be empty.
+	 * For invalid handles, storage implementations should return {@link StoredArticleView#EMPTY}.
+	 */
+	StoredArticleView view(int handle);
 
-	default boolean isHandleVisibleFrom(Object connection) {
-		return true;
+	default boolean isView() {
+		return false;
 	}
 
-	default void forEach(@Nullable Object connection, Predicate<StoredArticleView> filter, Predicate<StoredArticleView> action) {
+	default Storage viewOwner() {
+		return this;
+	}
+
+	default boolean isAggregate() {
+		return false;
+	}
+
+	default @Nullable StorageDevice device() {
+		return null;
+	}
+
+	default void forEach(Predicate<? super StoredArticleView> filter, Predicate<? super StoredArticleView> action) {
 		final int limit = handleCount();
 
 		for (int i = 0; i < limit; i++) {
@@ -79,16 +97,8 @@ public interface Storage extends Transactor {
 		}
 	}
 
-	default void forEach(Predicate<StoredArticleView> filter, Predicate<StoredArticleView> action) {
-		forEach(null, filter, action);
-	}
-
-	default void forEach(@Nullable Object connection, Predicate<StoredArticleView> action) {
-		forEach(connection, Predicates.alwaysTrue(), action);
-	}
-
-	default void forEach(Predicate<StoredArticleView> action) {
-		forEach(null, Predicates.alwaysTrue(), action);
+	default void forEach(Predicate<? super StoredArticleView> action) {
+		forEach(Predicates.alwaysTrue(), action);
 	}
 
 	/**
@@ -231,19 +241,15 @@ public interface Storage extends Transactor {
 	 */
 	long supply(Article item, long numerator, long divisor, boolean simulate);
 
-	Iterable<StorageListener> listeners();
+	void startListening(StorageListener listener, boolean sendNotifications);
 
-	void startListening(StorageListener listener);
-
-	void stopListening(StorageListener listener);
-
-	Predicate <? super StoredArticleView> NOT_EMPTY = a -> !a.isEmpty();
+	void stopListening(StorageListener listener, boolean sendNotifications);
 
 	CompoundTag writeTag();
 
 	void readTag(CompoundTag tag);
 
-	String TAG_ITEMS = "items";
+	Predicate <? super StoredArticleView> NOT_EMPTY = a -> !a.isEmpty();
 
 	Storage EMPTY = EmptyStorage.INSTANCE;
 	Storage VOID = VoidStorage.INSTANCE;

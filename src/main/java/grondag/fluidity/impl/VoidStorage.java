@@ -19,7 +19,6 @@ import static org.apiguardian.api.API.Status.INTERNAL;
 
 import java.util.function.Consumer;
 
-import com.google.common.collect.ImmutableList;
 import org.apiguardian.api.API;
 
 import net.minecraft.nbt.CompoundTag;
@@ -104,17 +103,12 @@ public final class VoidStorage implements FixedStorage {
 	}
 
 	@Override
-	public Iterable<StorageListener> listeners() {
-		return ImmutableList.of();
-	}
-
-	@Override
-	public void startListening(StorageListener listener) {
+	public void startListening(StorageListener listener, boolean sendNotifications) {
 		// NOOP
 	}
 
 	@Override
-	public void stopListening(StorageListener listener) {
+	public void stopListening(StorageListener listener, boolean sendNotifications) {
 		// NOOP
 	}
 

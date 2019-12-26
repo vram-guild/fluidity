@@ -18,6 +18,7 @@ package grondag.fluidity.base.storage;
 import java.util.function.Consumer;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
@@ -26,11 +27,11 @@ import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.Transactor;
-import grondag.fluidity.base.article.AbstractStoredArticle;
+import grondag.fluidity.base.article.AggregateStoredArticle;
 import grondag.fluidity.base.storage.component.FlexibleArticleManager;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractAggregateStorage<V extends AbstractStoredArticle, T extends AbstractAggregateStorage<V, T>> extends AbstractStorage<V, T> {
+public abstract class AbstractAggregateStorage<V extends AggregateStoredArticle, T extends AbstractAggregateStorage<V, T>> extends AbstractStorage<V, T> implements StorageListener {
 	protected final Consumer<TransactionContext> rollbackHandler = this::handleRollback;
 	protected final FlexibleArticleManager<V> articles;
 	protected final ObjectOpenHashSet<Storage> stores = new ObjectOpenHashSet<>();
@@ -48,13 +49,17 @@ public abstract class AbstractAggregateStorage<V extends AbstractStoredArticle, 
 
 	public void addStore(Storage store) {
 		if(stores.add(store)) {
-			store.forEach(Storage.NOT_EMPTY, a -> {
-				articles.findOrCreateArticle(a.item()).addStore(store);
-				return true;
-			});
+			store.startListening(listener(), true);
 		}
+	}
 
-		store.startListening(listener());
+	protected boolean needsRebuild = false;
+
+	public void removeStore(Storage store) {
+		if(stores.contains(store)) {
+			store.stopListening(listener(), true);
+			stores.remove(store);
+		}
 	}
 
 	public AbstractAggregateStorage() {
@@ -79,6 +84,12 @@ public abstract class AbstractAggregateStorage<V extends AbstractStoredArticle, 
 
 	@Override
 	public StoredArticleView view(int handle) {
-		return articles.get(handle);
+		return ObjectUtils.defaultIfNull(articles.get(handle), StoredArticleView.EMPTY);
+	}
+
+	@Override
+	public void disconnect(Storage storage, boolean didNotify, boolean isValid) {
+		// TODO Auto-generated method stub
+
 	}
 }

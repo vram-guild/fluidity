@@ -26,15 +26,15 @@ import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.storage.InventoryStorage;
 import grondag.fluidity.api.storage.StorageListener;
-import grondag.fluidity.base.article.DiscreteStoredArticle;
+import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
 import grondag.fluidity.base.storage.component.DiscreteNotifier;
 import grondag.fluidity.impl.ArticleImpl;
 
 @API(status = Status.EXPERIMENTAL)
-public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<DiscreteStoredArticle,  SingleStackInventoryStorage> implements DiscreteStorage, InventoryStorage {
+public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<StoredDiscreteArticle,  SingleStackInventoryStorage> implements DiscreteStorage, InventoryStorage {
 	protected ItemStack stack = ItemStack.EMPTY;
-	protected final DiscreteStoredArticle view = new DiscreteStoredArticle();
+	protected final StoredDiscreteArticle view = new StoredDiscreteArticle();
 	protected final DiscreteNotifier notifier = new DiscreteNotifier(this);
 
 	@Override
@@ -162,8 +162,10 @@ public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<Dis
 	}
 
 	@Override
-	protected void applyRollbackState(Object state) {
-		stack = (ItemStack) state;
+	protected void applyRollbackState(Object state, boolean isCommitted) {
+		if(!isCommitted) {
+			stack = (ItemStack) state;
+		}
 	}
 
 	@Override
@@ -240,6 +242,12 @@ public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<Dis
 	protected void sendFirstListenerUpdate(StorageListener listener) {
 		listener.onCapacityChange(this, stack.getMaxCount());
 		listener.onAccept(this, 0, ArticleImpl.of(stack), stack.getCount(), stack.getCount());
+	}
+
+	@Override
+	protected void sendLastListenerUpdate(StorageListener listener) {
+		listener.onSupply(this, 0, ArticleImpl.of(stack), stack.getCount(), 0);
+		listener.onCapacityChange(this, 0);
 	}
 
 	@Override

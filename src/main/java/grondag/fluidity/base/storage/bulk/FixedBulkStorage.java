@@ -13,14 +13,23 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-
-package grondag.fluidity.api.storage;
+package grondag.fluidity.base.storage.bulk;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.storage.FixedStorage;
+
 @API(status = Status.EXPERIMENTAL)
-@FunctionalInterface
-public interface StorageSupplier {
-	Storage getStorage();
+public interface FixedBulkStorage extends BulkStorage, FixedStorage {
+	@Override
+	default long accept(int handle, Article item, long count, boolean simulate) {
+		return accept(handle, item, count, 1, simulate);
+	}
+
+	@Override
+	default long supply(int handle, Article item, long count, boolean simulate) {
+		return supply(handle, item, count, 1, simulate);
+	}
 }
