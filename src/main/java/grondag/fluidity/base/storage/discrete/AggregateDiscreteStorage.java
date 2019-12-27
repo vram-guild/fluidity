@@ -15,7 +15,6 @@
  ******************************************************************************/
 package grondag.fluidity.base.storage.discrete;
 
-import java.util.Collections;
 import java.util.Set;
 
 import javax.annotation.Nullable;
@@ -69,9 +68,9 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 		long result = 0;
 
 		// Try stores that already have article first
-		AggregateDiscreteStoredArticle article = articles.get(item);
+		final AggregateDiscreteStoredArticle article = articles.findOrCreateArticle(item);
 
-		final Set<Storage> existing = article == null ? Collections.emptySet() : article.stores();
+		final Set<Storage> existing = article.stores();
 
 		if(!existing.isEmpty()) {
 			for (final Storage store : existing) {
@@ -109,10 +108,6 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 		itMe = false;
 
 		if(result > 0 && !simulate) {
-			if(article == null) {
-				article = articles.findOrCreateArticle(item);
-			}
-
 			article.addToCount(result);
 			notifier.notifyAccept(article, result);
 		}

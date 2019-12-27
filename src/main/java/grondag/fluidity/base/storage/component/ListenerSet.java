@@ -56,7 +56,7 @@ public class ListenerSet implements Iterable<StorageListener>, Iterator<StorageL
 		if(hasMissing) {
 			final int limit = listeners.size();
 
-			for(int i = limit - 1; i >= 0; i++) {
+			for(int i = limit - 1; i >= 0; i--) {
 				if(listeners.get(i).get() ==null) {
 					listeners.remove(i);
 				}

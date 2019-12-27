@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -31,13 +31,18 @@ import net.minecraft.util.PacketByteBuf;
 import grondag.fluidity.impl.ArticleImpl;
 
 /**
- * Represents a game resource that may be a fluid, xp, power or may be some other
- * thing that is quantifiable and stored or transported.
+ * Represents a game resource that may be an ItemStack, Fluid, XP, power or any other
+ * instance that is quantifiable and can be serialized to/from NBT and packet buffers.
  */
 @API(status = Status.EXPERIMENTAL)
 public interface Article {
 	ArticleType<?> type();
 
+	/**
+	 * The instance represented by this article.
+	 * @param <T> Type of the instance, determined by {@link #type()}.
+	 * @return The instance. Should return {@code null} <em>only</em> for {@link #NOTHING}.
+	 */
 	@Nullable <T> T resource();
 
 	default boolean isNothing() {
