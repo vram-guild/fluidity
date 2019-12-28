@@ -101,6 +101,11 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 	}
 
 	@Override
+	public boolean isFull() {
+		return notifier.count() >= notifier.capacity();
+	}
+
+	@Override
 	public long count() {
 		return notifier.count();
 	}

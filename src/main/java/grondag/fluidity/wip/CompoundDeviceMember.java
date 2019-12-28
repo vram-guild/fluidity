@@ -20,10 +20,10 @@ import javax.annotation.Nullable;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.device.StorageDevice;
+import grondag.fluidity.api.device.Device;
 
 @API(status = Status.EXPERIMENTAL)
-public interface CompoundDeviceMember<T extends CompoundDeviceMember<T, U>, U extends CompoundDevice<T, U>> extends LocatedDevice, StorageDevice {
+public interface CompoundDeviceMember<T extends CompoundDeviceMember<T, U>, U extends CompoundDevice<T, U>> extends LocatedDevice, Device {
 	@Nullable U getCompoundDevice();
 
 	void setCompoundDevice(@Nullable U owner);

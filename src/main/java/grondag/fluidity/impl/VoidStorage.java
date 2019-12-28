@@ -156,4 +156,24 @@ public final class VoidStorage implements FixedStorage {
 	public long supply(int handle, Article item, long numerator, long divisor, boolean simulate) {
 		return 0;
 	}
+
+	@Override
+	public boolean isFull() {
+		return false;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return true;
+	}
+
+	@Override
+	public boolean canAccept() {
+		return true;
+	}
+
+	@Override
+	public boolean canSupply() {
+		return false;
+	}
 }

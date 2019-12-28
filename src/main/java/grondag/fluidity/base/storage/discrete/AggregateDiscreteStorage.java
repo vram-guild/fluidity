@@ -20,6 +20,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
@@ -54,6 +55,8 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 		return articles.get(Article.of(item, tag));
 	}
 
+	protected final ObjectArrayList<Storage> searchList = new ObjectArrayList<>();
+
 	@Override
 	public long accept(Article item, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
@@ -67,25 +70,54 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 		itMe  = true;
 		long result = 0;
 
-		// Try stores that already have article first
 		final AggregateDiscreteStoredArticle article = articles.findOrCreateArticle(item);
 
+		// Try stores that already have article first
 		final Set<Storage> existing = article.stores();
 
 		if(!existing.isEmpty()) {
-			for (final Storage store : existing) {
-				enlister.accept(store);
-				result += store.accept(item, count - result, simulate);
+			// save non-existing stores here in case existing have insufficient capacity
+			searchList.clear();
 
-				if (result == count) {
-					break;
+			for (final Storage store : stores) {
+				if(store.canAccept() && !store.isFull()) {
+
+					if(existing.contains(store)) {
+						enlister.accept(store);
+						result += store.accept(item, count - result, simulate);
+
+						if (result == count) {
+							break;
+						}
+					} else {
+						searchList.add(store);
+					}
 				}
 			}
-		}
 
-		if(result != count) {
+			if (result < count) {
+				for (final Storage store : searchList) {
+					enlister.accept(store);
+					final long delta = store.accept(item, count - result, simulate);
+
+					if(delta != 0) {
+						result += delta;
+
+						// add new stores to per-article tracking
+						if(!simulate) {
+							existing.add(store);
+						}
+
+						if (result == count) {
+							break;
+						}
+					}
+				}
+			}
+
+		} else {
 			for (final Storage store : stores) {
-				if(!existing.contains(store)) {
+				if(store.canAccept() && !store.isFull()) {
 					enlister.accept(store);
 					final long delta = store.accept(item, count - result, simulate);
 
@@ -137,19 +169,21 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 		final Set<Storage> existing = article.stores();
 
 		for (final Storage store : existing) {
-			enlister.accept(store);
-			final long delta = store.supply(item, count - result, simulate);
+			if(store.canSupply()) {
+				enlister.accept(store);
+				final long delta = store.supply(item, count - result, simulate);
 
-			if(delta != 0) {
-				result += delta;
+				if(delta != 0) {
+					result += delta;
 
-				// remove from per-article tracking if store no longer contains
-				if(!simulate && store.countOf(item) == 0) {
-					existing.remove(store);
-				}
+					// remove from per-article tracking if store no longer contains
+					if(!simulate && store.countOf(item) == 0) {
+						existing.remove(store);
+					}
 
-				if (result == count) {
-					break;
+					if (result == count) {
+						break;
+					}
 				}
 			}
 		}
@@ -187,6 +221,16 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 	@Override
 	public long capacity() {
 		return notifier.capacity();
+	}
+
+	@Override
+	public boolean isFull() {
+		return notifier.count() >= notifier.capacity();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return notifier.count() == 0;
 	}
 
 	@Override

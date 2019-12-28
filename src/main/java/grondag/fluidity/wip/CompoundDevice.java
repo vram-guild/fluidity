@@ -20,10 +20,10 @@ import java.util.function.Consumer;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.device.StorageDevice;
+import grondag.fluidity.api.device.Device;
 
 @API(status = Status.EXPERIMENTAL)
-public interface CompoundDevice<T extends CompoundDeviceMember<T, U>, U extends CompoundDevice<T, U>> extends StorageDevice {
+public interface CompoundDevice<T extends CompoundDeviceMember<T, U>, U extends CompoundDevice<T, U>> extends Device {
 	default void close() {
 
 	}

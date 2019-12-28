@@ -25,7 +25,7 @@ import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.base.storage.discrete.AggregateDiscreteStorage;
 
 @API(status = Status.EXPERIMENTAL)
-public class CompoundDiscreteStorage<T extends CompoundDeviceMember<T, U>, U extends CompoundDiscreteStorage<T, U>> extends AggregateDiscreteStorage implements CompoundDevice<T, U> {
+public class CompoundDiscreteStorageDevice<T extends CompoundDeviceMember<T, U>, U extends CompoundDiscreteStorageDevice<T, U>> extends AggregateDiscreteStorage implements CompoundDevice<T, U> {
 
 	protected final ObjectOpenHashSet<T> devices = new ObjectOpenHashSet<>();
 

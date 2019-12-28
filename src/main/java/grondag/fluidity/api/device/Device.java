@@ -23,7 +23,7 @@ import grondag.fluidity.api.storage.Storage;
 
 @API(status = Status.EXPERIMENTAL)
 @FunctionalInterface
-public interface StorageDevice {
+public interface Device {
 	Storage getStorage();
 
 	default Storage getStorage(Object connection) {
@@ -33,7 +33,7 @@ public interface StorageDevice {
 
 	/**
 	 * Component members may elect to return the compound storage instance from calls to
-	 * {@link StorageDevice#getStorage()}. This method offers an unambiguous way to
+	 * {@link Device#getStorage()}. This method offers an unambiguous way to
 	 * reference the storage of this component device specifically.
 	 *
 	 * <p>Also used by and necessary for aggregate storage implementations for the same reason.

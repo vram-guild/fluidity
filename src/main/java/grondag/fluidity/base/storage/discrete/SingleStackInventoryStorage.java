@@ -63,6 +63,11 @@ public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<Sto
 	}
 
 	@Override
+	public boolean isFull() {
+		return !stack.isEmpty() && stack.getCount() >= stack.getMaxCount();
+	}
+
+	@Override
 	public ItemStack getInvStack(int slot) {
 		return slot == 0 ? stack : ItemStack.EMPTY;
 	}

@@ -45,6 +45,16 @@ public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, S
 	}
 
 	@Override
+	public boolean isFull() {
+		return content.isGreaterThankOrEqual(capacity);
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return content.isZero();
+	}
+
+	@Override
 	public int handleCount() {
 		return 1;
 	}

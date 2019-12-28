@@ -29,7 +29,7 @@ import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
-import grondag.fluidity.api.device.StorageDevice;
+import grondag.fluidity.api.device.Device;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.transact.Transactor;
@@ -43,18 +43,6 @@ import grondag.fluidity.impl.VoidStorage;
 @API(status = Status.EXPERIMENTAL)
 public interface Storage extends Transactor {
 	int handleCount();
-
-	default boolean isEmpty() {
-		final int size = handleCount();
-
-		for (int i = 0; i < size; i++) {
-			if (!view(i).isEmpty()) {
-				return false;
-			}
-		}
-
-		return true;
-	}
 
 	default boolean isHandleValid(int handle) {
 		return handle >=0  && handle < handleCount();
@@ -80,7 +68,7 @@ public interface Storage extends Transactor {
 		return false;
 	}
 
-	default @Nullable StorageDevice device() {
+	default @Nullable Device device() {
 		return null;
 	}
 
@@ -114,6 +102,29 @@ public interface Storage extends Transactor {
 	long accept(Article item, long count, boolean simulate);
 
 	/**
+	 * Can be used to shortcut accept requests and is useful for bulk storage to
+	 * distinguish between having too small units to honor supply requests vs.
+	 * being truly full.
+	 *
+	 * <p>For views, this reflects the state of the view and not the underlying storage.
+	 *
+	 * @return {@code true} When the storage constraints are reached such that
+	 * any request to accept more will return zerp.
+	 */
+	boolean isFull();
+
+	/**
+	 * Distinct from {@link #isFull()} - can be false even when storage is not full.
+	 * Meant for modeling machine output buffers that should never take input, but
+	 * can have other, similar uses. Insert logic should ignore any storage that returns false.
+	 *
+	 * @return {@code true} if this storage may ever accept articles.
+	 */
+	default boolean canAccept() {
+		return true;
+	}
+
+	/**
 	 * Removes items from this storage. May return less than requested.
 	 *
 	 * @param item Item to remove
@@ -123,6 +134,28 @@ public interface Storage extends Transactor {
 	 * @return Count removed, or that would be removed if {@code simulate} = true.
 	 */
 	long supply(Article item, long count, boolean simulate);
+
+	/**
+	 * Can be used to shortcut supply requests and is useful for bulk storage to
+	 * distinguish between having too little content to honor supply requests vs.
+	 * being truly empty.
+	 *
+	 * <p>For views, this reflects the state of the view and not the underlying storage.
+	 *
+	 * @return {@code true} When the storage has nothing in it.
+	 */
+	boolean isEmpty();
+
+	/**
+	 * Distinct from {@link #isEmpty()} - can be false even when storage has content.
+	 * Meant for modeling machine input buffers that should never give output, but
+	 * can have other, similar uses. Extract logic should ignore any storage that returns false.
+	 *
+	 * @return {@code true} if this storage may ever accept articles.
+	 */
+	default boolean canSupply() {
+		return true;
+	}
 
 	long count();
 

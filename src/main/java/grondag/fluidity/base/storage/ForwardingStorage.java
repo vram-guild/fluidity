@@ -27,7 +27,7 @@ import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
-import grondag.fluidity.api.device.StorageDevice;
+import grondag.fluidity.api.device.Device;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
@@ -161,7 +161,7 @@ public class ForwardingStorage implements Storage {
 	}
 
 	@Override
-	public StorageDevice device() {
+	public Device device() {
 		return wrapped.device();
 	}
 
@@ -223,5 +223,20 @@ public class ForwardingStorage implements Storage {
 	@Override
 	public long supply(ItemStack stack, boolean simulate) {
 		return wrapped.supply(stack, simulate);
+	}
+
+	@Override
+	public boolean isFull() {
+		return wrapped.isFull();
+	}
+
+	@Override
+	public boolean canAccept() {
+		return wrapped.canAccept();
+	}
+
+	@Override
+	public boolean canSupply() {
+		return wrapped.canSupply();
 	}
 }

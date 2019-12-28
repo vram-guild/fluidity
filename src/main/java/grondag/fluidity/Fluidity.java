@@ -51,8 +51,13 @@ public class Fluidity implements ModInitializer {
 	public static final String MOD_ID = "fluidity";
 	public static final Logger LOG = LogManager.getLogger("Fluidity");
 
+	static void trace(String message, Object... args) {
+		LOG.info(String.format("[Fluidity] " + message, args));
+	}
+
 	@Override
 	public void onInitialize() {
+		FluidityConfig.init();
 		ServerTickCallback.EVENT.register(CompoundDeviceManager::tick);
 
 		ServerStartCallback.EVENT.register(s -> {
