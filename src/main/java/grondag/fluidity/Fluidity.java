@@ -32,7 +32,6 @@ import grondag.fluidity.wip.CompoundDeviceManager;
 /**
  * TODO: add check for chunk loaded on fill
  * TODO: implement multiblock limits
- * FIX: detect and handle cycles
 
  * TODO: how do pipes work?
  * TODO: explicit device disconnect handling to allow retaining storage instances without wrapping
@@ -51,7 +50,7 @@ public class Fluidity implements ModInitializer {
 	public static final String MOD_ID = "fluidity";
 	public static final Logger LOG = LogManager.getLogger("Fluidity");
 
-	static void trace(String message, Object... args) {
+	public static void trace(String message, Object... args) {
 		LOG.info(String.format("[Fluidity] " + message, args));
 	}
 

@@ -36,6 +36,9 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 
+import grondag.fluidity.Fluidity;
+import grondag.fluidity.FluidityConfig;
+
 @API(status = Status.EXPERIMENTAL)
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U extends CompoundDevice<T, U>> {
@@ -78,6 +81,10 @@ public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U exten
 		}
 
 		private void doConnect(T device) {
+			if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
+				Fluidity.trace("Device connection request from %s @ %s", device.toString(), device.pos().toString());
+			}
+
 			final long pos = device.packedPos();
 			final T prior = put(pos, device);
 
@@ -112,27 +119,54 @@ public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U exten
 				if(toOwner == null) {
 					// form new compound device
 					final U newOwner = compoundSupplier.get();
+
+					if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
+						Fluidity.trace("New compound device %s from %s @ %s and %s @ %s", newOwner.toString(), fromDevice.toString(), fromDevice.pos().toString(), toDevice.toString(), toDevice.pos().toString());
+					}
+
 					fromDevice.setCompoundDevice(newOwner);
 					newOwner.add(fromDevice);
 					toDevice.setCompoundDevice(newOwner);
 					newOwner.add(toDevice);
 				} else {
 					// join to device compound
+					if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
+						Fluidity.trace("Compound device %s added %s @ %s", toOwner.toString(), fromDevice.toString(), fromDevice.pos().toString());
+					}
+
 					fromDevice.setCompoundDevice(toOwner);
 					toOwner.add(fromDevice);
 				}
 			} else if (fromOwner == toOwner) {
 				// already joined
+				if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
+					Fluidity.trace("Device connection ignored: %s already associated with %s @ %s", fromOwner.toString(), fromDevice.toString(), fromDevice.pos().toString());
+				}
+
 				return;
 			} else if (toOwner == null) {
 				// to device joins from device compound
+				if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
+					Fluidity.trace("Compound device %s added %s @ %s", fromOwner.toString(), toDevice.toString(), toDevice.pos().toString());
+				}
+
 				toDevice.setCompoundDevice(fromOwner);
 				fromOwner.add(toDevice);
 			} else {
 				// two different non-null compound devices - must merge one of them
 				if(fromOwner.deviceCount() > toOwner.deviceCount()) {
+					if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
+						Fluidity.trace("Merging compound device %s from device %s @ %s into comound device %s from device %s @ %s",
+								toOwner, toDevice.toString(), toDevice.pos().toString(), fromOwner, fromDevice.toString(), fromDevice.pos().toString());
+					}
+
 					handleMerge(toOwner, fromOwner);
 				} else {
+					if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
+						Fluidity.trace("Merging compound device %s from device %s @ %s into comound device %s from device %s @ %s",
+								fromOwner, fromDevice.toString(), fromDevice.pos().toString(), toOwner, toDevice.toString(), toDevice.pos().toString());
+					}
+
 					handleMerge(fromOwner, toOwner);
 				}
 			}
@@ -146,6 +180,10 @@ public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U exten
 		}
 
 		private void doDisconnect(T device) {
+			if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
+				Fluidity.trace("Device disconnect request from %s @ %s", device.toString(), device.pos().toString());
+			}
+
 			final long pos = reverseMap.removeLong(device);
 			final T prior = remove(pos);
 
@@ -170,6 +208,10 @@ public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U exten
 			addNeighbor(owner, get(BlockPos.add(pos, 0, 0, 1)));
 			addNeighbor(owner, get(BlockPos.add(pos, 0, 0, -1)));
 
+			if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
+				Fluidity.trace("Device %s @ %s removed from compound device %s", device.toString(), device.pos().toString(), owner.toString());
+			}
+
 			owner.remove(device);
 			device.setCompoundDevice(null);
 
@@ -193,7 +235,12 @@ public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U exten
 			}
 		}
 
+		// TODO: remove device parameter
 		private void handleComplicatedSplit(T device, U owner, long pos) {
+			if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
+				Fluidity.trace("Compound Device %s requires complicated split due to removal of device @ %s", owner.toString(), BlockPos.fromLong(pos).toString());
+			}
+
 			splitIndex = 0;
 			Arrays.fill(splits, UNDETERMINED);
 			visited.clear();
@@ -224,6 +271,9 @@ public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U exten
 
 			if(splitIndex > 1) {
 				// at least two disconnected groups now, so must split off new compound devices
+				if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
+					Fluidity.trace("Compound Device %s was split into %d devices, including original", owner.toString(), splitIndex);
+				}
 
 				// keep the largest one (first if tied) as existing compound device
 				int winningSize = splitDevices[0].size();
@@ -283,12 +333,11 @@ public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U exten
 				final T d = get(pos);
 
 				if(d != null && d.getCompoundDevice() == owner) {
-					visited.add(pos);
 					splitDevices[splitIndex].add(d);
 					searchStack.add(pos);
-				} else {
-					visited.add(pos);
 				}
+
+				visited.add(pos);
 			}
 		}
 	}
