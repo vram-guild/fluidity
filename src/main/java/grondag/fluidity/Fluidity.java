@@ -22,10 +22,12 @@ import org.apiguardian.api.API.Status;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.server.ServerStartCallback;
+import net.fabricmc.fabric.api.event.server.ServerTickCallback;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
 import grondag.fluidity.api.synch.ItemStorageInteractionC2S;
 import grondag.fluidity.impl.TransactionImpl;
+import grondag.fluidity.wip.CompoundDeviceManager;
 
 @API(status = Status.INTERNAL)
 public class Fluidity implements ModInitializer {
@@ -34,7 +36,13 @@ public class Fluidity implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		ServerStartCallback.EVENT.register(TransactionImpl::setServerThread);
+		ServerTickCallback.EVENT.register(CompoundDeviceManager::tick);
+
+		ServerStartCallback.EVENT.register(s -> {
+			TransactionImpl.setServerThread(s);
+			CompoundDeviceManager.start(s);
+		});
+
 		ServerSidePacketRegistry.INSTANCE.register(ItemStorageInteractionC2S.ID, ItemStorageInteractionC2S::accept);
 	}
 }

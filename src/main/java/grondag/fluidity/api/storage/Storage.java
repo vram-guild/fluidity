@@ -29,6 +29,7 @@ import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
+import grondag.fluidity.api.device.StorageDevice;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.transact.Transactor;

@@ -31,8 +31,8 @@ import net.fabricmc.fabric.api.network.PacketContext;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.device.StorageDevice;
 import grondag.fluidity.api.storage.Storage;
-import grondag.fluidity.api.storage.StorageDevice;
 
 /**
  * Sent when player interacts with the GUI of an IStorage (vs container slots).

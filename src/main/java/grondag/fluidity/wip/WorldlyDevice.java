@@ -13,18 +13,30 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-
-package grondag.fluidity.api.storage;
+package grondag.fluidity.wip;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-@API(status = Status.EXPERIMENTAL)
-@FunctionalInterface
-public interface StorageDevice {
-	Storage getStorage();
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.server.dedicated.MinecraftDedicatedServer;
+import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 
-	default Storage getStorage(Object connection) {
-		return getStorage();
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
+
+@API(status = Status.EXPERIMENTAL)
+public interface WorldlyDevice {
+	int dimensionId();
+
+	default DimensionType dimension() {
+		return DimensionType.byRawId(dimensionId());
+	}
+
+	default World world() {
+		return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT
+				? ((MinecraftClient)FabricLoader.getInstance().getGameInstance()).getServer().getWorld(dimension())
+						: ((MinecraftDedicatedServer)FabricLoader.getInstance().getGameInstance()).getWorld(dimension());
 	}
 }
