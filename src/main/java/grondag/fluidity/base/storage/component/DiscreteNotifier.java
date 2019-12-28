@@ -84,6 +84,6 @@ public class DiscreteNotifier {
 			return true;
 		});
 
-		listener.onCapacityChange(owner, 0);
+		listener.onCapacityChange(owner, -capacity);
 	}
 }

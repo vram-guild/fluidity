@@ -30,17 +30,20 @@ import grondag.fluidity.impl.TransactionImpl;
 import grondag.fluidity.wip.CompoundDeviceManager;
 
 /**
- * TODO: exclude empty storages from compound devices
- * TODO: how do pipes work?
- * TODO: testing switch
- * TODO: implement multiblock limits
  * TODO: add check for chunk loaded on fill
- * TODO: throttle tick times
+ * TODO: implement multiblock limits
+ * FIX: detect and handle cycles
+
+ * TODO: how do pipes work?
+ * TODO: explicit device disconnect handling to allow retaining storage instances without wrapping
  * TODO: male a pump
  * TODO: make a tank
- * TODO: article metadata loader
+
  * TODO: java docs
  * TODO: wiki
+ * TODO: testing switch
+ * TODO: throttle tick times
+ * TODO: article metadata loader
  *
  */
 @API(status = Status.INTERNAL)

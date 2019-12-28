@@ -32,13 +32,25 @@ public class CompoundDiscreteStorage<T extends CompoundDeviceMember<T, U>, U ext
 	@Override
 	public void add(T device) {
 		devices.add(device);
-		addStore(device.getStorage());
+		final Storage s = device.getLocalStorage();
+
+		if(s != null && s != Storage.EMPTY) {
+			addStore(s);
+		}
 	}
 
 	@Override
 	public void remove(T device) {
-		removeStore(device.getStorage());
+		onRemove(device);
 		devices.remove(device);
+	}
+
+	protected void onRemove(T device) {
+		final Storage s = device.getLocalStorage();
+
+		if(s != null && s != Storage.EMPTY) {
+			removeStore(s);
+		}
 	}
 
 	@Override
@@ -53,7 +65,11 @@ public class CompoundDiscreteStorage<T extends CompoundDeviceMember<T, U>, U ext
 
 	@Override
 	public void removalAllAndClose(Consumer<T> closeAction) {
-		devices.forEach(closeAction);
+		devices.forEach(d -> {
+			onRemove(d);
+			closeAction.accept(d);
+		});
+
 		devices.clear();
 		close();
 	}

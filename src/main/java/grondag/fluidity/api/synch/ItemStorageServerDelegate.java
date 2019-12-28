@@ -53,7 +53,7 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 
 	@Override
 	public void onAccept(Storage storage, int handle, Article item, long delta, long newCount) {
-		if(storage != null && storage == this.storage) {
+		if(storage != null) {
 			final StoredDiscreteArticle update = updates.get(handle);
 
 			if(update == null) {
@@ -71,7 +71,7 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 
 	@Override
 	public void onCapacityChange(Storage storage, long capacityDelta) {
-		if(storage != null && storage == this.storage) {
+		if(storage != null) {
 			capacityChange = true;
 		}
 	}

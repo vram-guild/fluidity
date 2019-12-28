@@ -40,7 +40,7 @@ public class ListenerSet implements Iterable<StorageListener>, Iterator<StorageL
 
 	public ListenerSet(Consumer<StorageListener>  additionHandler, Consumer<StorageListener> removalHandler, @Nullable Runnable onEmptyCallback) {
 		this.additionHandler = additionHandler;
-		this.removalHandler = additionHandler;
+		this.removalHandler = removalHandler;
 		this.onEmptyCallback = onEmptyCallback;
 	}
 
@@ -77,12 +77,15 @@ public class ListenerSet implements Iterable<StorageListener>, Iterator<StorageL
 			for(int i = limit - 1; i >= 0; i--) {
 				final StorageListener l = listeners.get(i).get();
 
-				if(l ==null || l == listener) {
+				if(l ==null) {
+					listeners.remove(i);
+				} else if(l == listener) {
 					if(sendNotifications) {
 						removalHandler.accept(listener);
 					}
 
 					listeners.remove(i);
+					break;
 				}
 			}
 

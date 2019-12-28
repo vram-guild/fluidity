@@ -90,6 +90,7 @@ public abstract class AbstractAggregateStorage<V extends AggregateStoredArticle,
 	@Override
 	public void disconnect(Storage storage, boolean didNotify, boolean isValid) {
 		// TODO Auto-generated method stub
-
+		//TODO: remove
+		System.out.println("Unhandled disconnect in aggregate storage");
 	}
 }
