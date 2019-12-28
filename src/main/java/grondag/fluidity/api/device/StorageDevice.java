@@ -29,4 +29,18 @@ public interface StorageDevice {
 	default Storage getStorage(Object connection) {
 		return getStorage();
 	}
+
+
+	/**
+	 * Component members may elect to return the compound storage instance from calls to
+	 * {@link StorageDevice#getStorage()}. This method offers an unambiguous way to
+	 * reference the storage of this component device specifically.
+	 *
+	 * <p>Also used by and necessary for aggregate storage implementations for the same reason.
+	 *
+	 * @return {@link Storage} of this compound member device.
+	 */
+	default Storage getLocalStorage() {
+		return getStorage();
+	}
 }

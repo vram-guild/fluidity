@@ -15,13 +15,15 @@
  ******************************************************************************/
 package grondag.fluidity.wip;
 
+import java.util.function.Consumer;
+
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.device.StorageDevice;
 
 @API(status = Status.EXPERIMENTAL)
-public interface CompoundDevice<T extends CompoundDeviceMember<T, U>, U extends CompoundDevice<T, U>> extends Iterable<T>, StorageDevice {
+public interface CompoundDevice<T extends CompoundDeviceMember<T, U>, U extends CompoundDevice<T, U>> extends StorageDevice {
 	default void close() {
 
 	}
@@ -31,4 +33,6 @@ public interface CompoundDevice<T extends CompoundDeviceMember<T, U>, U extends 
 	void remove(T device);
 
 	int deviceCount();
+
+	void removalAllAndClose(Consumer<T> closeAction);
 }

@@ -15,7 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.wip;
 
-import java.util.Iterator;
+import java.util.function.Consumer;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.apiguardian.api.API;
@@ -28,11 +28,6 @@ import grondag.fluidity.base.storage.discrete.AggregateDiscreteStorage;
 public class CompoundDiscreteStorage<T extends CompoundDeviceMember<T, U>, U extends CompoundDiscreteStorage<T, U>> extends AggregateDiscreteStorage implements CompoundDevice<T, U> {
 
 	protected final ObjectOpenHashSet<T> devices = new ObjectOpenHashSet<>();
-
-	@Override
-	public Iterator<T> iterator() {
-		return devices.iterator();
-	}
 
 	@Override
 	public void add(T device) {
@@ -54,5 +49,12 @@ public class CompoundDiscreteStorage<T extends CompoundDeviceMember<T, U>, U ext
 	@Override
 	public Storage getStorage() {
 		return this;
+	}
+
+	@Override
+	public void removalAllAndClose(Consumer<T> closeAction) {
+		devices.forEach(closeAction);
+		devices.clear();
+		close();
 	}
 }

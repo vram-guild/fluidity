@@ -78,9 +78,6 @@ public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U exten
 		}
 
 		private void doConnect(T device) {
-			//TODO: remove
-			System.out.println("doConnect " + device.toString() + " @" + device.pos().toString());
-
 			final long pos = device.packedPos();
 			final T prior = put(pos, device);
 
@@ -142,24 +139,13 @@ public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U exten
 		}
 
 		private void handleMerge(U victim, U survivor) {
-			if(victim.deviceCount() > 0) {
-				final Iterator<T> it = victim.iterator();
-
-				while(it.hasNext()) {
-					final T d = it.next();
-					it.remove();
-					d.setCompoundDevice(survivor);
-					survivor.add(d);
-				}
-			}
-
-			victim.close();
+			victim.removalAllAndClose(d -> {
+				d.setCompoundDevice(survivor);
+				survivor.add(d);
+			});
 		}
 
 		private void doDisconnect(T device) {
-			//TODO: remove
-			System.out.println("doDisconnect " + device.toString() + " @" + device.pos().toString());
-
 			final long pos = reverseMap.removeLong(device);
 			final T prior = remove(pos);
 
@@ -195,12 +181,8 @@ public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U exten
 
 			// if we are next to last one out, close up shop
 			if(owner.deviceCount() == 1) {
-				final T d = owner.iterator().next();
-				owner.remove(d);
-				d.setCompoundDevice(null);
-			}
-
-			if(owner.deviceCount() == 0) {
+				owner.removalAllAndClose(d -> d.setCompoundDevice(null));
+			} else if (owner.deviceCount() == 0) {
 				owner.close();
 			}
 		}

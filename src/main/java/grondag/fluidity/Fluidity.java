@@ -29,6 +29,20 @@ import grondag.fluidity.api.synch.ItemStorageInteractionC2S;
 import grondag.fluidity.impl.TransactionImpl;
 import grondag.fluidity.wip.CompoundDeviceManager;
 
+/**
+ * TODO: exclude empty storages from compound devices
+ * TODO: how do pipes work?
+ * TODO: testing switch
+ * TODO: implement multiblock limits
+ * TODO: add check for chunk loaded on fill
+ * TODO: throttle tick times
+ * TODO: male a pump
+ * TODO: make a tank
+ * TODO: article metadata loader
+ * TODO: java docs
+ * TODO: wiki
+ *
+ */
 @API(status = Status.INTERNAL)
 public class Fluidity implements ModInitializer {
 	public static final String MOD_ID = "fluidity";
