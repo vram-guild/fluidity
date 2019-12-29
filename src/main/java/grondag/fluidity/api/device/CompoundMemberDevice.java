@@ -15,9 +15,14 @@
  ******************************************************************************/
 package grondag.fluidity.api.device;
 
+import javax.annotation.Nullable;
+
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 @API(status = Status.EXPERIMENTAL)
-public interface LocatedDevice extends PositionedDevice, WorldlyDevice {
+public interface CompoundMemberDevice<T extends CompoundMemberDevice<T, U>, U extends CompoundDevice<T, U>> extends Device {
+	@Nullable U getCompoundDevice();
+
+	void setCompoundDevice(@Nullable U owner);
 }

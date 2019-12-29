@@ -22,11 +22,11 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.device.CompoundDevice;
-import grondag.fluidity.api.device.CompoundDeviceMember;
+import grondag.fluidity.api.device.CompoundMemberDevice;
 import grondag.fluidity.api.storage.Storage;
 
 @API(status = Status.EXPERIMENTAL)
-public class CompoundDiscreteStorageDevice<T extends CompoundDeviceMember<T, U>, U extends CompoundDiscreteStorageDevice<T, U>> extends AggregateDiscreteStorage implements CompoundDevice<T, U> {
+public class CompoundDiscreteStorageDevice<T extends CompoundMemberDevice<T, U>, U extends CompoundDiscreteStorageDevice<T, U>> extends AggregateDiscreteStorage implements CompoundDevice<T, U> {
 
 	protected final ObjectOpenHashSet<T> devices = new ObjectOpenHashSet<>();
 
@@ -62,6 +62,11 @@ public class CompoundDiscreteStorageDevice<T extends CompoundDeviceMember<T, U>,
 	@Override
 	public Storage getStorage() {
 		return this;
+	}
+
+	@Override
+	public boolean hasStorage() {
+		return true;
 	}
 
 	@Override

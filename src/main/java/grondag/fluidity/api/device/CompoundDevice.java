@@ -21,7 +21,7 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 @API(status = Status.EXPERIMENTAL)
-public interface CompoundDevice<T extends CompoundDeviceMember<T, U>, U extends CompoundDevice<T, U>> extends Device {
+public interface CompoundDevice<T extends CompoundMemberDevice<T, U>, U extends CompoundDevice<T, U>> extends Device {
 	default void close() {
 
 	}

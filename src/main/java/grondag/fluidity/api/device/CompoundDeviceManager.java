@@ -25,12 +25,12 @@ import org.apiguardian.api.API.Status;
 import grondag.fluidity.impl.CompoundDeviceManagerImpl;
 
 @API(status = Status.EXPERIMENTAL)
-public interface CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U extends CompoundDevice<T, U>> {
+public interface CompoundDeviceManager<T extends CompoundMemberDevice<T, U>, U extends CompoundDevice<T, U>> {
 	void connect(T device);
 
 	void disconnect(T device);
 
-	static <T extends CompoundDeviceMember<T, U>, U extends CompoundDevice<T, U>> CompoundDeviceManager<T, U> create(Supplier<U> compoundSupplier, BiPredicate<T, T> connectionTest) {
+	static <T extends CompoundMemberDevice<T, U>, U extends CompoundDevice<T, U>> CompoundDeviceManager<T, U> create(Supplier<U> compoundSupplier, BiPredicate<T, T> connectionTest) {
 		return CompoundDeviceManagerImpl.create(compoundSupplier, connectionTest);
 	}
 }

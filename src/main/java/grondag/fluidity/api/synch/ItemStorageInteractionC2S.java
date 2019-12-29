@@ -68,6 +68,11 @@ public class ItemStorageInteractionC2S {
 		}
 
 		final Storage storage = ((Device) player.container).getStorage();
+
+		if(storage == null) {
+			return;
+		}
+
 		final Article targetResource = handle == -1 ? null : storage.view(handle).article();
 
 		switch (action) {

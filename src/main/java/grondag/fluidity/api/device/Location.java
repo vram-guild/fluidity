@@ -18,8 +18,12 @@ package grondag.fluidity.api.device;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.server.dedicated.MinecraftDedicatedServer;
+import net.minecraft.util.math.BlockPointer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -27,7 +31,13 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 
 @API(status = Status.EXPERIMENTAL)
-public interface WorldlyDevice {
+public interface Location extends BlockPointer {
+	default BlockPos pos() {
+		return BlockPos.fromLong(packedPos());
+	}
+
+	long packedPos();
+
 	int dimensionId();
 
 	default DimensionType dimension() {
@@ -38,5 +48,41 @@ public interface WorldlyDevice {
 		return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT
 				? ((MinecraftClient)FabricLoader.getInstance().getGameInstance()).getServer().getWorld(dimension())
 						: ((MinecraftDedicatedServer)FabricLoader.getInstance().getGameInstance()).getWorld(dimension());
+	}
+
+	@Override
+	default World getWorld() {
+		return world();
+	}
+
+	@Override
+	default double getX() {
+		return pos().getX();
+	}
+
+	@Override
+	default double getY() {
+		return pos().getY();
+	}
+
+	@Override
+	default double getZ() {
+		return pos().getZ();
+	}
+
+	@Override
+	default BlockPos getBlockPos() {
+		return pos();
+	}
+
+	@Override
+	default BlockState getBlockState() {
+		return world().getBlockState(pos());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	default <T extends BlockEntity> T getBlockEntity() {
+		return (T) world().getBlockEntity(pos());
 	}
 }

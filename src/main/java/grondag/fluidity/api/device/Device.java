@@ -1,20 +1,6 @@
-/*******************************************************************************
- * Copyright 2019 grondag
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
-
 package grondag.fluidity.api.device;
+
+import javax.annotation.Nullable;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
@@ -22,18 +8,22 @@ import org.apiguardian.api.API.Status;
 import grondag.fluidity.api.storage.Storage;
 
 @API(status = Status.EXPERIMENTAL)
-@FunctionalInterface
 public interface Device {
-	Storage getStorage();
+	default @Nullable Storage getStorage() {
+		return null;
+	}
+
+	default boolean hasStorage() {
+		return getStorage() != null;
+	}
 
 	default Storage getStorage(Object connection) {
 		return getStorage();
 	}
 
-
 	/**
 	 * Component members may elect to return the compound storage instance from calls to
-	 * {@link Device#getStorage()}. This method offers an unambiguous way to
+	 * {@link StorageDevice#getStorage()}. This method offers an unambiguous way to
 	 * reference the storage of this component device specifically.
 	 *
 	 * <p>Also used by and necessary for aggregate storage implementations for the same reason.
@@ -42,5 +32,13 @@ public interface Device {
 	 */
 	default Storage getLocalStorage() {
 		return getStorage();
+	}
+
+	default @Nullable Location getLocation() {
+		return null;
+	}
+
+	default boolean hasLocation() {
+		return getLocation() != null;
 	}
 }
