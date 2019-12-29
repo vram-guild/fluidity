@@ -21,74 +21,31 @@ import java.util.function.Consumer;
 
 import org.apiguardian.api.API;
 
-import net.minecraft.nbt.CompoundTag;
-
-import grondag.fluidity.api.article.StoredArticleView;
+import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.storage.FixedStorage;
-import grondag.fluidity.api.storage.StorageListener;
+import grondag.fluidity.api.storage.FixedArticleConsumer;
 import grondag.fluidity.api.transact.TransactionContext;
 
 @API(status = INTERNAL)
-public final class EmptyStorage implements FixedStorage {
-	private EmptyStorage() {}
+public final class FullConsumer implements FixedArticleConsumer {
+	private FullConsumer() {}
 
-	public static FixedStorage INSTANCE = new EmptyStorage();
+	public static FixedArticleConsumer INSTANCE = new FullConsumer();
 
 	@Override
-	public int handleCount() {
+	public long accept(Article item, long count, boolean simulate) {
 		return 0;
 	}
 
 	@Override
-	public StoredArticleView view(int handle) {
-		return StoredArticleView.EMPTY;
-	}
-
-	@Override
-	public long count() {
-		return 0;
-	}
-
-	@Override
-	public FractionView amount() {
+	public FractionView accept(Article item, FractionView volume, boolean simulate) {
 		return Fraction.ZERO;
 	}
 
 	@Override
-	public long capacity() {
+	public long accept(Article item, long numerator, long divisor, boolean simulate) {
 		return 0;
-	}
-
-	@Override
-	public FractionView volume() {
-		return Fraction.ZERO;
-	}
-
-	@Override
-	public void clear() {
-		// NOOP
-	}
-
-	@Override
-	public void startListening(StorageListener listener, boolean sendNotifications) {
-		// NOOP
-	}
-
-	@Override
-	public void stopListening(StorageListener listener, boolean sendNotifications) {
-		// NOOP
-	}
-
-	@Override
-	public CompoundTag writeTag() {
-		return new CompoundTag();
-	}
-
-	@Override
-	public void readTag(CompoundTag tag) {
-		// NOOP
 	}
 
 	@Override
@@ -97,12 +54,22 @@ public final class EmptyStorage implements FixedStorage {
 	}
 
 	@Override
-	public boolean isFull() {
-		return true;
+	public long accept(int handle, Article item, long count, boolean simulate) {
+		return 0;
 	}
 
 	@Override
-	public boolean isEmpty() {
-		return true;
+	public FractionView accept(int handle, Article item, FractionView volume, boolean simulate) {
+		return Fraction.ZERO;
+	}
+
+	@Override
+	public long accept(int handle, Article item, long numerator, long divisor, boolean simulate) {
+		return 0;
+	}
+
+	@Override
+	public boolean canAccept() {
+		return false;
 	}
 }

@@ -21,32 +21,12 @@ import org.apiguardian.api.API.Status;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.storage.ArticleConsumer;
+import grondag.fluidity.api.storage.ArticleSupplier;
 import grondag.fluidity.api.storage.Storage;
 
 @API(status = Status.EXPERIMENTAL)
 public interface DiscreteStorage extends Storage {
-	@Override
-	default FractionView accept(Article item, FractionView volume, boolean simulate) {
-		return volume.whole() == 0 ? Fraction.ZERO : Fraction.of(accept(item, volume.whole(), simulate));
-	}
-
-	@Override
-	default FractionView supply(Article item, FractionView volume, boolean simulate) {
-		return volume.whole() == 0 ? Fraction.ZERO : Fraction.of(supply(item, volume.whole(), simulate));
-	}
-
-	@Override
-	default long accept(Article item, long numerator, long divisor, boolean simulate) {
-		final long whole = numerator / divisor;
-		return whole == 0 ? 0 : accept(item, whole, simulate) * divisor;
-	}
-
-	@Override
-	default long supply(Article item, long numerator, long divisor, boolean simulate) {
-		final long whole = numerator / divisor;
-		return whole == 0 ? 0 : supply(item, whole, simulate) * divisor;
-	}
-
 	@Override
 	default FractionView amount() {
 		return Fraction.of(count());
@@ -55,5 +35,31 @@ public interface DiscreteStorage extends Storage {
 	@Override
 	default FractionView volume() {
 		return Fraction.of(capacity());
+	}
+
+	public interface DiscreteArticleSupplier extends ArticleSupplier {
+		@Override
+		default FractionView supply(Article item, FractionView volume, boolean simulate) {
+			return volume.whole() == 0 ? Fraction.ZERO : Fraction.of(supply(item, volume.whole(), simulate));
+		}
+
+		@Override
+		default long supply(Article item, long numerator, long divisor, boolean simulate) {
+			final long whole = numerator / divisor;
+			return whole == 0 ? 0 : supply(item, whole, simulate) * divisor;
+		}
+	}
+
+	public interface DiscreteArticleConsumer extends ArticleConsumer {
+		@Override
+		default FractionView accept(Article item, FractionView volume, boolean simulate) {
+			return volume.whole() == 0 ? Fraction.ZERO : Fraction.of(accept(item, volume.whole(), simulate));
+		}
+
+		@Override
+		default long accept(Article item, long numerator, long divisor, boolean simulate) {
+			final long whole = numerator / divisor;
+			return whole == 0 ? 0 : accept(item, whole, simulate) * divisor;
+		}
 	}
 }

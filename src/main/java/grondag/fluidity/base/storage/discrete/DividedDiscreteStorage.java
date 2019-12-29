@@ -20,11 +20,15 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.storage.FixedArticleConsumer;
+import grondag.fluidity.api.storage.FixedArticleSupplier;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.component.FixedArticleManager;
+import grondag.fluidity.base.storage.discrete.FixedDiscreteStorage.FixedDiscreteArticleConsumer;
+import grondag.fluidity.base.storage.discrete.FixedDiscreteStorage.FixedDiscreteArticleSupplier;
 
 @API(status = Status.EXPERIMENTAL)
-public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscreteStorage> implements FixedDiscreteStorage {
+public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscreteStorage> implements FixedDiscreteStorage, FixedDiscreteArticleConsumer, FixedDiscreteArticleSupplier {
 	protected final int divisionCount;
 	protected final long capacityPerDivision;
 
@@ -32,6 +36,26 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscr
 		super(divisionCount, divisionCount * capacityPerDivision, new FixedArticleManager<>(divisionCount, StoredDiscreteArticle::new));
 		this.divisionCount = divisionCount;
 		this.capacityPerDivision = capacityPerDivision;
+	}
+
+	@Override
+	public FixedArticleConsumer getConsumer() {
+		return this;
+	}
+
+	@Override
+	public boolean hasConsumer() {
+		return true;
+	}
+
+	@Override
+	public FixedArticleSupplier getSupplier() {
+		return this;
+	}
+
+	@Override
+	public boolean hasSupplier() {
+		return true;
 	}
 
 	@Override

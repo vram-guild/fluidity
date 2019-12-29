@@ -27,6 +27,8 @@ import net.minecraft.nbt.CompoundTag;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.transact.TransactionParticipant;
+import grondag.fluidity.impl.CreativeSupplier;
+import grondag.fluidity.impl.EmptySupplier;
 
 /**
  * Flexible storage interface for tanks, containers.
@@ -105,4 +107,7 @@ public interface ArticleSupplier extends TransactionParticipant {
 	 * @return How much was removed, in units of given denominator.
 	 */
 	long supply(Article item, long numerator, long divisor, boolean simulate);
+
+	ArticleSupplier EMPTY = EmptySupplier.INSTANCE;
+	ArticleSupplier CREATIVE = CreativeSupplier.INSTANCE;
 }

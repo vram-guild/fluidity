@@ -18,10 +18,6 @@ package grondag.fluidity.api.storage;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.item.ItemStack;
-
-import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.impl.EmptyStorage;
 import grondag.fluidity.impl.VoidStorage;
 
@@ -31,51 +27,15 @@ import grondag.fluidity.impl.VoidStorage;
  */
 @API(status = Status.EXPERIMENTAL)
 public interface FixedStorage extends Storage {
-	/**
-	 * Will return zero if handle slot is already occupied and different.
-	 * @param item
-	 * @param count
-	 * @param simulate
-	 * @param handle
-	 * @return
-	 */
-	long accept(int handle, Article item, long count, boolean simulate);
-
-	/**
-	 *
-	 * Will return zero if handle slot is not occupied by the requested item.
-	 *
-	 * @param handle
-	 * @param item
-	 * @param count
-	 * @param simulate
-	 * @return
-	 */
-	long supply(int handle, Article item, long count, boolean simulate);
-
-	default long accept(int handle, ItemStack stack, long count, boolean simulate) {
-		return accept(handle, Article.of(stack), count, simulate);
+	@Override
+	default FixedArticleConsumer getConsumer() {
+		return FixedArticleConsumer.FULL;
 	}
 
-	default long accept(int handle, ItemStack stack, boolean simulate) {
-		return accept(handle, Article.of(stack), stack.getCount(), simulate);
+	@Override
+	default FixedArticleSupplier getSupplier() {
+		return FixedArticleSupplier.EMPTY;
 	}
-
-	default long supply(int handle, ItemStack stack, long count, boolean simulate) {
-		return supply(handle, Article.of(stack), count, simulate);
-	}
-
-	default long supply(int handle, ItemStack stack, boolean simulate) {
-		return supply(handle, Article.of(stack), stack.getCount(), simulate);
-	}
-
-	FractionView accept(int handle, Article item, FractionView volume, boolean simulate);
-
-	FractionView supply(int handle, Article item, FractionView volume, boolean simulate);
-
-	long accept(int handle, Article item, long numerator, long divisor, boolean simulate);
-
-	long supply(int handle, Article item, long numerator, long divisor, boolean simulate);
 
 	FixedStorage EMPTY = EmptyStorage.INSTANCE;
 	FixedStorage VOID = VoidStorage.INSTANCE;

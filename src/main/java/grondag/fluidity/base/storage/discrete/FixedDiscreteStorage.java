@@ -21,29 +21,36 @@ import org.apiguardian.api.API.Status;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.storage.FixedArticleConsumer;
+import grondag.fluidity.api.storage.FixedArticleSupplier;
 import grondag.fluidity.api.storage.FixedStorage;
 
 @API(status = Status.EXPERIMENTAL)
 public interface FixedDiscreteStorage extends DiscreteStorage, FixedStorage {
-	@Override
-	default FractionView accept(int handle, Article item, FractionView volume, boolean simulate) {
-		return Fraction.of(accept(handle, item, volume.whole(), simulate));
+
+	public interface FixedDiscreteArticleSupplier extends DiscreteStorage.DiscreteArticleSupplier, FixedArticleSupplier {
+		@Override
+		default FractionView supply(int handle, Article item, FractionView volume, boolean simulate) {
+			return Fraction.of(supply(handle, item, volume.whole(), simulate));
+		}
+
+		@Override
+		default long supply(int handle, Article item, long numerator, long divisor, boolean simulate) {
+			final long whole = numerator / divisor;
+			return whole == 0 ? 0 : supply(handle, item, whole, simulate) * divisor;
+		}
 	}
 
-	@Override
-	default FractionView supply(int handle, Article item, FractionView volume, boolean simulate) {
-		return Fraction.of(supply(handle, item, volume.whole(), simulate));
-	}
+	public interface FixedDiscreteArticleConsumer extends DiscreteStorage.DiscreteArticleConsumer, FixedArticleConsumer {
+		@Override
+		default FractionView accept(int handle, Article item, FractionView volume, boolean simulate) {
+			return Fraction.of(accept(handle, item, volume.whole(), simulate));
+		}
 
-	@Override
-	default long accept(int handle, Article item, long numerator, long divisor, boolean simulate) {
-		final long whole = numerator / divisor;
-		return whole == 0 ? 0 : accept(handle, item, whole, simulate) * divisor;
-	}
-
-	@Override
-	default long supply(int handle, Article item, long numerator, long divisor, boolean simulate) {
-		final long whole = numerator / divisor;
-		return whole == 0 ? 0 : supply(handle, item, whole, simulate) * divisor;
+		@Override
+		default long accept(int handle, Article item, long numerator, long divisor, boolean simulate) {
+			final long whole = numerator / divisor;
+			return whole == 0 ? 0 : accept(handle, item, whole, simulate) * divisor;
+		}
 	}
 }

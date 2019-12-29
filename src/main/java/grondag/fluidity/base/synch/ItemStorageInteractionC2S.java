@@ -144,7 +144,7 @@ public class ItemStorageInteractionC2S {
 		final ItemStack cursorStack = player.inventory.getCursorStack();
 
 		if (cursorStack != null && !cursorStack.isEmpty()) {
-			final int added = (int) container.accept(cursorStack, single ? 1 : cursorStack.getCount(), false);
+			final int added = (int) container.getConsumer().accept(cursorStack, single ? 1 : cursorStack.getCount(), false);
 
 			if (added > 0){
 				cursorStack.decrement(added);
@@ -161,7 +161,7 @@ public class ItemStorageInteractionC2S {
 			return;
 		}
 
-		final int toMove = (int) listener.supply(targetResource, howMany, false);
+		final int toMove = (int) listener.getSupplier().supply(targetResource, howMany, false);
 
 		if (toMove == 0) {
 			return;
@@ -189,7 +189,7 @@ public class ItemStorageInteractionC2S {
 			}
 
 			howMany = Math.min(howMany, cursorStack.getMaxCount() - cursorStack.getCount());
-			final int toAdd = (int) container.supply(targetResource, howMany, false);
+			final int toAdd = (int) container.getSupplier().supply(targetResource, howMany, false);
 			cursorStack.increment(toAdd);
 			player.inventory.setCursorStack(cursorStack);
 			player.inventory.markDirty();
@@ -197,7 +197,7 @@ public class ItemStorageInteractionC2S {
 		} else {
 			howMany = Math.min(howMany, targetResource.toItem().getMaxCount());
 
-			final int toAdd = (int) container.supply(targetResource, howMany, false);
+			final int toAdd = (int) container.getSupplier().supply(targetResource, howMany, false);
 
 			if (toAdd == 0) {
 				return;

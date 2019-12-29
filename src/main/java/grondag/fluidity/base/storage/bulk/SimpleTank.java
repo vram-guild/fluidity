@@ -27,13 +27,17 @@ import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
+import grondag.fluidity.api.storage.ArticleConsumer;
+import grondag.fluidity.api.storage.ArticleSupplier;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredBulkArticle;
 import grondag.fluidity.base.article.StoredBulkArticleView;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
+import grondag.fluidity.base.storage.bulk.BulkStorage.BulkArticleConsumer;
+import grondag.fluidity.base.storage.bulk.BulkStorage.BulkArticleSupplier;
 
 @API(status = Status.EXPERIMENTAL)
-public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, SimpleTank> implements BulkStorage {
+public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, SimpleTank> implements BulkStorage, BulkArticleConsumer, BulkArticleSupplier {
 	protected final MutableFraction content = new MutableFraction();
 	protected final MutableFraction calc = new MutableFraction();
 	protected final View view = new View();
@@ -42,6 +46,26 @@ public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, S
 
 	public SimpleTank(Fraction capacity) {
 		this.capacity = capacity;
+	}
+
+	@Override
+	public ArticleConsumer getConsumer() {
+		return this;
+	}
+
+	@Override
+	public boolean hasConsumer() {
+		return true;
+	}
+
+	@Override
+	public ArticleSupplier getSupplier() {
+		return this;
+	}
+
+	@Override
+	public boolean hasSupplier() {
+		return true;
 	}
 
 	@Override

@@ -21,14 +21,14 @@ import java.util.function.Predicate;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.device.Device;
 import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.storage.ArticleConsumer;
+import grondag.fluidity.api.storage.ArticleSupplier;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.transact.TransactionContext;
@@ -45,6 +45,27 @@ public class ForwardingStorage implements Storage {
 		this.wrapped = wrapped;
 	}
 
+
+	@Override
+	public ArticleConsumer getConsumer() {
+		return wrapped.getConsumer();
+	}
+
+	@Override
+	public boolean hasConsumer() {
+		return wrapped.hasConsumer();
+	}
+
+	@Override
+	public ArticleSupplier getSupplier() {
+		return wrapped.getSupplier();
+	}
+
+	@Override
+	public boolean hasSupplier() {
+		return wrapped.hasSupplier();
+	}
+
 	@Override
 	public Consumer<TransactionContext> prepareRollback(TransactionContext context) {
 		return wrapped.prepareRollback(context);
@@ -58,16 +79,6 @@ public class ForwardingStorage implements Storage {
 	@Override
 	public StoredArticleView view(int handle) {
 		return wrapped.view(handle);
-	}
-
-	@Override
-	public long accept(Article item, long count, boolean simulate) {
-		return wrapped.accept(item, count, simulate);
-	}
-
-	@Override
-	public long supply(Article item, long count, boolean simulate) {
-		return wrapped.supply(item, count, simulate);
 	}
 
 	@Override
@@ -93,26 +104,6 @@ public class ForwardingStorage implements Storage {
 	@Override
 	public void clear() {
 		wrapped.clear();
-	}
-
-	@Override
-	public FractionView accept(Article item, FractionView volume, boolean simulate) {
-		return wrapped.accept(item, volume, simulate);
-	}
-
-	@Override
-	public FractionView supply(Article item, FractionView volume, boolean simulate) {
-		return wrapped.supply(item, volume, simulate);
-	}
-
-	@Override
-	public long accept(Article item, long numerator, long divisor, boolean simulate) {
-		return wrapped.accept(item, numerator, divisor, simulate);
-	}
-
-	@Override
-	public long supply(Article item, long numerator, long divisor, boolean simulate) {
-		return wrapped.supply(item, numerator, divisor, simulate);
 	}
 
 	@Override
@@ -186,57 +177,7 @@ public class ForwardingStorage implements Storage {
 	}
 
 	@Override
-	public long accept(Item item, CompoundTag tag, long count, boolean simulate) {
-		return wrapped.accept(item, tag, count, simulate);
-	}
-
-	@Override
-	public long accept(Item item, long count, boolean simulate) {
-		return wrapped.accept(item, count, simulate);
-	}
-
-	@Override
-	public long accept(ItemStack stack, long count, boolean simulate) {
-		return wrapped.accept(stack, count, simulate);
-	}
-
-	@Override
-	public long accept(ItemStack stack, boolean simulate) {
-		return wrapped.accept(stack, simulate);
-	}
-
-	@Override
-	public long supply(Item item, CompoundTag tag, long count, boolean simulate) {
-		return wrapped.supply(item, tag, count, simulate);
-	}
-
-	@Override
-	public long supply(Item item, long count, boolean simulate) {
-		return wrapped.supply(item, count, simulate);
-	}
-
-	@Override
-	public long supply(ItemStack stack, long count, boolean simulate) {
-		return wrapped.supply(stack, count, simulate);
-	}
-
-	@Override
-	public long supply(ItemStack stack, boolean simulate) {
-		return wrapped.supply(stack, simulate);
-	}
-
-	@Override
 	public boolean isFull() {
 		return wrapped.isFull();
-	}
-
-	@Override
-	public boolean canAccept() {
-		return wrapped.canAccept();
-	}
-
-	@Override
-	public boolean canSupply() {
-		return wrapped.canSupply();
 	}
 }

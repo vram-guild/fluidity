@@ -39,7 +39,23 @@ import grondag.fluidity.impl.VoidStorage;
  * Interface supports both discrete items and bulk resources (such as fluids.)
  */
 @API(status = Status.EXPERIMENTAL)
-public interface Storage extends TransactionParticipant, ArticleConsumer, ArticleSupplier {
+public interface Storage extends TransactionParticipant {
+	default ArticleConsumer getConsumer() {
+		return ArticleConsumer.FULL;
+	}
+
+	default boolean hasConsumer() {
+		return getConsumer().canAccept();
+	}
+
+	default ArticleSupplier getSupplier() {
+		return ArticleSupplier.EMPTY;
+	}
+
+	default boolean hasSupplier() {
+		return getSupplier().canSupply();
+	}
+
 	int handleCount();
 
 	default boolean isHandleValid(int handle) {
@@ -114,13 +130,13 @@ public interface Storage extends TransactionParticipant, ArticleConsumer, Articl
 	long count();
 
 	default long countOf(Article item)  {
-		return supply(item, Long.MAX_VALUE, true);
+		return getSupplier().supply(item, Long.MAX_VALUE, true);
 	}
 
 	FractionView amount();
 
 	default FractionView amountOf(Article item)  {
-		return supply(item, Fraction.MAX_VALUE, true);
+		return getSupplier().supply(item, Fraction.MAX_VALUE, true);
 	}
 
 	long capacity();

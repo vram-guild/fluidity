@@ -23,10 +23,10 @@ import org.apiguardian.api.API;
 
 import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.storage.FixedArticleConsumer;
 import grondag.fluidity.api.storage.FixedStorage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.transact.TransactionContext;
@@ -38,6 +38,11 @@ public final class VoidStorage implements FixedStorage {
 	public static FixedStorage INSTANCE = new VoidStorage();
 
 	@Override
+	public FixedArticleConsumer getConsumer() {
+		return FixedArticleConsumer.VOID;
+	}
+
+	@Override
 	public int handleCount() {
 		return 0;
 	}
@@ -45,16 +50,6 @@ public final class VoidStorage implements FixedStorage {
 	@Override
 	public StoredArticleView view(int handle) {
 		return StoredArticleView.EMPTY;
-	}
-
-	@Override
-	public long accept(Article item, long count, boolean simulate) {
-		return count;
-	}
-
-	@Override
-	public long supply(Article item, long count, boolean simulate) {
-		return 0;
 	}
 
 	@Override
@@ -83,26 +78,6 @@ public final class VoidStorage implements FixedStorage {
 	}
 
 	@Override
-	public FractionView accept(Article item, FractionView volume, boolean simulate) {
-		return volume.toImmutable();
-	}
-
-	@Override
-	public FractionView supply(Article item, FractionView volume, boolean simulate) {
-		return Fraction.ZERO;
-	}
-
-	@Override
-	public long accept(Article item, long numerator, long divisor, boolean simulate) {
-		return numerator;
-	}
-
-	@Override
-	public long supply(Article item, long numerator, long divisor, boolean simulate) {
-		return 0;
-	}
-
-	@Override
 	public void startListening(StorageListener listener, boolean sendNotifications) {
 		// NOOP
 	}
@@ -128,36 +103,6 @@ public final class VoidStorage implements FixedStorage {
 	}
 
 	@Override
-	public long accept(int handle, Article item, long count, boolean simulate) {
-		return count;
-	}
-
-	@Override
-	public long supply(int handle, Article item, long count, boolean simulate) {
-		return 0;
-	}
-
-	@Override
-	public FractionView accept(int handle, Article item, FractionView volume, boolean simulate) {
-		return volume.toImmutable();
-	}
-
-	@Override
-	public FractionView supply(int handle, Article item, FractionView volume, boolean simulate) {
-		return Fraction.ZERO;
-	}
-
-	@Override
-	public long accept(int handle, Article item, long numerator, long divisor, boolean simulate) {
-		return numerator;
-	}
-
-	@Override
-	public long supply(int handle, Article item, long numerator, long divisor, boolean simulate) {
-		return 0;
-	}
-
-	@Override
 	public boolean isFull() {
 		return false;
 	}
@@ -165,15 +110,5 @@ public final class VoidStorage implements FixedStorage {
 	@Override
 	public boolean isEmpty() {
 		return true;
-	}
-
-	@Override
-	public boolean canAccept() {
-		return true;
-	}
-
-	@Override
-	public boolean canSupply() {
-		return false;
 	}
 }

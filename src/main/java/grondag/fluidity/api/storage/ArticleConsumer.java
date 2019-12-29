@@ -27,6 +27,8 @@ import net.minecraft.nbt.CompoundTag;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.transact.TransactionParticipant;
+import grondag.fluidity.impl.FullConsumer;
+import grondag.fluidity.impl.VoidConsumer;
 
 /**
  * Flexible storage interface for tanks, containers.
@@ -106,4 +108,7 @@ public interface ArticleConsumer extends TransactionParticipant {
 	 * @return How much was added, in units of given denominator.
 	 */
 	long accept(Article item, long numerator, long divisor, boolean simulate);
+
+	ArticleConsumer VOID = VoidConsumer.INSTANCE;
+	ArticleConsumer FULL = FullConsumer.INSTANCE;
 }

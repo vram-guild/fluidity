@@ -31,15 +31,19 @@ import net.minecraft.nbt.CompoundTag;
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
+import grondag.fluidity.api.storage.ArticleConsumer;
+import grondag.fluidity.api.storage.ArticleSupplier;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.AggregateDiscreteStoredArticle;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractAggregateStorage;
 import grondag.fluidity.base.storage.component.DiscreteTrackingNotifier;
+import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleConsumer;
+import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleSupplier;
 
 @API(status = Status.EXPERIMENTAL)
-public class AggregateDiscreteStorage extends AbstractAggregateStorage<AggregateDiscreteStoredArticle, AggregateDiscreteStorage> implements DiscreteStorage, DiscreteStorageListener {
+public class AggregateDiscreteStorage extends AbstractAggregateStorage<AggregateDiscreteStoredArticle, AggregateDiscreteStorage> implements DiscreteStorage, DiscreteArticleConsumer, DiscreteArticleSupplier, DiscreteStorageListener {
 	protected final DiscreteTrackingNotifier notifier;
 
 	public AggregateDiscreteStorage(int startingSlotCount) {
@@ -48,6 +52,26 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 	}
 	public AggregateDiscreteStorage() {
 		this(32);
+	}
+
+	@Override
+	public ArticleConsumer getConsumer() {
+		return this;
+	}
+
+	@Override
+	public boolean hasConsumer() {
+		return true;
+	}
+
+	@Override
+	public ArticleSupplier getSupplier() {
+		return this;
+	}
+
+	@Override
+	public boolean hasSupplier() {
+		return true;
 	}
 
 	@Nullable
@@ -80,11 +104,11 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 			searchList.clear();
 
 			for (final Storage store : stores) {
-				if(store.canAccept() && !store.isFull()) {
+				if(store.hasConsumer() && !store.isFull()) {
 
 					if(existing.contains(store)) {
 						enlister.accept(store);
-						result += store.accept(item, count - result, simulate);
+						result += store.getConsumer().accept(item, count - result, simulate);
 
 						if (result == count) {
 							break;
@@ -98,7 +122,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 			if (result < count) {
 				for (final Storage store : searchList) {
 					enlister.accept(store);
-					final long delta = store.accept(item, count - result, simulate);
+					final long delta = store.getConsumer().accept(item, count - result, simulate);
 
 					if(delta != 0) {
 						result += delta;
@@ -117,9 +141,9 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 
 		} else {
 			for (final Storage store : stores) {
-				if(store.canAccept() && !store.isFull()) {
+				if(store.hasConsumer() && !store.isFull()) {
 					enlister.accept(store);
-					final long delta = store.accept(item, count - result, simulate);
+					final long delta = store.getConsumer().accept(item, count - result, simulate);
 
 					if(delta != 0) {
 						result += delta;
@@ -169,9 +193,9 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 		final Set<Storage> existing = article.stores();
 
 		for (final Storage store : existing) {
-			if(store.canSupply()) {
+			if(store.hasSupplier()) {
 				enlister.accept(store);
-				final long delta = store.supply(item, count - result, simulate);
+				final long delta = store.getSupplier().supply(item, count - result, simulate);
 
 				if(delta != 0) {
 					result += delta;

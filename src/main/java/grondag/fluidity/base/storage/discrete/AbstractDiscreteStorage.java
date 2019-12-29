@@ -26,22 +26,46 @@ import net.minecraft.nbt.ListTag;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
+import grondag.fluidity.api.storage.ArticleConsumer;
+import grondag.fluidity.api.storage.ArticleSupplier;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
 import grondag.fluidity.base.storage.component.AbstractArticleManager;
 import grondag.fluidity.base.storage.component.DiscreteTrackingJournal;
 import grondag.fluidity.base.storage.component.DiscreteTrackingNotifier;
+import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleConsumer;
+import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleSupplier;
 import grondag.fluidity.impl.ArticleImpl;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<T>> extends AbstractLazyRollbackStorage<StoredDiscreteArticle, T> implements DiscreteStorage {
+public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<T>> extends AbstractLazyRollbackStorage<StoredDiscreteArticle, T> implements DiscreteStorage, DiscreteArticleConsumer, DiscreteArticleSupplier {
 	protected final AbstractArticleManager<StoredDiscreteArticle> articles;
 	protected final DiscreteTrackingNotifier notifier;
 
 	AbstractDiscreteStorage(int startingHandleCount, long capacity, AbstractArticleManager<StoredDiscreteArticle> articles) {
 		this.articles = articles;
 		notifier = new DiscreteTrackingNotifier(capacity, this);
+	}
+
+	@Override
+	public ArticleConsumer getConsumer() {
+		return this;
+	}
+
+	@Override
+	public boolean hasConsumer() {
+		return true;
+	}
+
+	@Override
+	public ArticleSupplier getSupplier() {
+		return this;
+	}
+
+	@Override
+	public boolean hasSupplier() {
+		return true;
 	}
 
 	@Override

@@ -24,18 +24,42 @@ import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
+import grondag.fluidity.api.storage.ArticleConsumer;
+import grondag.fluidity.api.storage.ArticleSupplier;
 import grondag.fluidity.api.storage.InventoryStorage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
 import grondag.fluidity.base.storage.component.DiscreteNotifier;
+import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleConsumer;
+import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleSupplier;
 import grondag.fluidity.impl.ArticleImpl;
 
 @API(status = Status.EXPERIMENTAL)
-public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<StoredDiscreteArticle,  SingleStackInventoryStorage> implements DiscreteStorage, InventoryStorage {
+public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<StoredDiscreteArticle,  SingleStackInventoryStorage> implements DiscreteStorage, DiscreteArticleConsumer, DiscreteArticleSupplier, InventoryStorage {
 	protected ItemStack stack = ItemStack.EMPTY;
 	protected final StoredDiscreteArticle view = new StoredDiscreteArticle();
 	protected final DiscreteNotifier notifier = new DiscreteNotifier(this);
+
+	@Override
+	public ArticleConsumer getConsumer() {
+		return this;
+	}
+
+	@Override
+	public boolean hasConsumer() {
+		return true;
+	}
+
+	@Override
+	public ArticleSupplier getSupplier() {
+		return this;
+	}
+
+	@Override
+	public boolean hasSupplier() {
+		return true;
+	}
 
 	@Override
 	public int handleCount() {
