@@ -13,25 +13,30 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.transact;
+package grondag.fluidity.api.device;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.impl.TransactionImpl;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.server.dedicated.MinecraftDedicatedServer;
+import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
+
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 
 @API(status = Status.EXPERIMENTAL)
-public interface Transaction extends AutoCloseable {
-	void rollback();
+public interface WorldlyDevice {
+	int dimensionId();
 
-	void commit();
+	default DimensionType dimension() {
+		return DimensionType.byRawId(dimensionId());
+	}
 
-	<T extends TransactionParticipant> T enlist(T container);
-
-	@Override
-	void close();
-
-	static Transaction open() {
-		return TransactionImpl.open();
+	default World world() {
+		return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT
+				? ((MinecraftClient)FabricLoader.getInstance().getGameInstance()).getServer().getWorld(dimension())
+						: ((MinecraftDedicatedServer)FabricLoader.getInstance().getGameInstance()).getWorld(dimension());
 	}
 }

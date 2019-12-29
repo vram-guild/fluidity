@@ -13,14 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.wip;
+package grondag.fluidity.api.device;
 
 import java.util.function.Consumer;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
-
-import grondag.fluidity.api.device.Device;
 
 @API(status = Status.EXPERIMENTAL)
 public interface CompoundDevice<T extends CompoundDeviceMember<T, U>, U extends CompoundDevice<T, U>> extends Device {

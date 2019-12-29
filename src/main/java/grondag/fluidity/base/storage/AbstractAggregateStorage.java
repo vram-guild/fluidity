@@ -26,7 +26,7 @@ import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.transact.TransactionContext;
-import grondag.fluidity.api.transact.Transactor;
+import grondag.fluidity.api.transact.TransactionParticipant;
 import grondag.fluidity.base.article.AggregateStoredArticle;
 import grondag.fluidity.base.storage.component.FlexibleArticleManager;
 
@@ -36,7 +36,7 @@ public abstract class AbstractAggregateStorage<V extends AggregateStoredArticle,
 	protected final FlexibleArticleManager<V> articles;
 	protected final ObjectOpenHashSet<Storage> stores = new ObjectOpenHashSet<>();
 
-	protected Consumer<Transactor> enlister = t -> {};
+	protected Consumer<TransactionParticipant> enlister = t -> {};
 	protected boolean itMe = false;
 
 	public AbstractAggregateStorage(int startingHandleCount) {

@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.wip;
+package grondag.fluidity.impl;
 
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
@@ -38,10 +38,13 @@ import net.minecraft.util.math.BlockPos;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.FluidityConfig;
+import grondag.fluidity.api.device.CompoundDevice;
+import grondag.fluidity.api.device.CompoundDeviceManager;
+import grondag.fluidity.api.device.CompoundDeviceMember;
 
 @API(status = Status.EXPERIMENTAL)
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U extends CompoundDevice<T, U>> {
+public class CompoundDeviceManagerImpl<T extends CompoundDeviceMember<T, U>, U extends CompoundDevice<T, U>> implements CompoundDeviceManager<T, U> {
 
 	@SuppressWarnings("serial")
 	private class WorldHandler extends Long2ObjectOpenHashMap<T> {
@@ -218,7 +221,7 @@ public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U exten
 			if (neighbors.size() > 1) {
 				// if part of a compound device and has more than one neighbor,
 				// then any neighbors that are not connected via a different path must be split
-				handleComplicatedSplit(device, owner, pos);
+				handleComplicatedSplit(owner, pos);
 			}
 
 			// if we are next to last one out, close up shop
@@ -235,8 +238,7 @@ public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U exten
 			}
 		}
 
-		// TODO: remove device parameter
-		private void handleComplicatedSplit(T device, U owner, long pos) {
+		private void handleComplicatedSplit(U owner, long pos) {
 			if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
 				Fluidity.trace("Compound Device %s requires complicated split due to removal of device @ %s", owner.toString(), BlockPos.fromLong(pos).toString());
 			}
@@ -347,7 +349,11 @@ public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U exten
 	private final Supplier<U> compoundSupplier;
 	private final BiPredicate<T, T> connectionTest;
 
-	public CompoundDeviceManager(Supplier<U> compoundSupplier, BiPredicate<T, T> connectionTest) {
+	public static <T extends CompoundDeviceMember<T, U>, U extends CompoundDevice<T, U>> CompoundDeviceManager<T, U> create(Supplier<U> compoundSupplier, BiPredicate<T, T> connectionTest) {
+		return new CompoundDeviceManagerImpl(compoundSupplier, connectionTest);
+	}
+
+	private CompoundDeviceManagerImpl(Supplier<U> compoundSupplier, BiPredicate<T, T> connectionTest) {
 		this.compoundSupplier = compoundSupplier;
 		this.connectionTest = connectionTest;
 		MANAGERS.add(new WeakReference(this));
@@ -357,10 +363,12 @@ public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U exten
 		return worlds.computeIfAbsent(dimensionId, d -> new WorldHandler());
 	}
 
+	@Override
 	public void connect(T device) {
 		world(device.dimensionId()).request(device, true);
 	}
 
+	@Override
 	public void disconnect(T device) {
 		world(device.dimensionId()).request(device, false);
 	}
@@ -381,9 +389,9 @@ public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U exten
 
 	private static final LongArrayList searchStack = new LongArrayList();
 
-	private static final ObjectArrayList<WeakReference<CompoundDeviceManager>> MANAGERS = new ObjectArrayList<>();
+	private static final ObjectArrayList<WeakReference<CompoundDeviceManagerImpl>> MANAGERS = new ObjectArrayList<>();
 
-	private static final ObjectArrayList<CompoundDeviceManager.WorldHandler> TICK_REQUESTS = new ObjectArrayList<>();
+	private static final ObjectArrayList<CompoundDeviceManagerImpl.WorldHandler> TICK_REQUESTS = new ObjectArrayList<>();
 
 	public static void tick(MinecraftServer server) {
 		if(TICK_REQUESTS.isEmpty()) {
@@ -395,7 +403,7 @@ public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U exten
 		final int limit = Math.min(elements.length, TICK_REQUESTS.size());
 
 		for(int i = 0; i < limit; i++) {
-			final CompoundDeviceManager.WorldHandler e = (CompoundDeviceManager.WorldHandler) elements[i];
+			final CompoundDeviceManagerImpl.WorldHandler e = (CompoundDeviceManagerImpl.WorldHandler) elements[i];
 
 			if(e == null) {
 				break;
@@ -408,15 +416,15 @@ public class CompoundDeviceManager<T extends CompoundDeviceMember<T, U>, U exten
 	}
 
 	public static void start(MinecraftServer server) {
-		final Iterator<WeakReference<CompoundDeviceManager>> it = MANAGERS.iterator();
+		final Iterator<WeakReference<CompoundDeviceManagerImpl>> it = MANAGERS.iterator();
 
 		while(it.hasNext()) {
-			final CompoundDeviceManager m = it.next().get();
+			final CompoundDeviceManagerImpl m = it.next().get();
 
 			if(m == null) {
 				it.remove();
 			} else {
-				m.worlds.values().forEach(w -> ((CompoundDeviceManager.WorldHandler)w).firstTick());
+				m.worlds.values().forEach(w -> ((CompoundDeviceManagerImpl.WorldHandler)w).firstTick());
 			}
 		}
 

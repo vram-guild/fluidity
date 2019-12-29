@@ -28,7 +28,7 @@ import net.minecraft.server.MinecraftServer;
 
 import grondag.fluidity.api.transact.Transaction;
 import grondag.fluidity.api.transact.TransactionContext;
-import grondag.fluidity.api.transact.Transactor;
+import grondag.fluidity.api.transact.TransactionParticipant;
 
 @API(status = Status.INTERNAL)
 public final class TransactionImpl implements Transaction {
@@ -54,7 +54,7 @@ public final class TransactionImpl implements Transaction {
 		}
 
 		@Override
-		public Consumer<Transactor> enlister() {
+		public Consumer<TransactionParticipant> enlister() {
 			return enlister;
 		}
 	}
@@ -62,10 +62,10 @@ public final class TransactionImpl implements Transaction {
 	private final ContextImpl context = new ContextImpl();
 	private boolean isOpen = true;
 	private boolean isCommited = false;
-	private final IdentityHashMap<Transactor, Consumer<TransactionContext>> participants = new IdentityHashMap<>();
-	private final IdentityHashMap<Transactor, Object> stateStorage = new IdentityHashMap<>();
-	private Transactor contextContainer;
-	private final Consumer<Transactor> enlister = this::enlist;
+	private final IdentityHashMap<TransactionParticipant, Consumer<TransactionContext>> participants = new IdentityHashMap<>();
+	private final IdentityHashMap<TransactionParticipant, Object> stateStorage = new IdentityHashMap<>();
+	private TransactionParticipant contextContainer;
+	private final Consumer<TransactionParticipant> enlister = this::enlist;
 
 	private TransactionImpl() {
 	}
@@ -137,7 +137,7 @@ public final class TransactionImpl implements Transaction {
 	}
 
 	@Override
-	public <T extends Transactor> T enlist(T container) {
+	public <T extends TransactionParticipant> T enlist(T container) {
 		validate();
 
 		if (!participants.containsKey(container)) {

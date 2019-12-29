@@ -13,18 +13,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.wip;
-
-import javax.annotation.Nullable;
+package grondag.fluidity.api.device;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.device.Device;
-
 @API(status = Status.EXPERIMENTAL)
-public interface CompoundDeviceMember<T extends CompoundDeviceMember<T, U>, U extends CompoundDevice<T, U>> extends LocatedDevice, Device {
-	@Nullable U getCompoundDevice();
-
-	void setCompoundDevice(@Nullable U owner);
+public interface LocatedDevice extends PositionedDevice, WorldlyDevice {
 }

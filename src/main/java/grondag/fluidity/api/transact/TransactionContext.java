@@ -28,5 +28,5 @@ public interface TransactionContext {
 
 	boolean isCommited();
 
-	Consumer<Transactor> enlister();
+	Consumer<TransactionParticipant> enlister();
 }

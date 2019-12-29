@@ -32,7 +32,7 @@ import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.device.Device;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.transact.Transactor;
+import grondag.fluidity.api.transact.TransactionParticipant;
 import grondag.fluidity.impl.EmptyStorage;
 import grondag.fluidity.impl.VoidStorage;
 
@@ -41,7 +41,7 @@ import grondag.fluidity.impl.VoidStorage;
  * Interface supports both discrete items and bulk resources (such as fluids.)
  */
 @API(status = Status.EXPERIMENTAL)
-public interface Storage extends Transactor {
+public interface Storage extends TransactionParticipant {
 	int handleCount();
 
 	default boolean isHandleValid(int handle) {

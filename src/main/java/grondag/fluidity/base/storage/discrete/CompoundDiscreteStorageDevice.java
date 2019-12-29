@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.wip;
+package grondag.fluidity.base.storage.discrete;
 
 import java.util.function.Consumer;
 
@@ -21,8 +21,9 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import grondag.fluidity.api.device.CompoundDevice;
+import grondag.fluidity.api.device.CompoundDeviceMember;
 import grondag.fluidity.api.storage.Storage;
-import grondag.fluidity.base.storage.discrete.AggregateDiscreteStorage;
 
 @API(status = Status.EXPERIMENTAL)
 public class CompoundDiscreteStorageDevice<T extends CompoundDeviceMember<T, U>, U extends CompoundDiscreteStorageDevice<T, U>> extends AggregateDiscreteStorage implements CompoundDevice<T, U> {

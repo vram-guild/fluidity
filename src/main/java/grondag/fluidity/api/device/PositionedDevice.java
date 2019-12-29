@@ -13,11 +13,18 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.wip;
+package grondag.fluidity.api.device;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import net.minecraft.util.math.BlockPos;
+
 @API(status = Status.EXPERIMENTAL)
-public interface LocatedDevice extends PositionedDevice, WorldlyDevice {
+public interface PositionedDevice {
+	default BlockPos pos() {
+		return BlockPos.fromLong(packedPos());
+	}
+
+	long packedPos();
 }

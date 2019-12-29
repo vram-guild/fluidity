@@ -41,7 +41,8 @@ import org.apiguardian.api.API.Status;
  */
 @FunctionalInterface
 @API(status = Status.EXPERIMENTAL)
-public interface Transactor {
+
+public interface TransactionParticipant {
 	/**
 	 * Consumer can save state in the context if it needs to and retrieve it on rollback.<p>
 	 *

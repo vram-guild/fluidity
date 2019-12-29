@@ -13,30 +13,16 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.wip;
+package grondag.fluidity.api.device;
+
+import javax.annotation.Nullable;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.server.dedicated.MinecraftDedicatedServer;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
-
-import net.fabricmc.api.EnvType;
-import net.fabricmc.loader.api.FabricLoader;
-
 @API(status = Status.EXPERIMENTAL)
-public interface WorldlyDevice {
-	int dimensionId();
+public interface CompoundDeviceMember<T extends CompoundDeviceMember<T, U>, U extends CompoundDevice<T, U>> extends LocatedDevice, Device {
+	@Nullable U getCompoundDevice();
 
-	default DimensionType dimension() {
-		return DimensionType.byRawId(dimensionId());
-	}
-
-	default World world() {
-		return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT
-				? ((MinecraftClient)FabricLoader.getInstance().getGameInstance()).getServer().getWorld(dimension())
-						: ((MinecraftDedicatedServer)FabricLoader.getInstance().getGameInstance()).getWorld(dimension());
-	}
+	void setCompoundDevice(@Nullable U owner);
 }
