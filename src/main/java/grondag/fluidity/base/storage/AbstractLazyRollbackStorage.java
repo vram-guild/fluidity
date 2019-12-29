@@ -21,16 +21,22 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.transact.TransactionContext;
+import grondag.fluidity.api.transact.TransactionParticipant.TransactionDelegate;
 import grondag.fluidity.base.article.AbstractStoredArticle;
 import grondag.fluidity.base.transact.LazyRollbackHandler;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractLazyRollbackStorage<V extends AbstractStoredArticle, T extends AbstractLazyRollbackStorage<V, T>> extends AbstractStorage<V, T> {
+public abstract class AbstractLazyRollbackStorage<V extends AbstractStoredArticle, T extends AbstractLazyRollbackStorage<V, T>> extends AbstractStorage<V, T> implements TransactionDelegate {
 	protected final LazyRollbackHandler rollbackHandler = new LazyRollbackHandler(this::createRollbackState, this::applyRollbackState);
 
 	protected abstract Object createRollbackState();
 
 	protected abstract void applyRollbackState(Object state, boolean isCommitted);
+
+	@Override
+	public TransactionDelegate getTransactionDelegate() {
+		return this;
+	}
 
 	@Override
 	public final Consumer<TransactionContext> prepareRollback(TransactionContext context) {

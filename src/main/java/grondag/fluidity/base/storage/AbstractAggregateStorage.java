@@ -27,11 +27,12 @@ import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.TransactionParticipant;
+import grondag.fluidity.api.transact.TransactionParticipant.TransactionDelegate;
 import grondag.fluidity.base.article.AggregateStoredArticle;
 import grondag.fluidity.base.storage.component.FlexibleArticleManager;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractAggregateStorage<V extends AggregateStoredArticle, T extends AbstractAggregateStorage<V, T>> extends AbstractStorage<V, T> implements StorageListener {
+public abstract class AbstractAggregateStorage<V extends AggregateStoredArticle, T extends AbstractAggregateStorage<V, T>> extends AbstractStorage<V, T> implements StorageListener, TransactionDelegate  {
 	protected final Consumer<TransactionContext> rollbackHandler = this::handleRollback;
 	protected final FlexibleArticleManager<V> articles;
 	protected final ObjectOpenHashSet<Storage> stores = new ObjectOpenHashSet<>();
@@ -73,6 +74,11 @@ public abstract class AbstractAggregateStorage<V extends AggregateStoredArticle,
 
 	protected void handleRollback(TransactionContext context) {
 		enlister = context.getState();
+	}
+
+	@Override
+	public TransactionDelegate getTransactionDelegate() {
+		return this;
 	}
 
 	@Override

@@ -35,6 +35,7 @@ import grondag.fluidity.api.storage.ArticleConsumer;
 import grondag.fluidity.api.storage.ArticleSupplier;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
+import grondag.fluidity.api.transact.Transaction;
 import grondag.fluidity.base.article.AggregateDiscreteStoredArticle;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractAggregateStorage;
@@ -90,6 +91,17 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 			return 0;
 		}
 
+		if(simulate) {
+			return acceptInner(item, count, true);
+		} else {
+			try(Transaction tx = Transaction.open()) {
+				tx.enlist(this);
+				return acceptInner(item, count, false);
+			}
+		}
+	}
+
+	protected long acceptInner(Article item, long count, boolean simulate) {
 		// consolidate notifications
 		itMe  = true;
 		long result = 0;
@@ -173,6 +185,24 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 
 	@Override
 	public long supply(Article item, long count, boolean simulate) {
+		Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
+		Preconditions.checkNotNull(item, "Request to supply null item");
+
+		if (item.isNothing() || isEmpty()) {
+			return 0;
+		}
+
+		if(simulate) {
+			return supplyInner(item, count, true);
+		} else {
+			try(Transaction tx = Transaction.open()) {
+				tx.enlist(this);
+				return supplyInner(item, count, false);
+			}
+		}
+	}
+
+	public long supplyInner(Article item, long count, boolean simulate) {
 		Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
 		Preconditions.checkNotNull(item, "Request to supply null item");
 

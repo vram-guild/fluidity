@@ -29,6 +29,7 @@ import net.minecraft.server.MinecraftServer;
 import grondag.fluidity.api.transact.Transaction;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.TransactionParticipant;
+import grondag.fluidity.api.transact.TransactionParticipant.TransactionDelegate;
 
 @API(status = Status.INTERNAL)
 public final class TransactionImpl implements Transaction {
@@ -39,13 +40,13 @@ public final class TransactionImpl implements Transaction {
 
 		@Override
 		public <T> void setState(T state) {
-			stateStorage.put(contextContainer, state);
+			stateStorage.put(contextDelegate, state);
 		}
 
 		@Override
 		@SuppressWarnings("unchecked")
 		public <T> T getState() {
-			return (T) stateStorage.get(contextContainer);
+			return (T) stateStorage.get(contextDelegate);
 		}
 
 		@Override
@@ -62,9 +63,9 @@ public final class TransactionImpl implements Transaction {
 	private final ContextImpl context = new ContextImpl();
 	private boolean isOpen = true;
 	private boolean isCommited = false;
-	private final IdentityHashMap<TransactionParticipant, Consumer<TransactionContext>> participants = new IdentityHashMap<>();
-	private final IdentityHashMap<TransactionParticipant, Object> stateStorage = new IdentityHashMap<>();
-	private TransactionParticipant contextContainer;
+	private final IdentityHashMap<TransactionDelegate, Consumer<TransactionContext>> participants = new IdentityHashMap<>();
+	private final IdentityHashMap<TransactionDelegate, Object> stateStorage = new IdentityHashMap<>();
+	private TransactionDelegate contextDelegate;
 	private final Consumer<TransactionParticipant> enlister = this::enlist;
 
 	private TransactionImpl() {
@@ -80,7 +81,7 @@ public final class TransactionImpl implements Transaction {
 	private void clear() {
 		participants.clear();
 		stateStorage.clear();
-		contextContainer = null;
+		contextDelegate = null;
 		isOpen = false;
 		isCommited = false;
 	}
@@ -114,7 +115,7 @@ public final class TransactionImpl implements Transaction {
 		this.isCommited = isCommited;
 
 		participants.forEach((c, r) -> {
-			contextContainer = c;
+			contextDelegate = c;
 			r.accept(context);
 		});
 
@@ -139,11 +140,12 @@ public final class TransactionImpl implements Transaction {
 	@Override
 	public <T extends TransactionParticipant> T enlist(T container) {
 		validate();
+		final TransactionDelegate d = container.getTransactionDelegate();
 
-		if (!participants.containsKey(container)) {
-			contextContainer = container;
-			participants.put(container, defaultRollback(container.prepareRollback(context)));
-			contextContainer = null;
+		if (!participants.containsKey(d)) {
+			contextDelegate = d;
+			participants.put(d, defaultRollback(d.prepareRollback(context)));
+			contextDelegate = null;
 		}
 
 		return container;

@@ -17,14 +17,11 @@ package grondag.fluidity.impl;
 
 import static org.apiguardian.api.API.Status.INTERNAL;
 
-import java.util.function.Consumer;
-
 import org.apiguardian.api.API;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.FixedArticleConsumer;
-import grondag.fluidity.api.transact.TransactionContext;
 
 @API(status = INTERNAL)
 public final class VoidConsumer implements FixedArticleConsumer {
@@ -48,8 +45,8 @@ public final class VoidConsumer implements FixedArticleConsumer {
 	}
 
 	@Override
-	public Consumer<TransactionContext> prepareRollback(TransactionContext context) {
-		return c -> {};
+	public TransactionDelegate getTransactionDelegate() {
+		return TransactionDelegate.IGNORE;
 	}
 
 	@Override

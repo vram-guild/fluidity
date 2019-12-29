@@ -17,8 +17,6 @@ package grondag.fluidity.impl;
 
 import static org.apiguardian.api.API.Status.INTERNAL;
 
-import java.util.function.Consumer;
-
 import org.apiguardian.api.API;
 
 import net.minecraft.nbt.CompoundTag;
@@ -28,7 +26,6 @@ import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.FixedStorage;
 import grondag.fluidity.api.storage.StorageListener;
-import grondag.fluidity.api.transact.TransactionContext;
 
 @API(status = INTERNAL)
 public final class EmptyStorage implements FixedStorage {
@@ -92,8 +89,8 @@ public final class EmptyStorage implements FixedStorage {
 	}
 
 	@Override
-	public Consumer<TransactionContext> prepareRollback(TransactionContext context) {
-		return c -> {};
+	public TransactionDelegate getTransactionDelegate() {
+		return TransactionDelegate.IGNORE;
 	}
 
 	@Override

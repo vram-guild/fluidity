@@ -15,7 +15,6 @@
  ******************************************************************************/
 package grondag.fluidity.base.storage;
 
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.apiguardian.api.API;
@@ -31,7 +30,6 @@ import grondag.fluidity.api.storage.ArticleConsumer;
 import grondag.fluidity.api.storage.ArticleSupplier;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
-import grondag.fluidity.api.transact.TransactionContext;
 
 @API(status = Status.EXPERIMENTAL)
 public class ForwardingStorage implements Storage {
@@ -44,7 +42,6 @@ public class ForwardingStorage implements Storage {
 	public void setWrapped(Storage wrapped) {
 		this.wrapped = wrapped;
 	}
-
 
 	@Override
 	public ArticleConsumer getConsumer() {
@@ -64,11 +61,6 @@ public class ForwardingStorage implements Storage {
 	@Override
 	public boolean hasSupplier() {
 		return wrapped.hasSupplier();
-	}
-
-	@Override
-	public Consumer<TransactionContext> prepareRollback(TransactionContext context) {
-		return wrapped.prepareRollback(context);
 	}
 
 	@Override
@@ -179,5 +171,10 @@ public class ForwardingStorage implements Storage {
 	@Override
 	public boolean isFull() {
 		return wrapped.isFull();
+	}
+
+	@Override
+	public TransactionDelegate getTransactionDelegate() {
+		return wrapped.getTransactionDelegate();
 	}
 }

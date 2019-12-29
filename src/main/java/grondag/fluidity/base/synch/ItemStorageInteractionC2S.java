@@ -67,7 +67,7 @@ public class ItemStorageInteractionC2S {
 			return;
 		}
 
-		final Storage storage = ((Device) player.container).getStorage();
+		final Storage storage = ((Device) player.container).getStorage(player);
 
 		if(storage == null) {
 			return;

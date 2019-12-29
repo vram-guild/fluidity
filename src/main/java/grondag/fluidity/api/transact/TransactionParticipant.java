@@ -44,14 +44,26 @@ import org.apiguardian.api.API.Status;
 
 public interface TransactionParticipant {
 	/**
-	 * Consumer can save state in the context if it needs to and retrieve it on rollback.<p>
-	 *
-	 * Consumer is called for both commit and rollback events just in case some
-	 * implementation need to lock or store resources internally during a
-	 * transaction and need notification when one ends. <p>
-	 *
-	 * @param context
-	 * @return
+	 * Allows instances that share the same rollback state to share a delegate.
+	 * If the same delegate is enlisted more than once, will only be asked to prepare rollback once.
 	 */
-	Consumer<TransactionContext> prepareRollback(TransactionContext context);
+	TransactionDelegate getTransactionDelegate();
+
+
+	@FunctionalInterface
+	public interface TransactionDelegate {
+		/**
+		 * Consumer can save state in the context if it needs to and retrieve it on rollback.<p>
+		 *
+		 * Consumer is called for both commit and rollback events just in case some
+		 * implementation need to lock or store resources internally during a
+		 * transaction and need notification when one ends. <p>
+		 *
+		 * @param context
+		 * @return
+		 */
+		Consumer<TransactionContext> prepareRollback(TransactionContext context);
+
+		TransactionDelegate IGNORE = c0 -> c1 -> {};
+	}
 }
