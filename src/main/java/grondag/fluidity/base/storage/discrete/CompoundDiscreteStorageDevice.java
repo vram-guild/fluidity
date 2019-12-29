@@ -21,6 +21,9 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
+
 import grondag.fluidity.api.device.CompoundDevice;
 import grondag.fluidity.api.device.CompoundMemberDevice;
 import grondag.fluidity.api.storage.Storage;
@@ -60,12 +63,12 @@ public class CompoundDiscreteStorageDevice<T extends CompoundMemberDevice<T, U>,
 	}
 
 	@Override
-	public Storage getStorage() {
+	public Storage getStorage(Direction side, Identifier id) {
 		return this;
 	}
 
 	@Override
-	public boolean hasStorage() {
+	public boolean hasStorage(Direction side, Identifier id) {
 		return true;
 	}
 
