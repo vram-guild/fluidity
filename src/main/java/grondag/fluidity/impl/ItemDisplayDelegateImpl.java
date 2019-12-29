@@ -21,7 +21,7 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.api.synch.ItemDisplayDelegate;
+import grondag.fluidity.base.synch.ItemDisplayDelegate;
 
 @API(status = Status.INTERNAL)
 public class ItemDisplayDelegateImpl implements ItemDisplayDelegate {

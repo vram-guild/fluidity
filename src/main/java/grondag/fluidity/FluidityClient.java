@@ -21,8 +21,8 @@ import org.apiguardian.api.API.Status;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 
-import grondag.fluidity.api.synch.ItemStorageClientDelegate;
-import grondag.fluidity.api.synch.ItemStorageUpdateS2C;
+import grondag.fluidity.base.synch.ItemStorageClientDelegate;
+import grondag.fluidity.base.synch.ItemStorageUpdateS2C;
 
 @API(status = Status.INTERNAL)
 

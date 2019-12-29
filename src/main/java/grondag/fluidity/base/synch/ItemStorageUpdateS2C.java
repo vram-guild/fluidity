@@ -14,7 +14,7 @@
  * the License.
  ******************************************************************************/
 
-package grondag.fluidity.api.synch;
+package grondag.fluidity.base.synch;
 
 import io.netty.buffer.Unpooled;
 import org.apiguardian.api.API;

@@ -14,7 +14,7 @@
  * the License.
  ******************************************************************************/
 
-package grondag.fluidity.api.synch;
+package grondag.fluidity.base.synch;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.apiguardian.api.API;

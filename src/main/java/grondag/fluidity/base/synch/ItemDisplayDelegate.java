@@ -14,7 +14,7 @@
  * the License.
  ******************************************************************************/
 
-package grondag.fluidity.api.synch;
+package grondag.fluidity.base.synch;
 
 import java.util.Comparator;
 

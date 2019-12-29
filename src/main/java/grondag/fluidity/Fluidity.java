@@ -25,7 +25,7 @@ import net.fabricmc.fabric.api.event.server.ServerStartCallback;
 import net.fabricmc.fabric.api.event.server.ServerTickCallback;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
-import grondag.fluidity.api.synch.ItemStorageInteractionC2S;
+import grondag.fluidity.base.synch.ItemStorageInteractionC2S;
 import grondag.fluidity.impl.CompoundDeviceManagerImpl;
 import grondag.fluidity.impl.TransactionImpl;
 
