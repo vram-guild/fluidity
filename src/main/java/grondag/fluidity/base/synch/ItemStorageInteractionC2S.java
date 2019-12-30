@@ -31,7 +31,6 @@ import net.fabricmc.fabric.api.network.PacketContext;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.device.Device;
 import grondag.fluidity.api.storage.Storage;
 
 /**
@@ -63,11 +62,11 @@ public class ItemStorageInteractionC2S {
 	}
 
 	private static void acceptInner(StorageAction action, int handle, ServerPlayerEntity player) {
-		if (player.container == null || !(player.container instanceof Device)) {
+		if (player.container == null || !(player.container instanceof StorageContainer)) {
 			return;
 		}
 
-		final Storage storage = ((Device) player.container).getStorage(player);
+		final Storage storage = ((StorageContainer) player.container).getStorage();
 
 		if(storage == null) {
 			return;

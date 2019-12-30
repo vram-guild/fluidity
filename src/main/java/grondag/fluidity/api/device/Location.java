@@ -36,9 +36,13 @@ public interface Location extends BlockPointer {
 		return BlockPos.fromLong(packedPos());
 	}
 
-	long packedPos();
+	default long packedPos() {
+		return 0;
+	}
 
-	int dimensionId();
+	default int dimensionId() {
+		return 0;
+	}
 
 	default DimensionType dimension() {
 		return DimensionType.byRawId(dimensionId());
@@ -85,4 +89,6 @@ public interface Location extends BlockPointer {
 	default <T extends BlockEntity> T getBlockEntity() {
 		return (T) world().getBlockEntity(pos());
 	}
+
+	Location NOWHERE = new Location() {};
 }

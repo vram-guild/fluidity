@@ -15,71 +15,104 @@
  ******************************************************************************/
 package grondag.fluidity.base.storage.discrete;
 
-import java.util.function.Consumer;
-
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
+import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.device.CompoundDevice;
+import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.device.CompoundMemberDevice;
+import grondag.fluidity.api.device.StorageProvider;
 import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.StorageListener;
+import grondag.fluidity.base.device.AbstractCompoundDevice;
 
 @API(status = Status.EXPERIMENTAL)
-public class CompoundDiscreteStorageDevice<T extends CompoundMemberDevice<T, U>, U extends CompoundDiscreteStorageDevice<T, U>> extends AggregateDiscreteStorage implements CompoundDevice<T, U> {
-
-	protected final ObjectOpenHashSet<T> devices = new ObjectOpenHashSet<>();
-
-	@Override
-	public void add(T device) {
-		devices.add(device);
-		final Storage s = device.getLocalStorage();
-
-		if(s != null && s != Storage.EMPTY) {
-			addStore(s);
-		}
-	}
+public class CompoundDiscreteStorageDevice<T extends CompoundMemberDevice<T, U>, U extends CompoundDiscreteStorageDevice<T, U>> extends AbstractCompoundDevice<T, U> implements DiscreteStorage {
+	protected final AggregateDiscreteStorage storage = new AggregateDiscreteStorage();
 
 	@Override
-	public void remove(T device) {
-		onRemove(device);
-		devices.remove(device);
-	}
-
 	protected void onRemove(T device) {
-		final Storage s = device.getLocalStorage();
+		final Storage s = device.getStorageProvider().getLocalStorage();
 
 		if(s != null && s != Storage.EMPTY) {
-			removeStore(s);
+			storage.removeStore(s);
 		}
 	}
 
 	@Override
-	public int deviceCount() {
-		return devices.size();
+	protected void onAdd(T device) {
+		final Storage s = device.getStorageProvider().getLocalStorage();
+
+		if(s != null && s != Storage.EMPTY) {
+			storage.addStore(s);
+		}
+	}
+
+	private final StorageProvider provider = (s, d) -> storage;
+
+	@Override
+	public StorageProvider getStorageProvider() {
+		return provider;
 	}
 
 	@Override
-	public Storage getStorage(Direction side, Identifier id) {
-		return this;
+	public int handleCount() {
+		return storage.handleCount();
 	}
 
 	@Override
-	public boolean hasStorage(Direction side, Identifier id) {
-		return true;
+	public StoredArticleView view(int handle) {
+		return storage.view(handle);
 	}
 
 	@Override
-	public void removalAllAndClose(Consumer<T> closeAction) {
-		devices.forEach(d -> {
-			onRemove(d);
-			closeAction.accept(d);
-		});
+	public boolean isFull() {
+		return storage.isFull();
+	}
 
-		devices.clear();
-		close();
+	@Override
+	public boolean isEmpty() {
+		return storage.isEmpty();
+	}
+
+	@Override
+	public long count() {
+		return storage.count();
+	}
+
+	@Override
+	public long capacity() {
+		return storage.capacity();
+	}
+
+	@Override
+	public void clear() {
+		storage.clear();
+	}
+
+	@Override
+	public void startListening(StorageListener listener, boolean sendNotifications) {
+		storage.startListening(listener, sendNotifications);
+	}
+
+	@Override
+	public void stopListening(StorageListener listener, boolean sendNotifications) {
+		storage.stopListening(listener, sendNotifications);
+	}
+
+	@Override
+	public CompoundTag writeTag() {
+		return storage.writeTag();
+	}
+
+	@Override
+	public void readTag(CompoundTag tag) {
+		storage.readTag(tag);
+	}
+
+	@Override
+	public TransactionDelegate getTransactionDelegate() {
+		return storage.getTransactionDelegate();
 	}
 }

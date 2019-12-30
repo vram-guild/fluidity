@@ -31,6 +31,7 @@ import grondag.fluidity.api.device.Device;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.transact.TransactionParticipant;
+import grondag.fluidity.impl.CreativeStorage;
 import grondag.fluidity.impl.EmptyStorage;
 import grondag.fluidity.impl.VoidStorage;
 
@@ -157,4 +158,5 @@ public interface Storage extends TransactionParticipant {
 
 	Storage EMPTY = EmptyStorage.INSTANCE;
 	Storage VOID = VoidStorage.INSTANCE;
+	Storage CREATIVE = CreativeStorage.INSTANCE;
 }
