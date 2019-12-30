@@ -21,19 +21,20 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.StoredArticleView;
-import grondag.fluidity.api.device.CompoundMemberDevice;
+import grondag.fluidity.api.device.Device;
+import grondag.fluidity.api.device.MultiblockStorageMember;
 import grondag.fluidity.api.device.StorageProvider;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.device.AbstractCompoundDevice;
 
 @API(status = Status.EXPERIMENTAL)
-public class CompoundDiscreteStorageDevice<T extends CompoundMemberDevice<T, U>, U extends CompoundDiscreteStorageDevice<T, U>> extends AbstractCompoundDevice<T, U> implements DiscreteStorage {
+public class CompoundDiscreteStorageDevice<T extends MultiblockStorageMember<T, U>, U extends CompoundDiscreteStorageDevice<T, U>> extends AbstractCompoundDevice<T, U> implements Device, DiscreteStorage {
 	protected final AggregateDiscreteStorage storage = new AggregateDiscreteStorage();
 
 	@Override
 	protected void onRemove(T device) {
-		final Storage s = device.getStorageProvider().getLocalStorage();
+		final Storage s = device.getMemberStorage();
 
 		if(s != null && s != Storage.EMPTY) {
 			storage.removeStore(s);
@@ -42,7 +43,7 @@ public class CompoundDiscreteStorageDevice<T extends CompoundMemberDevice<T, U>,
 
 	@Override
 	protected void onAdd(T device) {
-		final Storage s = device.getStorageProvider().getLocalStorage();
+		final Storage s = device.getMemberStorage();
 
 		if(s != null && s != Storage.EMPTY) {
 			storage.addStore(s);

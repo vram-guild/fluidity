@@ -26,7 +26,7 @@ import net.fabricmc.fabric.api.event.server.ServerTickCallback;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
 import grondag.fluidity.base.synch.ItemStorageInteractionC2S;
-import grondag.fluidity.impl.CompoundDeviceManagerImpl;
+import grondag.fluidity.impl.MultiBlockManagerImpl;
 import grondag.fluidity.impl.TransactionImpl;
 
 /**
@@ -59,11 +59,11 @@ public class Fluidity implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		FluidityConfig.init();
-		ServerTickCallback.EVENT.register(CompoundDeviceManagerImpl::tick);
+		ServerTickCallback.EVENT.register(MultiBlockManagerImpl::tick);
 
 		ServerStartCallback.EVENT.register(s -> {
 			TransactionImpl.setServerThread(s);
-			CompoundDeviceManagerImpl.start(s);
+			MultiBlockManagerImpl.start(s);
 		});
 
 		ServerSidePacketRegistry.INSTANCE.register(ItemStorageInteractionC2S.ID, ItemStorageInteractionC2S::accept);

@@ -13,24 +13,14 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-
 package grondag.fluidity.api.device;
-
-import java.util.function.BiPredicate;
-import java.util.function.Supplier;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.impl.CompoundDeviceManagerImpl;
+import grondag.fluidity.api.storage.Storage;
 
 @API(status = Status.EXPERIMENTAL)
-public interface CompoundDeviceManager<T extends CompoundMemberDevice<T, U>, U extends CompoundDevice<T, U>> {
-	void connect(T device);
-
-	void disconnect(T device);
-
-	static <T extends CompoundMemberDevice<T, U>, U extends CompoundDevice<T, U>> CompoundDeviceManager<T, U> create(Supplier<U> compoundSupplier, BiPredicate<T, T> connectionTest) {
-		return CompoundDeviceManagerImpl.create(compoundSupplier, connectionTest);
-	}
+public interface MultiblockStorageMember<T extends MultiblockStorageMember<T, U>, U extends MultiBlock<T, U>> extends MultiBlockMember<T, U> {
+	Storage getMemberStorage();
 }

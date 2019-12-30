@@ -20,9 +20,18 @@ import javax.annotation.Nullable;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-@API(status = Status.EXPERIMENTAL)
-public interface CompoundMemberDevice<T extends CompoundMemberDevice<T, U>, U extends CompoundDevice<T, U>> extends Device {
-	@Nullable U getCompoundDevice();
+import net.minecraft.util.math.BlockPos;
 
-	void setCompoundDevice(@Nullable U owner);
+@API(status = Status.EXPERIMENTAL)
+public interface MultiBlockMember<T extends MultiBlockMember<T, U>, U extends MultiBlock<T, U>> {
+	@Nullable U getMultiblock();
+
+	void setMultiblock(@Nullable U owner);
+
+	long getPackedPos();
+
+	default BlockPos getBlockPos() {
+		return BlockPos.fromLong(getPackedPos());
+	}
+	int getDimensionId();
 }

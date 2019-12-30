@@ -38,13 +38,13 @@ import net.minecraft.util.math.BlockPos;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.FluidityConfig;
-import grondag.fluidity.api.device.CompoundDevice;
-import grondag.fluidity.api.device.CompoundDeviceManager;
-import grondag.fluidity.api.device.CompoundMemberDevice;
+import grondag.fluidity.api.device.MultiBlockManager;
+import grondag.fluidity.api.device.MultiBlock;
+import grondag.fluidity.api.device.MultiBlockMember;
 
 @API(status = Status.EXPERIMENTAL)
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class CompoundDeviceManagerImpl<T extends CompoundMemberDevice<T, U>, U extends CompoundDevice<T, U>> implements CompoundDeviceManager<T, U> {
+public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U>, U extends MultiBlock<T, U>> implements MultiBlockManager<T, U> {
 
 	@SuppressWarnings("serial")
 	private class WorldHandler extends Long2ObjectOpenHashMap<T> {
@@ -75,10 +75,6 @@ public class CompoundDeviceManagerImpl<T extends CompoundMemberDevice<T, U>, U e
 		}
 
 		private void request(T device, boolean status) {
-			if(!device.hasLocation()) {
-				return;
-			}
-
 			requests.put(device, status);
 
 			if(!didRequestTick) {
@@ -89,10 +85,10 @@ public class CompoundDeviceManagerImpl<T extends CompoundMemberDevice<T, U>, U e
 
 		private void doConnect(T device) {
 			if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
-				Fluidity.trace("Device connection request from %s @ %s", device.toString(), device.getLocation().pos().toString());
+				Fluidity.trace("Device connection request from %s @ %s", device.toString(), device.getBlockPos().toString());
 			}
 
-			final long pos = device.getLocation().packedPos();
+			final long pos = device.getPackedPos();
 			final T prior = put(pos, device);
 
 			if(prior != null) {
@@ -119,8 +115,8 @@ public class CompoundDeviceManagerImpl<T extends CompoundMemberDevice<T, U>, U e
 				return;
 			}
 
-			final U fromOwner = fromDevice.getCompoundDevice();
-			final U toOwner = toDevice.getCompoundDevice();
+			final U fromOwner = fromDevice.getMultiblock();
+			final U toOwner = toDevice.getMultiblock();
 
 			if(fromOwner == null) {
 				if(toOwner == null) {
@@ -128,50 +124,50 @@ public class CompoundDeviceManagerImpl<T extends CompoundMemberDevice<T, U>, U e
 					final U newOwner = compoundSupplier.get();
 
 					if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
-						Fluidity.trace("New compound device %s from %s @ %s and %s @ %s", newOwner.toString(), fromDevice.toString(), fromDevice.getLocation().pos().toString(), toDevice.toString(), toDevice.getLocation().pos().toString());
+						Fluidity.trace("New compound device %s from %s @ %s and %s @ %s", newOwner.toString(), fromDevice.toString(), fromDevice.getBlockPos().toString(), toDevice.toString(), toDevice.getBlockPos().toString());
 					}
 
-					fromDevice.setCompoundDevice(newOwner);
+					fromDevice.setMultiblock(newOwner);
 					newOwner.add(fromDevice);
-					toDevice.setCompoundDevice(newOwner);
+					toDevice.setMultiblock(newOwner);
 					newOwner.add(toDevice);
 				} else {
 					// join to device compound
 					if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
-						Fluidity.trace("Compound device %s added %s @ %s", toOwner.toString(), fromDevice.toString(), fromDevice.getLocation().pos().toString());
+						Fluidity.trace("Compound device %s added %s @ %s", toOwner.toString(), fromDevice.toString(), fromDevice.getBlockPos().toString());
 					}
 
-					fromDevice.setCompoundDevice(toOwner);
+					fromDevice.setMultiblock(toOwner);
 					toOwner.add(fromDevice);
 				}
 			} else if (fromOwner == toOwner) {
 				// already joined
 				if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
-					Fluidity.trace("Device connection ignored: %s already associated with %s @ %s", fromOwner.toString(), fromDevice.toString(), fromDevice.getLocation().pos().toString());
+					Fluidity.trace("Device connection ignored: %s already associated with %s @ %s", fromOwner.toString(), fromDevice.toString(), fromDevice.getBlockPos().toString());
 				}
 
 				return;
 			} else if (toOwner == null) {
 				// to device joins from device compound
 				if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
-					Fluidity.trace("Compound device %s added %s @ %s", fromOwner.toString(), toDevice.toString(), toDevice.getLocation().pos().toString());
+					Fluidity.trace("Compound device %s added %s @ %s", fromOwner.toString(), toDevice.toString(), toDevice.getBlockPos().toString());
 				}
 
-				toDevice.setCompoundDevice(fromOwner);
+				toDevice.setMultiblock(fromOwner);
 				fromOwner.add(toDevice);
 			} else {
 				// two different non-null compound devices - must merge one of them
 				if(fromOwner.deviceCount() > toOwner.deviceCount()) {
 					if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
 						Fluidity.trace("Merging compound device %s from device %s @ %s into comound device %s from device %s @ %s",
-								toOwner, toDevice.toString(), toDevice.getLocation().pos().toString(), fromOwner, fromDevice.toString(), fromDevice.getLocation().pos().toString());
+								toOwner, toDevice.toString(), toDevice.getBlockPos().toString(), fromOwner, fromDevice.toString(), fromDevice.getBlockPos().toString());
 					}
 
 					handleMerge(toOwner, fromOwner);
 				} else {
 					if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
 						Fluidity.trace("Merging compound device %s from device %s @ %s into comound device %s from device %s @ %s",
-								fromOwner, fromDevice.toString(), fromDevice.getLocation().pos().toString(), toOwner, toDevice.toString(), toDevice.getLocation().pos().toString());
+								fromOwner, fromDevice.toString(), fromDevice.getBlockPos().toString(), toOwner, toDevice.toString(), toDevice.getBlockPos().toString());
 					}
 
 					handleMerge(fromOwner, toOwner);
@@ -181,14 +177,14 @@ public class CompoundDeviceManagerImpl<T extends CompoundMemberDevice<T, U>, U e
 
 		private void handleMerge(U victim, U survivor) {
 			victim.removalAllAndClose(d -> {
-				d.setCompoundDevice(survivor);
+				d.setMultiblock(survivor);
 				survivor.add(d);
 			});
 		}
 
 		private void doDisconnect(T device) {
 			if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
-				Fluidity.trace("Device disconnect request from %s @ %s", device.toString(), device.getLocation().pos().toString());
+				Fluidity.trace("Device disconnect request from %s @ %s", device.toString(), device.getBlockPos().toString());
 			}
 
 			final long pos = reverseMap.removeLong(device);
@@ -200,7 +196,7 @@ public class CompoundDeviceManagerImpl<T extends CompoundMemberDevice<T, U>, U e
 				return;
 			}
 
-			final U owner = device.getCompoundDevice();
+			final U owner = device.getMultiblock();
 			if(owner == null) {
 				// not connected to anything
 				return;
@@ -216,11 +212,11 @@ public class CompoundDeviceManagerImpl<T extends CompoundMemberDevice<T, U>, U e
 			addNeighbor(owner, get(BlockPos.add(pos, 0, 0, -1)));
 
 			if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
-				Fluidity.trace("Device %s @ %s removed from compound device %s", device.toString(), device.getLocation().pos().toString(), owner.toString());
+				Fluidity.trace("Device %s @ %s removed from compound device %s", device.toString(), device.getBlockPos().toString(), owner.toString());
 			}
 
 			owner.remove(device);
-			device.setCompoundDevice(null);
+			device.setMultiblock(null);
 
 			if (neighbors.size() > 1) {
 				// if part of a compound device and has more than one neighbor,
@@ -230,14 +226,14 @@ public class CompoundDeviceManagerImpl<T extends CompoundMemberDevice<T, U>, U e
 
 			// if we are next to last one out, close up shop
 			if(owner.deviceCount() == 1) {
-				owner.removalAllAndClose(d -> d.setCompoundDevice(null));
+				owner.removalAllAndClose(d -> d.setMultiblock(null));
 			} else if (owner.deviceCount() == 0) {
 				owner.close();
 			}
 		}
 
 		private void addNeighbor(U owner, @Nullable T neighbor) {
-			if(neighbor != null && neighbor.getCompoundDevice() == owner) {
+			if(neighbor != null && neighbor.getMultiblock() == owner) {
 				neighbors.add(neighbor);
 			}
 		}
@@ -264,7 +260,7 @@ public class CompoundDeviceManagerImpl<T extends CompoundMemberDevice<T, U>, U e
 					// mark any subsequent siblings that were visited as part of the search that just happened
 					if (i < limit - 1) {
 						for(int j = i + 1; j < limit; j++) {
-							final long nPos = neighbors.get(j).getLocation().packedPos();
+							final long nPos = neighbors.get(j).getPackedPos();
 							if(splits[j] == UNDETERMINED && visited.contains(nPos)) {
 								splits[j] = splitIndex;
 							}
@@ -303,22 +299,22 @@ public class CompoundDeviceManagerImpl<T extends CompoundMemberDevice<T, U>, U e
 			final int count = splitDevices[index].size();
 
 			if(count== 1) {
-				final CompoundMemberDevice d  = splitDevices[index].get(0);
+				final MultiBlockMember d  = splitDevices[index].get(0);
 				owner.remove((T) d);
-				d.setCompoundDevice(null);
+				d.setMultiblock(null);
 			} else if(count > 1) {
 				final U newOwner = compoundSupplier.get();
 
-				for(final CompoundMemberDevice d : splitDevices[index]) {
+				for(final MultiBlockMember d : splitDevices[index]) {
 					owner.remove((T) d);
-					d.setCompoundDevice(newOwner);
+					d.setMultiblock(newOwner);
 					newOwner.add((T) d);
 				}
 			}
 		}
 
-		private void visitFrom(U owner, CompoundMemberDevice sibling) {
-			final long pos = sibling.getLocation().packedPos();
+		private void visitFrom(U owner, MultiBlockMember sibling) {
+			final long pos = sibling.getPackedPos();
 			visited.add(pos);
 			splitDevices[splitIndex].add(sibling);
 			searchStack.add(pos);
@@ -338,7 +334,7 @@ public class CompoundDeviceManagerImpl<T extends CompoundMemberDevice<T, U>, U e
 			if(!visited.contains(pos)) {
 				final T d = get(pos);
 
-				if(d != null && d.getCompoundDevice() == owner) {
+				if(d != null && d.getMultiblock() == owner) {
 					splitDevices[splitIndex].add(d);
 					searchStack.add(pos);
 				}
@@ -353,11 +349,11 @@ public class CompoundDeviceManagerImpl<T extends CompoundMemberDevice<T, U>, U e
 	private final Supplier<U> compoundSupplier;
 	private final BiPredicate<T, T> connectionTest;
 
-	public static <T extends CompoundMemberDevice<T, U>, U extends CompoundDevice<T, U>> CompoundDeviceManager<T, U> create(Supplier<U> compoundSupplier, BiPredicate<T, T> connectionTest) {
-		return new CompoundDeviceManagerImpl(compoundSupplier, connectionTest);
+	public static <T extends MultiBlockMember<T, U>, U extends MultiBlock<T, U>> MultiBlockManager<T, U> create(Supplier<U> compoundSupplier, BiPredicate<T, T> connectionTest) {
+		return new MultiBlockManagerImpl(compoundSupplier, connectionTest);
 	}
 
-	private CompoundDeviceManagerImpl(Supplier<U> compoundSupplier, BiPredicate<T, T> connectionTest) {
+	private MultiBlockManagerImpl(Supplier<U> compoundSupplier, BiPredicate<T, T> connectionTest) {
 		this.compoundSupplier = compoundSupplier;
 		this.connectionTest = connectionTest;
 		MANAGERS.add(new WeakReference(this));
@@ -369,19 +365,19 @@ public class CompoundDeviceManagerImpl<T extends CompoundMemberDevice<T, U>, U e
 
 	@Override
 	public void connect(T device) {
-		world(device.getLocation().dimensionId()).request(device, true);
+		world(device.getDimensionId()).request(device, true);
 	}
 
 	@Override
 	public void disconnect(T device) {
-		world(device.getLocation().dimensionId()).request(device, false);
+		world(device.getDimensionId()).request(device, false);
 	}
 
-	private static final ObjectArrayList<CompoundMemberDevice> neighbors = new ObjectArrayList<>();
+	private static final ObjectArrayList<MultiBlockMember> neighbors = new ObjectArrayList<>();
 
 	private static int splitIndex = 0;
 	private static final int[] splits = new int[6];
-	private static final ObjectArrayList<CompoundMemberDevice>[] splitDevices = new ObjectArrayList[6];
+	private static final ObjectArrayList<MultiBlockMember>[] splitDevices = new ObjectArrayList[6];
 	static {
 		for (int i = 0; i < 6; i++) {
 			splitDevices[i] = new ObjectArrayList<>();
@@ -393,9 +389,9 @@ public class CompoundDeviceManagerImpl<T extends CompoundMemberDevice<T, U>, U e
 
 	private static final LongArrayList searchStack = new LongArrayList();
 
-	private static final ObjectArrayList<WeakReference<CompoundDeviceManagerImpl>> MANAGERS = new ObjectArrayList<>();
+	private static final ObjectArrayList<WeakReference<MultiBlockManagerImpl>> MANAGERS = new ObjectArrayList<>();
 
-	private static final ObjectArrayList<CompoundDeviceManagerImpl.WorldHandler> TICK_REQUESTS = new ObjectArrayList<>();
+	private static final ObjectArrayList<MultiBlockManagerImpl.WorldHandler> TICK_REQUESTS = new ObjectArrayList<>();
 
 	public static void tick(MinecraftServer server) {
 		if(TICK_REQUESTS.isEmpty()) {
@@ -407,7 +403,7 @@ public class CompoundDeviceManagerImpl<T extends CompoundMemberDevice<T, U>, U e
 		final int limit = Math.min(elements.length, TICK_REQUESTS.size());
 
 		for(int i = 0; i < limit; i++) {
-			final CompoundDeviceManagerImpl.WorldHandler e = (CompoundDeviceManagerImpl.WorldHandler) elements[i];
+			final MultiBlockManagerImpl.WorldHandler e = (MultiBlockManagerImpl.WorldHandler) elements[i];
 
 			if(e == null) {
 				break;
@@ -420,15 +416,15 @@ public class CompoundDeviceManagerImpl<T extends CompoundMemberDevice<T, U>, U e
 	}
 
 	public static void start(MinecraftServer server) {
-		final Iterator<WeakReference<CompoundDeviceManagerImpl>> it = MANAGERS.iterator();
+		final Iterator<WeakReference<MultiBlockManagerImpl>> it = MANAGERS.iterator();
 
 		while(it.hasNext()) {
-			final CompoundDeviceManagerImpl m = it.next().get();
+			final MultiBlockManagerImpl m = it.next().get();
 
 			if(m == null) {
 				it.remove();
 			} else {
-				m.worlds.values().forEach(w -> ((CompoundDeviceManagerImpl.WorldHandler)w).firstTick());
+				m.worlds.values().forEach(w -> ((MultiBlockManagerImpl.WorldHandler)w).firstTick());
 			}
 		}
 	}

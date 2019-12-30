@@ -21,11 +21,11 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.device.CompoundDevice;
-import grondag.fluidity.api.device.CompoundMemberDevice;
+import grondag.fluidity.api.device.MultiBlock;
+import grondag.fluidity.api.device.MultiBlockMember;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractCompoundDevice<T extends CompoundMemberDevice<T, U>, U extends AbstractCompoundDevice<T, U>> implements CompoundDevice<T, U> {
+public abstract class AbstractCompoundDevice<T extends MultiBlockMember<T, U>, U extends AbstractCompoundDevice<T, U>> implements MultiBlock<T, U> {
 
 	protected final ObjectOpenHashSet<T> devices = new ObjectOpenHashSet<>();
 
