@@ -28,6 +28,7 @@ import net.minecraft.nbt.CompoundTag;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.device.Device;
+import grondag.fluidity.api.device.ComponentType;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.transact.TransactionParticipant;
@@ -159,4 +160,17 @@ public interface Storage extends TransactionParticipant {
 	Storage EMPTY = EmptyStorage.INSTANCE;
 	Storage VOID = VoidStorage.INSTANCE;
 	Storage CREATIVE = CreativeStorage.INSTANCE;
+
+	ComponentType<Storage> STORAGE_COMPONENT = () -> EMPTY;
+
+	/**
+	 * Multiblock storage devices may elect to return the compound storage instance as the main storage service.
+	 * This method offers an unambiguous way to reference the internal storage of the device.
+	 *
+	 * <p>Also used by and necessary for aggregate storage implementations for the same reason.
+	 *
+	 * @return Internal {@link Storage} of this device, or the regular storage if not a multiblock.
+	 */
+	ComponentType<Storage> INTERNAL_STORAGE_COMPONENT = () -> EMPTY;
+
 }

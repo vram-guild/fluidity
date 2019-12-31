@@ -38,13 +38,13 @@ import net.minecraft.util.math.BlockPos;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.FluidityConfig;
-import grondag.fluidity.api.device.MultiBlockManager;
-import grondag.fluidity.api.device.MultiBlock;
-import grondag.fluidity.api.device.MultiBlockMember;
+import grondag.fluidity.api.multiblock.MultiBlock;
+import grondag.fluidity.api.multiblock.MultiBlockManager;
+import grondag.fluidity.api.multiblock.MultiBlockMember;
 
 @API(status = Status.EXPERIMENTAL)
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U>, U extends MultiBlock<T, U>> implements MultiBlockManager<T, U> {
+public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U, V>, U extends MultiBlock<T, U, V>, V> implements MultiBlockManager<T, U, V> {
 
 	@SuppressWarnings("serial")
 	private class WorldHandler extends Long2ObjectOpenHashMap<T> {
@@ -157,7 +157,7 @@ public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U>, U extends M
 				fromOwner.add(toDevice);
 			} else {
 				// two different non-null compound devices - must merge one of them
-				if(fromOwner.deviceCount() > toOwner.deviceCount()) {
+				if(fromOwner.memberCount() > toOwner.memberCount()) {
 					if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
 						Fluidity.trace("Merging compound device %s from device %s @ %s into comound device %s from device %s @ %s",
 								toOwner, toDevice.toString(), toDevice.getBlockPos().toString(), fromOwner, fromDevice.toString(), fromDevice.getBlockPos().toString());
@@ -225,9 +225,9 @@ public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U>, U extends M
 			}
 
 			// if we are next to last one out, close up shop
-			if(owner.deviceCount() == 1) {
+			if(owner.memberCount() == 1) {
 				owner.removalAllAndClose(d -> d.setMultiblock(null));
-			} else if (owner.deviceCount() == 0) {
+			} else if (owner.memberCount() == 0) {
 				owner.close();
 			}
 		}
@@ -349,7 +349,7 @@ public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U>, U extends M
 	private final Supplier<U> compoundSupplier;
 	private final BiPredicate<T, T> connectionTest;
 
-	public static <T extends MultiBlockMember<T, U>, U extends MultiBlock<T, U>> MultiBlockManager<T, U> create(Supplier<U> compoundSupplier, BiPredicate<T, T> connectionTest) {
+	public static <T extends MultiBlockMember<T, U, V>, U extends MultiBlock<T, U, V>, V> MultiBlockManager<T, U, V> create(Supplier<U> compoundSupplier, BiPredicate<T, T> connectionTest) {
 		return new MultiBlockManagerImpl(compoundSupplier, connectionTest);
 	}
 

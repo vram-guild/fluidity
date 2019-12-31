@@ -13,24 +13,27 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
+package grondag.fluidity.api.multiblock;
 
-package grondag.fluidity.api.device;
-
-import java.util.function.BiPredicate;
-import java.util.function.Supplier;
+import javax.annotation.Nullable;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.impl.MultiBlockManagerImpl;
+import net.minecraft.util.math.BlockPos;
 
 @API(status = Status.EXPERIMENTAL)
-public interface MultiBlockManager<T extends MultiBlockMember<T, U>, U extends MultiBlock<T, U>> {
-	void connect(T member);
+public interface MultiBlockMember<T extends MultiBlockMember<T, U, V>, U extends MultiBlock<T, U, V>, V> {
+	@Nullable U getMultiblock();
 
-	void disconnect(T member);
+	void setMultiblock(@Nullable U owner);
 
-	static <T extends MultiBlockMember<T, U>, U extends MultiBlock<T, U>> MultiBlockManager<T, U> create(Supplier<U> multiBlockFactory, BiPredicate<T, T> connectionTest) {
-		return MultiBlockManagerImpl.create(multiBlockFactory, connectionTest);
+	V getMemberComponent();
+
+	long getPackedPos();
+
+	default BlockPos getBlockPos() {
+		return BlockPos.fromLong(getPackedPos());
 	}
+	int getDimensionId();
 }

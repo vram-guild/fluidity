@@ -13,24 +13,24 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.device;
 
-import java.util.function.Consumer;
+package grondag.fluidity.api.multiblock;
+
+import java.util.function.BiPredicate;
+import java.util.function.Supplier;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import grondag.fluidity.impl.MultiBlockManagerImpl;
+
 @API(status = Status.EXPERIMENTAL)
-public interface MultiBlock<T extends MultiBlockMember<T, U>, U extends MultiBlock<T, U>> {
-	default void close() {
+public interface MultiBlockManager<T extends MultiBlockMember<T, U, V>, U extends MultiBlock<T, U, V>, V> {
+	void connect(T member);
 
+	void disconnect(T member);
+
+	static <T extends MultiBlockMember<T, U, V>, U extends MultiBlock<T, U, V>, V> MultiBlockManager<T, U, V> create(Supplier<U> multiBlockFactory, BiPredicate<T, T> connectionTest) {
+		return MultiBlockManagerImpl.create(multiBlockFactory, connectionTest);
 	}
-
-	void add(T device);
-
-	void remove(T device);
-
-	int deviceCount();
-
-	void removalAllAndClose(Consumer<T> closeAction);
 }

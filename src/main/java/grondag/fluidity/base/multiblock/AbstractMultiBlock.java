@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.base.device;
+package grondag.fluidity.base.multiblock;
 
 import java.util.function.Consumer;
 
@@ -21,43 +21,43 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.device.MultiBlock;
-import grondag.fluidity.api.device.MultiBlockMember;
+import grondag.fluidity.api.multiblock.MultiBlock;
+import grondag.fluidity.api.multiblock.MultiBlockMember;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractCompoundDevice<T extends MultiBlockMember<T, U>, U extends AbstractCompoundDevice<T, U>> implements MultiBlock<T, U> {
+public abstract class AbstractMultiBlock<T extends MultiBlockMember<T, U, V>, U extends AbstractMultiBlock<T, U, V>, V> implements MultiBlock<T, U, V> {
 
-	protected final ObjectOpenHashSet<T> devices = new ObjectOpenHashSet<>();
+	protected final ObjectOpenHashSet<T> members = new ObjectOpenHashSet<>();
 
 	@Override
-	public void add(T device) {
-		devices.add(device);
-		onAdd(device);
+	public void add(T member) {
+		members.add(member);
+		afterMemberAddition(member);
 	}
 
-	protected abstract void onAdd(T device);
+	protected abstract void afterMemberAddition(T member);
 
 	@Override
-	public void remove(T device) {
-		onRemove(device);
-		devices.remove(device);
+	public void remove(T member) {
+		beforeMemberRemoval(member);
+		members.remove(member);
 	}
 
-	protected abstract void onRemove(T device);
+	protected abstract void beforeMemberRemoval(T member);
 
 	@Override
-	public int deviceCount() {
-		return devices.size();
+	public int memberCount() {
+		return members.size();
 	}
 
 	@Override
 	public void removalAllAndClose(Consumer<T> closeAction) {
-		devices.forEach(d -> {
-			onRemove(d);
-			closeAction.accept(d);
+		members.forEach(m -> {
+			beforeMemberRemoval(m);
+			closeAction.accept(m);
 		});
 
-		devices.clear();
+		members.clear();
 		close();
 	}
 }

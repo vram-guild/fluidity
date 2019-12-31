@@ -30,7 +30,7 @@ import grondag.fluidity.base.storage.component.ListenerSet;
 
 @API(status = Status.EXPERIMENTAL)
 public abstract class AbstractStorage<V extends StoredArticle, T extends AbstractStorage<V, T>> implements Storage {
-	public final ListenerSet listeners = new ListenerSet(this::sendFirstListenerUpdate, this::sendLastListenerUpdate, this::onListenersEmpty);
+	public final ListenerSet<StorageListener> listeners = new ListenerSet<>(this::sendFirstListenerUpdate, this::sendLastListenerUpdate, this::onListenersEmpty);
 	protected Predicate<Article> filter = Predicates.alwaysTrue();
 	protected Runnable dirtyNotifier = Runnables.doNothing();
 

@@ -25,26 +25,24 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.storage.StorageListener;
-
 @API(status = Status.EXPERIMENTAL)
-public class ListenerSet implements Iterable<StorageListener>, Iterator<StorageListener> {
-	protected final ObjectArrayList<WeakReference<StorageListener>> listeners = new ObjectArrayList<>();
+public class ListenerSet<L> implements Iterable<L>, Iterator<L> {
+	protected final ObjectArrayList<WeakReference<L>> listeners = new ObjectArrayList<>();
 	protected int index = -1;
-	protected StorageListener next = null;
+	protected L next = null;
 	protected boolean hasMissing = false;
 
-	protected final Consumer<StorageListener>  additionHandler;
-	protected final Consumer<StorageListener>  removalHandler;
+	protected final Consumer<L>  additionHandler;
+	protected final Consumer<L>  removalHandler;
 	protected final @Nullable Runnable onEmptyCallback;
 
-	public ListenerSet(Consumer<StorageListener>  additionHandler, Consumer<StorageListener> removalHandler, @Nullable Runnable onEmptyCallback) {
+	public ListenerSet(Consumer<L>  additionHandler, Consumer<L> removalHandler, @Nullable Runnable onEmptyCallback) {
 		this.additionHandler = additionHandler;
 		this.removalHandler = removalHandler;
 		this.onEmptyCallback = onEmptyCallback;
 	}
 
-	public void startListening(StorageListener listener, boolean sendNotifications) {
+	public void startListening(L listener, boolean sendNotifications) {
 		listeners.add(new WeakReference<>(listener));
 
 		if(sendNotifications) {
@@ -70,12 +68,12 @@ public class ListenerSet implements Iterable<StorageListener>, Iterator<StorageL
 		}
 	}
 
-	public void stopListening(StorageListener listener, boolean sendNotifications) {
+	public void stopListening(L listener, boolean sendNotifications) {
 		final int limit = listeners.size();
 
 		if (limit > 0) {
 			for(int i = limit - 1; i >= 0; i--) {
-				final StorageListener l = listeners.get(i).get();
+				final L l = listeners.get(i).get();
 
 				if(l ==null) {
 					listeners.remove(i);
@@ -101,14 +99,14 @@ public class ListenerSet implements Iterable<StorageListener>, Iterator<StorageL
 	}
 
 	@Override
-	public StorageListener next() {
-		final StorageListener result = next;
+	public L next() {
+		final L result = next;
 		moveNext();
 		return result;
 	}
 
 	@Override
-	public Iterator<StorageListener> iterator() {
+	public Iterator<L> iterator() {
 		cleanMissing();
 		index = -1;
 		moveNext();

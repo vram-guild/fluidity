@@ -13,25 +13,41 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.device;
-
-import javax.annotation.Nullable;
+package grondag.fluidity.base.multiblock;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.util.math.BlockPos;
+import grondag.fluidity.api.multiblock.MultiBlock;
+import grondag.fluidity.api.multiblock.MultiBlockMember;
 
 @API(status = Status.EXPERIMENTAL)
-public interface MultiBlockMember<T extends MultiBlockMember<T, U>, U extends MultiBlock<T, U>> {
-	@Nullable U getMultiblock();
+public abstract class AbstractMember<T extends AbstractMember<T, U, V>, U extends MultiBlock<T, U, V>, V> implements MultiBlockMember<T, U, V> {
+	protected U owner;
 
-	void setMultiblock(@Nullable U owner);
+	protected abstract void beforeOwnerRemoval();
 
-	long getPackedPos();
+	protected abstract void afterOwnerAddition();
 
-	default BlockPos getBlockPos() {
-		return BlockPos.fromLong(getPackedPos());
+	@Override
+	public U getMultiblock() {
+		return owner;
 	}
-	int getDimensionId();
+
+	@Override
+	public void setMultiblock(U owner) {
+		if(owner == this.owner) {
+			return;
+		}
+
+		if(this.owner != null) {
+			beforeOwnerRemoval();
+		}
+
+		this.owner = owner;
+
+		if(owner != null) {
+			afterOwnerAddition();
+		}
+	}
 }

@@ -15,9 +15,11 @@
  ******************************************************************************/
 package grondag.fluidity.api.article;
 
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import com.google.common.collect.ImmutableSet;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
@@ -61,6 +63,9 @@ public interface ArticleType<T> {
 	ArticleType<Item> ITEM = ArticleTypeImpl.ITEM;
 	ArticleType<Fluid> FLUID = ArticleTypeImpl.FLUID;
 	ArticleType<Void> NOTHING = ArticleTypeImpl.NOTHING;
+
+	Set<ArticleType<?>> SET_OF_ITEMS = ImmutableSet.of(ITEM);
+	Set<ArticleType<?>> SET_OF_FLUIDS = ImmutableSet.of(FLUID);
 
 	static <V> Builder<V> builder(Class<V> clazz) {
 		return ArticleTypeImpl.builder(clazz);

@@ -13,14 +13,24 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.device;
+package grondag.fluidity.api.multiblock;
+
+import java.util.function.Consumer;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.storage.Storage;
-
 @API(status = Status.EXPERIMENTAL)
-public interface MultiblockStorageMember<T extends MultiblockStorageMember<T, U>, U extends MultiBlock<T, U>> extends MultiBlockMember<T, U> {
-	Storage getMemberStorage();
+public interface MultiBlock<T extends MultiBlockMember<T, U, V>, U extends MultiBlock<T, U, V>, V> {
+	default void close() {
+
+	}
+
+	void add(T member);
+
+	void remove(T member);
+
+	int memberCount();
+
+	void removalAllAndClose(Consumer<T> closeAction);
 }
