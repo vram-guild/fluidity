@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.impl;
+package grondag.fluidity.impl.storage;
 
 import static org.apiguardian.api.API.Status.INTERNAL;
 
@@ -24,14 +24,20 @@ import net.minecraft.nbt.CompoundTag;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.storage.FixedArticleConsumer;
 import grondag.fluidity.api.storage.FixedStorage;
 import grondag.fluidity.api.storage.StorageListener;
 
 @API(status = INTERNAL)
-public final class EmptyStorage implements FixedStorage {
-	private EmptyStorage() {}
+public final class VoidStorage implements FixedStorage {
+	private VoidStorage() {}
 
-	public static FixedStorage INSTANCE = new EmptyStorage();
+	public static FixedStorage INSTANCE = new VoidStorage();
+
+	@Override
+	public FixedArticleConsumer getConsumer() {
+		return FixedArticleConsumer.VOID;
+	}
 
 	@Override
 	public int handleCount() {
@@ -55,12 +61,12 @@ public final class EmptyStorage implements FixedStorage {
 
 	@Override
 	public long capacity() {
-		return 0;
+		return Long.MAX_VALUE;
 	}
 
 	@Override
 	public FractionView volume() {
-		return Fraction.ZERO;
+		return Fraction.MAX_VALUE;
 	}
 
 	@Override
@@ -95,7 +101,7 @@ public final class EmptyStorage implements FixedStorage {
 
 	@Override
 	public boolean isFull() {
-		return true;
+		return false;
 	}
 
 	@Override

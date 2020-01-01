@@ -33,7 +33,7 @@ import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
 import grondag.fluidity.base.storage.component.DiscreteNotifier;
 import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleConsumer;
 import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleSupplier;
-import grondag.fluidity.impl.ArticleImpl;
+import grondag.fluidity.impl.article.ArticleImpl;
 
 @API(status = Status.EXPERIMENTAL)
 public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<StoredDiscreteArticle,  SingleStackInventoryStorage> implements DiscreteStorage, DiscreteArticleConsumer, DiscreteArticleSupplier, InventoryStorage {

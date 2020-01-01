@@ -13,36 +13,35 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.impl;
+package grondag.fluidity.impl.storage;
 
 import static org.apiguardian.api.API.Status.INTERNAL;
 
 import org.apiguardian.api.API;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.FixedArticleSupplier;
 
 @API(status = INTERNAL)
-public final class EmptySupplier implements FixedArticleSupplier {
-	private EmptySupplier() {}
+public final class CreativeSupplier implements FixedArticleSupplier {
+	private CreativeSupplier() {}
 
-	public static FixedArticleSupplier INSTANCE = new EmptySupplier();
+	public static FixedArticleSupplier INSTANCE = new CreativeSupplier();
 
 	@Override
 	public long supply(Article item, long count, boolean simulate) {
-		return 0;
+		return count;
 	}
 
 	@Override
 	public FractionView supply(Article item, FractionView volume, boolean simulate) {
-		return Fraction.ZERO;
+		return volume.toImmutable();
 	}
 
 	@Override
 	public long supply(Article item, long numerator, long divisor, boolean simulate) {
-		return 0;
+		return numerator;
 	}
 
 	@Override
@@ -52,21 +51,21 @@ public final class EmptySupplier implements FixedArticleSupplier {
 
 	@Override
 	public long supply(int handle, Article item, long count, boolean simulate) {
-		return 0;
+		return count;
 	}
 
 	@Override
 	public FractionView supply(int handle, Article item, FractionView volume, boolean simulate) {
-		return Fraction.ZERO;
+		return volume.toImmutable();
 	}
 
 	@Override
 	public long supply(int handle, Article item, long numerator, long divisor, boolean simulate) {
-		return 0;
+		return numerator;
 	}
 
 	@Override
 	public boolean canSupply() {
-		return false;
+		return true;
 	}
 }

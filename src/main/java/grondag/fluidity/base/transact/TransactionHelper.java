@@ -24,7 +24,7 @@ import net.minecraft.item.ItemStack;
 
 import grondag.fluidity.api.storage.InventoryStorage;
 import grondag.fluidity.api.transact.TransactionContext;
-import grondag.fluidity.impl.StackHelper;
+import grondag.fluidity.impl.article.StackHelper;
 
 @API(status = Status.EXPERIMENTAL)
 public class TransactionHelper {

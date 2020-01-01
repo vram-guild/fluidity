@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -21,8 +21,12 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.util.Identifier;
+
+import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.ArticleType;
-import grondag.fluidity.api.device.ComponentType;
+import grondag.fluidity.api.device.DeviceComponentRegistry;
+import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.api.storage.ArticleConsumer;
 import grondag.fluidity.api.storage.ArticleSupplier;
 
@@ -73,5 +77,5 @@ public interface CarrierProvider {
 		}
 	};
 
-	ComponentType<CarrierProvider> CARRIER_PROVIDER_COMPONENT = () -> EMPTY;
+	DeviceComponentType<CarrierProvider> CARRIER_PROVIDER_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "carrier_provider"), EMPTY);
 }

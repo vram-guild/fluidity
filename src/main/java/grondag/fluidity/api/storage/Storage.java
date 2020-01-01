@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -17,24 +17,24 @@ package grondag.fluidity.api.storage;
 
 import java.util.function.Predicate;
 
-import javax.annotation.Nullable;
-
 import com.google.common.base.Predicates;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Identifier;
 
+import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
-import grondag.fluidity.api.device.Device;
-import grondag.fluidity.api.device.ComponentType;
+import grondag.fluidity.api.device.DeviceComponentRegistry;
+import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.transact.TransactionParticipant;
-import grondag.fluidity.impl.CreativeStorage;
-import grondag.fluidity.impl.EmptyStorage;
-import grondag.fluidity.impl.VoidStorage;
+import grondag.fluidity.impl.storage.CreativeStorage;
+import grondag.fluidity.impl.storage.EmptyStorage;
+import grondag.fluidity.impl.storage.VoidStorage;
 
 /**
  * Flexible storage interface for tanks, containers.
@@ -82,10 +82,6 @@ public interface Storage extends TransactionParticipant {
 
 	default boolean isAggregate() {
 		return false;
-	}
-
-	default @Nullable Device device() {
-		return null;
 	}
 
 	default void forEach(Predicate<? super StoredArticleView> filter, Predicate<? super StoredArticleView> action) {
@@ -161,7 +157,7 @@ public interface Storage extends TransactionParticipant {
 	Storage VOID = VoidStorage.INSTANCE;
 	Storage CREATIVE = CreativeStorage.INSTANCE;
 
-	ComponentType<Storage> STORAGE_COMPONENT = () -> EMPTY;
+	DeviceComponentType<Storage> STORAGE_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "storage"), EMPTY);
 
 	/**
 	 * Multiblock storage devices may elect to return the compound storage instance as the main storage service.
@@ -171,6 +167,6 @@ public interface Storage extends TransactionParticipant {
 	 *
 	 * @return Internal {@link Storage} of this device, or the regular storage if not a multiblock.
 	 */
-	ComponentType<Storage> INTERNAL_STORAGE_COMPONENT = () -> EMPTY;
+	DeviceComponentType<Storage> INTERNAL_STORAGE_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "internal_storage"), EMPTY);
 
 }

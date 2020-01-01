@@ -18,9 +18,9 @@ package grondag.fluidity.api.storage;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.impl.CreativeStorage;
-import grondag.fluidity.impl.EmptyStorage;
-import grondag.fluidity.impl.VoidStorage;
+import grondag.fluidity.impl.storage.CreativeStorage;
+import grondag.fluidity.impl.storage.EmptyStorage;
+import grondag.fluidity.impl.storage.VoidStorage;
 
 /**
  * Storage with fixed handles - similar to slots but they don't have aribtrary limits

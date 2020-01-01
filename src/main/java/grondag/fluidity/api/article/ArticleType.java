@@ -28,7 +28,7 @@ import net.minecraft.item.Item;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.PacketByteBuf;
 
-import grondag.fluidity.impl.ArticleTypeImpl;
+import grondag.fluidity.impl.article.ArticleTypeImpl;
 
 @API(status = Status.EXPERIMENTAL)
 public interface ArticleType<T> {

@@ -22,8 +22,8 @@ import net.minecraft.item.ItemStack;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.impl.CreativeSupplier;
-import grondag.fluidity.impl.EmptySupplier;
+import grondag.fluidity.impl.storage.CreativeSupplier;
+import grondag.fluidity.impl.storage.EmptySupplier;
 
 /**
  * Storage with fixed handles - similar to slots but they don't have aribtrary limits

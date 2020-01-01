@@ -36,7 +36,7 @@ import grondag.fluidity.base.storage.component.DiscreteTrackingJournal;
 import grondag.fluidity.base.storage.component.DiscreteTrackingNotifier;
 import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleConsumer;
 import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleSupplier;
-import grondag.fluidity.impl.ArticleImpl;
+import grondag.fluidity.impl.article.ArticleImpl;
 
 @API(status = Status.EXPERIMENTAL)
 public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<T>> extends AbstractLazyRollbackStorage<StoredDiscreteArticle, T> implements DiscreteStorage, DiscreteArticleConsumer, DiscreteArticleSupplier {

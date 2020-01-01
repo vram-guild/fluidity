@@ -28,7 +28,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.PacketByteBuf;
 
-import grondag.fluidity.impl.ArticleImpl;
+import grondag.fluidity.impl.article.ArticleImpl;
 
 /**
  * Represents a game resource that may be an ItemStack, Fluid, XP, power or any other

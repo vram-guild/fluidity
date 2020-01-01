@@ -28,7 +28,7 @@ import grondag.fluidity.api.storage.InventoryStorage;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.component.FlexibleArticleManager;
 import grondag.fluidity.base.transact.TransactionHelper;
-import grondag.fluidity.impl.ArticleImpl;
+import grondag.fluidity.impl.article.ArticleImpl;
 
 /**
  *

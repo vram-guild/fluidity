@@ -27,8 +27,8 @@ import net.minecraft.nbt.CompoundTag;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.transact.TransactionParticipant;
-import grondag.fluidity.impl.CreativeSupplier;
-import grondag.fluidity.impl.EmptySupplier;
+import grondag.fluidity.impl.storage.CreativeSupplier;
+import grondag.fluidity.impl.storage.EmptySupplier;
 
 /**
  * Flexible storage interface for tanks, containers.

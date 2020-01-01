@@ -23,7 +23,7 @@ import org.apiguardian.api.API;
 
 import net.minecraft.util.Identifier;
 
-import grondag.fluidity.impl.ArticleTypeRegistryImpl;
+import grondag.fluidity.impl.article.ArticleTypeRegistryImpl;
 
 @API(status = EXPERIMENTAL)
 public interface ArticleTypeRegistry {
