@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -16,12 +16,10 @@
 package grondag.fluidity.wip.api.transport;
 
 import java.util.Collections;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
-import javax.annotation.Nullable;
-
-import grondag.fluidity.api.storage.ArticleConsumer;
-import grondag.fluidity.api.storage.ArticleSupplier;
+import grondag.fluidity.api.device.DeviceComponent;
+import grondag.fluidity.api.device.DeviceComponentType;
 
 /**
  *
@@ -99,7 +97,7 @@ public interface Carrier {
 		return null;
 	}
 
-	CarrierSession attach(CarrierConnector fromNode, Supplier<ArticleConsumer> nodeConsumerFactory, Supplier<ArticleSupplier> nodeSupplierFactory);
+	CarrierSession attach(CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction);
 
 	void startListening(CarrierListener listener, boolean sendNotifications);
 
@@ -118,8 +116,8 @@ public interface Carrier {
 		}
 
 		@Override
-		public @Nullable CarrierSession attach(CarrierConnector fromNode, Supplier<ArticleConsumer> nodeConsumerFactory, Supplier<ArticleSupplier> nodeSupplierFactory) {
-			return null;
+		public CarrierSession attach(CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction) {
+			return CarrierSession.INVALID;
 		}
 
 		@Override

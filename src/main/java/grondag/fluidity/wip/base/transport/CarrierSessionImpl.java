@@ -16,8 +16,10 @@
 package grondag.fluidity.wip.base.transport;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
+import grondag.fluidity.api.device.DeviceComponent;
+import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.api.storage.ArticleConsumer;
 import grondag.fluidity.api.storage.ArticleSupplier;
 import grondag.fluidity.api.transact.TransactionContext;
@@ -28,15 +30,13 @@ import grondag.fluidity.wip.api.transport.StorageConnection;
 
 class CarrierSessionImpl implements CarrierSession, TransactionDelegate {
 	final long address = AssignedNumbersAuthority.createCarrierAddress();
-	final Supplier<ArticleConsumer> nodeConsumerFactory;
-	final Supplier<ArticleSupplier> nodeSupplierFactory;
+	final Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction;
 	final BasicCarrier carrier;
 	protected boolean isOpen = true;
 
-	CarrierSessionImpl(BasicCarrier carrier, Supplier<ArticleConsumer> nodeConsumerFactory, Supplier<ArticleSupplier> nodeSupplierFactory) {
+	CarrierSessionImpl(BasicCarrier carrier, Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction) {
 		this.carrier = carrier;
-		this.nodeConsumerFactory = nodeConsumerFactory;
-		this.nodeSupplierFactory = nodeSupplierFactory;
+		this.componentFunction = componentFunction;
 	}
 
 	@Override
@@ -91,13 +91,9 @@ class CarrierSessionImpl implements CarrierSession, TransactionDelegate {
 		return carrier.effectiveCarrier();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public ArticleConsumer nodeArticleConsumer() {
-		return isOpen ? nodeConsumerFactory.get() : ArticleConsumer.FULL;
-	}
-
-	@Override
-	public ArticleSupplier nodeArticleSupplier() {
-		return isOpen ? nodeSupplierFactory.get() : ArticleSupplier.EMPTY;
+	public <T> DeviceComponent<T> getComponent(DeviceComponentType<T> componentType) {
+		return (DeviceComponent<T>) componentFunction.apply(componentType);
 	}
 }

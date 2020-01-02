@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -22,6 +22,7 @@ import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.storage.ArticleSupplier;
+import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.wip.api.transport.Carrier;
 import grondag.fluidity.wip.api.transport.CarrierNode;
 import grondag.fluidity.wip.api.transport.CarrierSession;
@@ -48,8 +49,9 @@ public class BroadcastSupplier implements ArticleSupplier {
 		while(it.hasNext()) {
 			final CarrierNode n = it.next();
 
-			if(n != fromNode && n.nodeArticleSupplier() != null) {
-				result += n.nodeArticleSupplier().supply(item, count - result, simulate);
+			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ALLOW_STORAGE_SUPPLY_BROADCASTS)) {
+				final ArticleSupplier s = n.getComponent(Storage.STORAGE_COMPONENT).get().getSupplier();
+				result += s.supply(item, count - result, simulate);
 
 				if(result >= count) {
 					break;
@@ -79,8 +81,9 @@ public class BroadcastSupplier implements ArticleSupplier {
 		while(it.hasNext()) {
 			final CarrierNode n = it.next();
 
-			if(n != fromNode && n.nodeArticleSupplier() != null) {
-				final FractionView amt = n.nodeArticleSupplier().supply(item, calc, simulate);
+			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ALLOW_STORAGE_SUPPLY_BROADCASTS)) {
+				final ArticleSupplier s = n.getComponent(Storage.STORAGE_COMPONENT).get().getSupplier();
+				final FractionView amt = s.supply(item, calc, simulate);
 
 				if(!amt.isZero()) {
 					result.add(amt);
@@ -112,8 +115,9 @@ public class BroadcastSupplier implements ArticleSupplier {
 		while(it.hasNext()) {
 			final CarrierNode n = it.next();
 
-			if(n != fromNode && n.nodeArticleSupplier() != null) {
-				result += n.nodeArticleSupplier().supply(item, numerator - result, divisor, simulate);
+			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ALLOW_STORAGE_SUPPLY_BROADCASTS)) {
+				final ArticleSupplier s = n.getComponent(Storage.STORAGE_COMPONENT).get().getSupplier();
+				result += s.supply(item, numerator - result, divisor, simulate);
 
 				if(result >= numerator) {
 					break;

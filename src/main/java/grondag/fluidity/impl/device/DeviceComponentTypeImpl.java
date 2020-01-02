@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -35,10 +35,12 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 	private final Function<BlockComponentContext, ?> defaultBlockMapping;
 	private final IdentityHashMap<Block, Function<BlockComponentContext, ?>> blockMappings = new IdentityHashMap<>();
 	private final IdentityHashMap<Item, Function<ItemStack, ?>> itemMappings = new IdentityHashMap<>();
+	private final AbsentDeviceComponent<T> absentComponent;
 
 	DeviceComponentTypeImpl(T absent) {
 		this.absent = absent;
 		defaultBlockMapping = b -> absent;
+		absentComponent = new AbsentDeviceComponent<>(this);
 	}
 
 	@Override
@@ -80,5 +82,10 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 	@Override
 	public DeviceComponent<T> get(BlockEntity blockEntity) {
 		return BlockComponentContextImpl.get(this, blockEntity);
+	}
+
+	@Override
+	public DeviceComponent<T> getAbsent() {
+		return absentComponent;
 	}
 }

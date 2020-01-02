@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -22,6 +22,7 @@ import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.storage.ArticleConsumer;
+import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.wip.api.transport.Carrier;
 import grondag.fluidity.wip.api.transport.CarrierNode;
 import grondag.fluidity.wip.api.transport.CarrierSession;
@@ -48,8 +49,9 @@ public class BroadcastConsumer implements ArticleConsumer {
 		while(it.hasNext()) {
 			final CarrierNode n = it.next();
 
-			if(n != fromNode && n.nodeArticleConsumer() != null) {
-				result += n.nodeArticleConsumer().accept(item, count - result, simulate);
+			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ALLOW_STORAGE_ACCEPT_BROADCASTS)) {
+				final ArticleConsumer c = n.getComponent(Storage.STORAGE_COMPONENT).get().getConsumer();
+				result += c.accept(item, count - result, simulate);
 
 				if(result >= count) {
 					break;
@@ -79,8 +81,9 @@ public class BroadcastConsumer implements ArticleConsumer {
 		while(it.hasNext()) {
 			final CarrierNode n = it.next();
 
-			if(n != fromNode && n.nodeArticleConsumer() != null) {
-				final FractionView amt = n.nodeArticleConsumer().accept(item, calc, simulate);
+			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ALLOW_STORAGE_ACCEPT_BROADCASTS)) {
+				final ArticleConsumer c = n.getComponent(Storage.STORAGE_COMPONENT).get().getConsumer();
+				final FractionView amt = c.accept(item, calc, simulate);
 
 				if(!amt.isZero()) {
 					result.add(amt);
@@ -111,8 +114,9 @@ public class BroadcastConsumer implements ArticleConsumer {
 		while(it.hasNext()) {
 			final CarrierNode n = it.next();
 
-			if(n != fromNode && n.nodeArticleConsumer() != null) {
-				result += n.nodeArticleConsumer().accept(item, numerator - result, divisor, simulate);
+			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ALLOW_STORAGE_ACCEPT_BROADCASTS)) {
+				final ArticleConsumer c = n.getComponent(Storage.STORAGE_COMPONENT).get().getConsumer();
+				result += c.accept(item, numerator - result, divisor, simulate);
 
 				if(result >= numerator) {
 					break;
