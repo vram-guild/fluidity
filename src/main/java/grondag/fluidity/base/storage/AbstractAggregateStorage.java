@@ -38,7 +38,6 @@ public abstract class AbstractAggregateStorage<V extends AggregateStoredArticle,
 	protected final ObjectOpenHashSet<Storage> stores = new ObjectOpenHashSet<>();
 
 	protected Consumer<TransactionParticipant> enlister = t -> {};
-	protected boolean itMe = false;
 
 	public AbstractAggregateStorage(int startingHandleCount) {
 		articles = new FlexibleArticleManager<>(startingHandleCount, this::newArticle);

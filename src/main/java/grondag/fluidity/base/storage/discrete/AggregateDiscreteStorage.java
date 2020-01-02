@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -42,6 +42,13 @@ import grondag.fluidity.base.storage.AbstractAggregateStorage;
 import grondag.fluidity.base.storage.component.DiscreteTrackingNotifier;
 import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleConsumer;
 import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleSupplier;
+
+// NB: Previous versions attempted to consolidate member notifications
+// but this can lead to de-sync and other problems with creative bins
+// or other members that don't behave in a conventional manner.
+// A future version may consolidate notifications for downstream listeners
+// (for performance) but will have to do so based on actual member notifications.
+
 
 @API(status = Status.EXPERIMENTAL)
 public class AggregateDiscreteStorage extends AbstractAggregateStorage<AggregateDiscreteStoredArticle, AggregateDiscreteStorage> implements DiscreteStorage, DiscreteArticleConsumer, DiscreteArticleSupplier, DiscreteStorageListener {
@@ -101,9 +108,8 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 		}
 	}
 
+
 	protected long acceptInner(Article item, long count, boolean simulate) {
-		// consolidate notifications
-		itMe  = true;
 		long result = 0;
 
 		final AggregateDiscreteStoredArticle article = articles.findOrCreateArticle(item);
@@ -173,13 +179,6 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 			}
 		}
 
-		itMe = false;
-
-		if(result > 0 && !simulate) {
-			article.addToCount(result);
-			notifier.notifyAccept(article, result);
-		}
-
 		return result;
 	}
 
@@ -216,8 +215,6 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 			return 0;
 		}
 
-		// consolidate notifications
-		itMe  = true;
 		long result = 0;
 
 		final Set<Storage> existing = article.stores();
@@ -240,13 +237,6 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 					}
 				}
 			}
-		}
-
-		itMe = false;
-
-		if(result > 0 && !simulate) {
-			notifier.notifySupply(article, result);
-			article.addToCount(-result);
 		}
 
 		return result;
@@ -289,12 +279,10 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 
 	@Override
 	public void onAccept(Storage storage, int slot, Article item, long delta, long newCount) {
-		if (!itMe) {
-			final AggregateDiscreteStoredArticle article = articles.findOrCreateArticle(item);
-			article.addToCount(delta);
-			article.stores().add(storage);
-			notifier.notifyAccept(article, delta);
-		}
+		final AggregateDiscreteStoredArticle article = articles.findOrCreateArticle(item);
+		article.addToCount(delta);
+		article.stores().add(storage);
+		notifier.notifyAccept(article, delta);
 	}
 
 	static boolean warnIgnore = true;
@@ -302,36 +290,34 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 
 	@Override
 	public void onSupply(Storage storage, int slot, Article item, long delta, long newCount) {
-		if (!itMe) {
-			final AggregateDiscreteStoredArticle article = articles.get(item);
+		final AggregateDiscreteStoredArticle article = articles.get(item);
 
-			if(article == null) {
-				if(warnIgnore) {
-					Fluidity.LOG.warn("AggregateStorage ignored notification of supply for non-tracked article.");
-					Fluidity.LOG.warn("This probably indicates a bug in a mod using Fludity. Warnings for subsequent events are suppressed.");
-					warnIgnore = false;
-				}
-
-				return;
+		if(article == null) {
+			if(warnIgnore) {
+				Fluidity.LOG.warn("AggregateStorage ignored notification of supply for non-tracked article.");
+				Fluidity.LOG.warn("This probably indicates a bug in a mod using Fludity. Warnings for subsequent events are suppressed.");
+				warnIgnore = false;
 			}
 
-			if(delta > article.count()) {
-				if(warnPartialIgnore) {
-					Fluidity.LOG.warn("AggregateStorage partially ignored notification of supply for article with mimatched amount.");
-					Fluidity.LOG.warn("This probably indicates a bug in a mod using Fludity. Warnings for subsequent events are suppressed.");
-					warnPartialIgnore = false;
-				}
-
-				delta = article.count();
-			}
-
-			if(newCount == 0) {
-				article.stores().remove(storage);
-			}
-
-			article.addToCount(-delta);
-			notifier.notifySupply(article, delta);
+			return;
 		}
+
+		if(delta > article.count()) {
+			if(warnPartialIgnore) {
+				Fluidity.LOG.warn("AggregateStorage partially ignored notification of supply for article with mimatched amount.");
+				Fluidity.LOG.warn("This probably indicates a bug in a mod using Fludity. Warnings for subsequent events are suppressed.");
+				warnPartialIgnore = false;
+			}
+
+			delta = article.count();
+		}
+
+		if(newCount == 0) {
+			article.stores().remove(storage);
+		}
+
+		article.addToCount(-delta);
+		notifier.notifySupply(article, delta);
 	}
 
 	@Override
