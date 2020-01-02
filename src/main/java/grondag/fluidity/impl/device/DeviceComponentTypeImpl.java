@@ -67,18 +67,18 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 	@SuppressWarnings("unchecked")
 	@Override
 	public DeviceComponent<T> get(World world, BlockPos pos) {
-		return BlockComponentContexImpl.get(this, world, pos);
+		return BlockComponentContextImpl.get(this, world, pos);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public DeviceComponent<T> get(World world, BlockPos pos, BlockState blockState) {
-		return BlockComponentContexImpl.get(this, world, pos, blockState);
+		return BlockComponentContextImpl.get(this, world, pos, blockState);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public DeviceComponent<T> get(BlockEntity blockEntity) {
-		return BlockComponentContexImpl.get(this, blockEntity);
+		return BlockComponentContextImpl.get(this, blockEntity);
 	}
 }

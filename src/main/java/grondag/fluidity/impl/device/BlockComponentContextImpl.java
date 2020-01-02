@@ -31,7 +31,7 @@ import grondag.fluidity.api.device.DeviceComponent;
 import grondag.fluidity.api.device.DeviceComponentType;
 
 @SuppressWarnings("rawtypes")
-public final class BlockComponentContexImpl implements BlockComponentContext, DeviceComponent {
+public final class BlockComponentContextImpl implements BlockComponentContext, DeviceComponent {
 	private DeviceComponentTypeImpl componentType;
 	private Function<BlockComponentContext, ?> mapping;
 	private Block block;
@@ -118,7 +118,7 @@ public final class BlockComponentContexImpl implements BlockComponentContext, De
 	}
 
 	@SuppressWarnings("unchecked")
-	private BlockComponentContexImpl prepare(DeviceComponentTypeImpl componentType, World world, BlockPos pos) {
+	private BlockComponentContextImpl prepare(DeviceComponentTypeImpl componentType, World world, BlockPos pos) {
 		this.componentType = componentType;
 		this.world = world;
 		this.pos = pos;
@@ -130,7 +130,7 @@ public final class BlockComponentContexImpl implements BlockComponentContext, De
 	}
 
 	@SuppressWarnings("unchecked")
-	private BlockComponentContexImpl  prepare(DeviceComponentTypeImpl componentType, World world, BlockPos pos, BlockState blockState) {
+	private BlockComponentContextImpl  prepare(DeviceComponentTypeImpl componentType, World world, BlockPos pos, BlockState blockState) {
 		this.componentType = componentType;
 		this.world = world;
 		this.pos = pos;
@@ -142,7 +142,7 @@ public final class BlockComponentContexImpl implements BlockComponentContext, De
 	}
 
 	@SuppressWarnings("unchecked")
-	private BlockComponentContexImpl prepare(DeviceComponentTypeImpl componentType, BlockEntity blockEntity) {
+	private BlockComponentContextImpl prepare(DeviceComponentTypeImpl componentType, BlockEntity blockEntity) {
 		this.componentType = componentType;
 		world = null;
 		pos = null;
@@ -153,17 +153,17 @@ public final class BlockComponentContexImpl implements BlockComponentContext, De
 		return this;
 	}
 
-	private static final ThreadLocal<BlockComponentContexImpl> POOL = ThreadLocal.withInitial(BlockComponentContexImpl::new);
+	private static final ThreadLocal<BlockComponentContextImpl> POOL = ThreadLocal.withInitial(BlockComponentContextImpl::new);
 
-	static BlockComponentContexImpl get(DeviceComponentTypeImpl componentType, World world, BlockPos pos) {
+	static BlockComponentContextImpl get(DeviceComponentTypeImpl componentType, World world, BlockPos pos) {
 		return POOL.get().prepare(componentType, world, pos);
 	}
 
-	static BlockComponentContexImpl  get(DeviceComponentTypeImpl componentType, World world, BlockPos pos, BlockState blockState) {
+	static BlockComponentContextImpl  get(DeviceComponentTypeImpl componentType, World world, BlockPos pos, BlockState blockState) {
 		return POOL.get().prepare(componentType, world, pos, blockState);
 	}
 
-	static BlockComponentContexImpl get(DeviceComponentTypeImpl componentType, BlockEntity blockEntity) {
+	static BlockComponentContextImpl get(DeviceComponentTypeImpl componentType, BlockEntity blockEntity) {
 		return POOL.get().prepare(componentType, blockEntity);
 	}
 }

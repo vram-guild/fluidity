@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -29,24 +29,6 @@ import grondag.fluidity.base.synch.ItemStorageInteractionC2S;
 import grondag.fluidity.impl.MultiBlockManagerImpl;
 import grondag.fluidity.impl.TransactionImpl;
 
-/**
-
- * TODO: how do pipes work?
- * TODO: make a pump
- * TODO: make a tank
- * TODO: controller/access block
- * TODO: crafting block
- *
- * TODO: java docs
- * TODO: wiki
- *
- * TODO: explicit device disconnect handling to allow retaining storage instances without wrapping
- * TODO: testing switch
- * TODO: implement multiblock limits
- * TODO: throttle tick times
- * TODO: article metadata loader
- *
- */
 @API(status = Status.INTERNAL)
 public class Fluidity implements ModInitializer {
 	public static final String MOD_ID = "fluidity";

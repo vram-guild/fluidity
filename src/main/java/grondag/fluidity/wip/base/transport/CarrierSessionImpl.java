@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -53,14 +53,14 @@ class CarrierSessionImpl implements CarrierSession, TransactionDelegate {
 
 	@Override
 	public ArticleConsumer broadcastConsumer() {
-		return broadcastConsumer;
+		return isOpen ? broadcastConsumer : ArticleConsumer.FULL;
 	}
 
 	protected final ArticleSupplier broadcastSupploer = new BroadcastSupplier(this);
 
 	@Override
 	public ArticleSupplier broadcastSupplier() {
-		return broadcastSupploer;
+		return isOpen ? broadcastSupploer : ArticleSupplier.EMPTY;
 	}
 
 	@Override
@@ -78,8 +78,12 @@ class CarrierSessionImpl implements CarrierSession, TransactionDelegate {
 
 	@Override
 	public Consumer<TransactionContext> prepareRollback(TransactionContext context) {
+		if(!isOpen) {
+			return c -> {};
+		}
+
 		// TODO Auto-generated method stub
-		return null;
+		return c -> {};
 	}
 
 	@Override
@@ -89,11 +93,11 @@ class CarrierSessionImpl implements CarrierSession, TransactionDelegate {
 
 	@Override
 	public ArticleConsumer nodeArticleConsumer() {
-		return nodeConsumerFactory.get();
+		return isOpen ? nodeConsumerFactory.get() : ArticleConsumer.FULL;
 	}
 
 	@Override
 	public ArticleSupplier nodeArticleSupplier() {
-		return nodeSupplierFactory.get();
+		return isOpen ? nodeSupplierFactory.get() : ArticleSupplier.EMPTY;
 	}
 }
