@@ -28,6 +28,15 @@ import grondag.fluidity.wip.api.transport.CarrierListener;
 import grondag.fluidity.wip.api.transport.CarrierSession;
 import grondag.fluidity.wip.api.transport.CarrierType;
 
+// TODO: implement cost/saturation/fairness mechanism
+// carrier will have a cost function and a capacity constraint
+// capacity replenishes with time
+// when capacity is depleted carrier is saturated and will start rationing
+// rationing works by estimating the average ms between packets for active nodes
+// in order for all active nodes to have a turn at using the carrier
+// It then marks the last successful send time of each session.
+// Sessions that successfully send will not be able to send again until
+// the rationing duration has elapsed.
 public class BasicCarrier implements Carrier {
 	protected final CarrierType carrierType;
 
