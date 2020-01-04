@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -24,7 +24,7 @@ import net.minecraft.nbt.CompoundTag;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.storage.FixedArticleSupplier;
+import grondag.fluidity.api.storage.FixedArticleFunction;
 import grondag.fluidity.api.storage.FixedStorage;
 import grondag.fluidity.api.storage.StorageListener;
 
@@ -105,7 +105,7 @@ public final class CreativeStorage implements FixedStorage {
 	}
 
 	@Override
-	public FixedArticleSupplier getSupplier() {
-		return FixedArticleSupplier.CREATIVE;
+	public FixedArticleFunction getSupplier() {
+		return FixedArticleFunction.CREATIVE;
 	}
 }

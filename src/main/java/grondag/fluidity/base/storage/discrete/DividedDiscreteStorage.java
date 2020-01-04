@@ -20,15 +20,12 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.storage.FixedArticleConsumer;
-import grondag.fluidity.api.storage.FixedArticleSupplier;
+import grondag.fluidity.api.storage.FixedArticleFunction;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.component.FixedArticleManager;
-import grondag.fluidity.base.storage.discrete.FixedDiscreteStorage.FixedDiscreteArticleConsumer;
-import grondag.fluidity.base.storage.discrete.FixedDiscreteStorage.FixedDiscreteArticleSupplier;
 
 @API(status = Status.EXPERIMENTAL)
-public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscreteStorage> implements FixedDiscreteStorage, FixedDiscreteArticleConsumer, FixedDiscreteArticleSupplier {
+public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscreteStorage> implements FixedDiscreteStorage {
 	protected final int divisionCount;
 	protected final long capacityPerDivision;
 
@@ -39,8 +36,8 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscr
 	}
 
 	@Override
-	public FixedArticleConsumer getConsumer() {
-		return this;
+	public FixedArticleFunction getConsumer() {
+		return consumer;
 	}
 
 	@Override
@@ -49,8 +46,8 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscr
 	}
 
 	@Override
-	public FixedArticleSupplier getSupplier() {
-		return this;
+	public FixedArticleFunction getSupplier() {
+		return supplier;
 	}
 
 	@Override
@@ -59,18 +56,90 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscr
 	}
 
 	@Override
-	public long accept(Article item, long count, boolean simulate) {
-		if(notifier.articleCount() >= divisionCount) {
-			final StoredDiscreteArticle a = articles.get(item);
+	protected FixedDiscreteArticleFunction createConsumer() {
+		return new Consumer();
+	}
 
-			if(a == null || a.isEmpty()) {
+	protected class Consumer extends AbstractDiscreteStorage<DividedDiscreteStorage>.Consumer {
+		@Override
+		public long apply(Article item, long count, boolean simulate) {
+			if(notifier.articleCount() >= divisionCount) {
+				final StoredDiscreteArticle a = articles.get(item);
+
+				if(a == null || a.isEmpty()) {
+					return 0;
+				}
+
+				count = limit(a, count);
+			}
+
+			return super.apply(item, count, simulate);
+		}
+
+		@Override
+		public long apply(int handle, Article item, long count, boolean simulate) {
+			Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
+			Preconditions.checkNotNull(item, "Request to accept null item");
+
+			if (item.isNothing() || count == 0 || !filter.test(item)) {
 				return 0;
 			}
 
-			count = limit(a, count);
-		}
+			final StoredDiscreteArticle a = articles.get(handle);
 
-		return super.accept(item, count, simulate);
+			if(a.isEmpty() || a.article().equals(item)) {
+				final long result = limit(a, count);
+
+				if(result > 0 && !simulate) {
+					if(a.isEmpty()) {
+						a.setArticle(item);
+						a.setCount(count);
+					} else {
+						a.addToCount(result);
+					}
+
+					notifier.notifyAccept(a, result);
+					dirtyNotifier.run();
+				}
+
+				return result;
+			} else {
+				return 0;
+			}
+		}
+	}
+
+	@Override
+	protected FixedDiscreteArticleFunction createSupplier() {
+		return new Supplier();
+	}
+
+	protected class Supplier extends AbstractDiscreteStorage<DividedDiscreteStorage>.Supplier {
+		@Override
+		public long apply(int handle, Article item, long count, boolean simulate) {
+			Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
+			Preconditions.checkNotNull(item, "Request to supply null item");
+
+			if (item.isNothing() || isEmpty()) {
+				return 0;
+			}
+
+			final StoredDiscreteArticle a = articles.get(handle);
+
+			if(a == null || a.isEmpty() || !a.article().equals(item)) {
+				return 0;
+			}
+
+			final long result = Math.min(count, a.count());
+
+			if(result > 0 && !simulate) {
+				notifier.notifySupply(a, result);
+				a.addToCount(-result);
+				dirtyNotifier.run();
+			}
+
+			return result;
+		}
 	}
 
 	protected long limit(StoredDiscreteArticle a, long requested) {
@@ -81,63 +150,5 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscr
 		} else {
 			return requested > cap ? cap : requested;
 		}
-	}
-
-	@Override
-	public long accept(int handle, Article item, long count, boolean simulate) {
-		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
-		Preconditions.checkNotNull(item, "Request to accept null item");
-
-		if (item.isNothing() || count == 0 || !filter.test(item)) {
-			return 0;
-		}
-
-		final StoredDiscreteArticle a = articles.get(handle);
-
-		if(a.isEmpty() || a.article().equals(item)) {
-			final long result = limit(a, count);
-
-			if(result > 0 && !simulate) {
-				if(a.isEmpty()) {
-					a.setArticle(item);
-					a.setCount(count);
-				} else {
-					a.addToCount(result);
-				}
-
-				notifier.notifyAccept(a, result);
-				dirtyNotifier.run();
-			}
-
-			return result;
-		} else {
-			return 0;
-		}
-	}
-
-	@Override
-	public long supply(int handle, Article item, long count, boolean simulate) {
-		Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
-		Preconditions.checkNotNull(item, "Request to supply null item");
-
-		if (item.isNothing() || isEmpty()) {
-			return 0;
-		}
-
-		final StoredDiscreteArticle a = articles.get(handle);
-
-		if(a == null || a.isEmpty() || !a.article().equals(item)) {
-			return 0;
-		}
-
-		final long result = Math.min(count, a.count());
-
-		if(result > 0 && !simulate) {
-			notifier.notifySupply(a, result);
-			a.addToCount(-result);
-			dirtyNotifier.run();
-		}
-
-		return result;
 	}
 }

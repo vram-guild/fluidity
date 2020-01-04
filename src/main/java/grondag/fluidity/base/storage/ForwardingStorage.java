@@ -25,8 +25,7 @@ import net.minecraft.nbt.CompoundTag;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.storage.ArticleConsumer;
-import grondag.fluidity.api.storage.ArticleSupplier;
+import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
 
@@ -43,7 +42,7 @@ public class ForwardingStorage implements Storage {
 	}
 
 	@Override
-	public ArticleConsumer getConsumer() {
+	public ArticleFunction getConsumer() {
 		return wrapped.getConsumer();
 	}
 
@@ -53,7 +52,7 @@ public class ForwardingStorage implements Storage {
 	}
 
 	@Override
-	public ArticleSupplier getSupplier() {
+	public ArticleFunction getSupplier() {
 		return wrapped.getSupplier();
 	}
 

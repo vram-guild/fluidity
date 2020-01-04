@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -24,26 +24,24 @@ import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
-import grondag.fluidity.api.storage.ArticleConsumer;
-import grondag.fluidity.api.storage.ArticleSupplier;
+import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.InventoryStorage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
 import grondag.fluidity.base.storage.component.DiscreteNotifier;
-import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleConsumer;
-import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleSupplier;
+import grondag.fluidity.base.storage.discrete.FixedDiscreteStorage.FixedDiscreteArticleFunction;
 import grondag.fluidity.impl.article.ArticleImpl;
 
 @API(status = Status.EXPERIMENTAL)
-public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<StoredDiscreteArticle,  SingleStackInventoryStorage> implements DiscreteStorage, DiscreteArticleConsumer, DiscreteArticleSupplier, InventoryStorage {
+public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<StoredDiscreteArticle,  SingleStackInventoryStorage> implements DiscreteStorage, InventoryStorage {
 	protected ItemStack stack = ItemStack.EMPTY;
 	protected final StoredDiscreteArticle view = new StoredDiscreteArticle();
 	protected final DiscreteNotifier notifier = new DiscreteNotifier(this);
 
 	@Override
-	public ArticleConsumer getConsumer() {
-		return this;
+	public ArticleFunction getConsumer() {
+		return consumer;
 	}
 
 	@Override
@@ -52,13 +50,121 @@ public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<Sto
 	}
 
 	@Override
-	public ArticleSupplier getSupplier() {
-		return this;
+	public ArticleFunction getSupplier() {
+		return supplier;
 	}
 
 	@Override
 	public boolean hasSupplier() {
 		return true;
+	}
+
+	protected final FixedDiscreteArticleFunction consumer = createConsumer();
+
+	protected FixedDiscreteArticleFunction createConsumer() {
+		return new Consumer();
+	}
+
+	protected class Consumer implements FixedDiscreteArticleFunction {
+		@Override
+		public long apply(Article article, long count, boolean simulate) {
+
+			if(article.isNothing()) {
+				return 0;
+			}
+
+			final int maxCount = article.toItem().getMaxCount();
+
+			if(stack.isEmpty()) {
+				final int n = (int) Math.min(count, maxCount);
+
+				if(!simulate) {
+					rollbackHandler.prepareIfNeeded();
+					stack = article.toStack(n);
+
+					if(!listeners.isEmpty()) {
+						notifier.notifyAccept(article, 0, n, n);
+
+						if(maxCount != 64) {
+							notifier.notifyCapacityChange(maxCount - 64);
+						}
+					}
+				}
+
+				return n;
+			} else if(article.matches(stack)) {
+				final int n = (int) Math.min(count, article.toItem().getMaxCount() - stack.getCount());
+
+				if(!simulate) {
+					rollbackHandler.prepareIfNeeded();
+					stack.increment(n);
+
+					if(!listeners.isEmpty()) {
+						notifier.notifyAccept(article, 0, n, stack.getCount());
+					}
+				}
+
+				return n;
+			} else {
+				return 0;
+			}
+		}
+
+		@Override
+		public TransactionDelegate getTransactionDelegate() {
+			return SingleStackInventoryStorage.this;
+		}
+
+		@Override
+		public long apply(int handle, Article item, long count, boolean simulate) {
+			// implement in subtypes
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	protected final FixedDiscreteArticleFunction supplier = createSupplier();
+
+	protected FixedDiscreteArticleFunction createSupplier() {
+		return new Supplier();
+	}
+
+	protected class Supplier implements FixedDiscreteArticleFunction {
+		@Override
+		public long apply(Article article, long count, boolean simulate) {
+			if(article.isNothing() || stack.isEmpty() || !article.matches(stack)) {
+				return 0;
+			}
+
+			final int n = (int) Math.min(count, stack.getCount());
+
+			if(!simulate) {
+				final int oldMax = stack.getMaxCount();
+
+				rollbackHandler.prepareIfNeeded();
+				stack.decrement(n);
+
+				if(!listeners.isEmpty()) {
+					notifier.notifySupply(article, 0, n, stack.getCount());
+
+					if(stack.isEmpty() && oldMax != 64) {
+						notifier.notifyCapacityChange(64 - oldMax);
+					}
+				}
+			}
+
+			return n;
+		}
+
+		@Override
+		public TransactionDelegate getTransactionDelegate() {
+			return SingleStackInventoryStorage.this;
+		}
+
+		@Override
+		public long apply(int handle, Article item, long count, boolean simulate) {
+			// implement in subtypes
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	@Override
@@ -195,76 +301,6 @@ public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<Sto
 		if(!isCommitted) {
 			stack = (ItemStack) state;
 		}
-	}
-
-	@Override
-	public long accept(Article article, long count, boolean simulate) {
-
-		if(article.isNothing()) {
-			return 0;
-		}
-
-		final int maxCount = article.toItem().getMaxCount();
-
-		if(stack.isEmpty()) {
-			final int n = (int) Math.min(count, maxCount);
-
-			if(!simulate) {
-				rollbackHandler.prepareIfNeeded();
-				stack = article.toStack(n);
-
-				if(!listeners.isEmpty()) {
-					notifier.notifyAccept(article, 0, n, n);
-
-					if(maxCount != 64) {
-						notifier.notifyCapacityChange(maxCount - 64);
-					}
-				}
-			}
-
-			return n;
-		} else if(article.matches(stack)) {
-			final int n = (int) Math.min(count, article.toItem().getMaxCount() - stack.getCount());
-
-			if(!simulate) {
-				rollbackHandler.prepareIfNeeded();
-				stack.increment(n);
-
-				if(!listeners.isEmpty()) {
-					notifier.notifyAccept(article, 0, n, stack.getCount());
-				}
-			}
-
-			return n;
-		} else {
-			return 0;
-		}
-	}
-
-	@Override
-	public long supply(Article article, long count, boolean simulate) {
-		if(article.isNothing() || stack.isEmpty() || !article.matches(stack)) {
-			return 0;
-		}
-
-		final int n = (int) Math.min(count, stack.getCount());
-
-		if(!simulate) {
-			final int oldMax = stack.getMaxCount();
-
-			rollbackHandler.prepareIfNeeded();
-			stack.decrement(n);
-
-			if(!listeners.isEmpty()) {
-				notifier.notifySupply(article, 0, n, stack.getCount());
-
-				if(stack.isEmpty() && oldMax != 64) {
-					notifier.notifyCapacityChange(64 - oldMax);
-				}
-			}
-		}
-
-		return n;
 	}
 
 	@Override

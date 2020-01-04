@@ -13,39 +13,33 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.base.storage.discrete;
+package grondag.fluidity.base.storage;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.storage.ArticleFunction;
-import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.FixedArticleFunction;
 
 @API(status = Status.EXPERIMENTAL)
-public interface DiscreteStorage extends Storage {
-	@Override
-	default FractionView amount() {
-		return Fraction.of(count());
+public class ForwardingFixedArticleFunction<T extends FixedArticleFunction> extends ForwardingArticleFunction<T> implements FixedArticleFunction {
+	public ForwardingFixedArticleFunction(T wrapped) {
+		super(wrapped);
 	}
 
 	@Override
-	default FractionView volume() {
-		return Fraction.of(capacity());
+	public long apply(int handle, Article item, long count, boolean simulate) {
+		return wrapped.apply(handle, item, count, simulate);
 	}
 
-	public interface DiscreteArticleFunction extends ArticleFunction {
-		@Override
-		default FractionView apply(Article item, FractionView volume, boolean simulate) {
-			return volume.whole() == 0 ? Fraction.ZERO : Fraction.of(apply(item, volume.whole(), simulate));
-		}
+	@Override
+	public FractionView apply(int handle, Article item, FractionView volume, boolean simulate) {
+		return wrapped.apply(handle, item, volume, simulate);
+	}
 
-		@Override
-		default long apply(Article item, long numerator, long divisor, boolean simulate) {
-			final long whole = numerator / divisor;
-			return whole == 0 ? 0 : apply(item, whole, simulate) * divisor;
-		}
+	@Override
+	public long apply(int handle, Article item, long numerator, long divisor, boolean simulate) {
+		return wrapped.apply(handle, item, numerator, divisor, simulate);
 	}
 }

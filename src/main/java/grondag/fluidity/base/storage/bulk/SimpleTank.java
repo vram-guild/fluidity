@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -27,17 +27,14 @@ import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
-import grondag.fluidity.api.storage.ArticleConsumer;
-import grondag.fluidity.api.storage.ArticleSupplier;
+import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredBulkArticle;
 import grondag.fluidity.base.article.StoredBulkArticleView;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
-import grondag.fluidity.base.storage.bulk.BulkStorage.BulkArticleConsumer;
-import grondag.fluidity.base.storage.bulk.BulkStorage.BulkArticleSupplier;
 
 @API(status = Status.EXPERIMENTAL)
-public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, SimpleTank> implements BulkStorage, BulkArticleConsumer, BulkArticleSupplier {
+public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, SimpleTank> implements BulkStorage {
 	protected final MutableFraction content = new MutableFraction();
 	protected final MutableFraction calc = new MutableFraction();
 	protected final View view = new View();
@@ -49,8 +46,8 @@ public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, S
 	}
 
 	@Override
-	public ArticleConsumer getConsumer() {
-		return this;
+	public ArticleFunction getConsumer() {
+		return consumer;
 	}
 
 	@Override
@@ -59,8 +56,8 @@ public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, S
 	}
 
 	@Override
-	public ArticleSupplier getSupplier() {
-		return this;
+	public ArticleFunction getSupplier() {
+		return consumer;
 	}
 
 	@Override
@@ -88,131 +85,152 @@ public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, S
 		return  handle == 0 ? view : StoredArticleView.EMPTY;
 	}
 
-	@Override
-	public FractionView accept(Article item, FractionView volume, boolean simulate) {
-		Preconditions.checkArgument(!volume.isNegative(), "Request to accept negative volume. (%s)", volume);
+	protected final Supplier supplier = new Supplier();
 
-		if (item == Article.NOTHING || volume.isZero() || (item != article && article != Article.NOTHING)) {
-			return Fraction.ZERO;
-		}
+	protected class Supplier implements BulkArticleFunction {
 
-		// compute available space
-		calc.set(capacity);
-		calc.subtract(content);
+		@Override
+		public FractionView apply(Article item, FractionView volume, boolean simulate) {
+			Preconditions.checkArgument(!volume.isNegative(), "Request to supply negative volume. (%s)", volume);
 
-		// can't accept if full
-		if (calc.isZero()) {
-			return Fraction.ZERO;
-		}
-
-		// can't accept more than we got
-		if (calc.isGreaterThankOrEqual(volume)) {
-			calc.set(volume);
-		}
-
-		if (!simulate) {
-			rollbackHandler.prepareIfNeeded();
-			content.add(calc);
-			dirtyNotifier.run();
-			listeners.forEach(l -> l.onSupply(this, 0, article, calc, content));
-		}
-
-		return calc;
-	}
-
-	@Override
-	public FractionView supply(Article item, FractionView volume, boolean simulate) {
-		Preconditions.checkArgument(!volume.isNegative(), "Request to supply negative volume. (%s)", volume);
-
-		if (item == Article.NOTHING || item != article || content.isZero() || volume.isZero()) {
-			return Fraction.ZERO;
-		}
-
-		calc.set(content.isLessThan(volume) ? content : volume);
-
-		if (!simulate) {
-			rollbackHandler.prepareIfNeeded();
-			content.subtract(calc);
-			dirtyNotifier.run();
-			listeners.forEach(l -> l.onSupply(this, 0, article, calc, content));
-		}
-
-		return calc;
-	}
-
-	@Override
-	public long accept(Article item, long numerator, long divisor, boolean simulate) {
-		Preconditions.checkArgument(numerator >= 0, "Request to accept negative volume. (%s)", numerator);
-		Preconditions.checkArgument(divisor >= 1, "Divisor must be >= 1. (%s)", divisor);
-
-		if (item == Article.NOTHING || numerator == 0 || (item != article && article != Article.NOTHING)) {
-			return 0;
-		}
-
-		// compute available space
-		calc.set(capacity);
-		calc.subtract(content);
-
-		long result = calc.toLong(divisor);
-
-		// can't accept if full
-		if (result == 0) {
-			return 0;
-		}
-
-		// can't accept more than we got
-		if (result > numerator) {
-			result = numerator;
-		}
-
-		if (!simulate) {
-			rollbackHandler.prepareIfNeeded();
-			content.add(result, divisor);
-			dirtyNotifier.run();
-
-			if(!listeners.isEmpty()) {
-				calc.set(result, divisor);
-				listeners.forEach(l -> l.onAccept(this, 0, item, calc, content));
+			if (item == Article.NOTHING || item != article || content.isZero() || volume.isZero()) {
+				return Fraction.ZERO;
 			}
+
+			calc.set(content.isLessThan(volume) ? content : volume);
+
+			if (!simulate) {
+				rollbackHandler.prepareIfNeeded();
+				content.subtract(calc);
+				dirtyNotifier.run();
+				listeners.forEach(l -> l.onSupply(SimpleTank.this, 0, article, calc, content));
+			}
+
+			return calc;
 		}
 
-		return result;
+		@Override
+		public long apply(Article item, long numerator, long divisor, boolean simulate) {
+			Preconditions.checkArgument(numerator >= 0, "Request to supply negative volume. (%s)", numerator);
+			Preconditions.checkArgument(divisor >= 1, "Divisor must be >= 1. (%s)", divisor);
+
+			if (item == Article.NOTHING || item != article || content.isZero() || numerator == 0) {
+				return 0;
+			}
+
+			calc.set(content);
+			calc.floor(divisor);
+
+			long result = calc.toLong(divisor);
+
+			if (result == 0) {
+				return 0;
+			}
+
+			if (result > numerator) {
+				result = numerator;
+			}
+
+			if (!simulate) {
+				rollbackHandler.prepareIfNeeded();
+				content.subtract(result, divisor);
+				dirtyNotifier.run();
+
+				if(!listeners.isEmpty()) {
+					calc.set(result, divisor);
+					listeners.forEach(l -> l.onAccept(SimpleTank.this, 0, item, calc, content));
+				}
+			}
+
+			return result;
+		}
+
+		@Override
+		public TransactionDelegate getTransactionDelegate() {
+			return SimpleTank.this;
+		}
 	}
 
-	@Override
-	public long supply(Article item, long numerator, long divisor, boolean simulate) {
-		Preconditions.checkArgument(numerator >= 0, "Request to supply negative volume. (%s)", numerator);
-		Preconditions.checkArgument(divisor >= 1, "Divisor must be >= 1. (%s)", divisor);
+	protected final Consumer consumer = new Consumer();
 
-		if (item == Article.NOTHING || item != article || content.isZero() || numerator == 0) {
-			return 0;
-		}
+	protected class Consumer implements BulkArticleFunction {
 
-		calc.set(content);
-		calc.floor(divisor);
+		@Override
+		public FractionView apply(Article item, FractionView volume, boolean simulate) {
+			Preconditions.checkArgument(!volume.isNegative(), "Request to accept negative volume. (%s)", volume);
 
-		long result = calc.toLong(divisor);
-
-		if (result == 0) {
-			return 0;
-		}
-
-		if (result > numerator) {
-			result = numerator;
-		}
-
-		if (!simulate) {
-			rollbackHandler.prepareIfNeeded();
-			content.subtract(result, divisor);
-			dirtyNotifier.run();
-
-			if(!listeners.isEmpty()) {
-				calc.set(result, divisor);
-				listeners.forEach(l -> l.onAccept(this, 0, item, calc, content));
+			if (item == Article.NOTHING || volume.isZero() || (item != article && article != Article.NOTHING)) {
+				return Fraction.ZERO;
 			}
+
+			// compute available space
+			calc.set(capacity);
+			calc.subtract(content);
+
+			// can't accept if full
+			if (calc.isZero()) {
+				return Fraction.ZERO;
+			}
+
+			// can't accept more than we got
+			if (calc.isGreaterThankOrEqual(volume)) {
+				calc.set(volume);
+			}
+
+			if (!simulate) {
+				rollbackHandler.prepareIfNeeded();
+				content.add(calc);
+				dirtyNotifier.run();
+				listeners.forEach(l -> l.onSupply(SimpleTank.this, 0, article, calc, content));
+			}
+
+			return calc;
 		}
 
-		return result;
+		@Override
+		public long apply(Article item, long numerator, long divisor, boolean simulate) {
+			Preconditions.checkArgument(numerator >= 0, "Request to accept negative volume. (%s)", numerator);
+			Preconditions.checkArgument(divisor >= 1, "Divisor must be >= 1. (%s)", divisor);
+
+			if (item == Article.NOTHING || numerator == 0 || (item != article && article != Article.NOTHING)) {
+				return 0;
+			}
+
+			// compute available space
+			calc.set(capacity);
+			calc.subtract(content);
+
+			long result = calc.toLong(divisor);
+
+			// can't accept if full
+			if (result == 0) {
+				return 0;
+			}
+
+			// can't accept more than we got
+			if (result > numerator) {
+				result = numerator;
+			}
+
+			if (!simulate) {
+				rollbackHandler.prepareIfNeeded();
+				content.add(result, divisor);
+				dirtyNotifier.run();
+
+				if(!listeners.isEmpty()) {
+					calc.set(result, divisor);
+					listeners.forEach(l -> l.onAccept(SimpleTank.this, 0, item, calc, content));
+				}
+			}
+
+			return result;
+		}
+
+		@Override
+		public TransactionDelegate getTransactionDelegate() {
+			return SimpleTank.this;
+		}
+
 	}
 
 	public void writeTag(CompoundTag tag) {
@@ -274,15 +292,15 @@ public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, S
 				if(newContent.isGreaterThan(content)) {
 					calc.set(newContent);
 					calc.subtract(content);
-					accept(bulkItem, calc, false);
+					consumer.apply(bulkItem, calc, false);
 				} else if (newContent.isLessThan(content)) {
 					calc.set(content);
 					calc.subtract(newContent);
-					supply(bulkItem, calc, false);
+					supplier.apply(bulkItem, calc, false);
 				}
 			} else {
-				supply(article, content, false);
-				accept(bulkItem, newContent, false);
+				supplier.apply(article, content, false);
+				consumer.apply(bulkItem, newContent, false);
 			}
 		}
 	}

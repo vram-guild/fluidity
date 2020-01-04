@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -27,6 +27,7 @@ import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.InventoryStorage;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.component.FlexibleArticleManager;
+import grondag.fluidity.base.storage.discrete.FixedDiscreteStorage.FixedDiscreteArticleFunction;
 import grondag.fluidity.base.transact.TransactionHelper;
 import grondag.fluidity.impl.article.ArticleImpl;
 
@@ -173,96 +174,110 @@ public class SlottedInventoryStorage extends AbstractDiscreteStorage<SlottedInve
 	}
 
 	@Override
-	public long accept(Article article, long count, boolean simulate) {
-		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
+	protected FixedDiscreteArticleFunction createConsumer() {
+		return new Consumer();
+	}
 
-		if(article.isNothing() || count == 0 || !filter.test(article)) {
-			return 0;
-		}
+	protected class Consumer extends AbstractDiscreteStorage<DividedDiscreteStorage>.Consumer {
+		@Override
+		public long apply(Article article, long count, boolean simulate) {
+			Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
 
-		int result = 0;
-		boolean needsRollback = true;
-
-		for(int i = 0 ; i < slotCount; i++) {
-			final ItemStack stack = stacks[i];
-
-			if(stack.isEmpty()) {
-				final int n = (int) Math.min(count - result, article.toItem().getMaxCount());
-
-				if(!simulate) {
-					if(needsRollback) {
-						rollbackHandler.prepareIfNeeded();
-						needsRollback = false;
-					}
-
-					final ItemStack newStack = article.toStack(n);
-					notifyAccept(newStack, n);
-					stacks[i] = newStack;
-					dirtyNotifier.run();
-				}
-
-				result += n;
-			} else if(article.matches(stack)) {
-				final int n = (int) Math.min(count - result, article.toItem().getMaxCount() - stack.getCount());
-
-				if(!simulate) {
-					if(needsRollback) {
-						rollbackHandler.prepareIfNeeded();
-						needsRollback = false;
-					}
-
-					stack.increment(n);
-					notifyAccept(stack, n);
-					dirtyNotifier.run();
-				}
-
-				result += n;
+			if(article.isNothing() || count == 0 || !filter.test(article)) {
+				return 0;
 			}
 
-			if (result == count) {
-				break;
-			}
-		}
+			int result = 0;
+			boolean needsRollback = true;
 
-		return result;
+			for(int i = 0 ; i < slotCount; i++) {
+				final ItemStack stack = stacks[i];
+
+				if(stack.isEmpty()) {
+					final int n = (int) Math.min(count - result, article.toItem().getMaxCount());
+
+					if(!simulate) {
+						if(needsRollback) {
+							rollbackHandler.prepareIfNeeded();
+							needsRollback = false;
+						}
+
+						final ItemStack newStack = article.toStack(n);
+						notifyAccept(newStack, n);
+						stacks[i] = newStack;
+						dirtyNotifier.run();
+					}
+
+					result += n;
+				} else if(article.matches(stack)) {
+					final int n = (int) Math.min(count - result, article.toItem().getMaxCount() - stack.getCount());
+
+					if(!simulate) {
+						if(needsRollback) {
+							rollbackHandler.prepareIfNeeded();
+							needsRollback = false;
+						}
+
+						stack.increment(n);
+						notifyAccept(stack, n);
+						dirtyNotifier.run();
+					}
+
+					result += n;
+				}
+
+				if (result == count) {
+					break;
+				}
+			}
+
+			return result;
+		}
 	}
 
 	@Override
-	public long supply(Article article, long count, boolean simulate) {
+	protected FixedDiscreteArticleFunction createSupplier() {
+		return new Supplier();
+	}
 
-		if(article.isNothing() || count == 0) {
-			return 0;
-		}
+	protected class Supplier extends AbstractDiscreteStorage<DividedDiscreteStorage>.Supplier {
+		@Override
+		public long apply(Article article, long count, boolean simulate) {
 
-		int result = 0;
-		boolean needsRollback = true;
+			if(article.isNothing() || count == 0) {
+				return 0;
+			}
 
-		for(int i = 0 ; i < slotCount; i++) {
-			final ItemStack stack = stacks[i];
+			int result = 0;
+			boolean needsRollback = true;
 
-			if(article.matches(stack)) {
-				final int n = (int) Math.min(count - result, stack.getCount());
+			for(int i = 0 ; i < slotCount; i++) {
+				final ItemStack stack = stacks[i];
 
-				if(!simulate) {
-					if(needsRollback) {
-						rollbackHandler.prepareIfNeeded();
-						needsRollback = false;
+				if(article.matches(stack)) {
+					final int n = (int) Math.min(count - result, stack.getCount());
+
+					if(!simulate) {
+						if(needsRollback) {
+							rollbackHandler.prepareIfNeeded();
+							needsRollback = false;
+						}
+
+						notifySupply(stack, n);
+						stack.decrement(n);
+						dirtyNotifier.run();
 					}
 
-					notifySupply(stack, n);
-					stack.decrement(n);
-					dirtyNotifier.run();
+					result += n;
 				}
 
-				result += n;
+				if (result == count) {
+					break;
+				}
 			}
 
-			if (result == count) {
-				break;
-			}
+			return result;
 		}
-
-		return result;
 	}
 
 	protected void notifySupply(ItemStack stack, int count) {

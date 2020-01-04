@@ -20,8 +20,7 @@ import java.util.function.Function;
 
 import grondag.fluidity.api.device.DeviceComponent;
 import grondag.fluidity.api.device.DeviceComponentType;
-import grondag.fluidity.api.storage.ArticleConsumer;
-import grondag.fluidity.api.storage.ArticleSupplier;
+import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.TransactionParticipant.TransactionDelegate;
 import grondag.fluidity.wip.api.transport.Carrier;
@@ -49,18 +48,18 @@ class CarrierSessionImpl implements CarrierSession, TransactionDelegate {
 		return isOpen;
 	}
 
-	protected final ArticleConsumer broadcastConsumer = new BroadcastConsumer(this);
+	protected final ArticleFunction broadcastConsumer = new BroadcastConsumer(this);
 
 	@Override
-	public ArticleConsumer broadcastConsumer() {
-		return isOpen ? broadcastConsumer : ArticleConsumer.FULL;
+	public ArticleFunction broadcastConsumer() {
+		return isOpen ? broadcastConsumer : ArticleFunction.FULL;
 	}
 
-	protected final ArticleSupplier broadcastSupploer = new BroadcastSupplier(this);
+	protected final ArticleFunction broadcastSupploer = new BroadcastSupplier(this);
 
 	@Override
-	public ArticleSupplier broadcastSupplier() {
-		return isOpen ? broadcastSupploer : ArticleSupplier.EMPTY;
+	public ArticleFunction broadcastSupplier() {
+		return isOpen ? broadcastSupploer : ArticleFunction.EMPTY;
 	}
 
 	@Override

@@ -17,17 +17,16 @@ package grondag.fluidity.wip.api.transport;
 
 import grondag.fluidity.api.device.DeviceComponent;
 import grondag.fluidity.api.device.DeviceComponentType;
-import grondag.fluidity.api.storage.ArticleConsumer;
-import grondag.fluidity.api.storage.ArticleSupplier;
+import grondag.fluidity.api.storage.ArticleFunction;
 
 /**
  * Visible to the node that obtained the carrier.
  *
  */
 public interface CarrierSession extends CarrierNode {
-	ArticleConsumer broadcastConsumer();
+	ArticleFunction broadcastConsumer();
 
-	ArticleSupplier broadcastSupplier();
+	ArticleFunction broadcastSupplier();
 
 	StorageConnection connect(long remoteAddress);
 
@@ -51,13 +50,13 @@ public interface CarrierSession extends CarrierNode {
 		}
 
 		@Override
-		public ArticleConsumer broadcastConsumer() {
-			return ArticleConsumer.FULL;
+		public ArticleFunction broadcastConsumer() {
+			return ArticleFunction.FULL;
 		}
 
 		@Override
-		public ArticleSupplier broadcastSupplier() {
-			return ArticleSupplier.EMPTY;
+		public ArticleFunction broadcastSupplier() {
+			return ArticleFunction.EMPTY;
 		}
 
 		@Override

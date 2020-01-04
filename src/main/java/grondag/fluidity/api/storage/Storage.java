@@ -42,20 +42,20 @@ import grondag.fluidity.impl.storage.VoidStorage;
  */
 @API(status = Status.EXPERIMENTAL)
 public interface Storage extends TransactionParticipant {
-	default ArticleConsumer getConsumer() {
-		return ArticleConsumer.FULL;
+	default ArticleFunction getConsumer() {
+		return ArticleFunction.FULL;
 	}
 
 	default boolean hasConsumer() {
-		return getConsumer().canAccept();
+		return getConsumer().canApply();
 	}
 
-	default ArticleSupplier getSupplier() {
-		return ArticleSupplier.EMPTY;
+	default ArticleFunction getSupplier() {
+		return ArticleFunction.EMPTY;
 	}
 
 	default boolean hasSupplier() {
-		return getSupplier().canSupply();
+		return getSupplier().canApply();
 	}
 
 	int handleCount();
@@ -128,13 +128,13 @@ public interface Storage extends TransactionParticipant {
 	long count();
 
 	default long countOf(Article item)  {
-		return getSupplier().supply(item, Long.MAX_VALUE, true);
+		return getSupplier().apply(item, Long.MAX_VALUE, true);
 	}
 
 	FractionView amount();
 
 	default FractionView amountOf(Article item)  {
-		return getSupplier().supply(item, Fraction.MAX_VALUE, true);
+		return getSupplier().apply(item, Fraction.MAX_VALUE, true);
 	}
 
 	long capacity();

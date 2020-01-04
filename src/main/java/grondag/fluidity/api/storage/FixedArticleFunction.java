@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -24,37 +24,40 @@ import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.impl.storage.CreativeSupplier;
 import grondag.fluidity.impl.storage.EmptySupplier;
+import grondag.fluidity.impl.storage.FullConsumer;
+import grondag.fluidity.impl.storage.VoidConsumer;
 
 /**
  * Storage with fixed handles - similar to slots but they don't have aribtrary limits
  * and request to accept or supply incompatible with existing content is rejected.
  */
 @API(status = Status.EXPERIMENTAL)
-public interface FixedArticleSupplier extends ArticleSupplier {
+public interface FixedArticleFunction extends ArticleFunction {
 	/**
-	 *
-	 * Will return zero if handle slot is not occupied by the requested item.
-	 *
-	 * @param handle
+	 * Will return zero if handle slot is already occupied and different.
 	 * @param item
 	 * @param count
 	 * @param simulate
+	 * @param handle
 	 * @return
 	 */
-	long supply(int handle, Article item, long count, boolean simulate);
+	long apply(int handle, Article item, long count, boolean simulate);
 
-	default long supply(int handle, ItemStack stack, long count, boolean simulate) {
-		return supply(handle, Article.of(stack), count, simulate);
+	default long apply(int handle, ItemStack stack, long count, boolean simulate) {
+		return apply(handle, Article.of(stack), count, simulate);
 	}
 
-	default long supply(int handle, ItemStack stack, boolean simulate) {
-		return supply(handle, Article.of(stack), stack.getCount(), simulate);
+	default long apply(int handle, ItemStack stack, boolean simulate) {
+		return apply(handle, Article.of(stack), stack.getCount(), simulate);
 	}
 
-	FractionView supply(int handle, Article item, FractionView volume, boolean simulate);
+	FractionView apply(int handle, Article item, FractionView volume, boolean simulate);
 
-	long supply(int handle, Article item, long numerator, long divisor, boolean simulate);
+	long apply(int handle, Article item, long numerator, long divisor, boolean simulate);
 
-	FixedArticleSupplier EMPTY = EmptySupplier.INSTANCE;
-	FixedArticleSupplier CREATIVE = CreativeSupplier.INSTANCE;
+	FixedArticleFunction VOID = VoidConsumer.INSTANCE;
+	FixedArticleFunction FULL = FullConsumer.INSTANCE;
+	FixedArticleFunction EMPTY = EmptySupplier.INSTANCE;
+	FixedArticleFunction CREATIVE = CreativeSupplier.INSTANCE;
+
 }

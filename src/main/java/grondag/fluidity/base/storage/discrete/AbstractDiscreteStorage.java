@@ -26,20 +26,18 @@ import net.minecraft.nbt.ListTag;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
-import grondag.fluidity.api.storage.ArticleConsumer;
-import grondag.fluidity.api.storage.ArticleSupplier;
+import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
 import grondag.fluidity.base.storage.component.AbstractArticleManager;
 import grondag.fluidity.base.storage.component.DiscreteTrackingJournal;
 import grondag.fluidity.base.storage.component.DiscreteTrackingNotifier;
-import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleConsumer;
-import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleSupplier;
+import grondag.fluidity.base.storage.discrete.FixedDiscreteStorage.FixedDiscreteArticleFunction;
 import grondag.fluidity.impl.article.ArticleImpl;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<T>> extends AbstractLazyRollbackStorage<StoredDiscreteArticle, T> implements DiscreteStorage, DiscreteArticleConsumer, DiscreteArticleSupplier {
+public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<T>> extends AbstractLazyRollbackStorage<StoredDiscreteArticle, T> implements DiscreteStorage {
 	protected final AbstractArticleManager<StoredDiscreteArticle> articles;
 	protected final DiscreteTrackingNotifier notifier;
 
@@ -49,8 +47,8 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 	}
 
 	@Override
-	public ArticleConsumer getConsumer() {
-		return this;
+	public ArticleFunction getConsumer() {
+		return consumer;
 	}
 
 	@Override
@@ -59,8 +57,8 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 	}
 
 	@Override
-	public ArticleSupplier getSupplier() {
-		return this;
+	public ArticleFunction getSupplier() {
+		return supplier;
 	}
 
 	@Override
@@ -103,7 +101,7 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 				lookup.readTag(list.getCompound(i));
 
 				if(!lookup.isEmpty()) {
-					accept(lookup.article(), lookup.count(), false);
+					consumer.apply(lookup.article(), lookup.count(), false);
 				}
 			}
 		}
@@ -154,51 +152,89 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 		articles.compact();
 	}
 
-	@Override
-	public long accept(Article item, long count, boolean simulate) {
-		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
-		Preconditions.checkNotNull(item, "Request to accept null item");
+	protected final FixedDiscreteArticleFunction consumer = createConsumer();
 
-		if (item.isNothing() || count == 0 || !filter.test(item)) {
-			return 0;
-		}
-
-		final long result = Math.min(count, notifier.capacity() - notifier.count());
-
-		if(result > 0 && !simulate) {
-			final StoredDiscreteArticle article = articles.findOrCreateArticle(item);
-			article.addToCount(result);
-			notifier.notifyAccept(article, result);
-			dirtyNotifier.run();
-		}
-
-		return result;
+	protected FixedDiscreteArticleFunction createConsumer() {
+		return new Consumer();
 	}
 
-	@Override
-	public long supply(Article item, long count, boolean simulate) {
-		Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
-		Preconditions.checkNotNull(item, "Request to supply null item");
+	protected class Consumer implements FixedDiscreteArticleFunction {
+		@Override
+		public long apply(Article item, long count, boolean simulate) {
+			Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
+			Preconditions.checkNotNull(item, "Request to accept null item");
 
-		if (item.isNothing() || isEmpty()) {
-			return 0;
+			if (item.isNothing() || count == 0 || !filter.test(item)) {
+				return 0;
+			}
+
+			final long result = Math.min(count, notifier.capacity() - notifier.count());
+
+			if(result > 0 && !simulate) {
+				final StoredDiscreteArticle article = articles.findOrCreateArticle(item);
+				article.addToCount(result);
+				notifier.notifyAccept(article, result);
+				dirtyNotifier.run();
+			}
+
+			return result;
 		}
 
-		final StoredDiscreteArticle article = articles.get(item);
-
-		if(article == null || article.isEmpty()) {
-			return 0;
+		@Override
+		public TransactionDelegate getTransactionDelegate() {
+			return AbstractDiscreteStorage.this;
 		}
 
-		final long result = Math.min(count, article.count());
+		@Override
+		public long apply(int handle, Article item, long count, boolean simulate) {
+			// implement in subtypes
+			throw new UnsupportedOperationException();
+		}
+	}
 
-		if(result > 0 && !simulate) {
-			notifier.notifySupply(article, result);
-			article.addToCount(-result);
-			dirtyNotifier.run();
+	protected final FixedDiscreteArticleFunction supplier = createSupplier();
+
+	protected FixedDiscreteArticleFunction createSupplier() {
+		return new Supplier();
+	}
+
+	protected class Supplier implements FixedDiscreteArticleFunction {
+		@Override
+		public long apply(Article item, long count, boolean simulate) {
+			Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
+			Preconditions.checkNotNull(item, "Request to supply null item");
+
+			if (item.isNothing() || isEmpty()) {
+				return 0;
+			}
+
+			final StoredDiscreteArticle article = articles.get(item);
+
+			if(article == null || article.isEmpty()) {
+				return 0;
+			}
+
+			final long result = Math.min(count, article.count());
+
+			if(result > 0 && !simulate) {
+				notifier.notifySupply(article, result);
+				article.addToCount(-result);
+				dirtyNotifier.run();
+			}
+
+			return result;
 		}
 
-		return result;
+		@Override
+		public TransactionDelegate getTransactionDelegate() {
+			return AbstractDiscreteStorage.this;
+		}
+
+		@Override
+		public long apply(int handle, Article item, long count, boolean simulate) {
+			// implement in subtypes
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	@Override
@@ -241,7 +277,7 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 				final long q = e.getLongValue();
 
 				if(q > 0) {
-					supply(e.getKey(), q, false);
+					supplier.apply(e.getKey(), q, false);
 				}
 			}
 
@@ -249,7 +285,7 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 				final long q = e.getLongValue();
 
 				if(q < 0) {
-					accept(e.getKey(), -q, false);
+					consumer.apply(e.getKey(), -q, false);
 				}
 			}
 
@@ -259,7 +295,6 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 		}
 
 		notifier.restoreJournal((DiscreteTrackingJournal) state);
-
 	}
 
 	public static final String TAG_ITEMS = "items";

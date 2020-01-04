@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -143,7 +143,7 @@ public class ItemStorageInteractionC2S {
 		final ItemStack cursorStack = player.inventory.getCursorStack();
 
 		if (cursorStack != null && !cursorStack.isEmpty()) {
-			final int added = (int) container.getConsumer().accept(cursorStack, single ? 1 : cursorStack.getCount(), false);
+			final int added = (int) container.getConsumer().apply(cursorStack, single ? 1 : cursorStack.getCount(), false);
 
 			if (added > 0){
 				cursorStack.decrement(added);
@@ -160,7 +160,7 @@ public class ItemStorageInteractionC2S {
 			return;
 		}
 
-		final int toMove = (int) listener.getSupplier().supply(targetResource, howMany, false);
+		final int toMove = (int) listener.getSupplier().apply(targetResource, howMany, false);
 
 		if (toMove == 0) {
 			return;
@@ -188,7 +188,7 @@ public class ItemStorageInteractionC2S {
 			}
 
 			howMany = Math.min(howMany, cursorStack.getMaxCount() - cursorStack.getCount());
-			final int toAdd = (int) container.getSupplier().supply(targetResource, howMany, false);
+			final int toAdd = (int) container.getSupplier().apply(targetResource, howMany, false);
 			cursorStack.increment(toAdd);
 			player.inventory.setCursorStack(cursorStack);
 			player.inventory.markDirty();
@@ -196,7 +196,7 @@ public class ItemStorageInteractionC2S {
 		} else {
 			howMany = Math.min(howMany, targetResource.toItem().getMaxCount());
 
-			final int toAdd = (int) container.getSupplier().supply(targetResource, howMany, false);
+			final int toAdd = (int) container.getSupplier().apply(targetResource, howMany, false);
 
 			if (toAdd == 0) {
 				return;

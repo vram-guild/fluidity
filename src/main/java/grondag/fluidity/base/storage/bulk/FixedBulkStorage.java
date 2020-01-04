@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -19,23 +19,15 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.storage.FixedArticleConsumer;
-import grondag.fluidity.api.storage.FixedArticleSupplier;
+import grondag.fluidity.api.storage.FixedArticleFunction;
 import grondag.fluidity.api.storage.FixedStorage;
 
 @API(status = Status.EXPERIMENTAL)
 public interface FixedBulkStorage extends BulkStorage, FixedStorage {
-	public interface FixedBulkArticleSupplier extends BulkArticleSupplier, FixedArticleSupplier {
+	public interface FixedBulkArticleSupplier extends BulkArticleFunction, FixedArticleFunction {
 		@Override
-		default long supply(int handle, Article item, long count, boolean simulate) {
-			return supply(handle, item, count, 1, simulate);
-		}
-	}
-
-	public interface FixedBulkArticleConsumer extends BulkArticleConsumer, FixedArticleConsumer {
-		@Override
-		default long accept(int handle, Article item, long count, boolean simulate) {
-			return accept(handle, item, count, 1, simulate);
+		default long apply(int handle, Article item, long count, boolean simulate) {
+			return apply(handle, item, count, 1, simulate);
 		}
 	}
 }

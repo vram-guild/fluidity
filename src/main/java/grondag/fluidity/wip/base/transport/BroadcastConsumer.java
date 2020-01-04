@@ -21,13 +21,13 @@ import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
-import grondag.fluidity.api.storage.ArticleConsumer;
+import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.wip.api.transport.Carrier;
 import grondag.fluidity.wip.api.transport.CarrierNode;
 import grondag.fluidity.wip.api.transport.CarrierSession;
 
-public class BroadcastConsumer implements ArticleConsumer {
+public class BroadcastConsumer implements ArticleFunction {
 	private final CarrierSession fromNode;
 
 	public BroadcastConsumer(CarrierSession fromNode) {
@@ -35,7 +35,7 @@ public class BroadcastConsumer implements ArticleConsumer {
 	}
 
 	@Override
-	public long accept(Article item, long count, boolean simulate) {
+	public long apply(Article item, long count, boolean simulate) {
 		final Carrier carrier = fromNode.carrier();
 
 		if(carrier.nodeCount() <= 1) {
@@ -50,8 +50,8 @@ public class BroadcastConsumer implements ArticleConsumer {
 			final CarrierNode n = it.next();
 
 			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ALLOW_STORAGE_ACCEPT_BROADCASTS)) {
-				final ArticleConsumer c = n.getComponent(Storage.STORAGE_COMPONENT).get().getConsumer();
-				result += c.accept(item, count - result, simulate);
+				final ArticleFunction c = n.getComponent(Storage.STORAGE_COMPONENT).get().getConsumer();
+				result += c.apply(item, count - result, simulate);
 
 				if(result >= count) {
 					break;
@@ -66,7 +66,7 @@ public class BroadcastConsumer implements ArticleConsumer {
 	protected final MutableFraction result = new MutableFraction();
 
 	@Override
-	public FractionView accept(Article item, FractionView volume, boolean simulate) {
+	public FractionView apply(Article item, FractionView volume, boolean simulate) {
 		final Carrier carrier = fromNode.carrier();
 
 		if(carrier.nodeCount() <= 1) {
@@ -82,8 +82,8 @@ public class BroadcastConsumer implements ArticleConsumer {
 			final CarrierNode n = it.next();
 
 			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ALLOW_STORAGE_ACCEPT_BROADCASTS)) {
-				final ArticleConsumer c = n.getComponent(Storage.STORAGE_COMPONENT).get().getConsumer();
-				final FractionView amt = c.accept(item, calc, simulate);
+				final ArticleFunction c = n.getComponent(Storage.STORAGE_COMPONENT).get().getConsumer();
+				final FractionView amt = c.apply(item, calc, simulate);
 
 				if(!amt.isZero()) {
 					result.add(amt);
@@ -100,7 +100,7 @@ public class BroadcastConsumer implements ArticleConsumer {
 	}
 
 	@Override
-	public long accept(Article item, long numerator, long divisor, boolean simulate) {
+	public long apply(Article item, long numerator, long divisor, boolean simulate) {
 		final Carrier carrier = fromNode.carrier();
 
 		if(carrier.nodeCount() <= 1) {
@@ -115,8 +115,8 @@ public class BroadcastConsumer implements ArticleConsumer {
 			final CarrierNode n = it.next();
 
 			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ALLOW_STORAGE_ACCEPT_BROADCASTS)) {
-				final ArticleConsumer c = n.getComponent(Storage.STORAGE_COMPONENT).get().getConsumer();
-				result += c.accept(item, numerator - result, divisor, simulate);
+				final ArticleFunction c = n.getComponent(Storage.STORAGE_COMPONENT).get().getConsumer();
+				result += c.apply(item, numerator - result, divisor, simulate);
 
 				if(result >= numerator) {
 					break;

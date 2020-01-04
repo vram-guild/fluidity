@@ -31,8 +31,7 @@ import net.minecraft.nbt.CompoundTag;
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
-import grondag.fluidity.api.storage.ArticleConsumer;
-import grondag.fluidity.api.storage.ArticleSupplier;
+import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.transact.Transaction;
@@ -40,8 +39,6 @@ import grondag.fluidity.base.article.AggregateDiscreteStoredArticle;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractAggregateStorage;
 import grondag.fluidity.base.storage.component.DiscreteTrackingNotifier;
-import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleConsumer;
-import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleSupplier;
 
 // NB: Previous versions attempted to consolidate member notifications
 // but this can lead to de-sync and other problems with creative bins
@@ -51,7 +48,7 @@ import grondag.fluidity.base.storage.discrete.DiscreteStorage.DiscreteArticleSup
 
 
 @API(status = Status.EXPERIMENTAL)
-public class AggregateDiscreteStorage extends AbstractAggregateStorage<AggregateDiscreteStoredArticle, AggregateDiscreteStorage> implements DiscreteStorage, DiscreteArticleConsumer, DiscreteArticleSupplier, DiscreteStorageListener {
+public class AggregateDiscreteStorage extends AbstractAggregateStorage<AggregateDiscreteStoredArticle, AggregateDiscreteStorage> implements DiscreteStorage, DiscreteStorageListener {
 	protected final DiscreteTrackingNotifier notifier;
 
 	public AggregateDiscreteStorage(int startingSlotCount) {
@@ -63,8 +60,8 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 	}
 
 	@Override
-	public ArticleConsumer getConsumer() {
-		return this;
+	public ArticleFunction getConsumer() {
+		return consumer;
 	}
 
 	@Override
@@ -73,8 +70,8 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 	}
 
 	@Override
-	public ArticleSupplier getSupplier() {
-		return this;
+	public ArticleFunction getSupplier() {
+		return supplier;
 	}
 
 	@Override
@@ -89,22 +86,59 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 
 	protected final ObjectArrayList<Storage> searchList = new ObjectArrayList<>();
 
-	@Override
-	public long accept(Article item, long count, boolean simulate) {
-		Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
-		Preconditions.checkNotNull(item, "Request to accept null item");
+	protected final Consumer consumer = new Consumer();
 
-		if (item.isNothing() || stores.isEmpty()) {
-			return 0;
+	protected class Consumer implements DiscreteArticleFunction {
+		@Override
+		public long apply(Article item, long count, boolean simulate) {
+			Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
+			Preconditions.checkNotNull(item, "Request to accept null item");
+
+			if (item.isNothing() || stores.isEmpty()) {
+				return 0;
+			}
+
+			if(simulate) {
+				return acceptInner(item, count, true);
+			} else {
+				try(Transaction tx = Transaction.open()) {
+					tx.enlist(this);
+					return acceptInner(item, count, false);
+				}
+			}
 		}
 
-		if(simulate) {
-			return acceptInner(item, count, true);
-		} else {
-			try(Transaction tx = Transaction.open()) {
-				tx.enlist(this);
-				return acceptInner(item, count, false);
+		@Override
+		public TransactionDelegate getTransactionDelegate() {
+			return AggregateDiscreteStorage.this;
+		}
+	}
+
+	protected final Supplier supplier = new Supplier();
+
+	protected class Supplier implements DiscreteArticleFunction {
+		@Override
+		public long apply(Article item, long count, boolean simulate) {
+			Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
+			Preconditions.checkNotNull(item, "Request to supply null item");
+
+			if (item.isNothing() || isEmpty()) {
+				return 0;
 			}
+
+			if(simulate) {
+				return supplyInner(item, count, true);
+			} else {
+				try(Transaction tx = Transaction.open()) {
+					tx.enlist(this);
+					return supplyInner(item, count, false);
+				}
+			}
+		}
+
+		@Override
+		public TransactionDelegate getTransactionDelegate() {
+			return AggregateDiscreteStorage.this;
 		}
 	}
 
@@ -126,7 +160,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 
 					if(existing.contains(store)) {
 						enlister.accept(store);
-						result += store.getConsumer().accept(item, count - result, simulate);
+						result += store.getConsumer().apply(item, count - result, simulate);
 
 						if (result == count) {
 							break;
@@ -140,7 +174,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 			if (result < count) {
 				for (final Storage store : searchList) {
 					enlister.accept(store);
-					final long delta = store.getConsumer().accept(item, count - result, simulate);
+					final long delta = store.getConsumer().apply(item, count - result, simulate);
 
 					if(delta != 0) {
 						result += delta;
@@ -161,7 +195,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 			for (final Storage store : stores) {
 				if(store.hasConsumer() && !store.isFull()) {
 					enlister.accept(store);
-					final long delta = store.getConsumer().accept(item, count - result, simulate);
+					final long delta = store.getConsumer().apply(item, count - result, simulate);
 
 					if(delta != 0) {
 						result += delta;
@@ -180,25 +214,6 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 		}
 
 		return result;
-	}
-
-	@Override
-	public long supply(Article item, long count, boolean simulate) {
-		Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);
-		Preconditions.checkNotNull(item, "Request to supply null item");
-
-		if (item.isNothing() || isEmpty()) {
-			return 0;
-		}
-
-		if(simulate) {
-			return supplyInner(item, count, true);
-		} else {
-			try(Transaction tx = Transaction.open()) {
-				tx.enlist(this);
-				return supplyInner(item, count, false);
-			}
-		}
 	}
 
 	public long supplyInner(Article item, long count, boolean simulate) {
@@ -222,7 +237,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 		for (final Storage store : existing) {
 			if(store.hasSupplier()) {
 				enlister.accept(store);
-				final long delta = store.getSupplier().supply(item, count - result, simulate);
+				final long delta = store.getSupplier().apply(item, count - result, simulate);
 
 				if(delta != 0) {
 					result += delta;
