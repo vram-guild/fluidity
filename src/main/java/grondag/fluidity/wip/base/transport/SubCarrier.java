@@ -15,14 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.wip.base.transport;
 
-import java.util.function.Function;
-
-import grondag.fluidity.api.device.DeviceComponent;
-import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.wip.api.transport.Carrier;
-import grondag.fluidity.wip.api.transport.CarrierConnector;
-import grondag.fluidity.wip.api.transport.CarrierListener;
-import grondag.fluidity.wip.api.transport.CarrierSession;
 import grondag.fluidity.wip.api.transport.CarrierType;
 
 public class SubCarrier extends BasicCarrier {
@@ -43,63 +36,5 @@ public class SubCarrier extends BasicCarrier {
 	@Override
 	public Carrier effectiveCarrier() {
 		return parentCarrier == null ? this : parentCarrier;
-	}
-
-	@Override
-	protected void sendFirstListenerUpdate(CarrierListener listener) {
-		nodes.values().forEach(a -> listener.onAttach(SubCarrier.this, a));
-	}
-
-	@Override
-	protected void sendLastListenerUpdate(CarrierListener listener) {
-		nodes.values().forEach(a -> listener.onDetach(SubCarrier.this, a));
-	}
-
-	@Override
-	protected void onListenersEmpty() {
-		// NOOP
-	}
-
-	@Override
-	public CarrierType carrierType() {
-		return carrierType;
-	}
-
-	@Override
-	public void startListening(CarrierListener listener, boolean sendNotifications) {
-		listeners.startListening(listener, sendNotifications);
-	}
-
-	@Override
-	public void stopListening(CarrierListener listener, boolean sendNotifications) {
-		listeners.stopListening(listener, sendNotifications);
-	}
-
-	@Override
-	public CarrierSession attach(CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction) {
-		final CarrierSessionImpl result = new CarrierSessionImpl(this, componentFunction);
-
-		if(nodes.put(result.address, result) == null) {
-			listeners.forEach(l -> l.onAttach(this, result));
-		}
-
-		return result;
-	}
-
-	@Override
-	public void detach(CarrierSession node) {
-		if(nodes.remove(node.nodeAddress()) != null) {
-			listeners.forEach(l -> l.onDetach(this, node));
-		}
-	}
-
-	@Override
-	public int nodeCount() {
-		return nodes.size();
-	}
-
-	@Override
-	public Iterable<? extends CarrierSession> nodes() {
-		return nodes.values();
 	}
 }

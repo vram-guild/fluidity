@@ -21,6 +21,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import grondag.fluidity.api.device.DeviceComponent;
 import grondag.fluidity.api.device.DeviceComponentType;
+import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.base.storage.component.ListenerSet;
 import grondag.fluidity.wip.api.transport.Carrier;
 import grondag.fluidity.wip.api.transport.CarrierConnector;
@@ -75,11 +76,15 @@ public class BasicCarrier implements Carrier {
 		listeners.stopListening(listener, sendNotifications);
 	}
 
+	protected CarrierSession createSession(Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction) {
+		return new BasicCarrierSession(this, componentFunction, () -> ArticleFunction.CREATIVE);
+	}
+
 	@Override
 	public CarrierSession attach(CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction) {
-		final CarrierSessionImpl result = new CarrierSessionImpl(this, componentFunction);
+		final CarrierSession result = createSession(componentFunction);
 
-		if(nodes.put(result.address, result) == null) {
+		if(nodes.put(result.nodeAddress(), result) == null) {
 			listeners.forEach(l -> l.onAttach(this, result));
 		}
 

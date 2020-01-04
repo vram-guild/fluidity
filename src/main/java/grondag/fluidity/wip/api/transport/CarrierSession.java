@@ -28,10 +28,7 @@ public interface CarrierSession extends CarrierNode {
 
 	ArticleFunction broadcastSupplier();
 
-	StorageConnection connect(long remoteAddress);
-
 	void close();
-
 
 	CarrierSession INVALID = new CarrierSession() {
 		@Override
@@ -57,11 +54,6 @@ public interface CarrierSession extends CarrierNode {
 		@Override
 		public ArticleFunction broadcastSupplier() {
 			return ArticleFunction.EMPTY;
-		}
-
-		@Override
-		public StorageConnection connect(long remoteAddress) {
-			return null;
 		}
 
 		@Override

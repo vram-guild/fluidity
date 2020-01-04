@@ -36,7 +36,7 @@ public class AggregateCarrier implements Carrier, CarrierListener {
 
 	protected final CarrierType carrierType;
 
-	protected AggregateCarrier(CarrierType carrierType) {
+	public AggregateCarrier(CarrierType carrierType) {
 		this.carrierType = carrierType;
 	}
 

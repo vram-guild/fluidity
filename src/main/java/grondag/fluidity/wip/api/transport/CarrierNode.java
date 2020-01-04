@@ -40,7 +40,7 @@ public interface CarrierNode {
 	<T> DeviceComponent<T> getComponent(DeviceComponentType<T> componentType);
 
 	default int flags() {
-		return FLAG_ALLOW_STORAGE_ACCEPT_BROADCASTS | FLAG_ALLOW_STORAGE_SUPPLY_BROADCASTS;
+		return FLAG_ACCEPT_CONSUMER_BROADCASTS | FLAG_ACCEPT_SUPPLIER_BROADCASTS;
 	}
 
 	default boolean hasFlag(int flag) {
@@ -49,6 +49,6 @@ public interface CarrierNode {
 
 	CarrierNode INVALID = CarrierSession.INVALID;
 
-	int FLAG_ALLOW_STORAGE_ACCEPT_BROADCASTS = 1;
-	int FLAG_ALLOW_STORAGE_SUPPLY_BROADCASTS = 2;
+	int FLAG_ACCEPT_CONSUMER_BROADCASTS = 1;
+	int FLAG_ACCEPT_SUPPLIER_BROADCASTS = 2;
 }

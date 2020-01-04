@@ -16,6 +16,7 @@
 package grondag.fluidity.wip.base.transport;
 
 import java.util.Iterator;
+import java.util.function.Supplier;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
@@ -29,9 +30,11 @@ import grondag.fluidity.wip.api.transport.CarrierSession;
 
 public class BroadcastSupplier implements ArticleFunction {
 	private final CarrierSession fromNode;
+	protected final Supplier<ArticleFunction> costFunctionSupplier;
 
-	public BroadcastSupplier(CarrierSession fromNode) {
+	public BroadcastSupplier(CarrierSession fromNode, Supplier<ArticleFunction> costFunctionSupplier) {
 		this.fromNode = fromNode;
+		this.costFunctionSupplier = costFunctionSupplier;
 	}
 
 	@Override
@@ -42,6 +45,8 @@ public class BroadcastSupplier implements ArticleFunction {
 			return 0;
 		}
 
+		count = costFunctionSupplier.get().apply(item, count, simulate);
+
 		long result = 0;
 
 		final Iterator<? extends CarrierNode> it = carrier.nodes().iterator();
@@ -49,7 +54,7 @@ public class BroadcastSupplier implements ArticleFunction {
 		while(it.hasNext()) {
 			final CarrierNode n = it.next();
 
-			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ALLOW_STORAGE_SUPPLY_BROADCASTS)) {
+			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
 				final ArticleFunction s = n.getComponent(Storage.STORAGE_COMPONENT).get().getSupplier();
 				result += s.apply(item, count - result, simulate);
 
@@ -73,6 +78,8 @@ public class BroadcastSupplier implements ArticleFunction {
 			return Fraction.ZERO;
 		}
 
+		volume = costFunctionSupplier.get().apply(item, volume, simulate);
+
 		result.set(0);
 		calc.set(volume);
 
@@ -81,7 +88,7 @@ public class BroadcastSupplier implements ArticleFunction {
 		while(it.hasNext()) {
 			final CarrierNode n = it.next();
 
-			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ALLOW_STORAGE_SUPPLY_BROADCASTS)) {
+			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
 				final ArticleFunction s = n.getComponent(Storage.STORAGE_COMPONENT).get().getSupplier();
 				final FractionView amt = s.apply(item, calc, simulate);
 
@@ -107,6 +114,7 @@ public class BroadcastSupplier implements ArticleFunction {
 			return 0;
 		}
 
+		numerator = costFunctionSupplier.get().apply(item, numerator, divisor, simulate);
 
 		long result = 0;
 
@@ -115,7 +123,7 @@ public class BroadcastSupplier implements ArticleFunction {
 		while(it.hasNext()) {
 			final CarrierNode n = it.next();
 
-			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ALLOW_STORAGE_SUPPLY_BROADCASTS)) {
+			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
 				final ArticleFunction s = n.getComponent(Storage.STORAGE_COMPONENT).get().getSupplier();
 				result += s.apply(item, numerator - result, divisor, simulate);
 
@@ -131,6 +139,6 @@ public class BroadcastSupplier implements ArticleFunction {
 	@Override
 	public TransactionDelegate getTransactionDelegate() {
 		//TODO: implement
-		return ctx -> null;
+		return TransactionDelegate.IGNORE;
 	}
 }

@@ -17,6 +17,7 @@ package grondag.fluidity.wip.base.transport;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import grondag.fluidity.api.device.DeviceComponent;
 import grondag.fluidity.api.device.DeviceComponentType;
@@ -25,17 +26,22 @@ import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.TransactionParticipant.TransactionDelegate;
 import grondag.fluidity.wip.api.transport.Carrier;
 import grondag.fluidity.wip.api.transport.CarrierSession;
-import grondag.fluidity.wip.api.transport.StorageConnection;
 
-class CarrierSessionImpl implements CarrierSession, TransactionDelegate {
-	final long address = AssignedNumbersAuthority.createCarrierAddress();
-	final Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction;
-	final BasicCarrier carrier;
+public class BasicCarrierSession implements CarrierSession, TransactionDelegate {
+	protected final long address = AssignedNumbersAuthority.createCarrierAddress();
+	protected final Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction;
+	protected final Supplier<ArticleFunction> costFunctionSupplier;
+	protected final BasicCarrier carrier;
+	protected final ArticleFunction broadcastConsumer;
+	protected final ArticleFunction broadcastSupplier;
 	protected boolean isOpen = true;
 
-	CarrierSessionImpl(BasicCarrier carrier, Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction) {
+	public BasicCarrierSession(BasicCarrier carrier, Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction, Supplier<ArticleFunction> costFunctionSupplier) {
 		this.carrier = carrier;
 		this.componentFunction = componentFunction;
+		this.costFunctionSupplier = costFunctionSupplier;
+		broadcastConsumer = new BroadcastConsumer(this, costFunctionSupplier);
+		broadcastSupplier = new BroadcastSupplier(this, costFunctionSupplier);
 	}
 
 	@Override
@@ -48,23 +54,14 @@ class CarrierSessionImpl implements CarrierSession, TransactionDelegate {
 		return isOpen;
 	}
 
-	protected final ArticleFunction broadcastConsumer = new BroadcastConsumer(this);
-
 	@Override
 	public ArticleFunction broadcastConsumer() {
 		return isOpen ? broadcastConsumer : ArticleFunction.FULL;
 	}
 
-	protected final ArticleFunction broadcastSupploer = new BroadcastSupplier(this);
-
 	@Override
 	public ArticleFunction broadcastSupplier() {
-		return isOpen ? broadcastSupploer : ArticleFunction.EMPTY;
-	}
-
-	@Override
-	public StorageConnection connect(long remoteAddress) {
-		return null;
+		return isOpen ? broadcastSupplier : ArticleFunction.EMPTY;
 	}
 
 	@Override
