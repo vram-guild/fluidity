@@ -15,25 +15,8 @@
  ******************************************************************************/
 package grondag.fluidity.wip.base.transport;
 
-import grondag.fluidity.wip.api.transport.CarrierType;
+import grondag.fluidity.wip.api.transport.Carrier;
 
-public abstract class SubCarrier<T extends CarrierCostFunction> extends BasicCarrier<T> {
-	private AggregateCarrier<T> parentCarrier = null;
-
-	public SubCarrier(CarrierType carrierType) {
-		super(carrierType);
-	}
-
-	public void setParent(AggregateCarrier<T> parent) {
-		parentCarrier = parent;
-	}
-
-	public AggregateCarrier<T> getParent() {
-		return parentCarrier;
-	}
-
-	@Override
-	public LimitedCarrier<T> effectiveCarrier() {
-		return parentCarrier == null ? this : parentCarrier;
-	}
+public interface LimitedCarrier<T extends CarrierCostFunction> extends Carrier {
+	T costFunction();
 }

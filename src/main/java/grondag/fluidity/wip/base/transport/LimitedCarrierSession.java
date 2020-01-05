@@ -15,25 +15,13 @@
  ******************************************************************************/
 package grondag.fluidity.wip.base.transport;
 
-import grondag.fluidity.wip.api.transport.CarrierType;
+import grondag.fluidity.wip.api.transport.CarrierSession;
 
-public abstract class SubCarrier<T extends CarrierCostFunction> extends BasicCarrier<T> {
-	private AggregateCarrier<T> parentCarrier = null;
-
-	public SubCarrier(CarrierType carrierType) {
-		super(carrierType);
-	}
-
-	public void setParent(AggregateCarrier<T> parent) {
-		parentCarrier = parent;
-	}
-
-	public AggregateCarrier<T> getParent() {
-		return parentCarrier;
-	}
-
+/**
+ * Visible to the node that obtained the carrier.
+ *
+ */
+public interface LimitedCarrierSession<T extends CarrierCostFunction> extends CarrierSession {
 	@Override
-	public LimitedCarrier<T> effectiveCarrier() {
-		return parentCarrier == null ? this : parentCarrier;
-	}
+	LimitedCarrier<T> carrier();
 }

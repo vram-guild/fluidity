@@ -17,31 +17,34 @@ package grondag.fluidity.wip.base.transport;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import grondag.fluidity.api.device.DeviceComponent;
 import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.TransactionParticipant.TransactionDelegate;
-import grondag.fluidity.wip.api.transport.Carrier;
-import grondag.fluidity.wip.api.transport.CarrierSession;
 
-public class BasicCarrierSession implements CarrierSession, TransactionDelegate {
+public class BasicCarrierSession<T extends CarrierCostFunction> implements LimitedCarrierSession<T>, TransactionDelegate {
 	protected final long address = AssignedNumbersAuthority.createCarrierAddress();
 	protected final Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction;
-	protected final Supplier<ArticleFunction> costFunctionSupplier;
-	protected final BasicCarrier carrier;
-	protected final ArticleFunction broadcastConsumer;
-	protected final ArticleFunction broadcastSupplier;
+	protected final BasicCarrier<T> carrier;
+	protected final BroadcastConsumer<T> broadcastConsumer;
+	protected final BroadcastSupplier<T> broadcastSupplier;
 	protected boolean isOpen = true;
 
-	public BasicCarrierSession(BasicCarrier carrier, Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction, Supplier<ArticleFunction> costFunctionSupplier) {
+	public BasicCarrierSession(BasicCarrier<T> carrier, Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction) {
 		this.carrier = carrier;
 		this.componentFunction = componentFunction;
-		this.costFunctionSupplier = costFunctionSupplier;
-		broadcastConsumer = new BroadcastConsumer(this, costFunctionSupplier);
-		broadcastSupplier = new BroadcastSupplier(this, costFunctionSupplier);
+		broadcastConsumer = createBroadcastConsumer();
+		broadcastSupplier = createBroadcastSupplier();
+	}
+
+	protected BroadcastConsumer<T> createBroadcastConsumer() {
+		return new BroadcastConsumer<>(this);
+	}
+
+	protected BroadcastSupplier<T> createBroadcastSupplier() {
+		return new BroadcastSupplier<>(this);
 	}
 
 	@Override
@@ -83,13 +86,13 @@ public class BasicCarrierSession implements CarrierSession, TransactionDelegate 
 	}
 
 	@Override
-	public Carrier carrier() {
+	public LimitedCarrier<T> carrier() {
 		return carrier.effectiveCarrier();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> DeviceComponent<T> getComponent(DeviceComponentType<T> componentType) {
-		return (DeviceComponent<T>) componentFunction.apply(componentType);
+	public <V> DeviceComponent<V> getComponent(DeviceComponentType<V> componentType) {
+		return (DeviceComponent<V>) componentFunction.apply(componentType);
 	}
 }

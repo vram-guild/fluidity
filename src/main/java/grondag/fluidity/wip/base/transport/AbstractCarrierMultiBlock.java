@@ -23,6 +23,7 @@ import grondag.fluidity.base.multiblock.AbstractMultiBlock;
 import grondag.fluidity.wip.api.transport.CarrierType;
 
 @API(status = Status.EXPERIMENTAL)
+@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class AbstractCarrierMultiBlock<T extends MultiBlockMember<T, U, SubCarrier>, U extends AbstractCarrierMultiBlock<T, U>> extends AbstractMultiBlock<T, U, SubCarrier> {
 	protected final AggregateCarrier carrier;
 
@@ -30,13 +31,11 @@ public abstract class AbstractCarrierMultiBlock<T extends MultiBlockMember<T, U,
 		carrier = createCarrier(carrierType);
 	}
 
-	protected AggregateCarrier createCarrier(CarrierType carrierType) {
-		return new AggregateCarrier(carrierType);
-	}
+	protected abstract AggregateCarrier createCarrier(CarrierType carrierType);
 
 	@Override
 	protected void beforeMemberRemoval(T member) {
-		final SubCarrier c = member.getMemberComponent();
+		final SubCarrier<?> c = member.getMemberComponent();
 
 		if(c != null) {
 			carrier.removeCarrier(c);

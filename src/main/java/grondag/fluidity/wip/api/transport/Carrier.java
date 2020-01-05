@@ -93,10 +93,6 @@ public interface Carrier {
 		return false;
 	}
 
-	static Carrier p2p(CarrierConnector a, CarrierConnector b) {
-		return null;
-	}
-
 	CarrierSession attach(CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction);
 
 	void startListening(CarrierListener listener, boolean sendNotifications);

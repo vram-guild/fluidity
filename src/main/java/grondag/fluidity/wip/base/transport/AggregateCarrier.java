@@ -29,10 +29,10 @@ import grondag.fluidity.wip.api.transport.CarrierListener;
 import grondag.fluidity.wip.api.transport.CarrierSession;
 import grondag.fluidity.wip.api.transport.CarrierType;
 
-public class AggregateCarrier implements Carrier, CarrierListener {
+public abstract class AggregateCarrier<T extends CarrierCostFunction> implements LimitedCarrier<T>, CarrierListener {
 	protected final ListenerSet<CarrierListener> listeners = new ListenerSet<>(this::sendFirstListenerUpdate, this::sendLastListenerUpdate, this::onListenersEmpty);
 	protected final Long2ObjectOpenHashMap<CarrierSession> nodes = new Long2ObjectOpenHashMap<>();
-	protected final ObjectOpenHashSet<SubCarrier> carriers = new ObjectOpenHashSet<>();
+	protected final ObjectOpenHashSet<SubCarrier<T>> carriers = new ObjectOpenHashSet<>();
 
 	protected final CarrierType carrierType;
 
@@ -40,17 +40,17 @@ public class AggregateCarrier implements Carrier, CarrierListener {
 		this.carrierType = carrierType;
 	}
 
-	public void addCarrier(SubCarrier carrier) {
+	public void addCarrier(SubCarrier<T> carrier) {
 		if(carriers.add(carrier)) {
-			carrier.parentCarrier = this;
+			carrier.setParent(this);
 			carrier.startListening(this, true);
 		}
 	}
-	public void removeCarrier(SubCarrier carrier) {
+	public void removeCarrier(SubCarrier<T> carrier) {
 		if(carriers.contains(carrier)) {
 			carriers.remove(carrier);
 			carrier.stopListening(this, true);
-			carrier.parentCarrier = null;
+			carrier.setParent(null);
 		}
 	}
 

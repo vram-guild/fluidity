@@ -16,7 +16,6 @@
 package grondag.fluidity.wip.base.transport;
 
 import java.util.Iterator;
-import java.util.function.Supplier;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
@@ -24,28 +23,24 @@ import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.Storage;
-import grondag.fluidity.wip.api.transport.Carrier;
 import grondag.fluidity.wip.api.transport.CarrierNode;
-import grondag.fluidity.wip.api.transport.CarrierSession;
 
-public class BroadcastConsumer implements ArticleFunction {
-	protected final CarrierSession fromNode;
-	protected final Supplier<ArticleFunction> costFunctionSupplier;
+public class BroadcastConsumer<T extends CarrierCostFunction> implements ArticleFunction {
+	protected final LimitedCarrierSession<T> fromNode;
 
-	public BroadcastConsumer(CarrierSession fromNode, Supplier<ArticleFunction> costFunctionSupplier) {
+	public BroadcastConsumer(LimitedCarrierSession<T> fromNode) {
 		this.fromNode = fromNode;
-		this.costFunctionSupplier = costFunctionSupplier;
 	}
 
 	@Override
 	public long apply(Article item, long count, boolean simulate) {
-		final Carrier carrier = fromNode.carrier();
+		final LimitedCarrier<T> carrier = fromNode.carrier();
 
 		if(carrier.nodeCount() <= 1) {
 			return 0;
 		}
 
-		count = costFunctionSupplier.get().apply(item, count, simulate);
+		count = carrier.costFunction().apply(fromNode, item, count, simulate);
 
 		long result = 0;
 
@@ -72,13 +67,13 @@ public class BroadcastConsumer implements ArticleFunction {
 
 	@Override
 	public FractionView apply(Article item, FractionView volume, boolean simulate) {
-		final Carrier carrier = fromNode.carrier();
+		final LimitedCarrier<T> carrier = fromNode.carrier();
 
 		if(carrier.nodeCount() <= 1) {
 			return Fraction.ZERO;
 		}
 
-		volume = costFunctionSupplier.get().apply(item, volume, simulate);
+		volume = carrier.costFunction().apply(fromNode, item, volume, simulate);
 
 		result.set(0);
 		calc.set(volume);
@@ -108,13 +103,13 @@ public class BroadcastConsumer implements ArticleFunction {
 
 	@Override
 	public long apply(Article item, long numerator, long divisor, boolean simulate) {
-		final Carrier carrier = fromNode.carrier();
+		final LimitedCarrier<T> carrier = fromNode.carrier();
 
 		if(carrier.nodeCount() <= 1) {
 			return 0;
 		}
 
-		numerator = costFunctionSupplier.get().apply(item, numerator, divisor, simulate);
+		numerator = carrier.costFunction().apply(fromNode, item, numerator, divisor, simulate);
 
 		long result = 0;
 
