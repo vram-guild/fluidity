@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -157,7 +157,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 		}
 	}
 
-	public static final ArticleType<Item> ITEM = ArticleTypeRegistryImpl.INSTANCE.add("c:item",
+	public static final ArticleType<Item> ITEM = ArticleTypeRegistryImpl.INSTANCE.add("fluidity:item",
 			builder(Item.class)
 			.bulk(false)
 			.resourceTagWriter(r -> StringTag.of(Registry.ITEM.getId(r).toString()))
@@ -166,7 +166,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 			.resourcePacketReader(p -> Registry.ITEM.get(p.readVarInt()))
 			.build());
 
-	public static final ArticleType<Fluid> FLUID = ArticleTypeRegistryImpl.INSTANCE.add("c:fluid", builder(Fluid.class)
+	public static final ArticleType<Fluid> FLUID = ArticleTypeRegistryImpl.INSTANCE.add("fluidity:fluid", builder(Fluid.class)
 			.bulk(true)
 			.resourceTagWriter(r -> StringTag.of(Registry.FLUID.getId(r).toString()))
 			.resourceTagReader(t -> Registry.FLUID.get(new Identifier(t.asString())))
@@ -174,7 +174,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 			.resourcePacketReader(p -> Registry.FLUID.get(p.readVarInt()))
 			.build());
 
-	public static final ArticleType<Void> NOTHING = ArticleTypeRegistryImpl.INSTANCE.add("c:nothing", builder(Void.class)
+	public static final ArticleType<Void> NOTHING = ArticleTypeRegistryImpl.INSTANCE.add("fluidity:nothing", builder(Void.class)
 			.bulk(false)
 			.resourceTagWriter(r -> null)
 			.resourceTagReader(t -> null)
