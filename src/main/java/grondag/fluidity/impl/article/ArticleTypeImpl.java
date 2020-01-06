@@ -195,4 +195,8 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	public static <T> ArticleType<T> fromPacket(PacketByteBuf buf) {
 		return ArticleTypeRegistryImpl.INSTANCE.get(buf.readVarInt());
 	}
+
+	public static void init() {
+		// force loading
+	}
 }

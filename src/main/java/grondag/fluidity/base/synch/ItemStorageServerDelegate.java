@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -52,6 +52,8 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 
 	@Override
 	public void onAccept(Storage storage, int handle, Article item, long delta, long newCount) {
+		assert newCount >= 0;
+
 		if(storage != null) {
 			final StoredDiscreteArticle update = updates.get(handle);
 
@@ -65,6 +67,8 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 
 	@Override
 	public void onSupply(Storage storage, int slot, Article item, long delta, long newCount) {
+		assert newCount >= 0;
+
 		onAccept(storage, slot, item, delta, newCount);
 	}
 

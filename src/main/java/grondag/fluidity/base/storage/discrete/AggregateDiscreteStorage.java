@@ -331,8 +331,8 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 			article.stores().remove(storage);
 		}
 
-		article.addToCount(-delta);
 		notifier.notifySupply(article, delta);
+		article.addToCount(-delta);
 	}
 
 	@Override

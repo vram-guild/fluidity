@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -114,9 +114,11 @@ public final class ItemStorageClientDelegate {
 
 		for (int i = 0; i < limit; i++) {
 			final ItemDisplayDelegate item = items[i];
-			MAP.put(item.handle(), item);
-			LIST.add(item);
-			usedCapacity += item.getCount();
+			if(item.getCount() > 0) {
+				MAP.put(item.handle(), item);
+				LIST.add(item);
+				usedCapacity += item.getCount();
+			}
 		}
 
 		isSortDirty = true;
@@ -133,10 +135,14 @@ public final class ItemStorageClientDelegate {
 			final ItemDisplayDelegate update = items[i];
 			final ItemDisplayDelegate prior = MAP.get(update.handle());
 
+			assert update.getCount() >= 0;
+
 			if (prior == null) {
-				MAP.put(update.handle(), update);
-				addToListIfIncluded(update);
-				usedCapacity += update.getCount();
+				if(update.getCount() > 0) {
+					MAP.put(update.handle(), update);
+					addToListIfIncluded(update);
+					usedCapacity += update.getCount();
+				}
 			} else if (update.getCount() == 0) {
 				MAP.remove(update.handle());
 				LIST.remove(prior);
@@ -193,14 +199,16 @@ public final class ItemStorageClientDelegate {
 
 	private static void applyFilter() {
 		for(int i = LIST.size() - 1; i >= 0; --i) {
-			if(!LIST.get(i).lowerCaseLocalizedName().contains(filter)) {
+			final ItemDisplayDelegate delegate = LIST.get(i);
+
+			if(delegate.getCount() > 0 && delegate.lowerCaseLocalizedName().contains(filter)) {
 				LIST.remove(i);
 			}
 		}
 	}
 
 	private static void addToListIfIncluded(ItemDisplayDelegate delegate) {
-		if(filter.equals("") || delegate.lowerCaseLocalizedName().contains(filter)) {
+		if(delegate.getCount() > 0 && (filter.equals("") || delegate.lowerCaseLocalizedName().contains(filter))) {
 			LIST.add(delegate);
 		}
 	}

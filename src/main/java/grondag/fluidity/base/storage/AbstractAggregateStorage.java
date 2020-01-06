@@ -22,6 +22,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
@@ -94,7 +95,7 @@ public abstract class AbstractAggregateStorage<V extends AggregateStoredArticle,
 
 	@Override
 	public void disconnect(Storage storage, boolean didNotify, boolean isValid) {
-		//TODO: implement and remove warning
-		System.out.println("Unhandled disconnect in aggregate storage");
+		//TODO: Implement and remove warning
+		Fluidity.LOG.warn("Unhandled disconnect in aggregate storage.");
 	}
 }

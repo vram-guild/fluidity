@@ -28,6 +28,7 @@ import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import grondag.fluidity.base.synch.ItemStorageInteractionC2S;
 import grondag.fluidity.impl.MultiBlockManagerImpl;
 import grondag.fluidity.impl.TransactionImpl;
+import grondag.fluidity.impl.article.ArticleTypeImpl;
 
 @API(status = Status.INTERNAL)
 public class Fluidity implements ModInitializer {
@@ -41,6 +42,7 @@ public class Fluidity implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		FluidityConfig.init();
+		ArticleTypeImpl.init();
 		ServerTickCallback.EVENT.register(MultiBlockManagerImpl::tick);
 
 		ServerStartCallback.EVENT.register(s -> {

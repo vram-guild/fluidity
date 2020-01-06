@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -93,7 +93,7 @@ public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U, V>, U extend
 
 			if(prior != null) {
 				// TODO handle pathological case
-				System.out.println("u did a bad");
+				Fluidity.LOG.warn("Device already exists on connect.");
 			}
 
 			reverseMap.put(device, pos);
@@ -192,7 +192,7 @@ public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U, V>, U extend
 
 			if(prior != device) {
 				// TODO handle pathological case
-				System.out.println("u did a bad");
+				Fluidity.LOG.warn("Device not found on disconnect.");
 				return;
 			}
 

@@ -20,6 +20,7 @@ import java.util.function.Function;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
+import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.device.DeviceComponent;
 import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.base.storage.component.ListenerSet;
@@ -61,8 +62,8 @@ public abstract class AggregateCarrier<T extends CarrierCostFunction> implements
 
 	@Override
 	public void disconnect(Carrier carrier, boolean didNotify, boolean isValid) {
-		// TODO Auto-generated method stub
-
+		//TODO: implement and remove warning
+		Fluidity.LOG.warn("Unhandled disconnect in aggregate carrier.");
 	}
 
 	@Override

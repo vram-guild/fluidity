@@ -81,7 +81,7 @@ public class BasicCarrierSession<T extends CarrierCostFunction> implements Limit
 			return c -> {};
 		}
 
-		// TODO Auto-generated method stub
+		// TODO: Implement proper rollback
 		return c -> {};
 	}
 

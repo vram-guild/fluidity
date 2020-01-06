@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -28,8 +28,8 @@ public class ItemDisplayDelegateImpl implements ItemDisplayDelegate {
 	ItemStack stack = ItemStack.EMPTY;
 	long count;
 	int handle;
-	String localizedName;
-	String lowerCaseLocalizedName;
+	String localizedName = "";
+	String lowerCaseLocalizedName = "";
 
 	public ItemDisplayDelegateImpl(ItemStack stack, long count, int handle) {
 		set(stack, count, handle);
@@ -46,8 +46,8 @@ public class ItemDisplayDelegateImpl implements ItemDisplayDelegate {
 
 		if(!(ItemStack.areItemsEqual(stack, this.stack) && ItemStack.areTagsEqual(stack, this.stack))) {
 			this.stack = stack;
-			localizedName = I18n.translate(stack.getTranslationKey());
-			lowerCaseLocalizedName = localizedName.toLowerCase();
+			localizedName = stack.isEmpty() ? "" : I18n.translate(stack.getTranslationKey());
+			lowerCaseLocalizedName = stack.isEmpty() ? "" : localizedName.toLowerCase();
 		}
 
 		return this;

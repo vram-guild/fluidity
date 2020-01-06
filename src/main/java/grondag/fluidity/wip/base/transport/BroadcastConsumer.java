@@ -133,7 +133,7 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 
 	@Override
 	public TransactionDelegate getTransactionDelegate() {
-		//TODO: implement
+		//TODO: implement proper rollback
 		return TransactionDelegate.IGNORE;
 	}
 }
