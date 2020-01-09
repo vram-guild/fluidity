@@ -16,6 +16,9 @@ Provide a consistent and comprehensive API for storage and transport of any quan
 Fluidity is licensed under the Apache 2.0 license for easy and unrestricted inclusion or modification in other projects.
 
 ## Status
+Fluidity is still in active development and breaking changes are likely. The author recommends that usage be restricted to testing and evaluation for now.  All public-facing interfaces and classes are (or should be) annotated with `@API(status = Status.EXPERIMENTAL)`.  These annotations will be updated as the library stabilitizes.
+
+Note that issue reports and pull requests are welcome and encouraged.
 
 ### Relationship to fabric api
 
@@ -24,6 +27,8 @@ Fluidity is licensed under the Apache 2.0 license for easy and unrestricted incl
 ## Expected changes
 
 # Overview
+
+## How Fluidity is Organized
 
 ## Articles
 
