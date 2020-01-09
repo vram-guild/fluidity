@@ -1,8 +1,6 @@
-# Fluidity
-Game Resource Storage and Transport API for Fabric toolchain. 
-
 # Introduction
-## Purpose 
+Fluidity is a game Resource Storage and Transport API for Fabric toolchain. 
+## Purpose
 ## Features
 ## License
 ## Status
