@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -31,11 +31,18 @@ import net.minecraft.util.PacketByteBuf;
 import grondag.fluidity.impl.article.ArticleImpl;
 
 /**
- * Represents a game resource that may be an ItemStack, Fluid, XP, power or any other
- * instance that is quantifiable and can be serialized to/from NBT and packet buffers.
+ * Represents a game resource that may be stored or transported.<p>
+ *
+ * Typically an ItemStack, Fluid, XP, or power but could by any
+ * instance that is uniquely identifiable, quantifiable and serializable to/from NBT and packet buffers.
  */
 @API(status = Status.EXPERIMENTAL)
 public interface Article {
+	/**
+	 * The {@link ArticleType} for this instance.  Controls how the
+	 * article is serialized, the instance class type, and houses metadata.
+	 * @return the {@link ArticleType} for this instance.
+	 */
 	ArticleType<?> type();
 
 	/**
@@ -45,30 +52,13 @@ public interface Article {
 	 */
 	@Nullable <T> T resource();
 
+	/**
+	 * For convenience and to promote discoverability of {@link #NOTHING}.
+	 *
+	 * @return {@code true} <em>only</em> if this is the {@link #NOTHING} instance.
+	 */
 	default boolean isNothing() {
 		return this == NOTHING;
-	}
-
-	default boolean isBulk() {
-		return type().isBulk();
-	}
-
-	default boolean isDiscrete() {
-		return !isBulk();
-	}
-
-	/**
-	 * True only for articles that represent in-game fluids.
-	 * If true, then {@link #toFluid()} will always return a non-null value: the fluid this article represents.<p>
-	 *
-	 * @return {@code true} if this article represents a registered {@code Fluid}
-	 */
-	default boolean isFluid() {
-		return type().isFluid();
-	}
-
-	default @Nullable Fluid toFluid() {
-		return isFluid() ? resource() : null;
 	}
 
 	/**
@@ -82,12 +72,28 @@ public interface Article {
 	}
 
 	/**
+	 * If this article represents an {@code Item} or is somehow associated with an item,
+	 * the item represented or associated.  Should return {@link Items#AIR} in all other cases.
+	 *
 	 * @return {@code Item} this article is or has, if any. {@code Items.AIR} otherwise.
 	 */
 	default Item toItem() {
 		return isItem() ? resource() : Items.AIR;
 	}
 
+	/**
+	 * Convenience method for instantiating a new {@code ItemStack} with the values of {@link #toItem()}
+	 * and {@link #copyTag()} (if any NBT tag applies).<p>
+	 *
+	 * This method allocates a new instance with every call.
+	 * Changes to the returned instance will have no effect on this article.
+	 *
+	 * @param count  Accepts a long for convenience when used with storage implementations, but stack
+	 * size will be limited {@link Item#getMaxCount()} if the given {@code count} value is higher.
+	 *
+	 * @return A new item stack instance with the given count (or the max possible for the item, if lower)
+	 * or {@link ItemStack#EMPTY} if this article does not represent a non-empty Item.
+	 */
 	default ItemStack toStack(long count) {
 		if(!isItem()) {
 			return ItemStack.EMPTY;
@@ -103,9 +109,18 @@ public interface Article {
 		return result;
 	}
 
+	/**
+	 * Alias for {@code toStack(1)}
+	 *
+	 * @return A new item stack instance containing one item or {@link ItemStack#EMPTY}
+	 * if this article does not represent a non-empty Item.
+	 *
+	 * @see #toStack(long)
+	 */
 	default ItemStack toStack() {
 		return toStack(1);
 	}
+
 
 	default boolean matches(ItemStack stack) {
 		if (isItem()) {
@@ -124,6 +139,8 @@ public interface Article {
 	Tag toTag();
 
 	void toPacket(PacketByteBuf buf);
+
+	String getTranslationKey();
 
 	static Article fromTag(Tag tag) {
 		return ArticleImpl.fromTag(tag);

@@ -15,11 +15,9 @@
  ******************************************************************************/
 package grondag.fluidity.base.synch;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.PacketByteBuf;
 
@@ -29,25 +27,9 @@ import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.discrete.DiscreteStorageListener;
 
 @API(status = Status.EXPERIMENTAL)
-public class ItemStorageServerDelegate implements DiscreteStorageListener {
-	protected ServerPlayerEntity player;
-	protected Storage storage;
-	protected boolean isFirstUpdate = true;
-	protected boolean capacityChange = true;
-	protected final Int2ObjectOpenHashMap<StoredDiscreteArticle> updates = new Int2ObjectOpenHashMap<>();
-
-	public ItemStorageServerDelegate(ServerPlayerEntity player, Storage storage) {
-		this.player = player;
-		this.storage = storage;
-		storage.startListening(this, true);
-	}
-
-	@Override
-	public void disconnect(Storage storage, boolean didNotify, boolean isValid) {
-		if(storage == this.storage) {
-			player = null;
-			this.storage = null;
-		}
+public class DiscreteStorageServerDelegate extends AbstractStorageServerDelegate<StoredDiscreteArticle> implements DiscreteStorageListener {
+	public DiscreteStorageServerDelegate(ServerPlayerEntity player, Storage storage) {
+		super(player, storage);
 	}
 
 	@Override
@@ -79,36 +61,29 @@ public class ItemStorageServerDelegate implements DiscreteStorageListener {
 		}
 	}
 
+	@Override
 	public void sendUpdates() {
 		if(updates.isEmpty() && !(isFirstUpdate || capacityChange)) {
 			return;
 		}
 
-		final PacketByteBuf buf = ItemStorageUpdateS2C.begin(updates.size());
+		final PacketByteBuf buf = DiscreteStorageUpdateS2C.begin(updates.size());
 
 		for(final StoredDiscreteArticle a : updates.values()) {
-			ItemStorageUpdateS2C.append(buf, a.toStack(), a.count(), a.handle());
+			DiscreteStorageUpdateS2C.append(buf, a.article(), a.count(), a.handle());
 		}
 
 		if(isFirstUpdate) {
-			ItemStorageUpdateS2C.sendFullRefresh(player, buf, storage.capacity());
+			DiscreteStorageUpdateS2C.sendFullRefresh(player, buf, storage.capacity());
 			isFirstUpdate = false;
 			capacityChange = false;
 		} else if (capacityChange) {
-			ItemStorageUpdateS2C.sendUpdateWithCapacity(player, buf, storage.capacity());
+			DiscreteStorageUpdateS2C.sendUpdateWithCapacity(player, buf, storage.capacity());
 			capacityChange = false;
 		} else {
-			ItemStorageUpdateS2C.sendUpdate(player, buf);
+			DiscreteStorageUpdateS2C.sendUpdate(player, buf);
 		}
 
 		updates.clear();
-	}
-
-	public void close(PlayerEntity playerEntity) {
-		if(playerEntity == player && storage != null) {
-			storage.stopListening(this, false);
-			storage = null;
-			player = null;
-		}
 	}
 }

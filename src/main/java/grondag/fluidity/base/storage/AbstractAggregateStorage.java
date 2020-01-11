@@ -30,7 +30,7 @@ import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.TransactionParticipant;
 import grondag.fluidity.api.transact.TransactionParticipant.TransactionDelegate;
 import grondag.fluidity.base.article.AggregateStoredArticle;
-import grondag.fluidity.base.storage.component.FlexibleArticleManager;
+import grondag.fluidity.base.storage.helper.FlexibleArticleManager;
 
 @API(status = Status.EXPERIMENTAL)
 public abstract class AbstractAggregateStorage<V extends AggregateStoredArticle, T extends AbstractAggregateStorage<V, T>> extends AbstractStorage<V, T> implements StorageListener, TransactionDelegate  {

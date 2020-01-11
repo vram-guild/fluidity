@@ -26,7 +26,7 @@ import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.Storage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredArticle;
-import grondag.fluidity.base.storage.component.ListenerSet;
+import grondag.fluidity.base.storage.helper.ListenerSet;
 
 @API(status = Status.EXPERIMENTAL)
 public abstract class AbstractStorage<V extends StoredArticle, T extends AbstractStorage<V, T>> implements Storage {

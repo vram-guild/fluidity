@@ -29,8 +29,8 @@ import grondag.fluidity.api.storage.InventoryStorage;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
-import grondag.fluidity.base.storage.component.DiscreteNotifier;
 import grondag.fluidity.base.storage.discrete.FixedDiscreteStorage.FixedDiscreteArticleFunction;
+import grondag.fluidity.base.storage.discrete.helper.DiscreteNotifier;
 import grondag.fluidity.impl.article.ArticleImpl;
 
 @API(status = Status.EXPERIMENTAL)

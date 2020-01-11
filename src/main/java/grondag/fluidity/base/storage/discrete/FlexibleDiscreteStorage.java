@@ -19,7 +19,7 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.base.article.StoredDiscreteArticle;
-import grondag.fluidity.base.storage.component.FlexibleArticleManager;
+import grondag.fluidity.base.storage.helper.FlexibleArticleManager;
 
 @API(status = Status.EXPERIMENTAL)
 public class FlexibleDiscreteStorage extends AbstractDiscreteStorage<FlexibleDiscreteStorage> {

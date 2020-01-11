@@ -38,7 +38,7 @@ import grondag.fluidity.api.transact.Transaction;
 import grondag.fluidity.base.article.AggregateDiscreteStoredArticle;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractAggregateStorage;
-import grondag.fluidity.base.storage.component.DiscreteTrackingNotifier;
+import grondag.fluidity.base.storage.discrete.helper.DiscreteTrackingNotifier;
 
 // NB: Previous versions attempted to consolidate member notifications
 // but this can lead to de-sync and other problems with creative bins

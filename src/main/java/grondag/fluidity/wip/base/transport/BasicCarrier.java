@@ -21,7 +21,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import grondag.fluidity.api.device.DeviceComponent;
 import grondag.fluidity.api.device.DeviceComponentType;
-import grondag.fluidity.base.storage.component.ListenerSet;
+import grondag.fluidity.base.storage.helper.ListenerSet;
 import grondag.fluidity.wip.api.transport.CarrierConnector;
 import grondag.fluidity.wip.api.transport.CarrierListener;
 import grondag.fluidity.wip.api.transport.CarrierSession;

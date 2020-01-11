@@ -30,10 +30,10 @@ import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
-import grondag.fluidity.base.storage.component.AbstractArticleManager;
-import grondag.fluidity.base.storage.component.DiscreteTrackingJournal;
-import grondag.fluidity.base.storage.component.DiscreteTrackingNotifier;
 import grondag.fluidity.base.storage.discrete.FixedDiscreteStorage.FixedDiscreteArticleFunction;
+import grondag.fluidity.base.storage.discrete.helper.DiscreteTrackingJournal;
+import grondag.fluidity.base.storage.discrete.helper.DiscreteTrackingNotifier;
+import grondag.fluidity.base.storage.helper.AbstractArticleManager;
 import grondag.fluidity.impl.article.ArticleImpl;
 
 @API(status = Status.EXPERIMENTAL)

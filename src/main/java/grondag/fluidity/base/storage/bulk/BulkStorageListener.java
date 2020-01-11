@@ -13,47 +13,30 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.api.fraction;
+package grondag.fluidity.base.storage.bulk;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-/**
- * Immutable fraction implementation that only deals in whole numbers.
- */
+import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.fraction.Fraction;
+import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.StorageListener;
+
 @API(status = Status.EXPERIMENTAL)
-public final class WholeFraction implements FractionView {
-	private final long whole;
-
-	private WholeFraction(long whole) {
-		this.whole = whole;
+public interface BulkStorageListener extends StorageListener {
+	@Override
+	default void onAccept(Storage storage, int handle, Article item, long delta, long newCount) {
+		onAccept(storage, handle, item, Fraction.of(delta), Fraction.of(newCount));
 	}
 
 	@Override
-	public long whole() {
-		return whole;
+	default void onSupply(Storage storage, int handle, Article item, long delta, long newCount) {
+		onSupply(storage, handle, item, Fraction.of(delta), Fraction.of(newCount));
 	}
 
 	@Override
-	public long numerator() {
-		return 0;
-	}
-
-	@Override
-	public long divisor() {
-		return 1;
-	}
-
-	@Override
-	public boolean equals(Object val) {
-		if (val == null || !(val instanceof FractionView)) {
-			return false;
-		}
-
-		return compareTo((FractionView) val) == 0;
-	}
-
-	public static WholeFraction of(long whole) {
-		return new WholeFraction(whole);
+	default void onCapacityChange(Storage storage, long capacityDelta) {
+		onCapacityChange(storage, Fraction.of(capacityDelta));
 	}
 }

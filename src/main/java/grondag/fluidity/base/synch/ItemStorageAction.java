@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -32,7 +32,7 @@ import net.fabricmc.api.Environment;
  * Possible interactions with remote storage. Distinct from vanilla container interactions.
  */
 @API(status = Status.EXPERIMENTAL)
-public enum StorageAction {
+public enum ItemStorageAction {
 	/** move targeted stack to player's inventory */
 	QUICK_MOVE_STACK,
 
@@ -71,8 +71,8 @@ public enum StorageAction {
 	private static final int MOUSE_RIGHT = 1;
 
 	@Environment(EnvType.CLIENT)
-	public static StorageAction select(int mouseButton, @Nullable ItemDisplayDelegate target) {
-		StorageAction result = null;
+	public static ItemStorageAction select(int mouseButton, @Nullable DiscreteDisplayDelegate target) {
+		ItemStorageAction result = null;
 
 		final boolean isShift = Screen.hasShiftDown();
 
@@ -80,22 +80,22 @@ public enum StorageAction {
 
 		// if alt/right/middle clicking on same item, don't count that as a deposit
 		if (cursorStack != null && !cursorStack.isEmpty()
-				&& !(target != null && Container.canStacksCombine(cursorStack, target.displayStack()) && (Screen.hasAltDown() || mouseButton > 0))) {
+				&& !(target != null && Container.canStacksCombine(cursorStack, target.article().toStack()) && (Screen.hasAltDown() || mouseButton > 0))) {
 
 			// putting something in
 			if (mouseButton == MOUSE_LEFT && !Screen.hasAltDown()) {
-				result = StorageAction.PUT_ALL_HELD;
+				result = ItemStorageAction.PUT_ALL_HELD;
 			} else {
-				result = StorageAction.PUT_ONE_HELD;
+				result = ItemStorageAction.PUT_ONE_HELD;
 			}
 		} else if(target != null) {
 			// taking something out
 			if (mouseButton == MOUSE_LEFT && !Screen.hasAltDown()) {
-				result = isShift ? StorageAction.QUICK_MOVE_STACK : StorageAction.TAKE_STACK;
+				result = isShift ? ItemStorageAction.QUICK_MOVE_STACK : ItemStorageAction.TAKE_STACK;
 			} else if (mouseButton == MOUSE_MIDDLE || Screen.hasAltDown()) {
-				result = isShift ? StorageAction.QUICK_MOVE_ONE : StorageAction.TAKE_ONE;
+				result = isShift ? ItemStorageAction.QUICK_MOVE_ONE : ItemStorageAction.TAKE_ONE;
 			} else if (mouseButton == MOUSE_RIGHT) {
-				result = isShift ? StorageAction.QUICK_MOVE_HALF : StorageAction.TAKE_HALF;
+				result = isShift ? ItemStorageAction.QUICK_MOVE_HALF : ItemStorageAction.TAKE_HALF;
 			}
 		}
 
@@ -103,8 +103,8 @@ public enum StorageAction {
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static boolean selectAndSend(int mouseButton, @Nullable ItemDisplayDelegate target) {
-		final StorageAction action = select(mouseButton, target);
+	public static boolean selectAndSend(int mouseButton, @Nullable DiscreteDisplayDelegate target) {
+		final ItemStorageAction action = select(mouseButton, target);
 
 		if (action != null) {
 			ItemStorageInteractionC2S.sendPacket(action, target);

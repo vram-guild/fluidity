@@ -43,6 +43,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	final Function<PacketByteBuf, T> packetReader;
 	final Function<Tag, T> tagReader;
 	final Function<T, Tag> tagWriter;
+	final Function<T, String> keyFunction;
 
 	ArticleTypeImpl(BuilderImpl<T> builder) {
 		this.clazz = builder.clazz;
@@ -51,6 +52,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 		this.packetReader = builder.packetReader;
 		this.tagReader = builder.tagReader;
 		this.tagWriter = builder.tagWriter;
+		this.keyFunction = builder.keyFunction;
 		this.isFluid = clazz == Fluid.class;
 		this.isItem = clazz == Item.class;
 	}
@@ -76,26 +78,6 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	}
 
 	@Override
-	public Function<T, Tag> resourceTagWriter() {
-		return tagWriter;
-	}
-
-	@Override
-	public Function<Tag, T> resourceTagReader() {
-		return tagReader;
-	}
-
-	@Override
-	public BiConsumer<T, PacketByteBuf> resourcePacketWriter() {
-		return packetWriter;
-	}
-
-	@Override
-	public Function<PacketByteBuf, T> resourcePacketReader() {
-		return packetReader;
-	}
-
-	@Override
 	public Tag toTag() {
 		return StringTag.of(ArticleTypeRegistry.instance().getId(this).toString());
 	}
@@ -112,6 +94,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 		private Function<PacketByteBuf, U> packetReader;
 		private Function<U, Tag> tagWriter;
 		private Function<Tag, U> tagReader;
+		private Function<U, String> keyFunction;
 
 		BuilderImpl(Class<U> clazz) {
 			this.clazz = clazz;
@@ -155,6 +138,12 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 			this.packetReader = packetReader;
 			return this;
 		}
+
+		@Override
+		public Builder<U> keyFunction(Function<U, String> keyFunction) {
+			this.keyFunction = keyFunction;
+			return this;
+		}
 	}
 
 	public static final ArticleType<Item> ITEM = ArticleTypeRegistryImpl.INSTANCE.add("fluidity:item",
@@ -164,6 +153,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 			.resourceTagReader(t -> Registry.ITEM.get(new Identifier(t.asString())))
 			.resourcePacketWriter((r, p) -> p.writeVarInt(Registry.ITEM.getRawId(r)))
 			.resourcePacketReader(p -> Registry.ITEM.get(p.readVarInt()))
+			.keyFunction(i -> i.getTranslationKey())
 			.build());
 
 	public static final ArticleType<Fluid> FLUID = ArticleTypeRegistryImpl.INSTANCE.add("fluidity:fluid", builder(Fluid.class)
@@ -172,6 +162,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 			.resourceTagReader(t -> Registry.FLUID.get(new Identifier(t.asString())))
 			.resourcePacketWriter((r, p) -> p.writeVarInt(Registry.FLUID.getRawId(r)))
 			.resourcePacketReader(p -> Registry.FLUID.get(p.readVarInt()))
+			.keyFunction(f -> f.getDefaultState().getBlockState().getBlock().getTranslationKey())
 			.build());
 
 	public static final ArticleType<Void> NOTHING = ArticleTypeRegistryImpl.INSTANCE.add("fluidity:nothing", builder(Void.class)
@@ -180,6 +171,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 			.resourceTagReader(t -> null)
 			.resourcePacketWriter((r, p) -> {})
 			.resourcePacketReader(p -> null)
+			.keyFunction(n -> "fluidity:nothing")
 			.build());
 
 	public static <V> BuilderImpl<V> builder(Class<V> clazz) {
@@ -187,12 +179,12 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> ArticleType<T> fromTag(Tag tag) {
+	public static <T> ArticleTypeImpl<T> fromTag(Tag tag) {
 		return ArticleTypeRegistryImpl.INSTANCE.get(tag.asString());
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> ArticleType<T> fromPacket(PacketByteBuf buf) {
+	public static <T> ArticleTypeImpl<T> fromPacket(PacketByteBuf buf) {
 		return ArticleTypeRegistryImpl.INSTANCE.get(buf.readVarInt());
 	}
 

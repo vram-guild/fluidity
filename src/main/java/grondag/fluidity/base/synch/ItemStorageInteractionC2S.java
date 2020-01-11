@@ -42,7 +42,7 @@ public class ItemStorageInteractionC2S {
 	public static final Identifier ID = new Identifier(Fluidity.MOD_ID, "posci");
 
 	@Environment(EnvType.CLIENT)
-	public static void sendPacket(StorageAction action, ItemDisplayDelegate target) {
+	public static void sendPacket(ItemStorageAction action, DiscreteDisplayDelegate target) {
 		final PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeEnumConstant(action);
 		buf.writeInt(target == null ? -1 : target.handle());
@@ -50,7 +50,7 @@ public class ItemStorageInteractionC2S {
 	}
 
 	public static void accept(PacketContext context, PacketByteBuf buf) {
-		final StorageAction action = buf.readEnumConstant(StorageAction.class);
+		final ItemStorageAction action = buf.readEnumConstant(ItemStorageAction.class);
 		final int handle = buf.readInt();
 		final ServerPlayerEntity player = (ServerPlayerEntity) context.getPlayer();
 
@@ -61,7 +61,7 @@ public class ItemStorageInteractionC2S {
 		}
 	}
 
-	private static void acceptInner(StorageAction action, int handle, ServerPlayerEntity player) {
+	private static void acceptInner(ItemStorageAction action, int handle, ServerPlayerEntity player) {
 		if (player.container == null || !(player.container instanceof StorageContainer)) {
 			return;
 		}

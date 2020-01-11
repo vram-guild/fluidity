@@ -26,8 +26,8 @@ import net.minecraft.item.ItemStack;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.InventoryStorage;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
-import grondag.fluidity.base.storage.component.FlexibleArticleManager;
 import grondag.fluidity.base.storage.discrete.FixedDiscreteStorage.FixedDiscreteArticleFunction;
+import grondag.fluidity.base.storage.helper.FlexibleArticleManager;
 import grondag.fluidity.base.transact.TransactionHelper;
 import grondag.fluidity.impl.article.ArticleImpl;
 

@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -33,13 +33,14 @@ import grondag.fluidity.api.article.ArticleType;
 
 @API(status = Status.INTERNAL)
 public class ArticleImpl<T> implements Article {
-	final ArticleType<T> type;
+	final ArticleTypeImpl<T> type;
 	final T resource;
 	final CompoundTag tag;
 	final int hashCode;
+	String translationKey;
 
 	ArticleImpl(ArticleType<T> type, T resource, @Nullable CompoundTag tag) {
-		this.type = type;
+		this.type = (ArticleTypeImpl<T>) type;
 		this.resource = resource;
 		this.tag = tag;
 
@@ -102,7 +103,7 @@ public class ArticleImpl<T> implements Article {
 	public Tag toTag() {
 		final CompoundTag result = new CompoundTag();
 		result.put("type", type.toTag());
-		result.put("res",type.resourceTagWriter().apply(resource));
+		result.put("res",type.tagWriter.apply(resource));
 		if(this.tag != null) {
 			tag.put("tag", tag.copy());
 		}
@@ -112,23 +113,23 @@ public class ArticleImpl<T> implements Article {
 	@Override
 	public void toPacket(PacketByteBuf buf) {
 		type.toPacket(buf);
-		type.resourcePacketWriter().accept(resource, buf);
+		type.packetWriter.accept(resource, buf);
 		buf.writeCompoundTag(tag);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Article fromTag(Tag tag) {
 		final CompoundTag myTag = (CompoundTag) tag;
-		final ArticleType type = ArticleType.fromTag(myTag.get("type"));
-		final Object resource = type.resourceTagReader().apply(myTag.get("res"));
+		final ArticleTypeImpl type = ArticleTypeImpl.fromTag(myTag.get("type"));
+		final Object resource = type.tagReader.apply(myTag.get("res"));
 		final CompoundTag aTag = myTag.contains("tag") ? myTag.getCompound("tag") : null;
 		return of(type, resource, aTag);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Article fromPacket(PacketByteBuf buf) {
-		final ArticleType type = ArticleType.fromPacket(buf);
-		final Object resource = type.resourcePacketReader().apply(buf);
+		final ArticleTypeImpl type = ArticleTypeImpl.fromPacket(buf);
+		final Object resource = type.packetReader.apply(buf);
 		final CompoundTag aTag = buf.readCompoundTag();
 		return of(type, resource, aTag);
 	}
@@ -155,5 +156,17 @@ public class ArticleImpl<T> implements Article {
 
 	public static Article of(Fluid fluid) {
 		return ArticleCache.getArticle(ArticleType.FLUID, fluid, null);
+	}
+
+	@Override
+	public String getTranslationKey() {
+		String result = translationKey;
+
+		if(result == null) {
+			result = type.keyFunction.apply(resource);
+			translationKey =  result;
+		}
+
+		return result;
 	}
 }

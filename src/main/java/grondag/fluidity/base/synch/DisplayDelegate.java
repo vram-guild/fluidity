@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -23,50 +23,38 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.impl.ItemDisplayDelegateImpl;
+import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.fraction.FractionView;
 
 /**
  * Client-side representation of server inventory that supports
  * very large quantities and slotless/virtual containers via handles.
  */
 @API(status = Status.EXPERIMENTAL)
-public interface ItemDisplayDelegate {
+public interface DisplayDelegate {
 	/**
 	 * Uniquely identifies this resource within the server-side container.
 	 */
 	int handle();
 
-	ItemStack displayStack();
+	Article article();
 
-	long getCount();
+	FractionView getAmount();
 
-	void setCount(long count);
+	boolean isEmpty();
 
 	String localizedName();
 
 	String lowerCaseLocalizedName();
 
-	ItemDisplayDelegate set(ItemStack stack, long count, int handle);
-
-	default ItemDisplayDelegate set(ItemDisplayDelegate from) {
-		return set(from.displayStack(), from.getCount(), from.handle());
-	}
-
-	ItemDisplayDelegate EMPTY = new ItemDisplayDelegateImpl(ItemStack.EMPTY, 0, -1);
-
-	static ItemDisplayDelegate create(ItemStack stack, long count, int handle) {
-		return new ItemDisplayDelegateImpl(stack, count, handle);
-	}
-
 	/////////////////////////////////////////
 	// SORTING UTILITIES
 	/////////////////////////////////////////
 
-	Comparator<ItemDisplayDelegate> SORT_BY_NAME_ASC = new Comparator<ItemDisplayDelegate>() {
+	Comparator<DisplayDelegate> SORT_BY_NAME_ASC = new Comparator<DisplayDelegate>() {
 		@Override
-		public int compare(@Nullable ItemDisplayDelegate o1, @Nullable ItemDisplayDelegate o2) {
+		public int compare(@Nullable DisplayDelegate o1, @Nullable DisplayDelegate o2) {
 			if (o1 == null) {
 				if (o2 == null) {
 					return 0;
@@ -82,16 +70,16 @@ public interface ItemDisplayDelegate {
 		}
 	};
 
-	Comparator<ItemDisplayDelegate> SORT_BY_NAME_DESC = new Comparator<ItemDisplayDelegate>() {
+	Comparator<DisplayDelegate> SORT_BY_NAME_DESC = new Comparator<DisplayDelegate>() {
 		@Override
-		public int compare(@Nullable ItemDisplayDelegate o1, @Nullable ItemDisplayDelegate o2) {
+		public int compare(@Nullable DisplayDelegate o1, @Nullable DisplayDelegate o2) {
 			return SORT_BY_NAME_ASC.compare(o2, o1);
 		}
 	};
 
-	Comparator<ItemDisplayDelegate> SORT_BY_QTY_ASC = new Comparator<ItemDisplayDelegate>() {
+	Comparator<DisplayDelegate> SORT_BY_QTY_ASC = new Comparator<DisplayDelegate>() {
 		@Override
-		public int compare(@Nullable ItemDisplayDelegate o1, @Nullable ItemDisplayDelegate o2) {
+		public int compare(@Nullable DisplayDelegate o1, @Nullable DisplayDelegate o2) {
 			if (o1 == null) {
 				if (o2 == null) {
 					return 0;
@@ -100,21 +88,19 @@ public interface ItemDisplayDelegate {
 			} else if (o2 == null) {
 				return -1;
 			}
-			final int result = Long.compare(o1.getCount(), o2.getCount());
+			final int result = o1.getAmount().compareTo(o2.getAmount());
 			return result == 0 ? SORT_BY_NAME_ASC.compare(o1, o2) : result;
 		}
 	};
 
-	Comparator<ItemDisplayDelegate> SORT_BY_QTY_DESC = new Comparator<ItemDisplayDelegate>() {
+	Comparator<DisplayDelegate> SORT_BY_QTY_DESC = new Comparator<DisplayDelegate>() {
 		@Override
-		public int compare(@Nullable ItemDisplayDelegate o1, @Nullable ItemDisplayDelegate o2) {
+		public int compare(@Nullable DisplayDelegate o1, @Nullable DisplayDelegate o2) {
 			return SORT_BY_QTY_ASC.compare(o2, o1);
 		}
 	};
 
-	int SORT_COUNT = 4;
-
-	static Comparator<ItemDisplayDelegate> getSort(int sortIndex) {
+	static Comparator<DisplayDelegate> getSort(int sortIndex) {
 		switch(sortIndex % SORT_COUNT) {
 		case 0:
 		default:
@@ -130,6 +116,8 @@ public interface ItemDisplayDelegate {
 			return SORT_BY_QTY_DESC;
 		}
 	}
+
+	int SORT_COUNT = 4;
 
 	static String getSortTranslactionKey(int sortIndex) {
 		switch(sortIndex % SORT_COUNT) {

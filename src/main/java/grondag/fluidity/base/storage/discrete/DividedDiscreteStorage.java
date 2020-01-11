@@ -22,7 +22,7 @@ import org.apiguardian.api.API.Status;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.FixedArticleFunction;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
-import grondag.fluidity.base.storage.component.FixedArticleManager;
+import grondag.fluidity.base.storage.helper.FixedArticleManager;
 
 @API(status = Status.EXPERIMENTAL)
 public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscreteStorage> implements FixedDiscreteStorage {

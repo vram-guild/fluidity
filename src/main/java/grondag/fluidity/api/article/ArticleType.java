@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -38,19 +38,17 @@ public interface ArticleType<T> {
 
 	boolean isItem();
 
+	/**
+	 *
+	 * @return True if this article is meant to be divisible to
+	 * subunits and thus ought to be measured using fractions.
+	 * Advisory only.
+	 */
 	boolean isBulk();
 
 	Tag toTag();
 
 	void toPacket(PacketByteBuf buf);
-
-	Function<T, Tag> resourceTagWriter();
-
-	Function<Tag, T> resourceTagReader();
-
-	BiConsumer<T, PacketByteBuf> resourcePacketWriter();
-
-	Function<PacketByteBuf, T> resourcePacketReader();
 
 	static <T> ArticleType<T> fromTag(Tag tag) {
 		return ArticleTypeImpl.fromTag(tag);
@@ -81,6 +79,8 @@ public interface ArticleType<T> {
 		Builder<U> resourcePacketWriter(BiConsumer<U, PacketByteBuf> packetWriter);
 
 		Builder<U> resourcePacketReader(Function<PacketByteBuf, U> packetReader);
+
+		Builder<U> keyFunction(Function<U, String> keyFunction);
 
 		ArticleType<U> build();
 	}

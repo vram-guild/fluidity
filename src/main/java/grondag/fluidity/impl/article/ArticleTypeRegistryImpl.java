@@ -40,35 +40,35 @@ public final class ArticleTypeRegistryImpl implements ArticleTypeRegistry {
 
 	public static ArticleTypeRegistryImpl INSTANCE = new ArticleTypeRegistryImpl();
 
-	private static final MutableRegistry<ArticleType> REGISTRY;
+	private static final MutableRegistry<ArticleTypeImpl> REGISTRY;
 
 	static {
 		REGISTRY = Registry.REGISTRIES.add(new Identifier("fluidity:article_types"),
-				(MutableRegistry<ArticleType>) new DefaultedRegistry("fluidity:nothing"));
+				(MutableRegistry<ArticleTypeImpl>) new DefaultedRegistry("fluidity:nothing"));
 	}
 
 	@Override
 	public <T> Identifier getId(ArticleType<T> article) {
-		return REGISTRY.getId(article);
+		return REGISTRY.getId((ArticleTypeImpl) article);
 	}
 
 	@Override
 	public int getRawId(ArticleType article) {
-		return REGISTRY.getRawId(article);
+		return REGISTRY.getRawId((ArticleTypeImpl) article);
 	}
 
 	@Override
-	public ArticleType get(Identifier id) {
+	public ArticleTypeImpl get(Identifier id) {
 		return REGISTRY.get(id);
 	}
 
 	@Override
-	public ArticleType get(String idString) {
+	public ArticleTypeImpl get(String idString) {
 		return REGISTRY.get(new Identifier(idString));
 	}
 
 	@Override
-	public ArticleType get(int index) {
+	public ArticleTypeImpl get(int index) {
 		return REGISTRY.get(index);
 	}
 
@@ -79,7 +79,7 @@ public final class ArticleTypeRegistryImpl implements ArticleTypeRegistry {
 
 	@Override
 	public ArticleType add(Identifier id, ArticleType articleType) {
-		return REGISTRY.add(id, articleType);
+		return REGISTRY.add(id, (ArticleTypeImpl) articleType);
 	}
 
 	@Override

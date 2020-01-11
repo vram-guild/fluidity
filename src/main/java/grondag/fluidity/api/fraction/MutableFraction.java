@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -54,43 +54,46 @@ public final class MutableFraction extends AbstractFraction {
 		readBuffer(buf);
 	}
 
-	public void set(long whole) {
-		this.set(whole, 0, 1);
+	public MutableFraction set(long whole) {
+		return this.set(whole, 0, 1);
 	}
 
-	public void set(long numerator, long divisor) {
+	public MutableFraction set(long numerator, long divisor) {
 		validate(0, numerator, divisor);
 		whole = numerator / divisor;
 		this.numerator = numerator - whole * divisor;
 		this.divisor = divisor;
+		return this;
 	}
 
-	public void set(long whole, long numerator, long divisor) {
+	public MutableFraction set(long whole, long numerator, long divisor) {
 		validate(whole, numerator, divisor);
 		this.whole = whole;
 		this.numerator = numerator;
 		this.divisor = divisor;
+		return this;
 	}
 
-	public void set(FractionView template) {
+	public MutableFraction set(FractionView template) {
 		whole = template.whole();
 		numerator = template.numerator();
 		divisor = template.divisor();
+		return this;
 	}
 
-	public void add(FractionView val) {
-		add(val.whole(), val.numerator(), val.divisor());
+	public MutableFraction add(FractionView val) {
+		return add(val.whole(), val.numerator(), val.divisor());
 	}
 
-	public void add(long whole) {
-		add(whole, 0, 1);
+	public MutableFraction add(long whole) {
+		return add(whole, 0, 1);
 	}
 
-	public void add(long numerator, long divisor) {
-		add(0, numerator, divisor);
+	public MutableFraction add(long numerator, long divisor) {
+		return add(0, numerator, divisor);
 	}
 
-	public void add(long whole, long numerator, long divisor) {
+	public MutableFraction add(long whole, long numerator, long divisor) {
 		validate(whole, numerator, divisor);
 		this.whole += whole;
 
@@ -106,24 +109,32 @@ public final class MutableFraction extends AbstractFraction {
 			this.divisor = divisor * this.divisor;
 			normalize();
 		}
+		return this;
 	}
 
-	public void subtract(FractionView val) {
-		add(-val.whole(), -val.numerator(), val.divisor());
+	public MutableFraction subtract(FractionView val) {
+		return add(-val.whole(), -val.numerator(), val.divisor());
 	}
 
-	public void subtract(long whole) {
-		add(-whole, 0, 1);
+	public MutableFraction subtract(long whole) {
+		return add(-whole, 0, 1);
 	}
 
-	public void subtract(long numerator, long divisor) {
-		add(0, -numerator, divisor);
+	public MutableFraction subtract(long numerator, long divisor) {
+		return add(0, -numerator, divisor);
 	}
 
-	public void multiply(long whole) {
+	public MutableFraction negate() {
+		numerator = -numerator;
+		whole = -whole;
+		return this;
+	}
+
+	public MutableFraction multiply(long whole) {
 		numerator *= whole;
 		this.whole *= whole;
 		normalize();
+		return this;
 	}
 
 	/**

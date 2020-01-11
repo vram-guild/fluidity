@@ -90,8 +90,8 @@ public interface FractionView extends Comparable<FractionView> {
 
 	@Override
 	default int compareTo(FractionView o) {
-		final int result = Long.compare(o.whole(), whole());
-		return result == 0 ? Long.compare(o.numerator() * divisor(), numerator() * o.divisor()) : result;
+		final int result = Long.compare(whole(), o.whole());
+		return result == 0 ? Long.compare(numerator() * o.divisor(), o.numerator() * divisor()) : result;
 	}
 
 	default boolean isGreaterThan(FractionView other) {
@@ -116,5 +116,22 @@ public interface FractionView extends Comparable<FractionView> {
 
 	default long ceil() {
 		return numerator() == 0 ? whole() : whole() + 1;
+	}
+
+	default Fraction toNegated() {
+		return Fraction.of(-whole(), -numerator(), divisor());
+	}
+
+	// not great, but like keeping the MutableFraction method names simple...
+	default Fraction withSubtraction(FractionView diff) {
+		final MutableFraction f = new MutableFraction(this);
+		f.subtract(diff);
+		return f.toImmutable();
+	}
+
+	default Fraction withAddition(FractionView diff) {
+		final MutableFraction f = new MutableFraction(this);
+		f.add(diff);
+		return f.toImmutable();
 	}
 }

@@ -13,26 +13,20 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.base.storage.component;
+package grondag.fluidity.base.storage.helper;
+
+import java.util.function.Supplier;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.article.Article;
 import grondag.fluidity.base.article.StoredArticle;
 
 @API(status = Status.EXPERIMENTAL)
-public interface ArticleManager<V extends StoredArticle> {
-	V findOrCreateArticle(Article key);
+public abstract class AbstractArticleManager<V extends StoredArticle> implements ArticleManager<V> {
+	protected final Supplier<V> articleFactory;
 
-	/** Do not call while listeners are active */
-	void compact();
-
-	int handleCount();
-
-	V get(int handle);
-
-	V get(Article key);
-
-	void clear();
+	protected AbstractArticleManager(Supplier<V> articleFactory) {
+		this.articleFactory = articleFactory;
+	}
 }

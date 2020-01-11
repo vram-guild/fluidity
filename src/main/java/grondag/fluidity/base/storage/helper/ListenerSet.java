@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.base.storage.component;
+package grondag.fluidity.base.storage.helper;
 
 import java.lang.ref.WeakReference;
 import java.util.Iterator;

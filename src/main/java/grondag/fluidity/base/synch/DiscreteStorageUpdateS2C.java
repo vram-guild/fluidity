@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -19,7 +19,6 @@ import io.netty.buffer.Unpooled;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -28,10 +27,11 @@ import net.minecraft.util.PacketByteBuf;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
 import grondag.fluidity.Fluidity;
+import grondag.fluidity.api.article.Article;
 
 @API(status = Status.EXPERIMENTAL)
-public final class ItemStorageUpdateS2C {
-	private ItemStorageUpdateS2C() {}
+public final class DiscreteStorageUpdateS2C {
+	private DiscreteStorageUpdateS2C() {}
 
 	public static PacketByteBuf begin(int count) {
 		final PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
@@ -39,8 +39,8 @@ public final class ItemStorageUpdateS2C {
 		return buf;
 	}
 
-	public static PacketByteBuf append(PacketByteBuf buf, ItemStack stack, long count, int handle) {
-		buf.writeItemStack(stack);
+	public static PacketByteBuf append(PacketByteBuf buf, Article article, long count, int handle) {
+		article.toPacket(buf);
 		buf.writeVarLong(count);
 		buf.writeVarInt(handle);
 		return buf;
@@ -65,7 +65,7 @@ public final class ItemStorageUpdateS2C {
 		ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, packet);
 	}
 
-	public static Identifier ID_FULL_REFRESH = new Identifier(Fluidity.MOD_ID, "ifrs2c");
-	public static Identifier ID_UPDATE = new Identifier(Fluidity.MOD_ID, "iuds2c");
-	public static Identifier ID_UPDATE_WITH_CAPACITY = new Identifier(Fluidity.MOD_ID, "iucs2c");
+	public static Identifier ID_FULL_REFRESH = new Identifier(Fluidity.MOD_ID, "dfrs2c");
+	public static Identifier ID_UPDATE = new Identifier(Fluidity.MOD_ID, "duds2c");
+	public static Identifier ID_UPDATE_WITH_CAPACITY = new Identifier(Fluidity.MOD_ID, "ducs2c");
 }
