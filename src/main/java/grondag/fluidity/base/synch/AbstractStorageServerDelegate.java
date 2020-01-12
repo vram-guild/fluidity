@@ -37,7 +37,7 @@ public abstract class AbstractStorageServerDelegate<T extends AbstractStoredArti
 	public AbstractStorageServerDelegate(ServerPlayerEntity player, Storage storage) {
 		this.player = player;
 		this.storage = storage;
-		storage.startListening(this, true);
+		storage.eventStream().startListening(this, true);
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public abstract class AbstractStorageServerDelegate<T extends AbstractStoredArti
 
 	public void close(PlayerEntity playerEntity) {
 		if(playerEntity == player && storage != null) {
-			storage.stopListening(this, false);
+			storage.eventStream().stopListening(this, false);
 			storage = null;
 			player = null;
 		}

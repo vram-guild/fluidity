@@ -27,7 +27,7 @@ import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.Storage;
-import grondag.fluidity.api.storage.StorageListener;
+import grondag.fluidity.api.storage.StorageEventStream;
 
 @API(status = Status.EXPERIMENTAL)
 public class ForwardingStorage implements Storage {
@@ -102,13 +102,8 @@ public class ForwardingStorage implements Storage {
 	}
 
 	@Override
-	public void startListening(StorageListener listener, boolean sendNotifications) {
-		wrapped.startListening(listener, sendNotifications);
-	}
-
-	@Override
-	public void stopListening(StorageListener listener, boolean sendNotifications) {
-		wrapped.stopListening(listener, sendNotifications);
+	public StorageEventStream eventStream() {
+		return wrapped.eventStream();
 	}
 
 	@Override

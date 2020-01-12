@@ -25,7 +25,7 @@ import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.FixedStorage;
-import grondag.fluidity.api.storage.StorageListener;
+import grondag.fluidity.api.storage.StorageEventStream;
 
 @API(status = INTERNAL)
 public final class EmptyStorage implements FixedStorage {
@@ -74,13 +74,8 @@ public final class EmptyStorage implements FixedStorage {
 	}
 
 	@Override
-	public void startListening(StorageListener listener, boolean sendNotifications) {
-		// NOOP
-	}
-
-	@Override
-	public void stopListening(StorageListener listener, boolean sendNotifications) {
-		// NOOP
+	public StorageEventStream eventStream() {
+		return StorageEventStream.IGNORE;
 	}
 
 	@Override

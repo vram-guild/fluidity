@@ -47,7 +47,7 @@ public abstract class AbstractAggregateStorage<V extends AggregateStoredArticle,
 
 	public void addStore(Storage store) {
 		if(stores.add(store)) {
-			store.startListening(listener(), true);
+			store.eventStream().startListening(listener(), true);
 		}
 	}
 
@@ -55,7 +55,7 @@ public abstract class AbstractAggregateStorage<V extends AggregateStoredArticle,
 
 	public void removeStore(Storage store) {
 		if(stores.contains(store)) {
-			store.stopListening(listener(), true);
+			store.eventStream().stopListening(listener(), true);
 			stores.remove(store);
 		}
 	}

@@ -145,9 +145,7 @@ public interface Storage extends TransactionParticipant {
 
 	void clear();
 
-	void startListening(StorageListener listener, boolean sendNotifications);
-
-	void stopListening(StorageListener listener, boolean sendNotifications);
+	StorageEventStream  eventStream();
 
 	CompoundTag writeTag();
 
