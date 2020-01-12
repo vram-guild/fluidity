@@ -57,7 +57,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, S
 
 	@Override
 	public ArticleFunction getSupplier() {
-		return consumer;
+		return supplier;
 	}
 
 	@Override
@@ -104,6 +104,10 @@ public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, S
 				content.subtract(calc);
 				dirtyNotifier.run();
 				listeners.forEach(l -> l.onSupply(SimpleTank.this, 0, article, calc, content));
+
+				if(content.isZero()) {
+					article = Article.NOTHING;
+				}
 			}
 
 			return calc;
@@ -140,6 +144,10 @@ public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, S
 					calc.set(result, divisor);
 					listeners.forEach(l -> l.onAccept(SimpleTank.this, 0, item, calc, content));
 				}
+
+				if(content.isZero()) {
+					article = Article.NOTHING;
+				}
 			}
 
 			return result;
@@ -161,6 +169,10 @@ public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, S
 
 			if (item == Article.NOTHING || volume.isZero() || (item != article && article != Article.NOTHING)) {
 				return Fraction.ZERO;
+			}
+
+			if(article.isNothing()) {
+				article = item;
 			}
 
 			// compute available space
@@ -194,6 +206,10 @@ public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, S
 
 			if (item == Article.NOTHING || numerator == 0 || (item != article && article != Article.NOTHING)) {
 				return 0;
+			}
+
+			if(article.isNothing()) {
+				article = item;
 			}
 
 			// compute available space

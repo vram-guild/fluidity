@@ -92,6 +92,11 @@ public class ForwardingStorage implements Storage {
 	}
 
 	@Override
+	public double usage() {
+		return wrapped.usage();
+	}
+
+	@Override
 	public void clear() {
 		wrapped.clear();
 	}

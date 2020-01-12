@@ -24,6 +24,7 @@ import org.apiguardian.api.API.Status;
 
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
+import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Identifier;
@@ -167,7 +168,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 
 	public static final ArticleType<Void> NOTHING = ArticleTypeRegistryImpl.INSTANCE.add("fluidity:nothing", builder(Void.class)
 			.bulk(false)
-			.resourceTagWriter(r -> null)
+			.resourceTagWriter(r -> ByteTag.ZERO)
 			.resourceTagReader(t -> null)
 			.resourcePacketWriter((r, p) -> {})
 			.resourcePacketReader(p -> null)

@@ -108,4 +108,9 @@ public final class VoidStorage implements FixedStorage {
 	public boolean isEmpty() {
 		return true;
 	}
+
+	@Override
+	public double usage() {
+		return 0;
+	}
 }

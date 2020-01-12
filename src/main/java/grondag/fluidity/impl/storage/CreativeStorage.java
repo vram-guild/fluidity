@@ -65,6 +65,11 @@ public final class CreativeStorage implements FixedStorage {
 	}
 
 	@Override
+	public double usage() {
+		return 0;
+	}
+
+	@Override
 	public void clear() {
 		// NOOP
 	}

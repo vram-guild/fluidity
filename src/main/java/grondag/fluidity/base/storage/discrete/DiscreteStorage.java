@@ -36,6 +36,12 @@ public interface DiscreteStorage extends Storage {
 		return Fraction.of(capacity());
 	}
 
+	@Override
+	default double usage() {
+		final long cap = capacity();
+		return cap > 0 ? count() / cap : 0;
+	}
+
 	public interface DiscreteArticleFunction extends ArticleFunction {
 		@Override
 		default FractionView apply(Article item, FractionView volume, boolean simulate) {

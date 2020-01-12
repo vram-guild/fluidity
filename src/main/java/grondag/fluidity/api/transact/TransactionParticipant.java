@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -43,6 +43,11 @@ import org.apiguardian.api.API.Status;
 @API(status = Status.EXPERIMENTAL)
 
 public interface TransactionParticipant {
+
+	default boolean isSelfEnlisting() {
+		return false;
+	}
+
 	/**
 	 * Allows instances that share the same rollback state to share a delegate.
 	 * If the same delegate is enlisted more than once, will only be asked to prepare rollback once.

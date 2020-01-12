@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -53,11 +53,6 @@ public final class TransactionImpl implements Transaction {
 		public boolean isCommited() {
 			return isCommited;
 		}
-
-		@Override
-		public Consumer<TransactionParticipant> enlister() {
-			return enlister;
-		}
 	}
 
 	private final ContextImpl context = new ContextImpl();
@@ -66,7 +61,6 @@ public final class TransactionImpl implements Transaction {
 	private final IdentityHashMap<TransactionDelegate, Consumer<TransactionContext>> participants = new IdentityHashMap<>();
 	private final IdentityHashMap<TransactionDelegate, Object> stateStorage = new IdentityHashMap<>();
 	private TransactionDelegate contextDelegate;
-	private final Consumer<TransactionParticipant> enlister = this::enlist;
 
 	private TransactionImpl() {
 	}
@@ -138,7 +132,7 @@ public final class TransactionImpl implements Transaction {
 	}
 
 	@Override
-	public <T extends TransactionParticipant> T enlist(T container) {
+	public <T extends TransactionParticipant> T enlistSelf(T container) {
 		validate();
 		final TransactionDelegate d = container.getTransactionDelegate();
 
@@ -195,5 +189,9 @@ public final class TransactionImpl implements Transaction {
 		}
 
 		return result;
+	}
+
+	public static TransactionImpl current() {
+		return stackPointer == -1 ? null : STACK.get(stackPointer);
 	}
 }

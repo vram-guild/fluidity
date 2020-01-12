@@ -141,6 +141,8 @@ public interface Storage extends TransactionParticipant {
 
 	FractionView volume();
 
+	double usage();
+
 	void clear();
 
 	void startListening(StorageListener listener, boolean sendNotifications);
@@ -168,5 +170,4 @@ public interface Storage extends TransactionParticipant {
 	 * @return Internal {@link Storage} of this device, or the regular storage if not a multiblock.
 	 */
 	DeviceComponentType<Storage> INTERNAL_STORAGE_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "internal_storage"), EMPTY);
-
 }

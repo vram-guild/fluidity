@@ -159,7 +159,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 				if(store.hasConsumer() && !store.isFull()) {
 
 					if(existing.contains(store)) {
-						enlister.accept(store);
+						Transaction.enlistIfOpen(store);
 						result += store.getConsumer().apply(item, count - result, simulate);
 
 						if (result == count) {
@@ -173,7 +173,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 
 			if (result < count) {
 				for (final Storage store : searchList) {
-					enlister.accept(store);
+					Transaction.enlistIfOpen(store);
 					final long delta = store.getConsumer().apply(item, count - result, simulate);
 
 					if(delta != 0) {
@@ -194,7 +194,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 		} else {
 			for (final Storage store : stores) {
 				if(store.hasConsumer() && !store.isFull()) {
-					enlister.accept(store);
+					Transaction.enlistIfOpen(store);
 					final long delta = store.getConsumer().apply(item, count - result, simulate);
 
 					if(delta != 0) {
@@ -236,7 +236,7 @@ public class AggregateDiscreteStorage extends AbstractAggregateStorage<Aggregate
 
 		for (final Storage store : existing) {
 			if(store.hasSupplier()) {
-				enlister.accept(store);
+				Transaction.enlistIfOpen(store);
 				final long delta = store.getSupplier().apply(item, count - result, simulate);
 
 				if(delta != 0) {
