@@ -50,6 +50,11 @@ Public interfaces for use and implementation by mod.  These are the only types a
 * [**`grondag.fludity.base`**](https://github.com/grondag/fluidity/tree/master/src/main/java/grondag/fluidity/base)
 Base implementations and helpers.  These are extensive and probably of interest to most implementations but their use is entirely optional.
 
+* [**`grondag.fludity.impl`**](https://github.com/grondag/fluidity/tree/master/src/main/java/grondag/fluidity/impl)
+Internal implementations and helpers.  Mods should not directly reference anything in this sub-tree.
+
+* [**`grondag.fludity.wip`**](https://github.com/grondag/fluidity/tree/master/src/main/java/grondag/fluidity/wip)
+Work-in-process code that will *probably* become part of the library in the near future but is more experimental than even the API Guarding `EXPERIMENTAL` annotation would indicate.  Mods are welcome to look at it, test and provide feedback but should have no expectation of stability. This sub-tree replicates the api/base/impl divisions of the main API to indicate where the code will eventually land.
 
 ## Articles
 
