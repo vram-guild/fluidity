@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -15,21 +15,16 @@
  ******************************************************************************/
 package grondag.fluidity.api.device;
 
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
 
-public interface BlockComponentContext {
-	Identifier id();
-
-	Direction side();
-
-	Authorization auth();
-
+@API(status = Status.EXPERIMENTAL)
+public interface BlockComponentContext extends ComponentContext {
 	BlockPos pos();
 
 	BlockEntity blockEntity();
@@ -37,6 +32,4 @@ public interface BlockComponentContext {
 	Block block();
 
 	BlockState blockState();
-
-	World world();
 }

@@ -104,11 +104,16 @@ public final class MutableFraction extends AbstractFraction {
 		}
 
 		final long n = this.numerator * divisor + numerator * this.divisor;
-		if (n != 0) {
+
+		if (n == 0) {
+			this.numerator = 0;
+			this.divisor = 1;
+		} else {
 			this.numerator = n;
 			this.divisor = divisor * this.divisor;
 			normalize();
 		}
+
 		return this;
 	}
 

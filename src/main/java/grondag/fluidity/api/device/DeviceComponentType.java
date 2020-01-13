@@ -15,16 +15,25 @@
  ******************************************************************************/
 package grondag.fluidity.api.device;
 
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
+
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+@API(status = Status.EXPERIMENTAL)
 public interface DeviceComponentType<T> {
 	T absent();
 
@@ -40,13 +49,42 @@ public interface DeviceComponentType<T> {
 		addProvider(ctx -> (T) ctx.blockEntity(), blocks);
 	}
 
-	void addProvider(Function<ItemStack, T> mapping, Item... items);
+	void addProvider(Function<ItemComponentContext, T> mapping, Item... items);
+
+	void addAction(BiPredicate<ItemComponentContext, T> action, Item... items);
 
 	DeviceComponent<T> get(World world, BlockPos pos);
 
 	DeviceComponent<T>  get(World world, BlockPos pos, BlockState blockState);
 
 	DeviceComponent<T> get(BlockEntity blockEntity);
+
+	default DeviceComponent<T> getHeld(ServerPlayerEntity player) {
+		return get(() -> player.getMainHandStack(), s -> player.setStackInHand(Hand.MAIN_HAND, s), player);
+	}
+
+	DeviceComponent<T> get(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayerEntity player);
+
+	/**
+	 * Used when no player
+	 * @param world
+	 * @return
+	 */
+	DeviceComponent<T> get(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, World world);
+
+	default boolean applyActionsWithHeld(T target, ServerPlayerEntity player) {
+		return applyActions(target, () -> player.getMainHandStack(), s -> player.setStackInHand(Hand.MAIN_HAND, s), player);
+	}
+
+	boolean applyActions(T target, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayerEntity player);
+
+	/**
+	 * Used when no player
+	 * @param world
+	 * @return
+	 */
+	boolean applyActions(T target, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, World world);
+
 
 	DeviceComponent<T> getAbsent();
 }

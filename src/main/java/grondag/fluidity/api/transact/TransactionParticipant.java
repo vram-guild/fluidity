@@ -41,9 +41,15 @@ import org.apiguardian.api.API.Status;
  */
 @FunctionalInterface
 @API(status = Status.EXPERIMENTAL)
-
 public interface TransactionParticipant {
-
+	/**
+	 * Override for implementations that want to enlist lazily.
+	 * When true, calls to {@link Transaction#enlist(TransactionParticipant)} will
+	 * be ignored and implementation should instead call {@link Transaction#enlistSelf(TransactionParticipant)}
+	 * when ready to enlist.
+	 *
+	 * @return {@code true} for implementations that will self-enlist.
+	 */
 	default boolean isSelfEnlisting() {
 		return false;
 	}
@@ -54,18 +60,19 @@ public interface TransactionParticipant {
 	 */
 	TransactionDelegate getTransactionDelegate();
 
-
 	@FunctionalInterface
 	public interface TransactionDelegate {
 		/**
-		 * Consumer can save state in the context if it needs to and retrieve it on rollback.<p>
+		 * Called on enlisting to signal saving of rollback state or whatever
+		 * preparation is appropriate for the participating implementation.
+		 * Will be called only once per transaction (including nested transactions).<p>
 		 *
 		 * Consumer is called for both commit and rollback events just in case some
-		 * implementation need to lock or store resources internally during a
-		 * transaction and need notification when one ends. <p>
+		 * implementations need to lock or store resources internally during a
+		 * transaction and need notification when one ends.
 		 *
-		 * @param context
-		 * @return
+		 * @param The transaction context - use to store and retrieve transaction state and query status at close
+		 * @return The action (as a {@code Consumer}) to be run when the transaction is closed
 		 */
 		Consumer<TransactionContext> prepareRollback(TransactionContext context);
 

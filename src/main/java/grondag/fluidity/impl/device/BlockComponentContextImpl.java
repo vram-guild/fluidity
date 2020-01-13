@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -15,61 +15,20 @@
  ******************************************************************************/
 package grondag.fluidity.impl.device;
 
-import java.util.function.Function;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-import grondag.fluidity.api.device.Authorization;
 import grondag.fluidity.api.device.BlockComponentContext;
-import grondag.fluidity.api.device.DeviceComponent;
-import grondag.fluidity.api.device.DeviceComponentType;
 
 @SuppressWarnings("rawtypes")
-public final class BlockComponentContextImpl implements BlockComponentContext, DeviceComponent {
-	private DeviceComponentTypeImpl componentType;
-	private Function<BlockComponentContext, ?> mapping;
+public final class BlockComponentContextImpl extends AbstractComponentContextImpl implements BlockComponentContext {
 	private Block block;
-	private World world;
-	private Identifier id;
-	private Direction  side;
-	private Authorization auth;
 	private BlockPos pos;
 	private BlockState blockState;
 	private BlockEntity blockEntity;
-
-	@Override
-	public Object get(Authorization auth, Direction side, Identifier id) {
-		this.auth = auth;
-		this.side = side;
-		this.id = id;
-		return mapping.apply(this);
-	}
-
-	@Override
-	public DeviceComponentType componentType() {
-		return componentType;
-	}
-
-	@Override
-	public Identifier id() {
-		return id;
-	}
-
-	@Override
-	public Direction side() {
-		return side;
-	}
-
-	@Override
-	public Authorization auth() {
-		return auth;
-	}
 
 	@Override
 	public Block block() {
@@ -106,15 +65,8 @@ public final class BlockComponentContextImpl implements BlockComponentContext, D
 	}
 
 	@Override
-	public World world() {
-		World result = world;
-
-		if(result == null && blockEntity != null) {
-			result = blockEntity.getWorld();
-			world = result;
-		}
-
-		return result;
+	protected World getWorldLazily() {
+		return blockEntity == null ? null : blockEntity.getWorld();
 	}
 
 	@SuppressWarnings("unchecked")

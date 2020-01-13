@@ -16,30 +16,40 @@
 package grondag.fluidity.impl.device;
 
 import java.util.IdentityHashMap;
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
+
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import grondag.fluidity.api.device.BlockComponentContext;
 import grondag.fluidity.api.device.DeviceComponent;
 import grondag.fluidity.api.device.DeviceComponentType;
+import grondag.fluidity.api.device.ItemComponentContext;
 
 public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 	private final T absent;
 	private final Function<BlockComponentContext, ?> defaultBlockMapping;
+	private final Function<ItemComponentContext, ?> defaultItemMapping;
 	private final IdentityHashMap<Block, Function<BlockComponentContext, ?>> blockMappings = new IdentityHashMap<>();
-	private final IdentityHashMap<Item, Function<ItemStack, ?>> itemMappings = new IdentityHashMap<>();
+	private final IdentityHashMap<Item, Function<ItemComponentContext, ?>> itemMappings = new IdentityHashMap<>();
+	private final IdentityHashMap<Item, ObjectArrayList<BiPredicate<ItemComponentContext, T>>> itemActions = new IdentityHashMap<>();
 	private final AbsentDeviceComponent<T> absentComponent;
 
 	DeviceComponentTypeImpl(T absent) {
 		this.absent = absent;
 		defaultBlockMapping = b -> absent;
+		defaultItemMapping = i -> absent;
 		absentComponent = new AbsentDeviceComponent<>(this);
 	}
 
@@ -59,10 +69,28 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 		}
 	}
 
+	Function<ItemComponentContext, ?> getMapping(Item item) {
+		return itemMappings.getOrDefault(item, defaultItemMapping);
+	}
+
 	@Override
-	public void addProvider(Function<ItemStack, T> mapping, Item... items) {
+	public void addProvider(Function<ItemComponentContext, T> mapping, Item... items) {
 		for(final Item i : items) {
 			itemMappings.put(i, mapping);
+		}
+	}
+
+	@Override
+	public void addAction(BiPredicate<ItemComponentContext, T> action, Item... items) {
+		for(final Item i : items) {
+			ObjectArrayList<BiPredicate<ItemComponentContext, T>> list = itemActions.get(i);
+
+			if(list == null) {
+				list = new ObjectArrayList<>(4);
+				itemActions.put(i, list);
+			}
+
+			list.add(action);
 		}
 	}
 
@@ -87,5 +115,49 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 	@Override
 	public DeviceComponent<T> getAbsent() {
 		return absentComponent;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public DeviceComponent<T> get(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayerEntity player) {
+		return ItemComponentContextImpl.get(this, stackGetter, stackSetter, player);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public DeviceComponent<T> get(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, World world) {
+		return ItemComponentContextImpl.get(this, stackGetter, stackSetter, world);
+	}
+
+	@Override
+	public boolean applyActions(T target, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayerEntity player) {
+		final ObjectArrayList<BiPredicate<ItemComponentContext, T>> actions = itemActions.get(stackGetter.get().getItem());
+
+		if(actions != null && !actions.isEmpty()) {
+			return applyActions(target, actions, ItemComponentContextImpl.get(this, stackGetter, stackSetter, player));
+		}
+
+		return false;
+	}
+
+	@Override
+	public boolean applyActions(T target, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, World world) {
+		final ObjectArrayList<BiPredicate<ItemComponentContext, T>> actions = itemActions.get(stackGetter.get().getItem());
+
+		if(actions != null && !actions.isEmpty()) {
+			return applyActions(target, actions, ItemComponentContextImpl.get(this, stackGetter, stackSetter, world));
+		}
+
+		return false;
+	}
+
+	private boolean applyActions(T target, ObjectArrayList<BiPredicate<ItemComponentContext, T>> actions, ItemComponentContext ctx) {
+		for(final BiPredicate<ItemComponentContext, T> action : actions) {
+			if(action.test(ctx, target)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

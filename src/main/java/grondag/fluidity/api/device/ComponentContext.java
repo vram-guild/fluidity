@@ -19,14 +19,16 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.util.Identifier;
-
-import grondag.fluidity.impl.device.DeviceComponentRegistryImpl;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 
 @API(status = Status.EXPERIMENTAL)
-public interface DeviceComponentRegistry {
-	<T> DeviceComponentType<T> createComponent(Identifier id,T absentValue);
+public interface ComponentContext {
+	Identifier id();
 
-	<T> DeviceComponentType<T> getComponent(Identifier id);
+	Direction side();
 
-	DeviceComponentRegistry INSTANCE = DeviceComponentRegistryImpl.INSTANCE;
+	Authorization auth();
+
+	World world();
 }

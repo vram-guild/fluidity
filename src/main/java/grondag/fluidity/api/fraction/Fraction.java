@@ -58,6 +58,7 @@ public final class Fraction extends AbstractFraction {
 	}
 
 	public static final Fraction ZERO = Fraction.of(0, 0, 1);
+	public static final Fraction ONE = Fraction.of(1, 0, 1);
 	public static final Fraction MAX_VALUE = Fraction.of(Long.MAX_VALUE, 0, 1);
 
 	public static Fraction of(long whole, long numerator, long divisor) {

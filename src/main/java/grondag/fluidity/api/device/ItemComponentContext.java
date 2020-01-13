@@ -15,18 +15,22 @@
  ******************************************************************************/
 package grondag.fluidity.api.device;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import javax.annotation.Nullable;
+
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import net.minecraft.util.Identifier;
-
-import grondag.fluidity.impl.device.DeviceComponentRegistryImpl;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 @API(status = Status.EXPERIMENTAL)
-public interface DeviceComponentRegistry {
-	<T> DeviceComponentType<T> createComponent(Identifier id,T absentValue);
+public interface ItemComponentContext extends ComponentContext {
+	@Nullable ServerPlayerEntity player();
 
-	<T> DeviceComponentType<T> getComponent(Identifier id);
+	Supplier<ItemStack> stackGetter();
 
-	DeviceComponentRegistry INSTANCE = DeviceComponentRegistryImpl.INSTANCE;
+	Consumer<ItemStack> stackSetter();
 }

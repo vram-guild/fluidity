@@ -34,7 +34,7 @@ public class BulkNotifier {
 	}
 
 	public void notifySupply(Article item, int handle, FractionView delta, FractionView newAmount) {
-		assert !newAmount.isNegative() && !newAmount.isZero();
+		assert !newAmount.isNegative();
 
 		if(!owner.listeners.isEmpty()) {
 			for(final StorageListener l : owner.listeners) {
@@ -44,7 +44,7 @@ public class BulkNotifier {
 	}
 
 	public void notifyAccept(Article item, int handle, FractionView delta, FractionView newAmount) {
-		assert !newAmount.isNegative() && !newAmount.isZero();
+		assert !newAmount.isNegative();
 
 		if(!owner.listeners.isEmpty()) {
 			for(final StorageListener l : owner.listeners) {
