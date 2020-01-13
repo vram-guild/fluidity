@@ -43,6 +43,13 @@ The library offers some base implementations and helpers to more easily support 
 # Overview
 
 ## How Fluidity is Organized
+The fludity source tree is divided into four packages as follows:
+* [**`grondag.fludity.api`**](https://github.com/grondag/fluidity/tree/master/src/main/java/grondag/fluidity/api)
+Public interfaces for use and implementation by mod.  These are the only types an implementation *must* use or be aware of.
+
+* [**`grondag.fludity.base`**](https://github.com/grondag/fluidity/tree/master/src/main/java/grondag/fluidity/base)
+Base implementations and helpers.  These are extensive and probably of interest to most implementations but their use is entirely optional.
+
 
 ## Articles
 
