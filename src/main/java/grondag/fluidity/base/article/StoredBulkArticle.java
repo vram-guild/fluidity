@@ -81,7 +81,7 @@ public class StoredBulkArticle extends AbstractStoredArticle implements StoredBu
 	}
 
 	@Override
-	public AbstractFraction volume() {
+	public AbstractFraction amount() {
 		return volume;
 	}
 

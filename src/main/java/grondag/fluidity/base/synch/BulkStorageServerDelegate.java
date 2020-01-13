@@ -72,7 +72,7 @@ public class BulkStorageServerDelegate extends AbstractStorageServerDelegate<Sto
 		final PacketByteBuf buf = BulkStorageUpdateS2C.begin(updates.size());
 
 		for(final StoredBulkArticle a : updates.values()) {
-			BulkStorageUpdateS2C.append(buf, a.article(), a.volume(), a.handle());
+			BulkStorageUpdateS2C.append(buf, a.article(), a.amount(), a.handle());
 		}
 
 		if(isFirstUpdate) {

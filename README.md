@@ -57,6 +57,51 @@ Internal implementations and helpers.  Mods should not directly reference anythi
 Work-in-process code that will *probably* become part of the library in the near future but is more experimental than even the API Guarding `EXPERIMENTAL` annotation would indicate.  Mods are welcome to look at it, test and provide feedback but should have no expectation of stability. This sub-tree replicates the api/base/impl divisions of the main API to indicate where the code will eventually land.
 
 ## Articles
+An `Article` is a game resource that can be uniquely identified, quantified and serialized. An `ArticleType` defines the class of resource and provides packet and NBT serialization functions.  
+
+Fluidity pre-defines two article types: `ArticleType.ITEM` and `ArticleType.FLUID` to represent in-game items and fluids.  However, any class can be used as an article type via `ArticleType.Builder` and `ArticleTypeRegistry`.  Some possible uses would include non-fluid bulk crafting resources, XP, power systems, or mana.  
+
+Note that no restriction is made against defining new article types that also use `Item` and `Fluid` resources.  However, for compatibility it is recommended that mods adopt the predefined `ITEM` and `FLUID` article types for inter-mod resource storage and transport.
+
+### Discrete vs Bulk Articles
+The creator of an article type chooses if the article is *discrete* or *bulk*.  Discrete articles are meant to be counted as individual, atomic units.  Bulk articles are divisible into some unit less than one or fully continuous and thus meant to be measured using fractions. (More on those in a bit.)
+
+However, this distinction is *purely advisory.*  Fluidity is designed so that *any* article type can be measured using either sort of accounting.  Whole numbers, after all, are simply a sub-set of the rational numbers.  The main benefit to using integers over fractions is slightly better performance and memory efficiency.  But if you want to build an "item tank" that stores fractional pick-axes, this is the library for you.
+
+### Getting an Article Instance
+Use `Article.of(articleType, resource)` to get a custom article.  `Article.of(item)` and `Article.of(fluid)` are more concise for those common types.  `Article` also exposes static methods for de-serializing any article from an NBT tag or packet buffer.
+
+Retrieving an article is generally non-allocating after the first retrieval because all article instances are interned or cached. This means article instances can be compared using `==` *unless* they contain an NBT tag. (See below)  For this reason, Articles should always be compared using `.equals()` unless the situation absolutely ensures no tags are present on any article being compared.
+
+### Article NBT Tags
+An `Article` *may* have an NBT CompoundTag value associated with it.  Currently this functionality is only exposed for `ITEM` articles (because Minecraft requires it) but may be opened up for other article types in a future release.  However, mod authors are *strongly* advised to avoid using tags in favor of simply creating a larger number of distinct resource instances.
+
+When an article has a non-null tag value there can be a virtually infinite number of distinct instances. Interning such articles would create the risk of excessive memory allocation.  Thus, article instances with tag values are held in a fixed-capacity cache and evicted as needed, making them slightly less efficient than articles without tags.
+
+To ensure that articles are immutable, an articles tag instance is not directly exposed. The `copyTag()` method is the only way to get the tag content, but allocates a new copy.  If you only need to test for tag existence or test for tag equality use `hasTag()` or `doesTagMatch()`.
+
+### Stored Articles
+When an article is being stored or transfered we need additional information: quantity and, sometimes, a location. A core design principle of Fluidity is that all such data should never be directly mutated outside of the storage/transport implementation - all changes *must* be the result of some controlled, observable transaction.
+
+The the only API to expose this information is immutable: `StoredArticleView`.
+
+`StoredArticleView` exposes *both* a whole-number `count()` (for discrete articles) and a fractional `amount()` (for bulk articles).  Both are equally valid, however, the `count()` property will not reflect fractional amounts less than a unit and so is not a reliable test of emptiness for implementations that may contain bulk items.  To test for emptiness, use `isEmpty()`.
+
+`StoredArticleView' also has a special instance meant to be used in place of `null` values: the `StoredArticleView.EMPTY` instance.  Storage implementations should return this instance instead of `null` when the intent is to signal the absence of a result.
+
+#### Implementation Support
+Obviously, implementations *will* need to mutate their contents and most implementations will be firmly discrete or bulk - not both.  The [`grondag.fluidity.base.article`]() package provides specialized discrete/bulk interfaces and classes to support most types of implementations.  Use of these is entirely optional but mod authors are encouraged to examine them for illustration before creating their own.  
+
+#### Stored Article Handles
+`StoredArticleView' also exposes an integer `handle()` property, which is *similar* in purpose to vanilla inventory "slots" but also different in key ways:
+* Handles are not guaranteed to correspond to a specific, physical location in storage. Some implementations (something like a Storage Drawers mod, for example) may have this contract, but it is never required.
+
+* Handle can be used to retrieve a storage view (similar to `List.get()`) but the targets of storage transactions are *always* specified by article - never by handle.  This ensures that no transactions is ambiguously or erroneously specified. A vanilla `Inventory` will let you blindly replace or change the contents of a slot without knowing or validating what was in it. Fluidity *never* allows this in its public API. Implementations that extend this to allow transactions based on handle (again, something like Storage Drawers would require this) are advised to *also* include article as part of any transaction specification. (The `FixedDiscreteStorage` interface in `grondag.fluidity.base.storage.discrete` and its sub-types offer an example of this.)
+
+* Storage implementations are required to maintain a consistent handle:article mapping for as long as the storage has any listeners. In practice, this means preserving empty handles and creating new ones when articles are completely removed and new articles are added.  This makes is much easier for listeners to maintain a synchronized view of content and/or respond appropriately to changes.  Except...
+
+* Implementations that *do* have physical slots *may* change a handle:article mapping, but when doing so must send listeners two events: one to remove the article from its current slot and a second event to re-add the article in its new location.  Implementations that have other reasons to change handle:article mappings may also do so if they follow the same practice.
+
 
 ## Storage and its Variants
 

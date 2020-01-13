@@ -66,7 +66,7 @@ public class BulkNotifier {
 
 		owner.forEach(a -> {
 			if (!a.isEmpty()) {
-				listener.onAccept(owner, a.handle(), a.article(), a.volume(), a.volume());
+				listener.onAccept(owner, a.handle(), a.article(), a.amount(), a.amount());
 			}
 
 			return true;
@@ -76,7 +76,7 @@ public class BulkNotifier {
 	public void sendLastListenerUpdate(StorageListener listener, FractionView capacity) {
 		owner.forEach(a -> {
 			if (!a.isEmpty()) {
-				listener.onSupply(owner, a.handle(), a.article(), a.volume(), Fraction.ZERO);
+				listener.onSupply(owner, a.handle(), a.article(), a.amount(), Fraction.ZERO);
 			}
 
 			return true;

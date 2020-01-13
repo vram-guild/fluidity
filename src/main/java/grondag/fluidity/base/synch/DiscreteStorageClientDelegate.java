@@ -93,6 +93,7 @@ public class DiscreteStorageClientDelegate extends AbstractStorageClientDelegate
 
 		for (int i = 0; i < limit; i++) {
 			final DiscreteDisplayDelegate item = items[i];
+
 			if(item.getCount() > 0) {
 				MAP.put(item.handle(), item);
 				LIST.add(item);

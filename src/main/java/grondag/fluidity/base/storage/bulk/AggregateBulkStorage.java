@@ -432,7 +432,7 @@ public class AggregateBulkStorage extends AbstractAggregateStorage<AggregateBulk
 		final AggregateBulkStoredArticle article = articles.findOrCreateArticle(item);
 		article.add(delta);
 		article.stores().add(storage);
-		notifier.notifyAccept(article.article(), article.handle(), delta, article.volume());
+		notifier.notifyAccept(article.article(), article.handle(), delta, article.amount());
 	}
 
 	static boolean warnIgnore = true;
@@ -452,14 +452,14 @@ public class AggregateBulkStorage extends AbstractAggregateStorage<AggregateBulk
 			return;
 		}
 
-		if(delta.isGreaterThan(article.volume())) {
+		if(delta.isGreaterThan(article.amount())) {
 			if(warnPartialIgnore) {
 				Fluidity.LOG.warn("AggregateStorage partially ignored notification of supply for article with mimatched amount.");
 				Fluidity.LOG.warn("This probably indicates a bug in a mod using Fludity. Warnings for subsequent events are suppressed.");
 				warnPartialIgnore = false;
 			}
 
-			delta = article.volume().toImmutable();
+			delta = article.amount().toImmutable();
 		}
 
 		if(newVolume.isZero()) {
@@ -467,7 +467,7 @@ public class AggregateBulkStorage extends AbstractAggregateStorage<AggregateBulk
 		}
 
 		article.subtract(delta);
-		notifier.notifySupply(article.article(), article.handle(), delta, article.volume());
+		notifier.notifySupply(article.article(), article.handle(), delta, article.amount());
 	}
 
 	@Override

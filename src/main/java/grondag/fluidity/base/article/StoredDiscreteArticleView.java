@@ -31,7 +31,7 @@ import grondag.fluidity.api.fraction.FractionView;
 @API(status = Status.EXPERIMENTAL)
 public interface StoredDiscreteArticleView extends StoredArticleView{
 	@Override
-	default FractionView volume() {
+	default FractionView amount() {
 		return Fraction.of(count());
 	}
 }

@@ -30,6 +30,6 @@ import grondag.fluidity.api.article.StoredArticleView;
 public interface StoredBulkArticleView extends StoredArticleView{
 	@Override
 	default long count() {
-		return volume().whole();
+		return amount().whole();
 	}
 }

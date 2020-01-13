@@ -44,7 +44,7 @@ public interface StoredArticleView {
 
 	long count();
 
-	FractionView volume();
+	FractionView amount();
 
 	/**
 	 * Item is removed/depleted.  Of use when viewed fixed-slot containers or views of
@@ -75,7 +75,7 @@ public interface StoredArticleView {
 		}
 
 		@Override
-		public FractionView volume() {
+		public FractionView amount() {
 			return Fraction.ZERO;
 		}
 	};

@@ -93,7 +93,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, S
 		public FractionView apply(Article item, FractionView volume, boolean simulate) {
 			Preconditions.checkArgument(!volume.isNegative(), "Request to supply negative volume. (%s)", volume);
 
-			if (item == Article.NOTHING || item != article || content.isZero() || volume.isZero()) {
+			if (item == Article.NOTHING || !item.equals(article) || content.isZero() || volume.isZero()) {
 				return Fraction.ZERO;
 			}
 
@@ -118,7 +118,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, S
 			Preconditions.checkArgument(numerator >= 0, "Request to supply negative volume. (%s)", numerator);
 			Preconditions.checkArgument(divisor >= 1, "Divisor must be >= 1. (%s)", divisor);
 
-			if (item == Article.NOTHING || item != article || content.isZero() || numerator == 0) {
+			if (item == Article.NOTHING || !item.equals(article) || content.isZero() || numerator == 0) {
 				return 0;
 			}
 
@@ -167,7 +167,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, S
 		public FractionView apply(Article item, FractionView volume, boolean simulate) {
 			Preconditions.checkArgument(!volume.isNegative(), "Request to accept negative volume. (%s)", volume);
 
-			if (item == Article.NOTHING || volume.isZero() || (item != article && article != Article.NOTHING)) {
+			if (item == Article.NOTHING || volume.isZero() || (!item.equals(article) && article != Article.NOTHING)) {
 				return Fraction.ZERO;
 			}
 
@@ -204,7 +204,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, S
 			Preconditions.checkArgument(numerator >= 0, "Request to accept negative volume. (%s)", numerator);
 			Preconditions.checkArgument(divisor >= 1, "Divisor must be >= 1. (%s)", divisor);
 
-			if (item == Article.NOTHING || numerator == 0 || (item != article && article != Article.NOTHING)) {
+			if (item == Article.NOTHING || numerator == 0 || (!item.equals(article) && article != Article.NOTHING)) {
 				return 0;
 			}
 
@@ -281,7 +281,7 @@ public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, S
 		}
 
 		@Override
-		public FractionView volume() {
+		public FractionView amount() {
 			return content;
 		}
 
