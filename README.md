@@ -78,22 +78,24 @@ An `Article` *may* have an NBT CompoundTag value associated with it.  Currently 
 
 When an article has a non-null tag value there can be a virtually infinite number of distinct instances. Interning such articles would create the risk of excessive memory allocation.  Thus, article instances with tag values are held in a fixed-capacity cache and evicted as needed, making them slightly less efficient than articles without tags.
 
-To ensure that articles are immutable, an articles tag instance is not directly exposed. The `copyTag()` method is the only way to get the tag content, but allocates a new copy.  If you only need to test for tag existence or test for tag equality use `hasTag()` or `doesTagMatch()`.
+To ensure that articles are immutable, an article's tag instance is not directly exposed. The `copyTag()` method is the only way to get the tag content, but results in a new allocation every time.  If you only need to test for tag existence or test for tag equality use `hasTag()` or `doesTagMatch()`.
 
 ### Stored Articles
 When an article is being stored or transfered we need additional information: quantity and, sometimes, a location. A core design principle of Fluidity is that all such data should never be directly mutated outside of the storage/transport implementation - all changes *must* be the result of some controlled, observable transaction.
 
-The the only API to expose this information is immutable: `StoredArticleView`.
+This is why the API that exposes this information is immutable: `StoredArticleView`.
 
-`StoredArticleView` exposes *both* a whole-number `count()` (for discrete articles) and a fractional `amount()` (for bulk articles).  Both are equally valid, however, the `count()` property will not reflect fractional amounts less than a unit and so is not a reliable test of emptiness for implementations that may contain bulk items.  To test for emptiness, use `isEmpty()`.
+`StoredArticleView` includes *both* a whole-number `count()` (for discrete articles) and a fractional `amount()` (for bulk articles).  This creates a tiny amount of extra work for implementations (which is largely handled automatically via the base packages) at the benefit of having fewer/simpler interfaces overall.  Consumers of the API can use whichever accounting method makes sense for their purpose.  
 
-`StoredArticleView' also has a special instance meant to be used in place of `null` values: the `StoredArticleView.EMPTY` instance.  Storage implementations should return this instance instead of `null` when the intent is to signal the absence of a result.
+Note that the `count()` property will not reflect fractional amounts less than a unit and so is not a reliable test of emptiness for implementations that may contain bulk items.  To test for emptiness, use `isEmpty()`.
+
+`StoredArticleView` also has a special instance meant to be used in place of `null` values: `StoredArticleView.EMPTY`.  Implementations should return this instance instead of `null` when the intent is to signal the absence of a result.
 
 #### Implementation Support
 Obviously, implementations *will* need to mutate their contents and most implementations will be firmly discrete or bulk - not both.  The [`grondag.fluidity.base.article`]() package provides specialized discrete/bulk interfaces and classes to support most types of implementations.  Use of these is entirely optional but mod authors are encouraged to examine them for illustration before creating their own.  
 
 #### Stored Article Handles
-`StoredArticleView' also exposes an integer `handle()` property, which is *similar* in purpose to vanilla inventory "slots" but also different in key ways:
+`StoredArticleView` also exposes an integer `handle()` property, which is *similar* in purpose to vanilla inventory "slots" but also different in key ways:
 * Handles are not guaranteed to correspond to a specific, physical location in storage. Some implementations (something like a Storage Drawers mod, for example) may have this contract, but it is never required.
 
 * Handle can be used to retrieve a storage view (similar to `List.get()`) but the targets of storage transactions are *always* specified by article - never by handle.  This ensures that no transactions is ambiguously or erroneously specified. A vanilla `Inventory` will let you blindly replace or change the contents of a slot without knowing or validating what was in it. Fluidity *never* allows this in its public API. Implementations that extend this to allow transactions based on handle (again, something like Storage Drawers would require this) are advised to *also* include article as part of any transaction specification. (The `FixedDiscreteStorage` interface in `grondag.fluidity.base.storage.discrete` and its sub-types offer an example of this.)
