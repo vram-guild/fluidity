@@ -21,7 +21,7 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.item.ItemStack;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.impl.storage.CreativeSupplier;
 import grondag.fluidity.impl.storage.EmptySupplier;
 import grondag.fluidity.impl.storage.FullConsumer;
@@ -51,7 +51,7 @@ public interface FixedArticleFunction extends ArticleFunction {
 		return apply(handle, Article.of(stack), stack.getCount(), simulate);
 	}
 
-	FractionView apply(int handle, Article item, FractionView volume, boolean simulate);
+	Fraction apply(int handle, Article item, Fraction volume, boolean simulate);
 
 	long apply(int handle, Article item, long numerator, long divisor, boolean simulate);
 

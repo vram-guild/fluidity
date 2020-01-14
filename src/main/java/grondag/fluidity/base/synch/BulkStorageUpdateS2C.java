@@ -28,7 +28,7 @@ import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.impl.AbstractFraction;
+import grondag.fluidity.api.fraction.Fraction;
 
 @API(status = Status.EXPERIMENTAL)
 public final class BulkStorageUpdateS2C {
@@ -40,19 +40,19 @@ public final class BulkStorageUpdateS2C {
 		return buf;
 	}
 
-	public static PacketByteBuf append(PacketByteBuf buf, Article article, AbstractFraction amount, int handle) {
+	public static PacketByteBuf append(PacketByteBuf buf, Article article, Fraction amount, int handle) {
 		article.toPacket(buf);
 		amount.writeBuffer(buf);
 		buf.writeVarInt(handle);
 		return buf;
 	}
 
-	public static void sendFullRefresh(ServerPlayerEntity player, PacketByteBuf buf, AbstractFraction capacity) {
+	public static void sendFullRefresh(ServerPlayerEntity player, PacketByteBuf buf, Fraction capacity) {
 		capacity.writeBuffer(buf);
 		send(ID_FULL_REFRESH, player, buf);
 	}
 
-	public static void sendUpdateWithCapacity(ServerPlayerEntity player, PacketByteBuf buf, AbstractFraction capacity) {
+	public static void sendUpdateWithCapacity(ServerPlayerEntity player, PacketByteBuf buf, Fraction capacity) {
 		capacity.writeBuffer(buf);
 		send(ID_UPDATE_WITH_CAPACITY, player, buf);
 	}

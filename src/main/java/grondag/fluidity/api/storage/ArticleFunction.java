@@ -25,7 +25,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.transact.TransactionParticipant;
 import grondag.fluidity.impl.storage.CreativeSupplier;
 import grondag.fluidity.impl.storage.EmptySupplier;
@@ -91,7 +91,7 @@ public interface ArticleFunction extends TransactionParticipant {
 	 * @param simulate If true, forecasts the result without making any changes.
 	 * @return How much stuff was added
 	 */
-	FractionView apply(Article item, FractionView volume, boolean simulate);
+	Fraction apply(Article item, Fraction volume, boolean simulate);
 
 	/**
 	 * As with {@link #accept(BulkItem, FractionView, boolean)} BUT the result

@@ -25,7 +25,6 @@ import net.minecraft.nbt.CompoundTag;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
-import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.StorageListener;
@@ -90,7 +89,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 	protected class Supplier implements BulkArticleFunction {
 
 		@Override
-		public FractionView apply(Article item, FractionView volume, boolean simulate) {
+		public Fraction apply(Article item, Fraction volume, boolean simulate) {
 			Preconditions.checkArgument(!volume.isNegative(), "Request to supply negative volume. (%s)", volume);
 
 			if (item == Article.NOTHING || !item.equals(article) || content.isZero() || volume.isZero()) {
@@ -164,7 +163,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 	protected class Consumer implements BulkArticleFunction {
 
 		@Override
-		public FractionView apply(Article item, FractionView volume, boolean simulate) {
+		public Fraction apply(Article item, Fraction volume, boolean simulate) {
 			Preconditions.checkArgument(!volume.isNegative(), "Request to accept negative volume. (%s)", volume);
 
 			if (item == Article.NOTHING || volume.isZero() || (!item.equals(article) && article != Article.NOTHING)) {
@@ -281,7 +280,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 		}
 
 		@Override
-		public FractionView amount() {
+		public Fraction amount() {
 			return content;
 		}
 
@@ -344,12 +343,12 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 	}
 
 	@Override
-	public FractionView amount() {
+	public Fraction amount() {
 		return content;
 	}
 
 	@Override
-	public FractionView volume() {
+	public Fraction volume() {
 		return capacity;
 	}
 }

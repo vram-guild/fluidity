@@ -20,7 +20,6 @@ import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
-import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.FixedArticleFunction;
 import grondag.fluidity.api.storage.FixedStore;
 
@@ -29,7 +28,7 @@ public interface FixedDiscreteStore extends DiscreteStore, FixedStore {
 
 	public interface FixedDiscreteArticleFunction extends DiscreteStore.DiscreteArticleFunction, FixedArticleFunction {
 		@Override
-		default FractionView apply(int handle, Article item, FractionView volume, boolean simulate) {
+		default Fraction apply(int handle, Article item, Fraction volume, boolean simulate) {
 			return Fraction.of(apply(handle, item, volume.whole(), simulate));
 		}
 

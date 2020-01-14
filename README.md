@@ -106,6 +106,16 @@ Obviously, implementations *will* need to mutate their contents and most impleme
 * Implementations that *do* have physical slots *may* change a handle:article mapping, but when doing so must send listeners two events: one to remove the article from its current handle association (the listener would associate the old handle with `StoredArticleView.EMPTY`) and a second event to re-add the article with its new handle.  Implementations that have other reasons to change handle:article mappings may also do so if they follow the same practice.
 
 ## Fractions
+Fluidity represents Fractions as three `long` values: whole units, numerator and denominator.  These components are individually exposed in the immutable `FractionView` interface.  While two longs (numerator and denominator) would arguably be sufficient for most use cases, that arrangement would mean that scale and sub-unit resolution would would vary inversely.  In an unpredictable multi-mod environment, it is better for mod authors (and mod testers) if the maximum resolution and scale of fractions are both invariants.
+
+Fluidity also includes two concrete `Fraction` and `MutableFraction` implementations as part of the public API. These are and do exactly what you would expect based on the their names. Implementations that frequently update fractional values will generally want to use `MutableFraction` instead of allocating new `Fraction` instances with every operation.
+
+For this reason, consumers of `FractionView` should *never* retain a reference but instead copy the value to a `MutableFraction` instance, or use `FractionView.toImmutable()` to ensure you have a Fraction instance that is safe to hold.
+
+Mod authors should *not* implement `FractionView` nor sub-class `AbstractFraction` which is the parent class for both concrete implementations. These classes are designed to ensure fast, static invocation - both classes and most methods are marked final for this reason.
+
+This constraint would be better enforced if FractionView did not exist at all and interfaces that required fractions instead used the concrete types directly.  However, this would force implementations to expose their mutable innards or create new immutable  
+
 
 ## Store and its Variants
 

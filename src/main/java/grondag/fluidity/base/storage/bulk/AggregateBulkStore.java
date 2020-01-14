@@ -29,11 +29,10 @@ import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
-import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.storage.ArticleFunction;
-import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.api.storage.StorageListener;
+import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.api.transact.Transaction;
 import grondag.fluidity.base.article.AggregateBulkStoredArticle;
 import grondag.fluidity.base.storage.AbstractAggregateStore;
@@ -94,7 +93,7 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 		}
 
 		@Override
-		public FractionView apply(Article item, FractionView volume, boolean simulate) {
+		public Fraction apply(Article item, Fraction volume, boolean simulate) {
 			if (item.isNothing() || stores.isEmpty()) {
 				return Fraction.ZERO;
 			}
@@ -140,7 +139,7 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 		}
 
 		@Override
-		public FractionView apply(Article item, FractionView volume, boolean simulate) {
+		public Fraction apply(Article item, Fraction volume, boolean simulate) {
 			Preconditions.checkNotNull(item, "Request to accept null article");
 
 			if (item.isNothing() || isEmpty()) {
@@ -178,7 +177,7 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 		}
 	}
 
-	protected FractionView acceptInner(Article item, FractionView volume, boolean simulate) {
+	protected Fraction acceptInner(Article item, Fraction volume, boolean simulate) {
 		result.set(0);
 
 		final AggregateBulkStoredArticle article = articles.findOrCreateArticle(item);
@@ -209,7 +208,7 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 			if (result.isLessThan(volume)) {
 				for (final Store store : searchList) {
 					Transaction.enlistIfOpen(store);
-					final FractionView f = store.getConsumer().apply(item, delta.set(volume).subtract(result), simulate);
+					final Fraction f = store.getConsumer().apply(item, delta.set(volume).subtract(result), simulate);
 
 					if(!f.isZero()) {
 						result.add(f);
@@ -230,7 +229,7 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 			for (final Store store : stores) {
 				if(store.hasConsumer() && !store.isFull()) {
 					Transaction.enlistIfOpen(store);
-					final FractionView f = store.getConsumer().apply(item, delta.set(volume).subtract(result), simulate);
+					final Fraction f = store.getConsumer().apply(item, delta.set(volume).subtract(result), simulate);
 
 					if(!f.isZero()) {
 						result.add(f);
@@ -324,7 +323,7 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 		return result;
 	}
 
-	protected FractionView supplyInner(Article item, FractionView volume, boolean simulate) {
+	protected Fraction supplyInner(Article item, Fraction volume, boolean simulate) {
 		final AggregateBulkStoredArticle article = articles.get(item);
 
 		if(article == null || article.isEmpty()) {
@@ -338,7 +337,7 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 		for (final Store store : existing) {
 			if(store.hasSupplier()) {
 				Transaction.enlistIfOpen(store);
-				final FractionView f = store.getSupplier().apply(item, delta.set(volume).subtract(result), simulate);
+				final Fraction f = store.getSupplier().apply(item, delta.set(volume).subtract(result), simulate);
 
 				if(!f.isZero()) {
 					result.add(f);
@@ -408,12 +407,12 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 	}
 
 	@Override
-	public FractionView amount() {
+	public Fraction amount() {
 		return notifier.amount();
 	}
 
 	@Override
-	public FractionView volume() {
+	public Fraction volume() {
 		return notifier.volume();
 	}
 
@@ -428,7 +427,7 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 	}
 
 	@Override
-	public void onAccept(Store storage, int slot, Article item, FractionView delta, FractionView newVolume) {
+	public void onAccept(Store storage, int slot, Article item, Fraction delta, Fraction newVolume) {
 		final AggregateBulkStoredArticle article = articles.findOrCreateArticle(item);
 		article.add(delta);
 		article.stores().add(storage);
@@ -439,7 +438,7 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 	static boolean warnPartialIgnore = true;
 
 	@Override
-	public void onSupply(Store storage, int slot, Article item, FractionView delta, FractionView newVolume) {
+	public void onSupply(Store storage, int slot, Article item, Fraction delta, Fraction newVolume) {
 		final AggregateBulkStoredArticle article = articles.get(item);
 
 		if(article == null) {
@@ -471,7 +470,7 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 	}
 
 	@Override
-	public void onCapacityChange(Store storage, FractionView capacityDelta) {
+	public void onCapacityChange(Store storage, Fraction capacityDelta) {
 		notifier.addToCapacity(capacityDelta);
 	}
 

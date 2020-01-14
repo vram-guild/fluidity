@@ -30,7 +30,6 @@ import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.device.DeviceComponentRegistry;
 import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.api.fraction.Fraction;
-import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.transact.TransactionParticipant;
 import grondag.fluidity.impl.storage.CreativeStore;
 import grondag.fluidity.impl.storage.EmptyStore;
@@ -131,15 +130,15 @@ public interface Store extends TransactionParticipant {
 		return getSupplier().apply(item, Long.MAX_VALUE, true);
 	}
 
-	FractionView amount();
+	Fraction amount();
 
-	default FractionView amountOf(Article item)  {
+	default Fraction amountOf(Article item)  {
 		return getSupplier().apply(item, Fraction.MAX_VALUE, true);
 	}
 
 	long capacity();
 
-	FractionView volume();
+	Fraction volume();
 
 	double usage();
 

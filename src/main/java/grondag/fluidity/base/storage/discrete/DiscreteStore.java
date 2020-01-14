@@ -20,19 +20,18 @@ import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
-import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.Store;
 
 @API(status = Status.EXPERIMENTAL)
 public interface DiscreteStore extends Store {
 	@Override
-	default FractionView amount() {
+	default Fraction amount() {
 		return Fraction.of(count());
 	}
 
 	@Override
-	default FractionView volume() {
+	default Fraction volume() {
 		return Fraction.of(capacity());
 	}
 
@@ -44,7 +43,7 @@ public interface DiscreteStore extends Store {
 
 	public interface DiscreteArticleFunction extends ArticleFunction {
 		@Override
-		default FractionView apply(Article item, FractionView volume, boolean simulate) {
+		default Fraction apply(Article item, Fraction volume, boolean simulate) {
 			return volume.whole() == 0 ? Fraction.ZERO : Fraction.of(apply(item, volume.whole(), simulate));
 		}
 

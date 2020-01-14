@@ -19,7 +19,7 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.Store;
 
@@ -37,7 +37,7 @@ public interface BulkStore extends Store {
 
 	@Override
 	default double usage() {
-		final FractionView cap = volume();
+		final Fraction cap = volume();
 		return cap.isZero() ? 0 : amount().toDouble() / volume().toDouble();
 	}
 

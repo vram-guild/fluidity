@@ -19,7 +19,7 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.FixedArticleFunction;
 
 @API(status = Status.EXPERIMENTAL)
@@ -34,7 +34,7 @@ public class ForwardingFixedArticleFunction<T extends FixedArticleFunction> exte
 	}
 
 	@Override
-	public FractionView apply(int handle, Article item, FractionView volume, boolean simulate) {
+	public Fraction apply(int handle, Article item, Fraction volume, boolean simulate) {
 		return wrapped.apply(handle, item, volume, simulate);
 	}
 

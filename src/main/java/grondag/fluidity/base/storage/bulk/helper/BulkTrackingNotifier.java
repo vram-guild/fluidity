@@ -19,7 +19,7 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredBulkArticle;
@@ -32,13 +32,13 @@ public class BulkTrackingNotifier extends BulkNotifier {
 	protected int articleCount = 0;
 	protected BulkTrackingJournal journal = null;
 
-	public BulkTrackingNotifier(FractionView capacity, AbstractStore<? extends StoredBulkArticle, ?> owner) {
+	public BulkTrackingNotifier(Fraction capacity, AbstractStore<? extends StoredBulkArticle, ?> owner) {
 		super(owner);
 		this.capacity.set(capacity);
 	}
 
 	@Override
-	public void notifySupply(Article item, int handle, FractionView delta, FractionView newCount) {
+	public void notifySupply(Article item, int handle, Fraction delta, Fraction newCount) {
 		assert !delta.isNegative();
 
 		if (!delta.isZero()) {
@@ -53,7 +53,7 @@ public class BulkTrackingNotifier extends BulkNotifier {
 	}
 
 	@Override
-	public void notifyAccept(Article item, int handle, FractionView delta, FractionView newCount) {
+	public void notifyAccept(Article item, int handle, Fraction delta, Fraction newCount) {
 		assert !delta.isNegative();
 
 		if (!delta.isZero()) {
@@ -67,20 +67,20 @@ public class BulkTrackingNotifier extends BulkNotifier {
 		}
 	}
 
-	public void setCapacity(FractionView newCapacity) {
+	public void setCapacity(Fraction newCapacity) {
 		if(newCapacity != capacity) {
 			notifyCapacityChange(newCapacity.withSubtraction(capacity));
 		}
 	}
 
-	public void addToCapacity(FractionView delta) {
+	public void addToCapacity(Fraction delta) {
 		if(!delta.isZero()) {
 			notifyCapacityChange(delta);
 		}
 	}
 
 	@Override
-	public void notifyCapacityChange(FractionView capacityDelta) {
+	public void notifyCapacityChange(Fraction capacityDelta) {
 		if(journal != null) {
 			journal.capacityDelta.add(capacityDelta);
 		}
@@ -97,11 +97,11 @@ public class BulkTrackingNotifier extends BulkNotifier {
 		super.sendLastListenerUpdate(listener, capacity);
 	}
 
-	public FractionView amount() {
+	public Fraction amount() {
 		return amount;
 	}
 
-	public FractionView volume() {
+	public Fraction volume() {
 		return capacity;
 	}
 
@@ -114,7 +114,7 @@ public class BulkTrackingNotifier extends BulkNotifier {
 		articleCount = 0;
 	}
 
-	protected void journal(Article article, FractionView delta, boolean subtract) {
+	protected void journal(Article article, Fraction delta, boolean subtract) {
 		if(journal != null) {
 			final MutableFraction current = journal.changes.get(article);
 

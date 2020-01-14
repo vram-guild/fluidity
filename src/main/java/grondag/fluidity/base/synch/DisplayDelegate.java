@@ -25,7 +25,6 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.client.resource.language.I18n;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.FractionView;
 
 /**
  * Client-side representation of server inventory that supports
@@ -40,7 +39,15 @@ public interface DisplayDelegate {
 
 	Article article();
 
-	FractionView getAmount();
+	long getCount();
+
+	default long numerator() {
+		return 0;
+	}
+
+	default long divisor() {
+		return 1;
+	}
 
 	boolean isEmpty();
 
@@ -88,7 +95,12 @@ public interface DisplayDelegate {
 			} else if (o2 == null) {
 				return -1;
 			}
-			final int result = o1.getAmount().compareTo(o2.getAmount());
+			int result = Long.compare(o1.getCount(), o2.getCount());
+
+			if(result == 0) {
+				result =  Long.compare(o1.numerator() * o2.divisor(), o2.numerator() * o1.divisor());
+			}
+
 			return result == 0 ? SORT_BY_NAME_ASC.compare(o1, o2) : result;
 		}
 	};

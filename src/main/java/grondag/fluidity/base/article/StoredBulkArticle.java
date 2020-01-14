@@ -21,9 +21,8 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.item.ItemStack;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.MutableFraction;
-import grondag.fluidity.impl.AbstractFraction;
 
 @API(status = Status.EXPERIMENTAL)
 public class StoredBulkArticle extends AbstractStoredArticle implements StoredBulkArticleView {
@@ -51,7 +50,7 @@ public class StoredBulkArticle extends AbstractStoredArticle implements StoredBu
 		return this;
 	}
 
-	public StoredBulkArticle prepare(Article article, FractionView amount, int handle) {
+	public StoredBulkArticle prepare(Article article, Fraction amount, int handle) {
 		setArticle(article == null ? Article.NOTHING : article);
 		this.handle = handle;
 		volume.set(amount);
@@ -72,16 +71,16 @@ public class StoredBulkArticle extends AbstractStoredArticle implements StoredBu
 		volume.set(0);
 	}
 
-	public void add(FractionView delta) {
+	public void add(Fraction delta) {
 		volume.add(delta);
 	}
 
-	public void subtract(FractionView delta) {
+	public void subtract(Fraction delta) {
 		volume.subtract(delta);
 	}
 
 	@Override
-	public AbstractFraction amount() {
+	public Fraction amount() {
 		return volume;
 	}
 
@@ -97,7 +96,7 @@ public class StoredBulkArticle extends AbstractStoredArticle implements StoredBu
 		return new  StoredBulkArticle().prepare(article, numerator, denominator, handle);
 	}
 
-	public static StoredBulkArticle of(Article article, FractionView amount, int handle) {
+	public static StoredBulkArticle of(Article article, Fraction amount, int handle) {
 		return new  StoredBulkArticle().prepare(article, amount, handle);
 	}
 }

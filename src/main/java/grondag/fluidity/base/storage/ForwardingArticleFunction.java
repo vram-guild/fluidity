@@ -23,7 +23,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.ArticleFunction;
 
 @API(status = Status.EXPERIMENTAL)
@@ -53,7 +53,7 @@ public class ForwardingArticleFunction<T extends ArticleFunction> implements Art
 	}
 
 	@Override
-	public FractionView apply(Article item, FractionView volume, boolean simulate) {
+	public Fraction apply(Article item, Fraction volume, boolean simulate) {
 		return wrapped.apply(item, volume, simulate);
 	}
 

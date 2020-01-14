@@ -23,7 +23,6 @@ import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
-import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.FixedArticleFunction;
 import grondag.fluidity.api.storage.FixedStore;
 import grondag.fluidity.api.storage.StorageEventStream;
@@ -50,7 +49,7 @@ public final class CreativeStore implements FixedStore {
 	}
 
 	@Override
-	public FractionView amount() {
+	public Fraction amount() {
 		return Fraction.ZERO;
 	}
 
@@ -60,7 +59,7 @@ public final class CreativeStore implements FixedStore {
 	}
 
 	@Override
-	public FractionView volume() {
+	public Fraction volume() {
 		return Fraction.ZERO;
 	}
 

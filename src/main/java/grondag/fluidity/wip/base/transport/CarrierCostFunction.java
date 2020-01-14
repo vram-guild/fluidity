@@ -25,7 +25,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.transact.TransactionParticipant;
 import grondag.fluidity.wip.api.transport.CarrierSession;
 
@@ -63,7 +63,7 @@ public interface CarrierCostFunction extends TransactionParticipant {
 		return apply(sender, Article.of(stack), stack.getCount(), simulate);
 	}
 
-	FractionView apply(CarrierSession sender, Article item, FractionView volume, boolean simulate);
+	Fraction apply(CarrierSession sender, Article item, Fraction volume, boolean simulate);
 
 	long apply(CarrierSession sender, Article item, long numerator, long divisor, boolean simulate);
 
@@ -80,7 +80,7 @@ public interface CarrierCostFunction extends TransactionParticipant {
 		}
 
 		@Override
-		public FractionView apply(CarrierSession sender, Article item, FractionView volume, boolean simulate) {
+		public Fraction apply(CarrierSession sender, Article item, Fraction volume, boolean simulate) {
 			return volume.toImmutable();
 		}
 

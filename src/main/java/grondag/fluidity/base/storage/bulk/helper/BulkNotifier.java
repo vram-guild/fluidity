@@ -20,7 +20,6 @@ import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
-import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredBulkArticle;
 import grondag.fluidity.base.storage.AbstractStore;
@@ -33,7 +32,7 @@ public class BulkNotifier {
 		this.owner = owner;
 	}
 
-	public void notifySupply(Article item, int handle, FractionView delta, FractionView newAmount) {
+	public void notifySupply(Article item, int handle, Fraction delta, Fraction newAmount) {
 		assert !newAmount.isNegative();
 
 		if(!owner.listeners.isEmpty()) {
@@ -43,7 +42,7 @@ public class BulkNotifier {
 		}
 	}
 
-	public void notifyAccept(Article item, int handle, FractionView delta, FractionView newAmount) {
+	public void notifyAccept(Article item, int handle, Fraction delta, Fraction newAmount) {
 		assert !newAmount.isNegative();
 
 		if(!owner.listeners.isEmpty()) {
@@ -53,7 +52,7 @@ public class BulkNotifier {
 		}
 	}
 
-	public void notifyCapacityChange(FractionView capacityDelta) {
+	public void notifyCapacityChange(Fraction capacityDelta) {
 		if(!owner.listeners.isEmpty()) {
 			for(final StorageListener l : owner.listeners) {
 				l.onCapacityChange(owner, capacityDelta);
@@ -61,7 +60,7 @@ public class BulkNotifier {
 		}
 	}
 
-	public void sendFirstListenerUpdate(StorageListener listener, FractionView capacity) {
+	public void sendFirstListenerUpdate(StorageListener listener, Fraction capacity) {
 		listener.onCapacityChange(owner, capacity);
 
 		owner.forEach(a -> {
@@ -73,7 +72,7 @@ public class BulkNotifier {
 		});
 	}
 
-	public void sendLastListenerUpdate(StorageListener listener, FractionView capacity) {
+	public void sendLastListenerUpdate(StorageListener listener, Fraction capacity) {
 		owner.forEach(a -> {
 			if (!a.isEmpty()) {
 				listener.onSupply(owner, a.handle(), a.article(), a.amount(), Fraction.ZERO);

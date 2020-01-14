@@ -19,11 +19,10 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.base.synch.DiscreteDisplayDelegate;
 
 @API(status = Status.INTERNAL)
-public class DiscreteDisplayDelegateImpl extends AbstractDisplayDelegateImpl implements DiscreteDisplayDelegate, FractionView {
+public class DiscreteDisplayDelegateImpl extends AbstractDisplayDelegateImpl implements DiscreteDisplayDelegate {
 	long count;
 
 	public DiscreteDisplayDelegateImpl(Article article, long count, int handle) {
@@ -51,26 +50,6 @@ public class DiscreteDisplayDelegateImpl extends AbstractDisplayDelegateImpl imp
 	@Override
 	public void setCount(long count) {
 		this.count = count;
-	}
-
-	@Override
-	public FractionView getAmount() {
-		return this;
-	}
-
-	@Override
-	public long whole() {
-		return count;
-	}
-
-	@Override
-	public long numerator() {
-		return 0;
-	}
-
-	@Override
-	public long divisor() {
-		return 1;
 	}
 
 	@Override

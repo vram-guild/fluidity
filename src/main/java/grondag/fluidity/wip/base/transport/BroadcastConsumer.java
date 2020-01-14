@@ -19,7 +19,6 @@ import java.util.Iterator;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
-import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.Store;
@@ -66,7 +65,7 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 	protected final MutableFraction result = new MutableFraction();
 
 	@Override
-	public FractionView apply(Article item, FractionView volume, boolean simulate) {
+	public Fraction apply(Article item, Fraction volume, boolean simulate) {
 		final LimitedCarrier<T> carrier = fromNode.carrier();
 
 		if(carrier.nodeCount() <= 1) {
@@ -85,7 +84,7 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 
 			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_CONSUMER_BROADCASTS)) {
 				final ArticleFunction c = n.getComponent(Store.STORAGE_COMPONENT).get().getConsumer();
-				final FractionView amt = c.apply(item, calc, simulate);
+				final Fraction amt = c.apply(item, calc, simulate);
 
 				if(!amt.isZero()) {
 					result.add(amt);

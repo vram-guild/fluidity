@@ -24,7 +24,6 @@ import net.fabricmc.fabric.api.network.PacketContext;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
-import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
 
 @API(status = Status.EXPERIMENTAL)
@@ -139,11 +138,11 @@ public class BulkStorageClientDelegate extends AbstractStorageClientDelegate<Bul
 		isSortDirty = true;
 	}
 
-	public FractionView capacity() {
+	public Fraction capacity() {
 		return capacity;
 	}
 
-	public FractionView usedCapacity() {
+	public Fraction usedCapacity() {
 		return usedCapacity;
 	}
 

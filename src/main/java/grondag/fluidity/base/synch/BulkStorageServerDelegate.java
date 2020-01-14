@@ -22,11 +22,10 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.PacketByteBuf;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.base.article.StoredBulkArticle;
 import grondag.fluidity.base.storage.bulk.BulkStorageListener;
-import grondag.fluidity.impl.AbstractFraction;
 
 @API(status = Status.EXPERIMENTAL)
 public class BulkStorageServerDelegate extends AbstractStorageServerDelegate<StoredBulkArticle> implements BulkStorageListener {
@@ -35,7 +34,7 @@ public class BulkStorageServerDelegate extends AbstractStorageServerDelegate<Sto
 	}
 
 	@Override
-	public void onAccept(Store storage, int handle, Article item, FractionView delta, FractionView newVolume) {
+	public void onAccept(Store storage, int handle, Article item, Fraction delta, Fraction newVolume) {
 		assert !newVolume.isNegative();
 
 		if(storage != null) {
@@ -50,14 +49,14 @@ public class BulkStorageServerDelegate extends AbstractStorageServerDelegate<Sto
 	}
 
 	@Override
-	public void onSupply(Store storage, int slot, Article item, FractionView delta, FractionView newVolume) {
+	public void onSupply(Store storage, int slot, Article item, Fraction delta, Fraction newVolume) {
 		assert !newVolume.isNegative();
 
 		onAccept(storage, slot, item, delta, newVolume);
 	}
 
 	@Override
-	public void onCapacityChange(Store storage, FractionView capacityDelta) {
+	public void onCapacityChange(Store storage, Fraction capacityDelta) {
 		if(storage != null) {
 			capacityChange = true;
 		}
@@ -77,11 +76,11 @@ public class BulkStorageServerDelegate extends AbstractStorageServerDelegate<Sto
 
 		if(isFirstUpdate) {
 			// UGLY: find way to avoid unreliable cast here and in next block
-			BulkStorageUpdateS2C.sendFullRefresh(player, buf, (AbstractFraction) storage.volume());
+			BulkStorageUpdateS2C.sendFullRefresh(player, buf, storage.volume());
 			isFirstUpdate = false;
 			capacityChange = false;
 		} else if (capacityChange) {
-			BulkStorageUpdateS2C.sendUpdateWithCapacity(player, buf, (AbstractFraction) storage.volume());
+			BulkStorageUpdateS2C.sendUpdateWithCapacity(player, buf, storage.volume());
 			capacityChange = false;
 		} else {
 			BulkStorageUpdateS2C.sendUpdate(player, buf);

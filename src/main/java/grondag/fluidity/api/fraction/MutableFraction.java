@@ -22,10 +22,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.PacketByteBuf;
 
-import grondag.fluidity.impl.AbstractFraction;
-
 @API(status = Status.EXPERIMENTAL)
-public final class MutableFraction extends AbstractFraction {
+public final class MutableFraction extends Fraction {
 	public MutableFraction() {
 		super();
 	}
@@ -42,7 +40,7 @@ public final class MutableFraction extends AbstractFraction {
 		super(whole, numerator, divisor);
 	}
 
-	public MutableFraction(FractionView template) {
+	public MutableFraction(Fraction template) {
 		super(template.whole(), template.numerator(), template.divisor());
 	}
 
@@ -74,14 +72,14 @@ public final class MutableFraction extends AbstractFraction {
 		return this;
 	}
 
-	public MutableFraction set(FractionView template) {
+	public MutableFraction set(Fraction template) {
 		whole = template.whole();
 		numerator = template.numerator();
 		divisor = template.divisor();
 		return this;
 	}
 
-	public MutableFraction add(FractionView val) {
+	public MutableFraction add(Fraction val) {
 		return add(val.whole(), val.numerator(), val.divisor());
 	}
 
@@ -117,7 +115,7 @@ public final class MutableFraction extends AbstractFraction {
 		return this;
 	}
 
-	public MutableFraction subtract(FractionView val) {
+	public MutableFraction subtract(Fraction val) {
 		return add(-val.whole(), -val.numerator(), val.divisor());
 	}
 

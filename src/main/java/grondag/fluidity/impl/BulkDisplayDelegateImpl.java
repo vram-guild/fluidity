@@ -19,25 +19,21 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.FractionView;
+import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.base.synch.BulkDisplayDelegate;
 
 @API(status = Status.INTERNAL)
 public class BulkDisplayDelegateImpl extends AbstractDisplayDelegateImpl implements BulkDisplayDelegate {
-	Article article = Article.NOTHING;
 	final MutableFraction amount = new MutableFraction();
-	int handle;
-	String localizedName = "";
-	String lowerCaseLocalizedName = "";
 
-	public BulkDisplayDelegateImpl(Article article, FractionView amount, int handle) {
+	public BulkDisplayDelegateImpl(Article article, Fraction amount, int handle) {
 		super(article, handle);
 		this.amount.set(amount);
 	}
 
 	@Override
-	public BulkDisplayDelegateImpl set (Article article, FractionView amount, int handle) {
+	public BulkDisplayDelegateImpl set (Article article, Fraction amount, int handle) {
 		setArticleAndHandle(article, handle);
 		this.amount.set(amount);
 		return this;
@@ -49,13 +45,28 @@ public class BulkDisplayDelegateImpl extends AbstractDisplayDelegateImpl impleme
 	}
 
 	@Override
-	public FractionView getAmount() {
+	public Fraction getAmount() {
 		return amount;
 	}
 
 	@Override
-	public void setAmount(FractionView amount) {
+	public void setAmount(Fraction amount) {
 		this.amount.set(amount);
+	}
+
+	@Override
+	public long getCount() {
+		return amount.whole();
+	}
+
+	@Override
+	public long numerator() {
+		return amount.numerator();
+	}
+
+	@Override
+	public long divisor() {
+		return amount.divisor();
 	}
 
 	@Override

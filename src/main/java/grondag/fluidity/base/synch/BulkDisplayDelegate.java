@@ -20,7 +20,6 @@ import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
-import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.impl.BulkDisplayDelegateImpl;
 
 /**
@@ -29,9 +28,11 @@ import grondag.fluidity.impl.BulkDisplayDelegateImpl;
  */
 @API(status = Status.EXPERIMENTAL)
 public interface BulkDisplayDelegate extends DisplayDelegate  {
-	void setAmount(FractionView amount);
+	Fraction getAmount();
 
-	BulkDisplayDelegate set(Article article, FractionView amount, int handle);
+	void setAmount(Fraction amount);
+
+	BulkDisplayDelegate set(Article article, Fraction amount, int handle);
 
 	default BulkDisplayDelegate set(BulkDisplayDelegate from) {
 		return set(from.article(), from.getAmount(), from.handle());
@@ -39,7 +40,7 @@ public interface BulkDisplayDelegate extends DisplayDelegate  {
 
 	BulkDisplayDelegate EMPTY = new BulkDisplayDelegateImpl(Article.NOTHING, Fraction.ZERO, -1);
 
-	static BulkDisplayDelegate create(Article article, FractionView amount, int handle) {
+	static BulkDisplayDelegate create(Article article, Fraction amount, int handle) {
 		return new BulkDisplayDelegateImpl(article, amount, handle);
 	}
 }
