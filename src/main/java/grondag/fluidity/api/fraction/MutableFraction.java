@@ -150,14 +150,12 @@ public final class MutableFraction extends Fraction {
 		}
 	}
 
-	@Override
 	public void readBuffer(PacketByteBuf buffer) {
-		super.readBuffer(buffer);
+		super.readBufferInner(buffer);
 	}
 
-	@Override
 	public void readTag(CompoundTag tag) {
-		super.readTag(tag);
+		super.readTagInner(tag);
 	}
 
 	public static MutableFraction of(long whole, long numerator, long divisor) {

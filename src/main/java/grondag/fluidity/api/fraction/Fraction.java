@@ -53,11 +53,11 @@ public class Fraction {
 	}
 
 	public Fraction(Tag tag) {
-		readTag((CompoundTag) tag);
+		readTagInner((CompoundTag) tag);
 	}
 
 	public Fraction(PacketByteBuf buf) {
-		readBuffer(buf);
+		readBufferInner(buf);
 	}
 
 	public Fraction(long whole) {
@@ -68,44 +68,44 @@ public class Fraction {
 		this(template.whole(), template.numerator(), template.divisor());
 	}
 
-	public long whole() {
+	public final long whole() {
 		return whole;
 	}
 
-	public long numerator() {
+	public final long numerator() {
 		return numerator;
 	}
 
-	public long divisor() {
+	public final long divisor() {
 		return divisor;
 	}
 
-	public void writeBuffer(PacketByteBuf buffer) {
+	public final void writeBuffer(PacketByteBuf buffer) {
 		buffer.writeVarLong(whole);
 		buffer.writeVarLong(numerator);
 		buffer.writeVarLong(divisor);
 	}
 
-	public void writeTag(CompoundTag tag) {
+	public final void writeTag(CompoundTag tag) {
 		tag.putLong("whole", whole);
 		tag.putLong("numerator", numerator);
 		tag.putLong("denominator", divisor);
 	}
 
-	public Tag toTag() {
+	public final Tag toTag() {
 		final CompoundTag result = new CompoundTag();
 		writeTag(result);
 		return result;
 	}
 
-	protected void readBuffer(PacketByteBuf buf) {
+	protected final void readBufferInner(PacketByteBuf buf) {
 		whole = buf.readVarLong();
 		numerator = buf.readVarLong();
 		divisor = buf.readVarLong();
 		normalize();
 	}
 
-	protected void readTag(CompoundTag tag) {
+	protected final void readTagInner(CompoundTag tag) {
 		whole = tag.getLong("whole");
 		numerator = tag.getLong("numerator");
 		divisor = tag.getLong("denominator");
@@ -113,7 +113,7 @@ public class Fraction {
 	}
 
 	@Override
-	public boolean equals(Object val) {
+	public final boolean equals(Object val) {
 		if (val == null || !(val instanceof Fraction)) {
 			return false;
 		}
@@ -122,22 +122,22 @@ public class Fraction {
 	}
 
 	@Override
-	public int hashCode() {
+	public final int hashCode() {
 		return (int) (HashCommon.mix(whole) ^ HashCommon.mix(numerator ^ divisor));
 	}
 
-	protected void validate(long whole, long numerator, long divisor) {
+	protected final void validate(long whole, long numerator, long divisor) {
 		if (divisor < 1) {
 			throw new IllegalArgumentException("Fraction divisor must be >= 1");
 		}
 	}
 
 	@Override
-	public String toString() {
+	public final String toString() {
 		return String.format("%d and %d / %d, approx: %f", whole, numerator, divisor, toDouble());
 	}
 
-	protected void normalize() {
+	protected final void normalize() {
 		if (Math.abs(numerator) >= divisor) {
 			final long w = numerator / divisor;
 			whole += w;
@@ -179,7 +179,7 @@ public class Fraction {
 		}
 	}
 
-	protected long gcd(long a, long b) {
+	protected final long gcd(long a, long b) {
 		while (b != 0) {
 			final long t = b;
 			b = a % b;
@@ -195,7 +195,7 @@ public class Fraction {
 	 * @param units Fraction of one that counts as 1 in the result. Must be >= 1.
 	 * @return Current value scaled so that that 1.0 = one of the given units
 	 */
-	public double toDouble(long units) {
+	public final double toDouble(long units) {
 		// start with unit scale
 		final double base = (double) numerator() / (double) divisor() + whole();
 
@@ -203,7 +203,7 @@ public class Fraction {
 		return units == 1 ? base : base / units;
 	}
 
-	public double toDouble() {
+	public final double toDouble() {
 		return toDouble(1);
 	}
 
@@ -214,7 +214,7 @@ public class Fraction {
 	 * @param units Fraction of one bucket that counts as 1 in the result. Must be >= 1.
 	 * @return Number of units within current volume.
 	 */
-	public long toLong(long divisor) {
+	public final long toLong(long divisor) {
 		if (divisor < 1) {
 			throw new IllegalArgumentException("RationalNumber divisor must be >= 1");
 		}
@@ -230,55 +230,55 @@ public class Fraction {
 		}
 	}
 
-	public boolean isZero() {
+	public final boolean isZero() {
 		return whole() == 0 && numerator() == 0;
 	}
 
-	public boolean isNegative() {
+	public final boolean isNegative() {
 		return whole() < 0 || (whole() == 0 && numerator() < 0);
 	}
 
-	public int compareTo(Fraction o) {
+	public final int compareTo(Fraction o) {
 		final int result = Long.compare(whole(), o.whole());
 		return result == 0 ? Long.compare(numerator() * o.divisor(), o.numerator() * divisor()) : result;
 	}
 
-	public boolean isGreaterThan(Fraction other) {
+	public final boolean isGreaterThan(Fraction other) {
 		return compareTo(other) > 0;
 	}
 
-	public boolean isGreaterThankOrEqual(Fraction other) {
+	public final boolean isGreaterThankOrEqual(Fraction other) {
 		return compareTo(other) >= 0;
 	}
 
-	public boolean isLessThan(Fraction other) {
+	public final boolean isLessThan(Fraction other) {
 		return compareTo(other) < 0;
 	}
 
-	public boolean isLessThankOrEqual(Fraction other) {
+	public final boolean isLessThankOrEqual(Fraction other) {
 		return compareTo(other) <= 0;
 	}
 
-	public Fraction toImmutable() {
+	public final Fraction toImmutable() {
 		return Fraction.of(whole(), numerator(), divisor());
 	}
 
-	public long ceil() {
+	public final long ceil() {
 		return numerator() == 0 ? whole() : whole() + 1;
 	}
 
-	public Fraction toNegated() {
+	public final Fraction toNegated() {
 		return Fraction.of(-whole(), -numerator(), divisor());
 	}
 
 	// not great, but like keeping the MutableFraction method names simple...
-	public Fraction withSubtraction(Fraction diff) {
+	public final Fraction withSubtraction(Fraction diff) {
 		final MutableFraction f = new MutableFraction(this);
 		f.subtract(diff);
 		return f.toImmutable();
 	}
 
-	public Fraction withAddition(Fraction diff) {
+	public final Fraction withAddition(Fraction diff) {
 		final MutableFraction f = new MutableFraction(this);
 		f.add(diff);
 		return f.toImmutable();
