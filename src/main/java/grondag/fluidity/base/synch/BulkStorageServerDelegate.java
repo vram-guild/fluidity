@@ -23,19 +23,19 @@ import net.minecraft.util.PacketByteBuf;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.base.article.StoredBulkArticle;
 import grondag.fluidity.base.storage.bulk.BulkStorageListener;
 import grondag.fluidity.impl.AbstractFraction;
 
 @API(status = Status.EXPERIMENTAL)
 public class BulkStorageServerDelegate extends AbstractStorageServerDelegate<StoredBulkArticle> implements BulkStorageListener {
-	public BulkStorageServerDelegate(ServerPlayerEntity player, Storage storage) {
+	public BulkStorageServerDelegate(ServerPlayerEntity player, Store storage) {
 		super(player, storage);
 	}
 
 	@Override
-	public void onAccept(Storage storage, int handle, Article item, FractionView delta, FractionView newVolume) {
+	public void onAccept(Store storage, int handle, Article item, FractionView delta, FractionView newVolume) {
 		assert !newVolume.isNegative();
 
 		if(storage != null) {
@@ -50,14 +50,14 @@ public class BulkStorageServerDelegate extends AbstractStorageServerDelegate<Sto
 	}
 
 	@Override
-	public void onSupply(Storage storage, int slot, Article item, FractionView delta, FractionView newVolume) {
+	public void onSupply(Store storage, int slot, Article item, FractionView delta, FractionView newVolume) {
 		assert !newVolume.isNegative();
 
 		onAccept(storage, slot, item, delta, newVolume);
 	}
 
 	@Override
-	public void onCapacityChange(Storage storage, FractionView capacityDelta) {
+	public void onCapacityChange(Store storage, FractionView capacityDelta) {
 		if(storage != null) {
 			capacityChange = true;
 		}

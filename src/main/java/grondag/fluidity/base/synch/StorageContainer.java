@@ -18,9 +18,9 @@ package grondag.fluidity.base.synch;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.Store;
 
 @API(status = Status.EXPERIMENTAL)
 public interface StorageContainer {
-	Storage getStorage();
+	Store getStorage();
 }

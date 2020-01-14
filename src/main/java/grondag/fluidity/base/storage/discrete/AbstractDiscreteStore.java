@@ -29,19 +29,19 @@ import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
-import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
-import grondag.fluidity.base.storage.discrete.FixedDiscreteStorage.FixedDiscreteArticleFunction;
+import grondag.fluidity.base.storage.AbstractLazyRollbackStore;
+import grondag.fluidity.base.storage.discrete.FixedDiscreteStore.FixedDiscreteArticleFunction;
 import grondag.fluidity.base.storage.discrete.helper.DiscreteTrackingJournal;
 import grondag.fluidity.base.storage.discrete.helper.DiscreteTrackingNotifier;
 import grondag.fluidity.base.storage.helper.AbstractArticleManager;
 import grondag.fluidity.impl.article.ArticleImpl;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<T>> extends AbstractLazyRollbackStorage<StoredDiscreteArticle, T> implements DiscreteStorage {
+public abstract class AbstractDiscreteStore<T extends AbstractDiscreteStore<T>> extends AbstractLazyRollbackStore<StoredDiscreteArticle, T> implements DiscreteStore {
 	protected final AbstractArticleManager<StoredDiscreteArticle> articles;
 	protected final DiscreteTrackingNotifier notifier;
 
-	protected AbstractDiscreteStorage(int startingHandleCount, long capacity, AbstractArticleManager<StoredDiscreteArticle> articles) {
+	protected AbstractDiscreteStore(int startingHandleCount, long capacity, AbstractArticleManager<StoredDiscreteArticle> articles) {
 		this.articles = articles;
 		notifier = new DiscreteTrackingNotifier(capacity, this);
 	}
@@ -82,7 +82,7 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 				}
 			}
 
-			result.put(AbstractDiscreteStorage.TAG_ITEMS, list);
+			result.put(AbstractDiscreteStore.TAG_ITEMS, list);
 		}
 
 		return result;
@@ -92,8 +92,8 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 	public void readTag(CompoundTag tag) {
 		clear();
 
-		if(tag.contains(AbstractDiscreteStorage.TAG_ITEMS)) {
-			final ListTag list = tag.getList(AbstractDiscreteStorage.TAG_ITEMS, 10);
+		if(tag.contains(AbstractDiscreteStore.TAG_ITEMS)) {
+			final ListTag list = tag.getList(AbstractDiscreteStore.TAG_ITEMS, 10);
 			final int limit = list.size();
 			final StoredDiscreteArticle lookup = new StoredDiscreteArticle();
 
@@ -182,7 +182,7 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 
 		@Override
 		public TransactionDelegate getTransactionDelegate() {
-			return AbstractDiscreteStorage.this;
+			return AbstractDiscreteStore.this;
 		}
 
 		@Override
@@ -227,7 +227,7 @@ public abstract class AbstractDiscreteStorage<T extends AbstractDiscreteStorage<
 
 		@Override
 		public TransactionDelegate getTransactionDelegate() {
-			return AbstractDiscreteStorage.this;
+			return AbstractDiscreteStore.this;
 		}
 
 		@Override

@@ -22,14 +22,14 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 
-import grondag.fluidity.api.storage.InventoryStorage;
+import grondag.fluidity.api.storage.InventoryStore;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.impl.article.StackHelper;
 
 @API(status = Status.EXPERIMENTAL)
 public class TransactionHelper {
 
-	public static Object prepareInventoryRollbackState(InventoryStorage storage) {
+	public static Object prepareInventoryRollbackState(InventoryStore storage) {
 		final int size = storage.getInvSize();
 		final ItemStack[] state = new ItemStack[size];
 
@@ -41,7 +41,7 @@ public class TransactionHelper {
 
 	}
 
-	public static void prepareInventoryRollbackHandler(TransactionContext context, InventoryStorage storage) {
+	public static void prepareInventoryRollbackHandler(TransactionContext context, InventoryStore storage) {
 		context.setState(prepareInventoryRollbackState(storage));
 	}
 

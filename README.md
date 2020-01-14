@@ -96,7 +96,8 @@ Obviously, implementations *will* need to mutate their contents and most impleme
 
 #### Stored Article Handles
 `StoredArticleView` also exposes an integer `handle()` property, which is *similar* in purpose to vanilla inventory "slots" but also different in key ways:
-* Handles are not guaranteed to correspond to a specific, physical location in storage. Some implementations (something like a Storage Drawers mod, for example) may have this contract, but it is never required.
+
+* Handles are not guaranteed to correspond to a specific, "physical" location in storage. Some implementations (something like a Storage Drawers mod, for example) may have this contract, but it is never required.
 
 * Handle can be used to retrieve a storage view (similar to `List.get()`) but the targets of storage transactions are *always* specified by article - never by handle.  This ensures that no transaction is ambiguously or erroneously specified. A vanilla `Inventory` will let you blindly replace or change the contents of a slot without knowing or validating what was in it. Fluidity *never* allows this in its public API. Implementations that extend this to allow transactions based on handle (again, something like Storage Drawers would require this) are advised to *also* include article as part of any transaction specification. (The `FixedDiscreteStorage` interface in `grondag.fluidity.base.storage.discrete` and its sub-types offer an example of this.)
 
@@ -106,7 +107,7 @@ Obviously, implementations *will* need to mutate their contents and most impleme
 
 ## Fractions
 
-## Storage and its Variants
+## Store and its Variants
 
 ## Devices
 

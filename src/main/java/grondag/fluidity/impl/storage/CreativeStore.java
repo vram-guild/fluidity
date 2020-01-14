@@ -25,19 +25,14 @@ import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.FixedArticleFunction;
-import grondag.fluidity.api.storage.FixedStorage;
+import grondag.fluidity.api.storage.FixedStore;
 import grondag.fluidity.api.storage.StorageEventStream;
 
 @API(status = INTERNAL)
-public final class VoidStorage implements FixedStorage {
-	private VoidStorage() {}
+public final class CreativeStore implements FixedStore {
+	private CreativeStore() {}
 
-	public static FixedStorage INSTANCE = new VoidStorage();
-
-	@Override
-	public FixedArticleFunction getConsumer() {
-		return FixedArticleFunction.VOID;
-	}
+	public static FixedStore INSTANCE = new CreativeStore();
 
 	@Override
 	public int handleCount() {
@@ -61,22 +56,22 @@ public final class VoidStorage implements FixedStorage {
 
 	@Override
 	public long capacity() {
-		return Long.MAX_VALUE;
+		return 0;
 	}
 
 	@Override
 	public FractionView volume() {
-		return Fraction.MAX_VALUE;
+		return Fraction.ZERO;
+	}
+
+	@Override
+	public double usage() {
+		return 0;
 	}
 
 	@Override
 	public void clear() {
 		// NOOP
-	}
-
-	@Override
-	public StorageEventStream eventStream() {
-		return StorageEventStream.IGNORE;
 	}
 
 	@Override
@@ -96,16 +91,21 @@ public final class VoidStorage implements FixedStorage {
 
 	@Override
 	public boolean isFull() {
-		return false;
-	}
-
-	@Override
-	public boolean isEmpty() {
 		return true;
 	}
 
 	@Override
-	public double usage() {
-		return 0;
+	public boolean isEmpty() {
+		return false;
+	}
+
+	@Override
+	public FixedArticleFunction getSupplier() {
+		return FixedArticleFunction.CREATIVE;
+	}
+
+	@Override
+	public StorageEventStream eventStream() {
+		return StorageEventStream.IGNORE;
 	}
 }

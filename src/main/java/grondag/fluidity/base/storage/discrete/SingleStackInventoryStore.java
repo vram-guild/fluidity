@@ -25,16 +25,16 @@ import net.minecraft.nbt.CompoundTag;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.storage.ArticleFunction;
-import grondag.fluidity.api.storage.InventoryStorage;
+import grondag.fluidity.api.storage.InventoryStore;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
-import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
-import grondag.fluidity.base.storage.discrete.FixedDiscreteStorage.FixedDiscreteArticleFunction;
+import grondag.fluidity.base.storage.AbstractLazyRollbackStore;
+import grondag.fluidity.base.storage.discrete.FixedDiscreteStore.FixedDiscreteArticleFunction;
 import grondag.fluidity.base.storage.discrete.helper.DiscreteNotifier;
 import grondag.fluidity.impl.article.ArticleImpl;
 
 @API(status = Status.EXPERIMENTAL)
-public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<StoredDiscreteArticle,  SingleStackInventoryStorage> implements DiscreteStorage, InventoryStorage {
+public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredDiscreteArticle,  SingleStackInventoryStore> implements DiscreteStore, InventoryStore {
 	protected ItemStack stack = ItemStack.EMPTY;
 	protected final StoredDiscreteArticle view = new StoredDiscreteArticle();
 	protected final DiscreteNotifier notifier = new DiscreteNotifier(this);
@@ -112,7 +112,7 @@ public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<Sto
 
 		@Override
 		public TransactionDelegate getTransactionDelegate() {
-			return SingleStackInventoryStorage.this;
+			return SingleStackInventoryStore.this;
 		}
 
 		@Override
@@ -157,7 +157,7 @@ public class SingleStackInventoryStorage extends AbstractLazyRollbackStorage<Sto
 
 		@Override
 		public TransactionDelegate getTransactionDelegate() {
-			return SingleStackInventoryStorage.this;
+			return SingleStackInventoryStore.this;
 		}
 
 		@Override

@@ -28,7 +28,7 @@ import grondag.fluidity.impl.storage.FullConsumer;
 import grondag.fluidity.impl.storage.VoidConsumer;
 
 /**
- * Storage with fixed handles - similar to slots but they don't have aribtrary limits
+ * Store with fixed handles - similar to slots but they don't have aribtrary limits
  * and request to accept or supply incompatible with existing content is rejected.
  */
 @API(status = Status.EXPERIMENTAL)

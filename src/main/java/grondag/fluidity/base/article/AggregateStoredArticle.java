@@ -20,9 +20,9 @@ import java.util.Set;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.Store;
 
 @API(status = Status.EXPERIMENTAL)
 public interface AggregateStoredArticle extends StoredArticle {
-	Set<Storage> stores();
+	Set<Store> stores();
 }

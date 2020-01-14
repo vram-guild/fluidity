@@ -13,30 +13,21 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.base.storage.discrete;
+package grondag.fluidity.base.storage.bulk;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.Fraction;
-import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.FixedArticleFunction;
-import grondag.fluidity.api.storage.FixedStorage;
+import grondag.fluidity.api.storage.FixedStore;
 
 @API(status = Status.EXPERIMENTAL)
-public interface FixedDiscreteStorage extends DiscreteStorage, FixedStorage {
-
-	public interface FixedDiscreteArticleFunction extends DiscreteStorage.DiscreteArticleFunction, FixedArticleFunction {
+public interface FixedBulkStore extends BulkStore, FixedStore {
+	public interface FixedBulkArticleSupplier extends BulkArticleFunction, FixedArticleFunction {
 		@Override
-		default FractionView apply(int handle, Article item, FractionView volume, boolean simulate) {
-			return Fraction.of(apply(handle, item, volume.whole(), simulate));
-		}
-
-		@Override
-		default long apply(int handle, Article item, long numerator, long divisor, boolean simulate) {
-			final long whole = numerator / divisor;
-			return whole == 0 ? 0 : apply(handle, item, whole, simulate) * divisor;
+		default long apply(int handle, Article item, long count, boolean simulate) {
+			return apply(handle, item, count, 1, simulate);
 		}
 	}
 }

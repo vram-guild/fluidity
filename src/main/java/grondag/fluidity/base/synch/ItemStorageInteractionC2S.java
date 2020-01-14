@@ -31,7 +31,7 @@ import net.fabricmc.fabric.api.network.PacketContext;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.Store;
 
 /**
  * Sent when player interacts with the GUI of an IStorage (vs container slots).
@@ -66,7 +66,7 @@ public class ItemStorageInteractionC2S {
 			return;
 		}
 
-		final Storage storage = ((StorageContainer) player.container).getStorage();
+		final Store storage = ((StorageContainer) player.container).getStorage();
 
 		if(storage == null) {
 			return;
@@ -139,7 +139,7 @@ public class ItemStorageInteractionC2S {
 		}
 	}
 
-	private static void doPut(boolean single, ServerPlayerEntity player, Storage container) {
+	private static void doPut(boolean single, ServerPlayerEntity player, Store container) {
 		final ItemStack cursorStack = player.inventory.getCursorStack();
 
 		if (cursorStack != null && !cursorStack.isEmpty()) {
@@ -155,7 +155,7 @@ public class ItemStorageInteractionC2S {
 		return;
 	}
 
-	private static void doQuickMove(int howMany, ServerPlayerEntity player, Article targetResource, Storage listener) {
+	private static void doQuickMove(int howMany, ServerPlayerEntity player, Article targetResource, Store listener) {
 		if (howMany == 0 || targetResource == null || targetResource.isNothing()) {
 			return;
 		}
@@ -171,7 +171,7 @@ public class ItemStorageInteractionC2S {
 		player.inventory.markDirty();
 	}
 
-	private static void doTake(int howMany, ServerPlayerEntity player, Article targetResource, Storage container) {
+	private static void doTake(int howMany, ServerPlayerEntity player, Article targetResource, Store container) {
 		if (howMany == 0 || targetResource == null || targetResource.isNothing()) {
 			return;
 		}

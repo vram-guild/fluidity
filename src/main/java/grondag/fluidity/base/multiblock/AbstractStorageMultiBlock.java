@@ -19,33 +19,33 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.multiblock.MultiBlockMember;
-import grondag.fluidity.api.storage.Storage;
-import grondag.fluidity.base.storage.AbstractAggregateStorage;
+import grondag.fluidity.api.storage.Store;
+import grondag.fluidity.base.storage.AbstractAggregateStore;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractStorageMultiBlock<T extends MultiBlockMember<T, U, Storage>, U extends AbstractStorageMultiBlock<T, U>> extends AbstractMultiBlock<T, U, Storage> {
+public abstract class AbstractStorageMultiBlock<T extends MultiBlockMember<T, U, Store>, U extends AbstractStorageMultiBlock<T, U>> extends AbstractMultiBlock<T, U, Store> {
 	@SuppressWarnings("rawtypes")
-	protected final AbstractAggregateStorage storage;
+	protected final AbstractAggregateStore storage;
 
 	@SuppressWarnings("rawtypes")
-	public AbstractStorageMultiBlock(AbstractAggregateStorage storage) {
+	public AbstractStorageMultiBlock(AbstractAggregateStore storage) {
 		this.storage = storage;
 	}
 
 	@Override
 	protected void beforeMemberRemoval(T member) {
-		final Storage s = member.getMemberComponent();
+		final Store s = member.getMemberComponent();
 
-		if(s != null && s != Storage.EMPTY) {
+		if(s != null && s != Store.EMPTY) {
 			storage.removeStore(s);
 		}
 	}
 
 	@Override
 	protected void afterMemberAddition(T member) {
-		final Storage s = member.getMemberComponent();
+		final Store s = member.getMemberComponent();
 
-		if(s != null && s != Storage.EMPTY) {
+		if(s != null && s != Store.EMPTY) {
 			storage.addStore(s);
 		}
 	}

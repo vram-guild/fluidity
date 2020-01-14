@@ -31,10 +31,10 @@ import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredBulkArticle;
 import grondag.fluidity.base.article.StoredBulkArticleView;
-import grondag.fluidity.base.storage.AbstractLazyRollbackStorage;
+import grondag.fluidity.base.storage.AbstractLazyRollbackStore;
 
 @API(status = Status.EXPERIMENTAL)
-public class SimpleTank extends AbstractLazyRollbackStorage<StoredBulkArticle, SimpleTank> implements BulkStorage {
+public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, SimpleTank> implements BulkStore {
 	protected final MutableFraction content = new MutableFraction();
 	protected final MutableFraction calc = new MutableFraction();
 	protected final View view = new View();

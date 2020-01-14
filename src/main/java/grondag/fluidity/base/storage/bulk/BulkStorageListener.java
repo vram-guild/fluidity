@@ -20,23 +20,23 @@ import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
-import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.api.storage.StorageListener;
 
 @API(status = Status.EXPERIMENTAL)
 public interface BulkStorageListener extends StorageListener {
 	@Override
-	default void onAccept(Storage storage, int handle, Article item, long delta, long newCount) {
+	default void onAccept(Store storage, int handle, Article item, long delta, long newCount) {
 		onAccept(storage, handle, item, Fraction.of(delta), Fraction.of(newCount));
 	}
 
 	@Override
-	default void onSupply(Storage storage, int handle, Article item, long delta, long newCount) {
+	default void onSupply(Store storage, int handle, Article item, long delta, long newCount) {
 		onSupply(storage, handle, item, Fraction.of(delta), Fraction.of(newCount));
 	}
 
 	@Override
-	default void onCapacityChange(Storage storage, long capacityDelta) {
+	default void onCapacityChange(Store storage, long capacityDelta) {
 		onCapacityChange(storage, Fraction.of(capacityDelta));
 	}
 }

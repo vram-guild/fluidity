@@ -24,14 +24,20 @@ import net.minecraft.nbt.CompoundTag;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.storage.FixedStorage;
+import grondag.fluidity.api.storage.FixedArticleFunction;
+import grondag.fluidity.api.storage.FixedStore;
 import grondag.fluidity.api.storage.StorageEventStream;
 
 @API(status = INTERNAL)
-public final class EmptyStorage implements FixedStorage {
-	private EmptyStorage() {}
+public final class VoidStore implements FixedStore {
+	private VoidStore() {}
 
-	public static FixedStorage INSTANCE = new EmptyStorage();
+	public static FixedStore INSTANCE = new VoidStore();
+
+	@Override
+	public FixedArticleFunction getConsumer() {
+		return FixedArticleFunction.VOID;
+	}
 
 	@Override
 	public int handleCount() {
@@ -55,17 +61,12 @@ public final class EmptyStorage implements FixedStorage {
 
 	@Override
 	public long capacity() {
-		return 0;
+		return Long.MAX_VALUE;
 	}
 
 	@Override
 	public FractionView volume() {
-		return Fraction.ZERO;
-	}
-
-	@Override
-	public double usage() {
-		return 0;
+		return Fraction.MAX_VALUE;
 	}
 
 	@Override
@@ -95,11 +96,16 @@ public final class EmptyStorage implements FixedStorage {
 
 	@Override
 	public boolean isFull() {
-		return true;
+		return false;
 	}
 
 	@Override
 	public boolean isEmpty() {
 		return true;
+	}
+
+	@Override
+	public double usage() {
+		return 0;
 	}
 }

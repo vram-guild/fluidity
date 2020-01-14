@@ -21,14 +21,14 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.Store;
 
 @API(status = Status.EXPERIMENTAL)
 public class AggregateDiscreteStoredArticle extends StoredDiscreteArticle implements AggregateStoredArticle {
-	protected final ObjectOpenHashSet<Storage> stores = new ObjectOpenHashSet<>();
+	protected final ObjectOpenHashSet<Store> stores = new ObjectOpenHashSet<>();
 
 	@Override
-	public Set<Storage> stores() {
+	public Set<Store> stores() {
 		return stores;
 	}
 }

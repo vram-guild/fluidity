@@ -24,15 +24,14 @@ import net.minecraft.nbt.CompoundTag;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
-import grondag.fluidity.api.storage.FixedArticleFunction;
-import grondag.fluidity.api.storage.FixedStorage;
+import grondag.fluidity.api.storage.FixedStore;
 import grondag.fluidity.api.storage.StorageEventStream;
 
 @API(status = INTERNAL)
-public final class CreativeStorage implements FixedStorage {
-	private CreativeStorage() {}
+public final class EmptyStore implements FixedStore {
+	private EmptyStore() {}
 
-	public static FixedStorage INSTANCE = new CreativeStorage();
+	public static FixedStore INSTANCE = new EmptyStore();
 
 	@Override
 	public int handleCount() {
@@ -75,6 +74,11 @@ public final class CreativeStorage implements FixedStorage {
 	}
 
 	@Override
+	public StorageEventStream eventStream() {
+		return StorageEventStream.IGNORE;
+	}
+
+	@Override
 	public CompoundTag writeTag() {
 		return new CompoundTag();
 	}
@@ -96,16 +100,6 @@ public final class CreativeStorage implements FixedStorage {
 
 	@Override
 	public boolean isEmpty() {
-		return false;
-	}
-
-	@Override
-	public FixedArticleFunction getSupplier() {
-		return FixedArticleFunction.CREATIVE;
-	}
-
-	@Override
-	public StorageEventStream eventStream() {
-		return StorageEventStream.IGNORE;
+		return true;
 	}
 }

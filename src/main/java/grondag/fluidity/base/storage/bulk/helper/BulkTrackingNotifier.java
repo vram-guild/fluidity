@@ -23,7 +23,7 @@ import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredBulkArticle;
-import grondag.fluidity.base.storage.AbstractStorage;
+import grondag.fluidity.base.storage.AbstractStore;
 
 @API(status = Status.EXPERIMENTAL)
 public class BulkTrackingNotifier extends BulkNotifier {
@@ -32,7 +32,7 @@ public class BulkTrackingNotifier extends BulkNotifier {
 	protected int articleCount = 0;
 	protected BulkTrackingJournal journal = null;
 
-	public BulkTrackingNotifier(FractionView capacity, AbstractStorage<? extends StoredBulkArticle, ?> owner) {
+	public BulkTrackingNotifier(FractionView capacity, AbstractStore<? extends StoredBulkArticle, ?> owner) {
 		super(owner);
 		this.capacity.set(capacity);
 	}

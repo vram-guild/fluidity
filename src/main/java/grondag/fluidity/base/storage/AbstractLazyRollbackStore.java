@@ -26,7 +26,7 @@ import grondag.fluidity.base.article.AbstractStoredArticle;
 import grondag.fluidity.base.transact.LazyRollbackHandler;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractLazyRollbackStorage<V extends AbstractStoredArticle, T extends AbstractLazyRollbackStorage<V, T>> extends AbstractStorage<V, T> implements TransactionDelegate {
+public abstract class AbstractLazyRollbackStore<V extends AbstractStoredArticle, T extends AbstractLazyRollbackStore<V, T>> extends AbstractStore<V, T> implements TransactionDelegate {
 	protected final LazyRollbackHandler rollbackHandler = new LazyRollbackHandler(this::createRollbackState, this::applyRollbackState);
 
 	protected abstract Object createRollbackState();

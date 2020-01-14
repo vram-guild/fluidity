@@ -22,10 +22,10 @@ import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.ArticleFunction;
-import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.Store;
 
 @API(status = Status.EXPERIMENTAL)
-public interface DiscreteStorage extends Storage {
+public interface DiscreteStore extends Store {
 	@Override
 	default FractionView amount() {
 		return Fraction.of(count());

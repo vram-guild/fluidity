@@ -21,7 +21,7 @@ import org.apiguardian.api.API.Status;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
-import grondag.fluidity.base.storage.AbstractStorage;
+import grondag.fluidity.base.storage.AbstractStore;
 
 @API(status = Status.EXPERIMENTAL)
 public class DiscreteTrackingNotifier extends DiscreteNotifier {
@@ -30,7 +30,7 @@ public class DiscreteTrackingNotifier extends DiscreteNotifier {
 	protected int articleCount = 0;
 	protected DiscreteTrackingJournal journal = null;
 
-	public DiscreteTrackingNotifier(long capacity, AbstractStorage<? extends StoredDiscreteArticle, ?> owner) {
+	public DiscreteTrackingNotifier(long capacity, AbstractStore<? extends StoredDiscreteArticle, ?> owner) {
 		super(owner);
 		this.capacity = capacity;
 	}

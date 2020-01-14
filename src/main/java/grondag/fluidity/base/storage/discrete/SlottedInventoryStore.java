@@ -24,9 +24,9 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.item.ItemStack;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.storage.InventoryStorage;
+import grondag.fluidity.api.storage.InventoryStore;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
-import grondag.fluidity.base.storage.discrete.FixedDiscreteStorage.FixedDiscreteArticleFunction;
+import grondag.fluidity.base.storage.discrete.FixedDiscreteStore.FixedDiscreteArticleFunction;
 import grondag.fluidity.base.storage.helper.FlexibleArticleManager;
 import grondag.fluidity.base.transact.TransactionHelper;
 import grondag.fluidity.impl.article.ArticleImpl;
@@ -39,11 +39,11 @@ import grondag.fluidity.impl.article.ArticleImpl;
  * is likely to be preferable for performant implementations.
  */
 @API(status = Status.EXPERIMENTAL)
-public class SlottedInventoryStorage extends AbstractDiscreteStorage<SlottedInventoryStorage> implements InventoryStorage {
+public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventoryStore> implements InventoryStore {
 	protected final int slotCount;
 	protected final ItemStack[] stacks;
 
-	public SlottedInventoryStorage(int slotCount) {
+	public SlottedInventoryStore(int slotCount) {
 		super(slotCount, slotCount * 64, new FlexibleArticleManager<>(slotCount, StoredDiscreteArticle::new));
 		this.slotCount = slotCount;
 		stacks = new ItemStack[slotCount];
@@ -163,7 +163,7 @@ public class SlottedInventoryStorage extends AbstractDiscreteStorage<SlottedInve
 
 	@Override
 	protected Object createRollbackState() {
-		return TransactionHelper.prepareInventoryRollbackState(SlottedInventoryStorage.this);
+		return TransactionHelper.prepareInventoryRollbackState(SlottedInventoryStore.this);
 	}
 
 	@Override
@@ -178,7 +178,7 @@ public class SlottedInventoryStorage extends AbstractDiscreteStorage<SlottedInve
 		return new Consumer();
 	}
 
-	protected class Consumer extends AbstractDiscreteStorage<DividedDiscreteStorage>.Consumer {
+	protected class Consumer extends AbstractDiscreteStore<DividedDiscreteStore>.Consumer {
 		@Override
 		public long apply(Article article, long count, boolean simulate) {
 			Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
@@ -240,7 +240,7 @@ public class SlottedInventoryStorage extends AbstractDiscreteStorage<SlottedInve
 		return new Supplier();
 	}
 
-	protected class Supplier extends AbstractDiscreteStorage<DividedDiscreteStorage>.Supplier {
+	protected class Supplier extends AbstractDiscreteStore<DividedDiscreteStore>.Supplier {
 		@Override
 		public long apply(Article article, long count, boolean simulate) {
 

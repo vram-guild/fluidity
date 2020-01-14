@@ -34,18 +34,18 @@ public interface StorageListener {
 	 * @param didNotify True if storage called {@code onSupply} before disconnecting. (Preferred)
 	 * @param isValid True if storage state is currently valid and could be used to update listener.
 	 */
-	void disconnect(Storage storage, boolean didNotify, boolean isValid);
+	void disconnect(Store storage, boolean didNotify, boolean isValid);
 
 
-	void onAccept(Storage storage, int handle, Article item, long delta, long newCount);
+	void onAccept(Store storage, int handle, Article item, long delta, long newCount);
 
-	void onSupply(Storage storage, int handle, Article item, long delta, long newCount);
+	void onSupply(Store storage, int handle, Article item, long delta, long newCount);
 
-	void onCapacityChange(Storage storage, long capacityDelta);
+	void onCapacityChange(Store storage, long capacityDelta);
 
-	void onAccept(Storage storage, int handle, Article item, FractionView delta, FractionView newVolume);
+	void onAccept(Store storage, int handle, Article item, FractionView delta, FractionView newVolume);
 
-	void onSupply(Storage storage, int handle, Article item, FractionView delta, FractionView newVolume);
+	void onSupply(Store storage, int handle, Article item, FractionView delta, FractionView newVolume);
 
-	void onCapacityChange(Storage storage, FractionView capacityDelta);
+	void onCapacityChange(Store storage, FractionView capacityDelta);
 }

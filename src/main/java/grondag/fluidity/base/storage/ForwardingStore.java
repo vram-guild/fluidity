@@ -26,18 +26,18 @@ import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.ArticleFunction;
-import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.api.storage.StorageEventStream;
 
 @API(status = Status.EXPERIMENTAL)
-public class ForwardingStorage implements Storage {
-	protected Storage wrapped = Storage.EMPTY;
+public class ForwardingStore implements Store {
+	protected Store wrapped = Store.EMPTY;
 
-	public Storage getWrapped() {
+	public Store getWrapped() {
 		return wrapped;
 	}
 
-	public void setWrapped(Storage wrapped) {
+	public void setWrapped(Store wrapped) {
 		this.wrapped = wrapped;
 	}
 
@@ -132,7 +132,7 @@ public class ForwardingStorage implements Storage {
 	}
 
 	@Override
-	public Storage viewOwner() {
+	public Store viewOwner() {
 		return wrapped.viewOwner();
 	}
 

@@ -21,10 +21,10 @@ import org.apiguardian.api.API.Status;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.ArticleFunction;
-import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.Store;
 
 @API(status = Status.EXPERIMENTAL)
-public interface BulkStorage extends Storage {
+public interface BulkStore extends Store {
 	@Override
 	default long count() {
 		return amount().whole();

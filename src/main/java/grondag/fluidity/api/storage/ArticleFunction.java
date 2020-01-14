@@ -39,7 +39,7 @@ import grondag.fluidity.impl.storage.VoidConsumer;
 @API(status = Status.EXPERIMENTAL)
 public interface ArticleFunction extends TransactionParticipant {
 	/**
-	 * Adds items to this storage. May return less than requested.
+	 * Adds items to this store. May return less than requested.
 	 *
 	 * @param item Item to add
 	 * @param tag NBT if item has it, null otherwise.
@@ -50,11 +50,11 @@ public interface ArticleFunction extends TransactionParticipant {
 	long apply(Article item, long count, boolean simulate);
 
 	/**
-	 * Distinct from {@link #isFull()} - can be false even when storage is not full.
+	 * Distinct from {@link #isFull()} - can be false even when store is not full.
 	 * Meant for modeling machine output buffers that should never take input, but
-	 * can have other, similar uses. Insert logic should ignore any storage that returns false.
+	 * can have other, similar uses. Insert logic should ignore any store that returns false.
 	 *
-	 * @return {@code true} if this storage may ever accept articles.
+	 * @return {@code true} if this store may ever accept articles.
 	 */
 	default boolean canApply() {
 		return true;
@@ -78,7 +78,7 @@ public interface ArticleFunction extends TransactionParticipant {
 	}
 
 	/**
-	 * Adds up to  {@code volume} units of the bulk item to this storage and
+	 * Adds up to  {@code volume} units of the bulk item to this store and
 	 * returns the number of units added.  The denominator of the result *may*
 	 * be different from the denominator of the input fraction.
 	 *

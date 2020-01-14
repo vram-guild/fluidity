@@ -32,16 +32,16 @@ import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.transact.TransactionParticipant;
-import grondag.fluidity.impl.storage.CreativeStorage;
-import grondag.fluidity.impl.storage.EmptyStorage;
-import grondag.fluidity.impl.storage.VoidStorage;
+import grondag.fluidity.impl.storage.CreativeStore;
+import grondag.fluidity.impl.storage.EmptyStore;
+import grondag.fluidity.impl.storage.VoidStore;
 
 /**
  * Flexible storage interface for tanks, containers.
  * Interface supports both discrete items and bulk resources (such as fluids.)
  */
 @API(status = Status.EXPERIMENTAL)
-public interface Storage extends TransactionParticipant {
+public interface Store extends TransactionParticipant {
 	default ArticleFunction getConsumer() {
 		return ArticleFunction.FULL;
 	}
@@ -76,7 +76,7 @@ public interface Storage extends TransactionParticipant {
 		return false;
 	}
 
-	default Storage viewOwner() {
+	default Store viewOwner() {
 		return this;
 	}
 
@@ -153,11 +153,11 @@ public interface Storage extends TransactionParticipant {
 
 	Predicate <? super StoredArticleView> NOT_EMPTY = a -> !a.isEmpty();
 
-	Storage EMPTY = EmptyStorage.INSTANCE;
-	Storage VOID = VoidStorage.INSTANCE;
-	Storage CREATIVE = CreativeStorage.INSTANCE;
+	Store EMPTY = EmptyStore.INSTANCE;
+	Store VOID = VoidStore.INSTANCE;
+	Store CREATIVE = CreativeStore.INSTANCE;
 
-	DeviceComponentType<Storage> STORAGE_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "storage"), EMPTY);
+	DeviceComponentType<Store> STORAGE_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "storage"), EMPTY);
 
 	/**
 	 * Multiblock storage devices may elect to return the compound storage instance as the main storage service.
@@ -165,7 +165,7 @@ public interface Storage extends TransactionParticipant {
 	 *
 	 * <p>Also used by and necessary for aggregate storage implementations for the same reason.
 	 *
-	 * @return Internal {@link Storage} of this device, or the regular storage if not a multiblock.
+	 * @return Internal {@link Store} of this device, or the regular storage if not a multiblock.
 	 */
-	DeviceComponentType<Storage> INTERNAL_STORAGE_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "internal_storage"), EMPTY);
+	DeviceComponentType<Store> INTERNAL_STORAGE_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "internal_storage"), EMPTY);
 }

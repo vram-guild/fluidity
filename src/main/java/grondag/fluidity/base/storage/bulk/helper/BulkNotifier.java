@@ -23,13 +23,13 @@ import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredBulkArticle;
-import grondag.fluidity.base.storage.AbstractStorage;
+import grondag.fluidity.base.storage.AbstractStore;
 
 @API(status = Status.EXPERIMENTAL)
 public class BulkNotifier {
-	protected final AbstractStorage<? extends StoredBulkArticle, ?> owner;
+	protected final AbstractStore<? extends StoredBulkArticle, ?> owner;
 
-	public BulkNotifier(AbstractStorage<? extends StoredBulkArticle, ?> owner) {
+	public BulkNotifier(AbstractStore<? extends StoredBulkArticle, ?> owner) {
 		this.owner = owner;
 	}
 

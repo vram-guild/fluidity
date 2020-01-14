@@ -13,21 +13,32 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.base.storage.bulk;
+package grondag.fluidity.api.storage;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
-import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.storage.FixedArticleFunction;
-import grondag.fluidity.api.storage.FixedStorage;
+import grondag.fluidity.impl.storage.CreativeStore;
+import grondag.fluidity.impl.storage.EmptyStore;
+import grondag.fluidity.impl.storage.VoidStore;
 
+/**
+ * Store with fixed handles - similar to slots but they don't have aribtrary limits
+ * and request to accept or supply incompatible with existing content is rejected.
+ */
 @API(status = Status.EXPERIMENTAL)
-public interface FixedBulkStorage extends BulkStorage, FixedStorage {
-	public interface FixedBulkArticleSupplier extends BulkArticleFunction, FixedArticleFunction {
-		@Override
-		default long apply(int handle, Article item, long count, boolean simulate) {
-			return apply(handle, item, count, 1, simulate);
-		}
+public interface FixedStore extends Store {
+	@Override
+	default FixedArticleFunction getConsumer() {
+		return FixedArticleFunction.FULL;
 	}
+
+	@Override
+	default FixedArticleFunction getSupplier() {
+		return FixedArticleFunction.EMPTY;
+	}
+
+	FixedStore EMPTY = EmptyStore.INSTANCE;
+	FixedStore VOID = VoidStore.INSTANCE;
+	FixedStore CREATIVE = CreativeStore.INSTANCE;
 }

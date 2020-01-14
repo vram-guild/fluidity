@@ -9,7 +9,7 @@ import net.minecraft.potion.PotionUtil;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
-import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.api.transact.Transaction;
 
 public interface ItemActionHelper {
@@ -22,12 +22,12 @@ public interface ItemActionHelper {
 	}
 
 	static void addPotionFillAction(Fluid fluid, Potion potion, long denominator) {
-		Storage.STORAGE_COMPONENT.addAction((ctx, storage) -> {
-			if(storage.hasSupplier() && ctx.player() != null) {
+		Store.STORAGE_COMPONENT.addAction((ctx, store) -> {
+			if(store.hasSupplier() && ctx.player() != null) {
 				try(Transaction tx = Transaction.open()) {
-					tx.enlist(storage);
+					tx.enlist(store);
 
-					if(storage.getSupplier().apply(Article.of(fluid), 1, denominator, false) == 1) {
+					if(store.getSupplier().apply(Article.of(fluid), 1, denominator, false) == 1) {
 						final ItemStack stack = ctx.stackGetter().get();
 
 						if(stack.getCount() == 1) {
@@ -56,12 +56,12 @@ public interface ItemActionHelper {
 	}
 
 	static void addPotionDrainAction(Fluid fluid, Potion potion, long denominator) {
-		Storage.STORAGE_COMPONENT.addAction((ctx, storage) -> {
-			if(storage.hasConsumer() && ctx.player() != null && PotionUtil.getPotion(ctx.stackGetter().get()) == potion) {
+		Store.STORAGE_COMPONENT.addAction((ctx, store) -> {
+			if(store.hasConsumer() && ctx.player() != null && PotionUtil.getPotion(ctx.stackGetter().get()) == potion) {
 				try(Transaction tx = Transaction.open()) {
-					tx.enlist(storage);
+					tx.enlist(store);
 
-					if(storage.getConsumer().apply(Article.of(fluid), 1, denominator, false) == 1) {
+					if(store.getConsumer().apply(Article.of(fluid), 1, denominator, false) == 1) {
 						ctx.stackSetter().accept(new ItemStack(Items.GLASS_BOTTLE));
 						tx.commit();
 						return true;
@@ -87,12 +87,12 @@ public interface ItemActionHelper {
 	}
 
 	static void addItemFillAction(Fluid fluid, Item emptyItem, Item fullItem, Fraction amount) {
-		Storage.STORAGE_COMPONENT.addAction((ctx, storage) -> {
-			if(storage.hasSupplier() && ctx.player() != null) {
+		Store.STORAGE_COMPONENT.addAction((ctx, store) -> {
+			if(store.hasSupplier() && ctx.player() != null) {
 				try(Transaction tx = Transaction.open()) {
-					tx.enlist(storage);
+					tx.enlist(store);
 
-					if(storage.getSupplier().apply(Article.of(fluid), amount, false).equals(amount)) {
+					if(store.getSupplier().apply(Article.of(fluid), amount, false).equals(amount)) {
 						final ItemStack stack = ctx.stackGetter().get();
 
 						if(stack.getCount() == 1) {
@@ -121,12 +121,12 @@ public interface ItemActionHelper {
 	}
 
 	static void addItemDrainAction(Fluid fluid, Item emptyItem, Item fullItem, Fraction amount) {
-		Storage.STORAGE_COMPONENT.addAction((ctx, storage) -> {
-			if(storage.hasConsumer() && ctx.player() != null && ctx.stackGetter().get().getItem() == fullItem) {
+		Store.STORAGE_COMPONENT.addAction((ctx, store) -> {
+			if(store.hasConsumer() && ctx.player() != null && ctx.stackGetter().get().getItem() == fullItem) {
 				try(Transaction tx = Transaction.open()) {
-					tx.enlist(storage);
+					tx.enlist(store);
 
-					if(storage.getConsumer().apply(Article.of(fluid), amount, false).equals(amount)) {
+					if(store.getConsumer().apply(Article.of(fluid), amount, false).equals(amount)) {
 						final ItemStack stack = ctx.stackGetter().get();
 
 						if(stack.getCount() == 1) {

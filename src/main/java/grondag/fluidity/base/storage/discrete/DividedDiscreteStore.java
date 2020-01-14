@@ -25,11 +25,11 @@ import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.helper.FixedArticleManager;
 
 @API(status = Status.EXPERIMENTAL)
-public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscreteStorage> implements FixedDiscreteStorage {
+public class DividedDiscreteStore extends AbstractDiscreteStore<DividedDiscreteStore> implements FixedDiscreteStore {
 	protected final int divisionCount;
 	protected final long capacityPerDivision;
 
-	public DividedDiscreteStorage(int divisionCount, long capacityPerDivision) {
+	public DividedDiscreteStore(int divisionCount, long capacityPerDivision) {
 		super(divisionCount, divisionCount * capacityPerDivision, new FixedArticleManager<>(divisionCount, StoredDiscreteArticle::new));
 		this.divisionCount = divisionCount;
 		this.capacityPerDivision = capacityPerDivision;
@@ -60,7 +60,7 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscr
 		return new Consumer();
 	}
 
-	protected class Consumer extends AbstractDiscreteStorage<DividedDiscreteStorage>.Consumer {
+	protected class Consumer extends AbstractDiscreteStore<DividedDiscreteStore>.Consumer {
 		@Override
 		public long apply(Article item, long count, boolean simulate) {
 			if(notifier.articleCount() >= divisionCount) {
@@ -114,7 +114,7 @@ public class DividedDiscreteStorage extends AbstractDiscreteStorage<DividedDiscr
 		return new Supplier();
 	}
 
-	protected class Supplier extends AbstractDiscreteStorage<DividedDiscreteStorage>.Supplier {
+	protected class Supplier extends AbstractDiscreteStore<DividedDiscreteStore>.Supplier {
 		@Override
 		public long apply(int handle, Article item, long count, boolean simulate) {
 			Preconditions.checkArgument(count >= 0, "Request to supply negative items. (%s)", count);

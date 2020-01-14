@@ -23,14 +23,14 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.api.storage.StorageEventStream;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredArticle;
 import grondag.fluidity.base.storage.helper.ListenerSet;
 
 @API(status = Status.EXPERIMENTAL)
-public abstract class AbstractStorage<V extends StoredArticle, T extends AbstractStorage<V, T>> implements Storage, StorageEventStream {
+public abstract class AbstractStore<V extends StoredArticle, T extends AbstractStore<V, T>> implements Store, StorageEventStream {
 	public final ListenerSet<StorageListener> listeners = new ListenerSet<>(this::sendFirstListenerUpdate, this::sendLastListenerUpdate, this::onListenersEmpty);
 	protected Predicate<Article> filter = Predicates.alwaysTrue();
 	protected Runnable dirtyNotifier = Runnables.doNothing();

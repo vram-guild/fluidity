@@ -22,7 +22,7 @@ import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.FractionView;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.storage.ArticleFunction;
-import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.wip.api.transport.CarrierNode;
 
 public class BroadcastSupplier<T extends CarrierCostFunction> implements ArticleFunction {
@@ -50,7 +50,7 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 			final CarrierNode n = it.next();
 
 			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
-				final ArticleFunction s = n.getComponent(Storage.STORAGE_COMPONENT).get().getSupplier();
+				final ArticleFunction s = n.getComponent(Store.STORAGE_COMPONENT).get().getSupplier();
 				result += s.apply(item, count - result, simulate);
 
 				if(result >= count) {
@@ -84,7 +84,7 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 			final CarrierNode n = it.next();
 
 			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
-				final ArticleFunction s = n.getComponent(Storage.STORAGE_COMPONENT).get().getSupplier();
+				final ArticleFunction s = n.getComponent(Store.STORAGE_COMPONENT).get().getSupplier();
 				final FractionView amt = s.apply(item, calc, simulate);
 
 				if(!amt.isZero()) {
@@ -119,7 +119,7 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 			final CarrierNode n = it.next();
 
 			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
-				final ArticleFunction s = n.getComponent(Storage.STORAGE_COMPONENT).get().getSupplier();
+				final ArticleFunction s = n.getComponent(Store.STORAGE_COMPONENT).get().getSupplier();
 				result += s.apply(item, numerator - result, divisor, simulate);
 
 				if(result >= numerator) {

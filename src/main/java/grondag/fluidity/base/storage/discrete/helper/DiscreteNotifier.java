@@ -21,13 +21,13 @@ import org.apiguardian.api.API.Status;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
-import grondag.fluidity.base.storage.AbstractStorage;
+import grondag.fluidity.base.storage.AbstractStore;
 
 @API(status = Status.EXPERIMENTAL)
 public class DiscreteNotifier {
-	protected final AbstractStorage<? extends StoredDiscreteArticle, ?> owner;
+	protected final AbstractStore<? extends StoredDiscreteArticle, ?> owner;
 
-	public DiscreteNotifier(AbstractStorage<? extends StoredDiscreteArticle, ?> owner) {
+	public DiscreteNotifier(AbstractStore<? extends StoredDiscreteArticle, ?> owner) {
 		this.owner = owner;
 	}
 

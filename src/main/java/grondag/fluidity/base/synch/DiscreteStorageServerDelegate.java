@@ -22,18 +22,18 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.PacketByteBuf;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.storage.Storage;
+import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.discrete.DiscreteStorageListener;
 
 @API(status = Status.EXPERIMENTAL)
 public class DiscreteStorageServerDelegate extends AbstractStorageServerDelegate<StoredDiscreteArticle> implements DiscreteStorageListener {
-	public DiscreteStorageServerDelegate(ServerPlayerEntity player, Storage storage) {
+	public DiscreteStorageServerDelegate(ServerPlayerEntity player, Store storage) {
 		super(player, storage);
 	}
 
 	@Override
-	public void onAccept(Storage storage, int handle, Article item, long delta, long newCount) {
+	public void onAccept(Store storage, int handle, Article item, long delta, long newCount) {
 		assert newCount >= 0;
 
 		if(storage != null) {
@@ -48,14 +48,14 @@ public class DiscreteStorageServerDelegate extends AbstractStorageServerDelegate
 	}
 
 	@Override
-	public void onSupply(Storage storage, int slot, Article item, long delta, long newCount) {
+	public void onSupply(Store storage, int slot, Article item, long delta, long newCount) {
 		assert newCount >= 0;
 
 		onAccept(storage, slot, item, delta, newCount);
 	}
 
 	@Override
-	public void onCapacityChange(Storage storage, long capacityDelta) {
+	public void onCapacityChange(Store storage, long capacityDelta) {
 		if(storage != null) {
 			capacityChange = true;
 		}
