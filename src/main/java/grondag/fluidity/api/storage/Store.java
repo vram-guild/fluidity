@@ -42,7 +42,7 @@ import grondag.fluidity.impl.storage.VoidStore;
 @API(status = Status.EXPERIMENTAL)
 public interface Store extends TransactionParticipant {
 	default ArticleFunction getConsumer() {
-		return ArticleFunction.FULL;
+		return ArticleFunction.ALWAYS_RETURN_ZERO;
 	}
 
 	default boolean hasConsumer() {
@@ -50,7 +50,7 @@ public interface Store extends TransactionParticipant {
 	}
 
 	default ArticleFunction getSupplier() {
-		return ArticleFunction.EMPTY;
+		return ArticleFunction.ALWAYS_RETURN_ZERO;
 	}
 
 	default boolean hasSupplier() {

@@ -118,7 +118,87 @@ These classes were designed to be final in order to ensure static invocation in 
 In many places, fractional quantities are exposed and manipulated as primitive values, without use of `Fraction` itself.  These interfaces (see below and in the code) instead rely on `long` values that correspond to `Fraction.whole()` or `Fraction.numerator()` and `Fraction.denominator()`.  When available and appropriate for your use case (i.e. when you have fixed minimum and maximum transfer amounts) these will generally be more performant and easier to work with. 
 
 ## Store and its Variants
-A `Store` in Fluidity is an instance that holds and, optionally, supplies or accepts Articles. Stores may also offer an event stream that is useful for displaying store contents in GUIs or implementing aggregate views of multiple stores.
+A `Store` in Fluidity is an instance that holds and, optionally, supplies or accepts Articles. Stores may also publish an event stream that is useful for synchronizing store contents to client-side GUIs or implementing aggregate views of multiple stores.
+
+A store may contain any `ArticleType` or combination of article types, using either discrete or bulk accounting and the interfaces are designed so that all implementations *must* support queries and operations using either discrete or bulk (fractional) quantities. This allows consumers of any storage implementation to have rigid and simple code paths, and helps to limit redundancy and the size of the API more generally.
+
+In practice, most implementations are likely to store one article type (or a small, focused set of article types) and will use the form of accounting (discrete or fractional) most appropriate for that set.  Fluidity includes base classes and helpers to make this flexibility relatively easy to attain - mod authors should only need to handle the use cases that matter for their implementation.
+
+### Querying Store Content
+Unlike `Inventory` a `Store` is never asked to expose its internal representation of content, or even all of its content. You can ask a store a question, and it will give you the answer it wants you to have. A store should not lie, but it doesn't have to tell the whole truth.  Consumers should expect store query results to be consistent, but shouldn't try to infer information the store hasn't explicitly provided.
+
+#### Best Practice: Don't Query Store Contents
+The rest of this section will describe the various ways you can get information about a store, most of the time you should not. If a store reports it has an article, that does *not* imply the store will supply a certain amount of the article if asked.  If a store is empty, that does not mean it can accept a particular article in whatever amount.
+
+The *only* reliable way to know if a store can accept or supply some quantity of an article is to try it - simulating if the intent is informational.  This is a very deliberate limitation in the contract of the `Store` interface, and is meant to ensure that `Store` implementations have flexibility in how they operate.  Any attempt to codify the rules what a chest or tank might be allowed to do would have to anticipate every possible use case (and thus be very extensive). And it would almost certainly fail in this attempt, eventually becoming an obstacle to somebody's cool idea.
+
+Another expected use of store queries might be to synchronize information to clients for display, or to aggregate contents from multiple stores into a single view.  In both cases, subscribing to the stores' event streams (described below) will be more reliable and performant.
+
+The best (and intended) use of the query mechanism explained below is to emulate `Inventory` behaviors, or gather summary information for *ad-hoc* display or debugging, especially when working with stores from different mods. They also serve as a back-stop to handle use cases that were not otherwise anticipated. 
+
+#### Querying by Handles
+As described earlier, a `StoredArticleView` exposes a `handle()` property, and iterating a store's contents via handle or retrieving the article view for a specific known handle will usually be the most straightforward way to navigate store content in those rare cases when it is necessary. The relevant members are `handleCount()` and `view(handle)`.
+
+Stores are generally not meant to be thread-safe and consumers should check `handleCount()` or `isHandleValid()` before calling `view(handle)` but `Store` implementations should return `StoredArticleView.EMPTY` when an invalid handle is encountered.  This is a functionally correct result, and simplifies store implementation and usage overall.
+
+#### Query via `forEach`
+`Store` also exposes a pair of specialized `forEach()` methods.  These methods have naive default implementation that simply iterate using handles, but should be overridden by `Store` implementations where iteration by handle may be expensive. Unlike a standard `forEach` method, these accept a `Predicate` as the action, and iteration will stop if the predicate returns `false.` This behavior is especially useful when you only need to act on the first article. An alternate version of `forEach()` accepts a second predicate the `Store` will use to filter articles before applying the action.  This simplifies the action predicate, and may be faster for some implementations.
+
+#### Querying Quantities
+Sometimes, you just need to know if a store has a particular article in stock.  The `countOf()` and `amountOf()` methods offer this ability. But note again: the only reliable way to know if a store can actually supply an article is to request it and observe what happens.  This is exactly how these methods work in their default implementation - they simulate maximum extraction of the requested article and return the result.
+
+### Store Operations
+While a store may receive requests for any article type with either discrete or fractional quantities, a store can reject or partially fulfill any request that isn't supported,  simply by returning zero or a lesser amount than what was requested. 
+
+For example, a fluid tank could be implemented using discrete accounting to store only whole buckets.  Such a tank would return empty results for any request to fill or drain any sub-unit amount, and would only partially fulfill requests for one or more units that also include a fractional amount.  A tank could also be designed to only accept a single type of fluid, and thus reject any request to drain or fill other fluids (or other types of articles).  More generally, implementations can adopt any constraint that doesn't violate the contract of exposed interfaces, and those interfaces were designed to allow flexibility.
+
+#### ArticleFunction
+Storage input and output operations use the same interface: `ArticleFunction`.  
+
+`ArticleFunction` is overloaded, but every variant accepts an `Article` (or something that can be converted to an `Article`, like an `Item`) and a `simulate` parameter.  When the `simulate` parameter is true, the result of the operation will be a forecast only and the state of the Store will not change.
+
+The remaining variation is in how quantities are specified, as follows:
+
+* A single `long` value - for discrete articles or when only whole (bucket) units are needed.  The result will also be a whole unit.
+
+* Two `long` values - a numerator and denominator - for fractional accounting using primitives.  The result will a  multiple of the denominator.
+
+* A Fraction instance - for full-scale, full-precision fractional accounting. The result will be a Fraction.
+
+All `ArticleFunction` implementations *must* accept all of these variants, but as with `Store` most implementations will adopt a specific form of accounting internally and rely on the base classes provided by Fluidity to convert mismatched requests to an appropriate form.  
+
+Note there are some subtle differences in how the quantity input affect the outputs: variations that accept `long` values must also return results that can be expressed as `long` values.  This means, for example, that a request to supply 2/3 from a tank that is 1/2 full can only return 1/3 if the result must be expressed as two long values. But if the same request is made with 2/3 (as a `Fraction`) then the result will be 1/2 (also as a `Fraction`).
+
+The lesson here is this: if you can accept Fraction values then you should also make requests using Fraction values.  If you can't accept Fraction values, then primitive values are exactly what you need, because that will ensure you never get a result you can't accept.  In either case you should not assume an empty result means a store is empty or full - it only means the store can't supply or accept the amount requested in the form you requested it.   (Use `Store.isEmpty()` or `Store.isFull()` to answer those questions.)
+
+#### Supplier and Consumer Article Functions
+The quantity parameters to `ArticleFunction`, in any form, are *always* zero or positive.  (Fraction numerators must be >= 1) The direction of articles in or out of storage is instead implied by which article function is called: 
+
+* **`Store.getSupplier()`** Use to remove articles from a store. (Or to forecast the result of a removal request,)
+
+* **`Store.getConsumer()`** Use to add articles to a store. (Or to forecast the result of an add request.)
+
+Both methods by default return `ArticleFunction.ALWAYS_RETURN_ZERO` - a special implementation of `ArticleFunction` that, unsurprisingly, always returns zero in response to any request. A store can be made insert-only or extract-only by overriding only one of these methods.
+
+Implementations should not override these methods to return `null`. The default return value can be used as-is with the (correct) result that no operation will change state.  Classes that do frequent operations on many stores may see some performance benefit from excluding inoperable stores by testing for the presence of a real implementation using the convenience methods `hasConsumer()` and `hasSupplier()`. 
+ 
+### Store Event Streams and Storage Listeners
+A store can optionally expose a `StorageEventStream` (via `storageEventStream()`) to broadcast changes to storage state to interested listeners.  Listeners must implement `StorageListener` and pass themselves to `StorageEventStream.startListening()` to begin receiving events.
+
+The `StorageListener` interface, like others in Fluidity, must handle both discrete and fractional accounting.  To this end, there are two versions of events, one with a single long quantity and one with a fraction.  Here as elsewhere, Fluidity includes base classes to reduce the burden on implementations.
+
+As with `ArticleFunction`, quantity parameters are always positive.  Direction is shown by which method is called: `onAccept()` for articles coming into the store, and `onSupply()` for articles going out.  These methods include both the amount changed and the new amount that results.  This bit of redundancy is easy for the store to provide (it must have this information anyway) and makes many listener implementations simpler if they have no need to track prior state. It also makes it easier to identify state synchronization errors.   
+
+Stores should not notify listeners of simulated requests. It would serve no useful purpose and there is no simulation flag in any of the notification methods.
+
+Stores that are enrolled in a transaction (explained in a later section) should generally send notifications immediately and not wait for the transaction to be committed. Some listeners may depend on the store's state and could also be enrolled in the same transaction.  If such listeners are not notified of events as they happen, they could give invalid results.  This means that if a transaction is rolled back, the store must send events that reverse earlier notifications.  Again, the quantities are always positive - an `onAccpt()` notification is reversed by a matching `onSupply()` notification, etc.      
+
+A store should respond to a new listener by immediately sending acceptance notifications for current content that should be visible to listeners.  This avoids the need for any listener to know how to query the store to build an initial state vector that will be exactly synchronized with the event stream. This behavior can be disabled when unneeded via the `sendNotifications` parameter to `startListening()`.  
+
+The same pattern applies to the `stopListening()` method - the store should respond by sending supply notifications for all current content unless asked not to.  This behavior is particularly useful for aggregate views of multiple stores because store addition and removal can be handled by the same routines that handle accept and supply events.
+
+ 
+### Implementation Variants
 
 ## Devices
 

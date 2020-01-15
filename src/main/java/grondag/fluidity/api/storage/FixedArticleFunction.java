@@ -22,10 +22,8 @@ import net.minecraft.item.ItemStack;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
-import grondag.fluidity.impl.storage.CreativeSupplier;
-import grondag.fluidity.impl.storage.EmptySupplier;
-import grondag.fluidity.impl.storage.FullConsumer;
-import grondag.fluidity.impl.storage.VoidConsumer;
+import grondag.fluidity.impl.storage.AlwaysReturnRequestedImpl;
+import grondag.fluidity.impl.storage.AlwaysReturnZeroImpl;
 
 /**
  * Store with fixed handles - similar to slots but they don't have aribtrary limits
@@ -55,9 +53,6 @@ public interface FixedArticleFunction extends ArticleFunction {
 
 	long apply(int handle, Article item, long numerator, long divisor, boolean simulate);
 
-	FixedArticleFunction VOID = VoidConsumer.INSTANCE;
-	FixedArticleFunction FULL = FullConsumer.INSTANCE;
-	FixedArticleFunction EMPTY = EmptySupplier.INSTANCE;
-	FixedArticleFunction CREATIVE = CreativeSupplier.INSTANCE;
-
+	FixedArticleFunction ALWAYS_RETURN_REQUESTED = AlwaysReturnRequestedImpl.INSTANCE;
+	FixedArticleFunction ALWAYS_RETURN_ZERO = AlwaysReturnZeroImpl.INSTANCE;
 }

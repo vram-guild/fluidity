@@ -35,7 +35,7 @@ public final class VoidStore implements FixedStore {
 
 	@Override
 	public FixedArticleFunction getConsumer() {
-		return FixedArticleFunction.VOID;
+		return FixedArticleFunction.ALWAYS_RETURN_REQUESTED;
 	}
 
 	@Override

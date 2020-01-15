@@ -100,7 +100,7 @@ public final class CreativeStore implements FixedStore {
 
 	@Override
 	public FixedArticleFunction getSupplier() {
-		return FixedArticleFunction.CREATIVE;
+		return FixedArticleFunction.ALWAYS_RETURN_REQUESTED;
 	}
 
 	@Override

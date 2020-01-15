@@ -41,7 +41,7 @@ public interface StorageEventStream {
 		@Override
 		public void stopListening(StorageListener listener, boolean sendNotifications) {
 			if(needsStopWarning) {
-				Fluidity.LOG.warn("Encountered stopListening call to unsupported event stream.");
+				Fluidity.LOG.warn("Encountered stopListening call to unsupported event stream. Additional warnings are suppressed.");
 				needsStopWarning = false;
 			}
 		}

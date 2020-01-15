@@ -27,10 +27,8 @@ import net.minecraft.nbt.CompoundTag;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.transact.TransactionParticipant;
-import grondag.fluidity.impl.storage.CreativeSupplier;
-import grondag.fluidity.impl.storage.EmptySupplier;
-import grondag.fluidity.impl.storage.FullConsumer;
-import grondag.fluidity.impl.storage.VoidConsumer;
+import grondag.fluidity.impl.storage.AlwaysReturnRequestedImpl;
+import grondag.fluidity.impl.storage.AlwaysReturnZeroImpl;
 
 /**
  * Flexible storage interface for tanks, containers.
@@ -111,8 +109,6 @@ public interface ArticleFunction extends TransactionParticipant {
 	 */
 	long apply(Article item, long numerator, long divisor, boolean simulate);
 
-	ArticleFunction VOID = VoidConsumer.INSTANCE;
-	ArticleFunction FULL = FullConsumer.INSTANCE;
-	ArticleFunction EMPTY = EmptySupplier.INSTANCE;
-	ArticleFunction CREATIVE = CreativeSupplier.INSTANCE;
+	ArticleFunction ALWAYS_RETURN_REQUESTED = AlwaysReturnRequestedImpl.INSTANCE;
+	ArticleFunction ALWAYS_RETURN_ZERO = AlwaysReturnZeroImpl.INSTANCE;
 }

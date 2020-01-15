@@ -48,12 +48,12 @@ public interface CarrierSession extends CarrierNode {
 
 		@Override
 		public ArticleFunction broadcastConsumer() {
-			return ArticleFunction.FULL;
+			return ArticleFunction.ALWAYS_RETURN_ZERO;
 		}
 
 		@Override
 		public ArticleFunction broadcastSupplier() {
-			return ArticleFunction.EMPTY;
+			return ArticleFunction.ALWAYS_RETURN_ZERO;
 		}
 
 		@Override

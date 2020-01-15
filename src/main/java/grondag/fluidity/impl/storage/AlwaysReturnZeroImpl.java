@@ -24,24 +24,24 @@ import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.FixedArticleFunction;
 
 @API(status = INTERNAL)
-public final class CreativeSupplier implements FixedArticleFunction {
-	private CreativeSupplier() {}
+public final class AlwaysReturnZeroImpl implements FixedArticleFunction {
+	private AlwaysReturnZeroImpl() {}
 
-	public static FixedArticleFunction INSTANCE = new CreativeSupplier();
+	public static FixedArticleFunction INSTANCE = new AlwaysReturnZeroImpl();
 
 	@Override
 	public long apply(Article item, long count, boolean simulate) {
-		return count;
+		return 0;
 	}
 
 	@Override
 	public Fraction apply(Article item, Fraction volume, boolean simulate) {
-		return volume.toImmutable();
+		return Fraction.ZERO;
 	}
 
 	@Override
 	public long apply(Article item, long numerator, long divisor, boolean simulate) {
-		return numerator;
+		return 0;
 	}
 
 	@Override
@@ -51,21 +51,21 @@ public final class CreativeSupplier implements FixedArticleFunction {
 
 	@Override
 	public long apply(int handle, Article item, long count, boolean simulate) {
-		return count;
+		return 0;
 	}
 
 	@Override
 	public Fraction apply(int handle, Article item, Fraction volume, boolean simulate) {
-		return volume.toImmutable();
+		return Fraction.ZERO;
 	}
 
 	@Override
 	public long apply(int handle, Article item, long numerator, long divisor, boolean simulate) {
-		return numerator;
+		return 0;
 	}
 
 	@Override
 	public boolean canApply() {
-		return true;
+		return false;
 	}
 }

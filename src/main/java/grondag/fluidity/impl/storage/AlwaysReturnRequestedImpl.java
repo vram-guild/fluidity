@@ -24,10 +24,10 @@ import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.FixedArticleFunction;
 
 @API(status = INTERNAL)
-public final class VoidConsumer implements FixedArticleFunction {
-	private VoidConsumer() {}
+public final class AlwaysReturnRequestedImpl implements FixedArticleFunction {
+	private AlwaysReturnRequestedImpl() {}
 
-	public static FixedArticleFunction INSTANCE = new VoidConsumer();
+	public static FixedArticleFunction INSTANCE = new AlwaysReturnRequestedImpl();
 
 	@Override
 	public long apply(Article item, long count, boolean simulate) {

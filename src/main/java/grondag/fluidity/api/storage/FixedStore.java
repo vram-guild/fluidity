@@ -30,12 +30,12 @@ import grondag.fluidity.impl.storage.VoidStore;
 public interface FixedStore extends Store {
 	@Override
 	default FixedArticleFunction getConsumer() {
-		return FixedArticleFunction.FULL;
+		return FixedArticleFunction.ALWAYS_RETURN_ZERO;
 	}
 
 	@Override
 	default FixedArticleFunction getSupplier() {
-		return FixedArticleFunction.EMPTY;
+		return FixedArticleFunction.ALWAYS_RETURN_ZERO;
 	}
 
 	FixedStore EMPTY = EmptyStore.INSTANCE;

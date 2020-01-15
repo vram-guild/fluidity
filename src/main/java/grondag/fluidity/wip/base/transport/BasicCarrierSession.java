@@ -59,12 +59,12 @@ public class BasicCarrierSession<T extends CarrierCostFunction> implements Limit
 
 	@Override
 	public ArticleFunction broadcastConsumer() {
-		return isOpen ? broadcastConsumer : ArticleFunction.FULL;
+		return isOpen ? broadcastConsumer : ArticleFunction.ALWAYS_RETURN_ZERO;
 	}
 
 	@Override
 	public ArticleFunction broadcastSupplier() {
-		return isOpen ? broadcastSupplier : ArticleFunction.EMPTY;
+		return isOpen ? broadcastSupplier : ArticleFunction.ALWAYS_RETURN_ZERO;
 	}
 
 	@Override
