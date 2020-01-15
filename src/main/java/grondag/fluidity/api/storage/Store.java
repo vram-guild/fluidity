@@ -144,7 +144,13 @@ public interface Store extends TransactionParticipant {
 
 	void clear();
 
-	StorageEventStream  eventStream();
+	default StorageEventStream eventStream() {
+		return StorageEventStream.UNSUPPORTED;
+	}
+
+	default boolean hasEventStream() {
+		return eventStream() != StorageEventStream.UNSUPPORTED;
+	}
 
 	CompoundTag writeTag();
 

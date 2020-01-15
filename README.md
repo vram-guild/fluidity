@@ -197,8 +197,17 @@ A store should respond to a new listener by immediately sending acceptance notif
 
 The same pattern applies to the `stopListening()` method - the store should respond by sending supply notifications for all current content unless asked not to.  This behavior is particularly useful for aggregate views of multiple stores because store addition and removal can be handled by the same routines that handle accept and supply events.
 
+Stores that do not implement `Store.eventStream()` should rely on the default implementation to return `StorageEventStream.UNSUPPORTED`. Consumers of event streams should check for the presence of a valid instance using `hasEventStream()` before subscribing. Subscribing to `StorageEventStream.UNSUPPORTED` logs a one-time warning as an aid to troubleshooting but no exception is thrown and no event notifications will be received. 
  
 ### Implementation Variants
+[**`grondag.fluidity.base`**](https://github.com/grondag/fluidity/tree/master/src/main/java/grondag/fluidity/base/storage) and its sub-packages include the following interfaces and classes to facilitate various types of `Store` implementations:
+
+* **`AbstractStore`**  Provides shared components for listener notifications.
+    * **`AbstractAggregateStore`**
+    * **`AbstractLazyRollbackStore`**
+        *  **`AbstractDiscreteStore`**
+        *  **`SimpleTank`**
+
 
 ## Devices
 
