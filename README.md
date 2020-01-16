@@ -199,9 +199,10 @@ The same pattern applies to the `stopListening()` method - the store should resp
 
 Stores that do not implement `Store.eventStream()` should rely on the default implementation to return `StorageEventStream.UNSUPPORTED`. Consumers of event streams should check for the presence of a valid instance using `hasEventStream()` before subscribing. Subscribing to `StorageEventStream.UNSUPPORTED` logs a one-time warning as an aid to troubleshooting but no exception is thrown and no event notifications will be received. 
 
-### `FixedStore`
-
-### `InventoryStore`
+### API Variants
+The API currently includes two variations on 'Store`:
+* **`FixedStore`** For stores with fixed handles, adds handles to operations via `FixedArticleFunction` extension of `ArticleFunction` - for bins, drawers, or vanilla-like storage with fixed "slots"
+* **`InventoryStore`**  Combo of `Store`, `RecipeInputProvider` and `Inventory` with a few default handlers - useful mainly as consistent shorthand for this combo
 
 ### Implementation Variants
 [**`grondag.fluidity.base`**](https://github.com/grondag/fluidity/tree/master/src/main/java/grondag/fluidity/base/storage) and its sub-packages include the following interfaces and classes to facilitate various types of `Store` implementations:
@@ -215,12 +216,12 @@ Stores that do not implement `Store.eventStream()` should rely on the default im
     * **`AbstractLazyRollbackStore`**  Adds single-store hooks for transaction participation and rollback
         * **`AbstractDiscreteStore`**  Base class for simple stores using discrete accounting 
             * **`CreativeBinStorage`**  What it sounds like - fixed handles and creative behaviors
-            * **`DividedDiscreteStore`**  A non-`Inventory` store with fixed handles, implements `FixedStore`
-            * **`FlexibleDiscreteStore`**  A non-`Inventory` store with dynamic handles and limited by total quantity held
+            * **`DividedDiscreteStore`**  Non-`Inventory` store with fixed handles and per-handle capacity limits, implements `FixedStore`
+            * **`FlexibleDiscreteStore`**  Non-`Inventory` store with dynamic handles and store-level capacity limit.
             * **`SlottedInventoryStore`**  Fixed-handle, fix-slot store, implements `Inventory`
-        * **`SimpleTank`** 
-        * **`SingleStackInventory`**
-* **`ForwardingStore`**  
+        * **`SimpleTank`** Single-article bulk store with volume limit
+        * **`SingleStackInventory`** Combined `Inventory` and `Store` implementation wrapping a single `ItemStack`, prototype for storage items
+* **`ForwardingStore`**  Wraps a `Store` instance - override methods as needed to modify behavior of an existing store 
 
 ## Devices
 
