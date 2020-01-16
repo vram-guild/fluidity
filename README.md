@@ -207,8 +207,8 @@ The API currently includes two variations on 'Store`:
 ### Implementation Variants
 [**`grondag.fluidity.base`**](https://github.com/grondag/fluidity/tree/master/src/main/java/grondag/fluidity/base/storage) and its sub-packages include the following interfaces and classes to facilitate various types of `Store` implementations:
 
-* **`DiscreteStore` and `FixedDiscreteStore`**  Extensions of `Store` and `FixedStore` with default implementations for fractional accounting. Implement these when tracking whole units. 
-* **`BulkStore` and `FixedBulkStore`**  Extensions of `Store` and `FixedStore` with default implementations for discrete accounting. Implement these when tracking fractional units. 
+* **`DiscreteStore` and `FixedDiscreteStore`**  Extensions of `Store` and `FixedStore` with default implementations for fractional accounting - implement these when tracking whole units
+* **`BulkStore` and `FixedBulkStore`**  Extensions of `Store` and `FixedStore` with default implementations for discrete accounting - implement these when tracking fractional units
 * **`AbstractStore`**  Has core components of listener notifications
     * **`AbstractAggregateStore`**  Handles tracking of multiple stores
         * **`AggregateBulkStore`**  Tracks combined view of content from multiple stores using fractional accounting
@@ -217,15 +217,22 @@ The API currently includes two variations on 'Store`:
         * **`AbstractDiscreteStore`**  Base class for simple stores using discrete accounting 
             * **`CreativeBinStorage`**  What it sounds like - fixed handles and creative behaviors
             * **`DividedDiscreteStore`**  Non-`Inventory` store with fixed handles and per-handle capacity limits, implements `FixedStore`
-            * **`FlexibleDiscreteStore`**  Non-`Inventory` store with dynamic handles and store-level capacity limit.
-            * **`SlottedInventoryStore`**  Fixed-handle, fix-slot store, implements `Inventory`
+            * **`FlexibleDiscreteStore`**  Non-`Inventory` store with dynamic handles and store-level capacity limit
+            * **`SlottedInventoryStore`**  Fixed-handle, fix-slot store, implements `InventoryStore`
         * **`SimpleTank`** Single-article bulk store with volume limit
-        * **`SingleStackInventory`** Combined `Inventory` and `Store` implementation wrapping a single `ItemStack`, prototype for storage items
+        * **`SingleStackInventory`** `InventoryStore` implementation wrapping a single `ItemStack`, prototype for storage items
 * **`ForwardingStore`**  Wraps a `Store` instance - override methods as needed to modify behavior of an existing store 
 
-## Devices
-
 ## Transactions
+Transactions allow a `Store` or any instance that implements `TransactionParticipant` to be notified when an operation is part of a transaction and may need to be undone.  Participants are then given an opportunity to save any necessary rollback state before the operation happens, and then notified when the transaction is committed or rolled back.
+
+Participants can be explicitly enlisted in a transaction when their involvement is known, but implementations can also self-enlist.  This is particularly useful for transportation networks with cost accounting - the initiator of an operation may not know all of the attendant costs and side effects of the transport network, or even that they exist.  If the transport network can self-enlist, all of that can be handled without complicating the initiating code. 
+
+Transactions are useful in at least two ways:
+1. Operations across multiple participants do not have to forecast results with perfect accuracy, nor handle clean up of participant state when things do not go according to plan.  When working with complicated implementations (something like a Project E table, for example) both the forecasting and the cleanup could be nigh-impossible to get right and will almost inevitable result in undesirable coupling of implementations.
+2. Code that initiates an operations does not have to know and handle all of the possible side effects that could result because transactions participants that aren't directly known or meaningful to the initiator can self-enlist.
+
+## Devices
 
 ## Multiblocks
 
