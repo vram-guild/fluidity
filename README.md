@@ -229,8 +229,34 @@ Transactions allow a `Store` or any instance that implements `TransactionPartici
 Participants can be explicitly enlisted in a transaction when their involvement is known, but implementations can also self-enlist.  This is particularly useful for transportation networks with cost accounting - the initiator of an operation may not know all of the attendant costs and side effects of the transport network, or even that they exist.  If the transport network can self-enlist, all of that can be handled without complicating the initiating code. 
 
 Transactions are useful in at least two ways:
-1. Operations across multiple participants do not have to forecast results with perfect accuracy, nor handle clean up of participant state when things do not go according to plan.  When working with complicated implementations (something like a Project E table, for example) both the forecasting and the cleanup could be nigh-impossible to get right and will almost inevitable result in undesirable coupling of implementations.
-2. Code that initiates an operations does not have to know and handle all of the possible side effects that could result because transactions participants that aren't directly known or meaningful to the initiator can self-enlist.
+1. Operations across multiple participants do not have to forecast results with perfect accuracy, nor handle clean up of participant state when things do not go according to plan.  When working with complicated implementations (something like a Project E table, for example) both the forecasting and the cleanup could be nigh-impossible to get right and will inevitably result in undesirable coupling of implementations.
+2. Code that initiates an operations does not have to know and handle all of the possible side effects that could result because transaction participants that aren't directly known or meaningful to the initiator can self-enlist.
+
+### Using Transactions
+The transaction-related interfaces are located in `grondag.fluidity.api.transact`. There are only three:
+* **`Transaction`**  A single transaction - may be nested within another transaction. The initiator obtains this instance and uses it to commit or roll back the transaction, and to enlist participants.  Should be enclosed in a try-with-resources block - default close behavior is to roll back unless `commit()` was called successfully before `close()`.
+* **`TransactionParticipant`**  Implement this on stores, transport carriers, machines or other game objects that can benefit from transaction handling. All Fluidity base implementations (except aggregate views) include transaction support.
+* **`TransactionContext`**  Exposed to participants at time of enlistment, and again at close.  Used to save and retrieve rollback state, and to query commit/rollback status at close.
+
+Here's an example of simple transaction reliably transferring one unit of something between two stores:
+
+```java
+try(Transaction tx = Transaction.open()) {
+	tx.enlist(firstStore);
+	tx.enlist(secondStore);
+
+	if (firstStore.getSupplier().apply(myArticle), 1) == 1 && secondStore.getConsumer().apply(myArticle, 1) == 1) {
+		tx.commit();
+	} else {
+		tx.rollback();
+	}
+}
+```
+
+### Implementing Transaction Support
+
+
+### Transaction Mechanics
 
 ## Devices
 
