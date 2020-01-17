@@ -230,12 +230,13 @@ Participants can be explicitly enlisted in a transaction when their involvement 
 
 Transactions are useful in at least two ways:
 1. Operations across multiple participants do not have to forecast results with perfect accuracy, nor handle clean up of participant state when things do not go according to plan.  When working with complicated implementations (something like a Project E table, for example) both the forecasting and the cleanup could be nigh-impossible to get right and will inevitably result in undesirable coupling of implementations.
-2. Code that initiates an operations does not have to know and handle all of the possible side effects that could result because transaction participants that aren't directly known or meaningful to the initiator can self-enlist.
+2. Code that initiates an operation does not have to know of and handle all of the possible side effects that could result because transaction participants that aren't directly known or meaningful to the initiator can self-enlist.
 
 ### Using Transactions
-The transaction-related interfaces are located in `grondag.fluidity.api.transact`. There are only three:
+The transaction-related interfaces are located in `grondag.fluidity.api.transact`.
 * **`Transaction`**  A single transaction - may be nested within another transaction. The initiator obtains this instance and uses it to commit or roll back the transaction, and to enlist participants.  Should be enclosed in a try-with-resources block - default close behavior is to roll back unless `commit()` was called successfully before `close()`.
-* **`TransactionParticipant`**  Implement this on stores, transport carriers, machines or other game objects that can benefit from transaction handling. All Fluidity base implementations (except aggregate views) include transaction support.
+* **`TransactionParticipant`**  Provides a `TransactionDelegate` and indicates if the participant is self-enlisting. Implement this on stores, transport carriers, machines or other game objects that can benefit from transaction handling. All Fluidity base implementations (except aggregate views) include transaction support.
+	* **`TransactionDelegate`** Does the actual rollback preparation and handles closure notifications. Allows participants to share the same rollback state.  The `ArticleFunction` interface itself extends `TransactionParticipant` so it is common to have multiple `ArticleFunctions` instances that internally update the same state.
 * **`TransactionContext`**  Exposed to participants at time of enlistment, and again at close.  Used to save and retrieve rollback state, and to query commit/rollback status at close.
 
 Here's an example of simple transaction reliably transferring one unit of something between two stores:
@@ -253,18 +254,59 @@ try(Transaction tx = Transaction.open()) {
 }
 ```
 
-### Implementing Transaction Support
+As we'll see in the Transport section we may only have an `ArticleFunction` to work with instead of a full-fledged `Store` instance.  That's why `ArticleFunction` also extends `TransctionParticipant` - you don't have to know where a supplier or consumer function came from to enlist it in a transaction.
 
+### Implementing Transaction Support
+The Fluidity base implementations include several different variations of transaction support that take advantage of specific implementation characteristics.  The reader can look to those as examples. In particular, see `AbstractLazyRollbackStore` and it's sub-types. The main principle to follow is to defer creating rollback state until something actually changes, unless creating rollback state is very inexpensive.  Often, the easiest way to accomplish this is to make `TransctionParticipant.isSelfEnlisting()` return true, and then call `Transaction.current.enlistSelf()` right before something changes.
+
+Transactions track which delegates have already been enlisted (self-enlisted or otherwise), and guarantees that `TransactionDelegate.prepareRollback()` will be called exactly once, immediately when the delegate first becomes enlisted.
+
+The rollback state provided by the delegate via `TransactionContext.setState()` can be any Object, or null.  It will never be inspected or altered by the transaction manager, and will be provided back to the delegate via `TransactionContext.getState()` when the transaction is closed.
+
+The `Consumer` function returned by `prepareRollback()` will *always* be called, both when a transaction is committed and when it is rolled back deliberately or due to an exception.  Implementations *must* therefore check the value of `TransactionContext.isCommited()` to know what action is appropriate.
+
+Oddball implementations that don't need to do anything on commit or rollback can return `TransactionDelegate.IGNORE` as their delegate, which does exactly what you'd expect it to do.  Examples of this are creative-type storage or void blocks where state is essentially immutable, and aggregate storage implementations that don't have any internal, independent state that would need to be restored but instead rely on their component instances to handle transaction state and change notifications as needed. 
+
+However, a `Store` or other class that extends `TrasactionDelegate` *is* expected to provide transaction support to the extent that it means anything for that implementation.  Transaction delegates should not be null and they should be `TransactionDelegate.IGNORE` unless that gives "correct" results. 
+
+See also the related notes regarding storage event streams and listeners, above.
 
 ### Transaction Mechanics
+Fluidity Transaction State is global state.  There is only ever one current transaction, across all threads.
+
+As we all know, global state is always a bad thing.  Sometimes, it also the *least* bad thing. Nobody wants to wear the cleanest dirty shirt, and being forced to do so may motivate us to improve the regularity of our laundering habits, but sometimes we have no choice but to choose from a menu of unsavory options. The author believes such is the case here.
+
+Earlier designs considered the possibility of partitioning transaction state into isolated scopes, and to allow concurrent transactions from multiple threads, much as a modern RDBMS would do.  However this immediately introduces many complicating problems, including the need to track which objects are visible in which scope(s) and the need for synchronization when such objects are referenced in more than one scope. It also creates the need to detect and handle deadlocks, or otherwise shape the API in a (probably onerous and restrictive) way so that deadlocks cannot occur. It's simply not worth it in the context of modded Minecraft, assuming it could be made to work at all before we have all moved on to other pursuits. 
+
+When there can only be a single current transaction, transaction state is *de-facto* global state.  *Exposing* it as explicit global state is not essential, but it ends up being *very* nice for allowing transaction participants that self-enlist.  This single change greatly simplified implementations that benefit from lazy rollback preparation or want to automatically include side-effects (like transport costs) in transactions that caused the side effects to occur. Doing this without global visibility requires cluttering the API to pass the current transaction up and down the call stack, or exposing it on some accessible instance such that it becomes effectively global anyway.
+
+Fluidity also supports nested transactions, and having a single global state greatly allows that implementation to a simple stack of transaction states associated with a single thread, which brings us to the question of support for multiple threads. 
+
+Fluidity *does* support transactions initiated from any server-side thread, and automatically synchronizes the current state via a specialized locking mechanism. This mechanism makes the following guarantees:
+* Only one thread can own the current transaction state.
+* To open a new transaction, there must be no current transaction, or the calling thread must already own the current state.
+* A thread that tries to open a transaction without holding the lock will block until the transaction is complete. This will not cause deadlocks unless an action somehow waits on a blocked thread through some dependency other than the transaction.  That would be strange and bad. Don't do that.
+* Most important: the Minecraft server thread is *always* given priority above all other threads. If a transaction from another thread is open when the server thread tries to open a transaction, the server thread will block until that thread completes, and will then be scheduled before any other waiting threads.  Non-server threads should be scheduled in an approximately fair order. 
+
+The rational for this last guarantee is performance: the server thread should not be held up by locks from other threads.  That said, the server thread will not be using the transaction state most of the time - server ticks only happen 20 times per second and, ideally, are short.  A future update may further restrict locks from other threads, only allowing them to proceed outside of the server tick event.
+
+That all said, the best practice for opening transactions from other threads is: don't.  It makes everything much more complicated and prone to breakage.
+
+If, like the author, you have some mods that *really* need to move some work off the server thread to avoid killing it, the answer is *still* don't.  If you are querying or changing any state you don't completely control, it probably doesn't expect to be queried or changed from anywhere other than the server thread, preferably during server tick. 
+
+A better approach is to completely isolate the state that will be processed off-thread, buffering world state if needed, and then synchronizing with world state during each server tick.  During the server tick you can initiate transactions on the server thread, and those transactions can consume or produce state that is the result of or input to off-thread processing.  Server ticks may take a little longer to run, but you won't block them or break the game (probably), and usually there is time to spare or to be found with server-side optimization mods.  
+
+Fermion Simulator and Working Scheduler both provide some mechanisms that could be useful for this sort of setup, and if you are committed to doing concurrent processing server-side it should be something you are comfortable doing on your own if needed.
+
+Consistent with this recommendation, there is a non-zero chance support for transactions from non-server threads will be altogether *removed* in some future release and this is a topic on which the author would value feedback.  For now the feature remains to account for scenarios that may not have been anticipated, and because someone will probably try to do it anyway.
+
+Lastly, note that transactions are a fully server-side construct, and no client-side code should ever reference them.  This is difficult to enforce directly without expensive checks, and so for now mod authors are on the honor system to get this right.  If it ends being a problem, some checks may be added, perhaps with configuration to turn them on or off.
 
 ## Devices
 
 ## Multiblocks
 
-## Carriers
-
-### Best Practices - enlist and support auto enlist
+## Transport
 
 # Using Fluidity
 
