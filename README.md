@@ -490,5 +490,61 @@ public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEnt
 ```
  
 # Multiblocks
+Transport mods often have multi-block constructs, usually cable, pipes or conduits.  Storage mods, too, sometimes have multi-block structures.
+
+The [`grondag.fludity.api.multiblock` package](https://github.com/grondag/fluidity/tree/master/src/main/java/grondag/fluidity/api/multiblock) contains three interfaces to accelerate multi-block device implementations:
+
+* **`MultiBlockMember`** Implement and retain an instance associated with a block position, typically in a BlockEntity. The base implementation `AbstractBlockEntityMember` will do most of the work for you.
+
+* **`MultiBlock`** Implement to contain the state and behaviors of the compound structure. Automatically receives notifications when a member is added or removed, and when the structure is destroyed. The `AbstractMultiBlock` class in the `base` package should serve as an adequate base for most implementations.
+
+* **`MultiBlockManager`** Receives game events and forwards them as appropriate to affected `MultiBlock` and `MultiBlockMember` instances. Also tracks the existence of all extant multiblocks and their members in every server-side world.  The implementation is included and opaque and should be created and retained as `static final` during block registration via `MultiBlockManager.create()`.  
+
+`MultiBlockManager.create()` requires only two parameters: a supplier to create new `MultiBlock` instances and a `BiPredicate` to test if two adjacent `MultiBlockMember` instances should connect. 
+
+All multi-block classes are server-side only and should *only* be referenced from the server thread.  The rules for multi-block structure tracking rely on the fact that blocks can only be added or removed one at time, and thus there are only a small number of use cases the `MultiBlockManager` implementation must handle.  
+
+Because the logic is relatively simple and member locations and instances are cached in the manager itself, event handling should be performant even with large-scale structures.
+
+The multi-block manager does not check for the loaded or unloaded status of worlds or chunks - it generally does not interact with the world directly but instead acts through member instances.  Implementations should handle these checks (or make other arrangements) in their own logic.
+
+To use this API, implement the `MultiBlock` and `MultiBlockMember` interfaces (typically by extending one of the provided base classes) and add the behaviors you want to happen when members are added or removed from a multi-block.  Then create a manager for those implementations via `MutliBlockManager.create()`.  Here is an example:
+
+```java
+public class TankMultiBlock extends AbstractStorageMultiBlock<TankMultiBlock.Member, TankMultiBlock> {
+	public TankMultiBlock() {
+		super(new AggregateBulkStore());
+	}
+
+	protected static class Member extends AbstractBlockEntityMember<Member, TankMultiBlock, Store, TankBlockEntity> {
+		public Member(TankBlockEntity blockEntity, Function<TankBlockEntity, Store> componentFunction) {
+			super(blockEntity, componentFunction);
+		}
+
+		@Override
+		protected void beforeOwnerRemoval() {
+			blockEntity.wrapper.setWrapped(blockEntity.getInternalStorage());
+		}
+
+		@Override
+		protected void afterOwnerAddition() {
+			blockEntity.wrapper.setWrapped(owner.storage);
+		}
+
+		protected int species() {
+			return blockEntity.getCachedState().get(SpeciesProperty.SPECIES);
+		}
+
+		protected boolean canConnect(Member other) {
+			return other != null && blockEntity.hasWorld() && other.blockEntity.hasWorld() && species() == other.species();
+		}
+	}
+
+	protected static final MultiBlockManager<Member, TankMultiBlock, Store> DEVICE_MANAGER = MultiBlockManager.create(
+			TankMultiBlock::new, (Member a, Member b) -> a != null && a.canConnect(b));
+}
+``` 
+ 
+The remaining task is to add reliable logic that calls `MultiBlockManager.connect()` and `MultiBlockManager.disconnect()` on the `MultiBlockManager` instance created during block registration. The methods must be called reliably when member instances are added or removed from a world.  Typically the easiest way to do this is via handlers in `BlockEntity.setWorld()`, `BlockEntity.markRemoved()`, and `BlockEntity.cancelRemoval()`.  The implementation is not difficult but the available examples are not compact. For one example, look [here](https://github.com/grondag/facility/blob/master/src/main/java/grondag/facility/storage/StorageBlockEntity.java).  
 
 # Transport

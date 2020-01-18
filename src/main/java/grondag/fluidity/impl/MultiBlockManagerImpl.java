@@ -46,7 +46,6 @@ import grondag.fluidity.api.multiblock.MultiBlockMember;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U, V>, U extends MultiBlock<T, U, V>, V> implements MultiBlockManager<T, U, V> {
 
-	@SuppressWarnings("serial")
 	private class WorldHandler extends Long2ObjectOpenHashMap<T> {
 
 		private final Object2LongOpenHashMap<T> reverseMap = new Object2LongOpenHashMap<>();
