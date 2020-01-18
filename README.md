@@ -109,12 +109,12 @@ Add Grondag's unfortunate, terrible, bad maven repo to your gradle repositories 
 ```gradle
 repositories {
   maven {
-    	name = "grondag"
+    name = "grondag"
     	url = "https://grondag-repo.appspot.com"
     	credentials {
       username "guest"
       password ""
-	}
+    }
   }
 }
 ```
