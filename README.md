@@ -490,15 +490,15 @@ public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEnt
 ```
  
 # Multiblocks
-Transport mods often have multi-block constructs, usually cable, pipes or conduits.  Storage mods, too, sometimes have multi-block structures.
+Transport mods often have multi-block constructs - usually cables, pipes or conduits.  Storage mods, too, sometimes have multi-block structures.
 
-The [`grondag.fludity.api.multiblock` package](https://github.com/grondag/fluidity/tree/master/src/main/java/grondag/fluidity/api/multiblock) contains three interfaces to accelerate multi-block device implementations:
+The [`grondag.fludity.api.multiblock`](https://github.com/grondag/fluidity/tree/master/src/main/java/grondag/fluidity/api/multiblock) package contains three interfaces to accelerate multi-block device implementations:
 
-* **`MultiBlockMember`** Implement and retain an instance associated with a block position, typically in a BlockEntity. The base implementation `AbstractBlockEntityMember` will do most of the work for you.
+* **`MultiBlockMember`** Implement and retain an instance associated with a block position, typically in a `BlockEntity`. The base implementation `AbstractBlockEntityMember` will do most of the work for you.
 
-* **`MultiBlock`** Implement to contain the state and behaviors of the compound structure. Automatically receives notifications when a member is added or removed, and when the structure is destroyed. The `AbstractMultiBlock` class in the `base` package should serve as an adequate base for most implementations.
+* **`MultiBlock`** Implement to contain the state and behaviors of the compound structure. Automatically receives notifications when a member is added or removed, and when the structure is destroyed. The `AbstractMultiBlock` class in the `base` package and its sub-types should serve as an adequate base for most implementations.
 
-* **`MultiBlockManager`** Receives game events and forwards them as appropriate to affected `MultiBlock` and `MultiBlockMember` instances. Also tracks the existence of all extant multiblocks and their members in every server-side world.  The implementation is included and opaque and should be created and retained as `static final` during block registration via `MultiBlockManager.create()`.  
+* **`MultiBlockManager`** Receives game events and forwards them as appropriate to affected `MultiBlock` and `MultiBlockMember` instances, creating or removing multibock instances as needed. Also tracks the existence of all extant multiblocks and their members in every server-side world.  The implementation is included and opaque. Create and retain instances as `static final` during block registration via `MultiBlockManager.create()`.  
 
 `MultiBlockManager.create()` requires only two parameters: a supplier to create new `MultiBlock` instances and a `BiPredicate` to test if two adjacent `MultiBlockMember` instances should connect. 
 
