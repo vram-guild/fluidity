@@ -20,8 +20,8 @@
     - [Implementation Support](#implementation-support)
     - [Stored Article Handles](#stored-article-handles)
 - [Fractions](#fractions)
-  - [Fractions without 'Fraction'](#fractions-without-fraction)
-- [Store and its Variants](#store-and-its-variants)
+  - [Fractions without `Fraction`](#fractions-without-fraction)
+- [`Store` and its Variants](#store-and-its-variants)
   - [Querying Store Content](#querying-store-content)
     - [Best Practice: Don't Query Store Contents](#best-practice-dont-query-store-contents)
     - [Querying by Handles](#querying-by-handles)
@@ -70,17 +70,17 @@ Note that issue reports and pull requests are welcome and encouraged.
 ## Relations
 
 ### Fabric API
-Fluidity is designed, coded and licensed so that some or all of it could be incorporated into the Fabric API if wanted.  However, it is much more extensive than the Fabric project would likely want to take on. And unless or until Fluidity stabilizes and emerges as some sort of <em>de-facto</em> community standard there is no particular justification for incorporating a subset of it into the core Fabric API.
+Fluidity is designed, coded and licensed so that some or all of it could be incorporated into the Fabric API if desired.  However, it is much more extensive than the Fabric project would likely want to take on. And unless or until Fluidity stabilizes and emerges as some sort of *de-facto* community standard there is no particular justification for incorporating even a subset of it into the core Fabric API.
 
-It seems more likely that Fabric API will eventually incorporate some less comprehensive set of interfaces that may be imfluenced by or derived from this and other community efforts, such as LBA (mentioned below.). In that case, the author intends to make Fluidity support and extend relevant "official" APIs as they emerge.
+It seems more likely that Fabric API will eventually adopt some less comprehensive set of interfaces that may be influenced by or derived from this and other community efforts, such as LBA (mentioned below). In that case, the author intends to make Fluidity support and extend relevant "official" APIs as they emerge.
 
 ### LibBlockAttributes
-Fluidity necessarily covers some of the same ground as [LBA](https://github.com/AlexIIL/LibBlockAttributes).  The author intentionally did not closely study LBA while Fluidity was being developed, both in order avoid making a derivative work and to ensure a fresh perspective.  That said, cross-compatibility is an explict goal and will be pursued when Fludity stablizes and as time permits.  From admittedly superficial observation, this appears attainable with reasonable effort.
+Fluidity necessarily covers some of the same ground as [LBA](https://github.com/AlexIIL/LibBlockAttributes).  The author intentionally did not closely study LBA while Fluidity was being developed, both in order avoid making a derivative work and to ensure a fresh perspective.  That said, cross-compatibility with LBA is an explicit goal and will be pursued when Fludity stablizes and as time permits.  From admittedly superficial observation, this appears attainable with reasonable effort.
 
 ### Cardinal Components
 Fludity Device Components (explained below) may be seen to overlap somewhat with [Cardinal Components API](https://github.com/NerdHubMC/Cardinal-Components-API). However, this apparent redundancy is superficial.  
 
-Fluidity Device Component Types focus on discovery and retrieval of implementations and does not provide dynamically extensible data attributes, serialization or other facilities offered by CCA.  Indeed, CCA may prove to be quite complimentary to some Fluidity implementations.    
+Fluidity Device Component Types focus on discovery and retrieval of implementations and do not provide dynamically extensible data attributes, serialization or other facilities offered by CCA.  Indeed, CCA may prove to be quite complimentary to some Fluidity implementations.    
 
 ### Vanilla Minecraft
 Fluidity currently has no Mixins and makes no (intentional) changes to vanilla Minecraft behaviors.  Implementations are expected to make their own choices regarding their compatibility with vanilla mechanics.  The poor encapsulation of `Inventory` and it's sub-types is particularly problematic for large-scale storage networks that aim to be performant, and there is no clear best answer for how compatible vs how optimized any given block or item ought to be - it depends on how it will be used.
@@ -102,9 +102,38 @@ Internal implementations and helpers.  Mods should not directly reference anythi
 Work-in-process code that will *probably* become part of the library in the near future but is more experimental than even the API Guardian `EXPERIMENTAL` annotation would indicate.  Mods are welcome to look at it, test and provide feedback but should have no expectation of stability. This sub-tree replicates the api/base/impl divisions of the main API to indicate where the code will eventually land.
 
 ## Dev Environment Setup
+Fluidity requires Fabric API but has no external run-time dependencies beyond those already bundled with Minecraft and Fabric.
+ 
+Add Grondag's unfortunate, terrible, bad maven repo to your gradle repositories block:
+
+```gradle
+repositories {
+  maven {
+    	name = "grondag"
+    	url = "https://grondag-repo.appspot.com"
+    	credentials {
+      username "guest"
+      password ""
+	}
+  }
+}
+```
+
+And then add the following to dependencies:
+
+```gradle
+dependencies {
+  // optional dev env annotation support
+  compileOnly "org.apiguardian:apiguardian-api:1.0.0"
+  compileOnly "com.google.code.findbugs:jsr305:3.0.2"
+
+  modImplementation ("grondag:fluidity-mc115:${project.fluidity_version}.+") { transitive = false }
+  include "grondag:fluidity-mc115:${project.fluidity_version}.+"
+}
+```
 
 ## Examples
-
+At time of writing, the only mod using Fluidity is [Facility](https://github.com/grondag/facility).  Facility exercises all major features of the API and cloning it into your dev environment is likely to be the best and fastest way to understand how Fluidity can be used in practice. Facility also has an unrestrictive license.
 
 # Articles
 An `Article` is a game resource that can be uniquely identified, quantified and serialized. An `ArticleType` defines the class of resource and provides packet and NBT serialization functions.  
@@ -131,7 +160,7 @@ When an article has a non-null tag value there can be a virtually infinite numbe
 To ensure that articles are immutable, an article's tag instance is not directly exposed. The `copyTag()` method is the only way to get the tag content and results in a new allocation every time.  If you only need to test for tag existence or test for tag equality use `hasTag()` or `doesTagMatch()`.
 
 ## Stored Articles
-When an article is being stored or transfered we need additional information: quantity and, sometimes, a location. A core design principle of Fluidity is that all such data should never be directly mutated outside of the storage/transport implementation - all changes *must* be the result of some controlled, observable transaction.
+When an article is being stored or transfered we need additional information: quantity and, sometimes, a location. A core design principle of Fluidity is that all such data should never be directly mutated outside of the storage/transport implementation - all changes *must* be the result of some controlled, observable operation.
 
 This is why the API that exposes this information is immutable: `StoredArticleView`.
 
@@ -164,10 +193,10 @@ For this reason, consumers of `Fraction` should *never* retain a reference but i
 
 These classes were designed to be final in order to ensure static invocation in what are likely to be frequent calls and mod authors should not try to sub-class or modify them via reflection, Mixins or other esoteric methods. If you really need them to do something else, please submit a PR.
 
-## Fractions without 'Fraction'
+## Fractions without `Fraction`
 In many Fluidity methods, fractional quantities are exposed and manipulated as primitive values, without use of `Fraction` itself.  These methods (see below and in the code) instead rely on `long` values that correspond to `Fraction.whole()` or `Fraction.numerator()` and `Fraction.denominator()`.  When available and appropriate for your use case (i.e. when you have fixed minimum and maximum transfer amounts) method with primitive arguments will generally be slightly more performant and easier to work with. 
 
-# Store and its Variants
+# `Store` and its Variants
 A `Store` in Fluidity is an instance that holds and, optionally, supplies or accepts quantified articles. Stores may also publish an event stream useful for synchronizing store contents to client-side GUIs or implementing aggregate views of multiple stores.
 
 A store may contain any `ArticleType` or combination of article types, using either discrete or bulk accounting and the interfaces are designed so that all implementations *must* support queries and operations using either discrete or bulk (fractional) quantities. This allows consumers of any storage implementation to have rigid and simple code paths, and helps to limit redundancy and the size of the API more generally.
