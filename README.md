@@ -110,8 +110,8 @@ Add Grondag's unfortunate, terrible, bad maven repo to your gradle repositories 
 repositories {
   maven {
     name = "grondag"
-    	url = "https://grondag-repo.appspot.com"
-    	credentials {
+    url = "https://grondag-repo.appspot.com"
+    credentials {
       username "guest"
       password ""
     }
