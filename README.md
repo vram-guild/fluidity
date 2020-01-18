@@ -292,7 +292,7 @@ The rational for this last guarantee is performance: the server thread should no
 
 That all said, the best practice for opening transactions from other threads is: don't.  It makes everything much more complicated and prone to breakage.
 
-If, like the author, you have some mods that *really* need to move some work off the server thread to avoid killing it, the answer is *still* don't.  If you are querying or changing any state you don't completely control, it probably doesn't expect to be queried or changed from anywhere other than the server thread, preferably during server tick. 
+If, like the author, you have some mods that *really* must move some work off the server thread to avoid killing it, the answer is *still* don't initiate transactions from outside the server thread.  If you are querying or changing any state you don't completely control, it probably doesn't expect to be queried or changed from anywhere other than the server thread, preferably during server tick. 
 
 A better approach is to completely isolate the state that will be processed off-thread, buffering world state if needed, and then synchronizing with world state during each server tick.  During the server tick you can initiate transactions on the server thread, and those transactions can consume or produce state that is the result of or input to off-thread processing.  Server ticks may take a little longer to run, but you won't block them or break the game (probably), and usually there is time to spare or to be found with server-side optimization mods.  
 
@@ -300,10 +300,114 @@ Fermion Simulator and Working Scheduler both provide some mechanisms that could 
 
 Consistent with this recommendation, there is a non-zero chance support for transactions from non-server threads will be altogether *removed* in some future release and this is a topic on which the author would value feedback.  For now the feature remains to account for scenarios that may not have been anticipated, and because someone will probably try to do it anyway.
 
-Lastly, note that transactions are a fully server-side construct, and no client-side code should ever reference them.  This is difficult to enforce directly without expensive checks, and so for now mod authors are on the honor system to get this right.  If it ends being a problem, some checks may be added, perhaps with configuration to turn them on or off.
+Lastly, note that transactions are a server-side construct, and no client-side code should ever reference them.  This is difficult to enforce directly without expensive checks, and so for now mod authors are on the honor system to get this right.  If it ends being a problem, some checks may be added, perhaps with configuration to turn them on or off.
 
-## Devices
+## Device Components
+A *device* in Fluidity is a functional role - there is no `Device` interface or class.  "Devices" are game objects (currently blocks and items) associated with one or more "Device Component" instances. Device components are also conceptual and can be of any type - there is no `DeviceComponent` interface.
 
+Many readers will note some resemblance here to entity attribute frameworks like Cardinal Components or the old capabilities system in Forge.  The resemblance is superficial: Fluidity facilitates *access* to device components but handles no aspects of implementation or persistence, except that some of the interfaces it defines are meant to be exposed as device components and it also provides (optional) base classes that can be used to implement those interfaces.  
+
+Fluidity is in no way a general-purpose entity attribute library, nor is it meant to replace one.  It's main purpose is to decouple component access from component implementation, and to do so without adding or requiring external dependences.  It also introduces some rudiments of device access control, as will be explained below. 
+
+### Registering Device Component Types
+Creating a new component type is straightforward, as shown by the code Fluidity uses to create components for storage access:
+
+```java
+DeviceComponentType<Store> STORAGE_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "storage"), EMPTY);
+```
+
+Note that two components can share the same type:
+```java
+	/**
+	 * Multiblock storage devices may elect to return the compound storage instance as the main storage service.
+	 * This method offers an unambiguous way to reference the internal storage of the device.
+	 *
+	 * <p>Also used by and necessary for aggregate storage implementations for the same reason.
+	 *
+	 * @return Internal {@link Store} of this device, or the regular storage if not a multiblock.
+	 */
+	DeviceComponentType<Store> INTERNAL_STORAGE_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "internal_storage"), EMPTY);
+```
+
+The second parameter to `DeviceComponentRegistry.createComponent()` is the value that should be returned when the component is absent, and visible via `DeviceComponentType.absent()`.  You can use `null` here, but cleaner code may result when the absent value is a no-effect dummy instance.  This is a choice for the component implementation to make.   
+
+### Using Components
+Obtaining a device component instance is a two-step process:
+
+1) Call a variation of `DeviceComponentType.getAccess()` to retrieve a `DeviceComponentAccess` instance. Currently there are methods to get access from blocks (or block positions within a world) and from Items, which may or may not be held by a player.  Future versions may add access methods for entities or other game objects if there are interesting use cases for them. 
+
+2) Use a variant of `DeviceComponentType.get()` to get the actual component instance, or the absent value if the component is unavailable.
+
+`DeviceComponentType.get()` accepts three parameters, all of which can be omitted: 
+
+* **`Authorization`**  A placeholder interface for now, represents some sort of access token to be defined in a later version.  Defaults to `Authorization.PUBLIC`
+
+* **`Direction`** For device components that are accessible via a specific side.  Pass `null` (or call a `get()` variant without this argument) for device components that have no side or to get the non-specific instance.  Component types that do not have sides should ignore this parameter and access attempts from a specific side should always provide it, unless it is somehow known to be unnecessary.
+
+* **`Identifier`** Device components may optionally have named instances and accept access requests for a specific instance.  This may be useful, for example, with machines that have more than one input/output buffer that may be accessible from the same side.  Such a machine could return a different view of storage depending on which named buffer was requested.  Use of this feature is optional and implementation-specific; Fluidity currently makes no attempt to standardize these identifiers or their meanings. 
+
+
+Often, access to a device component is for a single use.  In these cases, `DeviceComponentType.acceptIfPresent()` can simplify code. It works like `get()` but also accepts a `Consumer` for the component type and if it finds a non-absent component instance it applies the consumer and returns true. It returns false when the component is absent.
+
+Similar convenience is offered by `DeviceComponentType.applyIfPresent()`. It accepts a `Function` over the component type, and returns the result of that function if a non-absent component instance is found, or `null` otherwise.
+
+### Providing Components
+Fluidity can only return component instances that have been mapped via `DeviceComponentType.registerProvider()`, like so:
+
+```java
+		Store.STORAGE_COMPONENT.registerProvider(ctx -> ((TankBlockEntity) ctx.blockEntity()).getEffectiveStorage(), TANK);
+		Store.INTERNAL_STORAGE_COMPONENT.registerProvider(ctx -> ((TankBlockEntity) ctx.blockEntity()).getInternalStorage(), TANK);
+```
+
+While access to components requires two steps, provisioning is done by a single function you provide.  All of the information about the world/block/item/player/authorization/side/id is marshaled into a `BlockComponentContext` or `ItemComponentContext` instance that your function consumes.
+
+Most block implementations will use a BlockEntity as their component holder/provider, but this is not required.  The provider function must map the context data to a component instance. How that happens is unspecified. The `BlockEntity` value in the context can be `null`, but `World` and `BlockPos` values will always be present.
+
+### Item Actions
+Fluidity includes special-case component handling for interactive items like buckets and bottles.  These items often need to have in-game behaviors when used on blocks that contain or are associated with a device component.  They also happen to have behaviors pre-defined by vanilla Minecraft and potentially by other mods.  This makes a single, standard and centralized handling mechanism for these behaviors impractical.  At the same time, adding special-case handling for every bottle/bucket/whatever combination to each block is also impractical.
+
+`DeviceComponentType.registerAction` associates a potential action with a device component type and one or more items.  The first argument is a `BiPredicate` that accepts an `ItemComponentContext` and a device component instance.  The intent is that multiple consumers can be registered for the same item/component, and processing will stop after any consumer returns true. Order of execution is unspecified, but this should not matter much in practice - the player can only be holding one item and clicking on one block at a time.
+
+Construction the `BiPredicate` action is not difficult, but does typically involve enough repetitive code to be annoying.  `ItemActionHelper` provides utility methods for quickly registering actions involving Fluid storage and potion bottles or other held items.   They are used like so:
+
+```java
+		ItemActionHelper.addPotionActions(Fluids.WATER, Potions.WATER);
+		ItemActionHelper.addItemActions(Fluids.WATER, Items.BUCKET, Items.WATER_BUCKET);
+		ItemActionHelper.addItemActions(Fluids.LAVA, Items.BUCKET, Items.LAVA_BUCKET);
+```
+
+Note from this example that Fluidity pre-defines items actions for the Storage component that can be activated when the `Store` contains water or lava and the item is a bucket or vanilla bottle.  Actions for all other combinations of item type and fluid will need to be defined by mods.
+
+Lastly, note that these actions have no effect unless you invoke Fluidity's action handler in your block's `onUse` method (or wherever is appropriate) using `DeviceComponentType.applyActions` or `DeviceComponentType.applyActionsWithHeld`. This should only be done server-side. For example:
+
+```java
+@Override
+public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+	final ItemStack stack = player.getStackInHand(hand);
+
+	if(Block.getBlockFromItem(stack.getItem()) instanceof TankBlock) {
+		return ActionResult.PASS;
+	}
+
+	if (!world.isClient) {
+		final BlockEntity be = world.getBlockEntity(pos);
+
+		if(be instanceof TankBlockEntity) {
+			final TankBlockEntity tankBe = (TankBlockEntity) be;
+
+			if(Store.STORAGE_COMPONENT.applyActionsWithHeld(tankBe.getEffectiveStorage(), (ServerPlayerEntity)player)) {
+				return ActionResult.SUCCESS;
+			} else {
+				// alternate handling would go here
+			}
+		}
+	}
+	
+	// might instead be SUCCESS depending on desired behavior
+	return ActionResult.PASS;
+}
+```
+ 
 ## Multiblocks
 
 ## Transport

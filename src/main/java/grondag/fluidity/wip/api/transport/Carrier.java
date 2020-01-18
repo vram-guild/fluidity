@@ -18,7 +18,7 @@ package grondag.fluidity.wip.api.transport;
 import java.util.Collections;
 import java.util.function.Function;
 
-import grondag.fluidity.api.device.DeviceComponent;
+import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentType;
 
 /**
@@ -93,7 +93,7 @@ public interface Carrier {
 		return false;
 	}
 
-	CarrierSession attach(CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction);
+	CarrierSession attach(CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction);
 
 	void startListening(CarrierListener listener, boolean sendNotifications);
 
@@ -112,7 +112,7 @@ public interface Carrier {
 		}
 
 		@Override
-		public CarrierSession attach(CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction) {
+		public CarrierSession attach(CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction) {
 			return CarrierSession.INVALID;
 		}
 

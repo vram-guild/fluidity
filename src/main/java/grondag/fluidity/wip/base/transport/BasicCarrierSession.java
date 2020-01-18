@@ -18,7 +18,7 @@ package grondag.fluidity.wip.base.transport;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import grondag.fluidity.api.device.DeviceComponent;
+import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.transact.TransactionContext;
@@ -26,13 +26,13 @@ import grondag.fluidity.api.transact.TransactionParticipant.TransactionDelegate;
 
 public class BasicCarrierSession<T extends CarrierCostFunction> implements LimitedCarrierSession<T>, TransactionDelegate {
 	protected final long address = AssignedNumbersAuthority.createCarrierAddress();
-	protected final Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction;
+	protected final Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction;
 	protected final BasicCarrier<T> carrier;
 	protected final BroadcastConsumer<T> broadcastConsumer;
 	protected final BroadcastSupplier<T> broadcastSupplier;
 	protected boolean isOpen = true;
 
-	public BasicCarrierSession(BasicCarrier<T> carrier, Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction) {
+	public BasicCarrierSession(BasicCarrier<T> carrier, Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction) {
 		this.carrier = carrier;
 		this.componentFunction = componentFunction;
 		broadcastConsumer = createBroadcastConsumer();
@@ -92,7 +92,7 @@ public class BasicCarrierSession<T extends CarrierCostFunction> implements Limit
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <V> DeviceComponent<V> getComponent(DeviceComponentType<V> componentType) {
-		return (DeviceComponent<V>) componentFunction.apply(componentType);
+	public <V> DeviceComponentAccess<V> getComponent(DeviceComponentType<V> componentType) {
+		return (DeviceComponentAccess<V>) componentFunction.apply(componentType);
 	}
 }

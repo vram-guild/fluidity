@@ -33,7 +33,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import grondag.fluidity.api.device.BlockComponentContext;
-import grondag.fluidity.api.device.DeviceComponent;
+import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.api.device.ItemComponentContext;
 
@@ -63,7 +63,7 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 	}
 
 	@Override
-	public void addProvider(Function<BlockComponentContext, T> mapping, Block... blocks) {
+	public void registerProvider(Function<BlockComponentContext, T> mapping, Block... blocks) {
 		for(final Block b : blocks) {
 			blockMappings.put(b, mapping);
 		}
@@ -74,14 +74,14 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 	}
 
 	@Override
-	public void addProvider(Function<ItemComponentContext, T> mapping, Item... items) {
+	public void registerProvider(Function<ItemComponentContext, T> mapping, Item... items) {
 		for(final Item i : items) {
 			itemMappings.put(i, mapping);
 		}
 	}
 
 	@Override
-	public void addAction(BiPredicate<ItemComponentContext, T> action, Item... items) {
+	public void registerAction(BiPredicate<ItemComponentContext, T> action, Item... items) {
 		for(final Item i : items) {
 			ObjectArrayList<BiPredicate<ItemComponentContext, T>> list = itemActions.get(i);
 
@@ -96,36 +96,36 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public DeviceComponent<T> get(World world, BlockPos pos) {
+	public DeviceComponentAccess<T> getAccess(World world, BlockPos pos) {
 		return BlockComponentContextImpl.get(this, world, pos);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public DeviceComponent<T> get(World world, BlockPos pos, BlockState blockState) {
+	public DeviceComponentAccess<T> getAccess(World world, BlockPos pos, BlockState blockState) {
 		return BlockComponentContextImpl.get(this, world, pos, blockState);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public DeviceComponent<T> get(BlockEntity blockEntity) {
+	public DeviceComponentAccess<T> getAccess(BlockEntity blockEntity) {
 		return BlockComponentContextImpl.get(this, blockEntity);
 	}
 
 	@Override
-	public DeviceComponent<T> getAbsent() {
+	public DeviceComponentAccess<T> getAbsentAccess() {
 		return absentComponent;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public DeviceComponent<T> get(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayerEntity player) {
+	public DeviceComponentAccess<T> getAccessForHeldItem(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayerEntity player) {
 		return ItemComponentContextImpl.get(this, stackGetter, stackSetter, player);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public DeviceComponent<T> get(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, World world) {
+	public DeviceComponentAccess<T> getAccess(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, World world) {
 		return ItemComponentContextImpl.get(this, stackGetter, stackSetter, world);
 	}
 

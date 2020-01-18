@@ -22,7 +22,7 @@ public interface ItemActionHelper {
 	}
 
 	static void addPotionFillAction(Fluid fluid, Potion potion, long denominator) {
-		Store.STORAGE_COMPONENT.addAction((ctx, store) -> {
+		Store.STORAGE_COMPONENT.registerAction((ctx, store) -> {
 			if(store.hasSupplier() && ctx.player() != null) {
 				try(Transaction tx = Transaction.open()) {
 					tx.enlist(store);
@@ -56,7 +56,7 @@ public interface ItemActionHelper {
 	}
 
 	static void addPotionDrainAction(Fluid fluid, Potion potion, long denominator) {
-		Store.STORAGE_COMPONENT.addAction((ctx, store) -> {
+		Store.STORAGE_COMPONENT.registerAction((ctx, store) -> {
 			if(store.hasConsumer() && ctx.player() != null && PotionUtil.getPotion(ctx.stackGetter().get()) == potion) {
 				try(Transaction tx = Transaction.open()) {
 					tx.enlist(store);
@@ -87,7 +87,7 @@ public interface ItemActionHelper {
 	}
 
 	static void addItemFillAction(Fluid fluid, Item emptyItem, Item fullItem, Fraction amount) {
-		Store.STORAGE_COMPONENT.addAction((ctx, store) -> {
+		Store.STORAGE_COMPONENT.registerAction((ctx, store) -> {
 			if(store.hasSupplier() && ctx.player() != null) {
 				try(Transaction tx = Transaction.open()) {
 					tx.enlist(store);
@@ -121,7 +121,7 @@ public interface ItemActionHelper {
 	}
 
 	static void addItemDrainAction(Fluid fluid, Item emptyItem, Item fullItem, Fraction amount) {
-		Store.STORAGE_COMPONENT.addAction((ctx, store) -> {
+		Store.STORAGE_COMPONENT.registerAction((ctx, store) -> {
 			if(store.hasConsumer() && ctx.player() != null && ctx.stackGetter().get().getItem() == fullItem) {
 				try(Transaction tx = Transaction.open()) {
 					tx.enlist(store);

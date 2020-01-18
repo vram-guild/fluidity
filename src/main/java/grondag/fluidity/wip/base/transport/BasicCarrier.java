@@ -19,7 +19,7 @@ import java.util.function.Function;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
-import grondag.fluidity.api.device.DeviceComponent;
+import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.base.storage.helper.ListenerSet;
 import grondag.fluidity.wip.api.transport.CarrierConnector;
@@ -65,12 +65,12 @@ public abstract class BasicCarrier<T extends CarrierCostFunction> implements Lim
 		listeners.stopListening(listener, sendNotifications);
 	}
 
-	protected CarrierSession createSession(Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction) {
+	protected CarrierSession createSession(Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction) {
 		return new BasicCarrierSession<>(this, componentFunction);
 	}
 
 	@Override
-	public CarrierSession attach(CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction) {
+	public CarrierSession attach(CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction) {
 		final CarrierSession result = createSession(componentFunction);
 
 		if(nodes.put(result.nodeAddress(), result) == null) {

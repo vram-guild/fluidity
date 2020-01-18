@@ -27,8 +27,10 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
 @API(status = Status.EXPERIMENTAL)
-public interface DeviceComponent<T> extends DeviceComponentProvider<T> {
+public interface DeviceComponentAccess<T> {
 	DeviceComponentType<T> componentType();
+
+	@Nullable T get(Authorization auth, @Nullable Direction side, @Nullable Identifier id);
 
 	default @Nullable T get(@Nullable Direction side, @Nullable Identifier id) {
 		return get(Authorization.PUBLIC, side, id);

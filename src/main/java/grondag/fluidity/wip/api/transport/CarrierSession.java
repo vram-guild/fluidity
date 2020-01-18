@@ -15,7 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.wip.api.transport;
 
-import grondag.fluidity.api.device.DeviceComponent;
+import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.api.storage.ArticleFunction;
 
@@ -62,8 +62,8 @@ public interface CarrierSession extends CarrierNode {
 		}
 
 		@Override
-		public <T> DeviceComponent<T> getComponent(DeviceComponentType<T> componentType) {
-			return componentType.getAbsent();
+		public <T> DeviceComponentAccess<T> getComponent(DeviceComponentType<T> componentType) {
+			return componentType.getAbsentAccess();
 		}
 	};
 }

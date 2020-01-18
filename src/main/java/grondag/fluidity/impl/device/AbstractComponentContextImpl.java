@@ -23,11 +23,11 @@ import net.minecraft.world.World;
 
 import grondag.fluidity.api.device.Authorization;
 import grondag.fluidity.api.device.ComponentContext;
-import grondag.fluidity.api.device.DeviceComponent;
+import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentType;
 
 @SuppressWarnings("rawtypes")
-abstract class AbstractComponentContextImpl implements ComponentContext, DeviceComponent {
+abstract class AbstractComponentContextImpl implements ComponentContext, DeviceComponentAccess {
 	protected DeviceComponentTypeImpl componentType;
 	protected Function<ComponentContext, ?> mapping;
 	protected World world;

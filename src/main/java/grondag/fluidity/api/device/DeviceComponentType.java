@@ -37,40 +37,31 @@ import net.minecraft.world.World;
 public interface DeviceComponentType<T> {
 	T absent();
 
+	DeviceComponentAccess<T> getAbsentAccess();
+
 	@SuppressWarnings("unchecked")
 	default T cast(Object obj) {
 		return (T) obj;
 	}
 
-	void addProvider(Function<BlockComponentContext, T> mapping, Block... blocks);
+	DeviceComponentAccess<T> getAccess(World world, BlockPos pos);
 
-	@SuppressWarnings("unchecked")
-	default void addProvider(Block... blocks) {
-		addProvider(ctx -> (T) ctx.blockEntity(), blocks);
+	DeviceComponentAccess<T>  getAccess(World world, BlockPos pos, BlockState blockState);
+
+	DeviceComponentAccess<T> getAccess(BlockEntity blockEntity);
+
+	default DeviceComponentAccess<T> getAccessForHeldItem(ServerPlayerEntity player) {
+		return getAccessForHeldItem(() -> player.getMainHandStack(), s -> player.setStackInHand(Hand.MAIN_HAND, s), player);
 	}
 
-	void addProvider(Function<ItemComponentContext, T> mapping, Item... items);
-
-	void addAction(BiPredicate<ItemComponentContext, T> action, Item... items);
-
-	DeviceComponent<T> get(World world, BlockPos pos);
-
-	DeviceComponent<T>  get(World world, BlockPos pos, BlockState blockState);
-
-	DeviceComponent<T> get(BlockEntity blockEntity);
-
-	default DeviceComponent<T> getHeld(ServerPlayerEntity player) {
-		return get(() -> player.getMainHandStack(), s -> player.setStackInHand(Hand.MAIN_HAND, s), player);
-	}
-
-	DeviceComponent<T> get(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayerEntity player);
+	DeviceComponentAccess<T> getAccessForHeldItem(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayerEntity player);
 
 	/**
 	 * Used when no player
 	 * @param world
 	 * @return
 	 */
-	DeviceComponent<T> get(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, World world);
+	DeviceComponentAccess<T> getAccess(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, World world);
 
 	default boolean applyActionsWithHeld(T target, ServerPlayerEntity player) {
 		return applyActions(target, () -> player.getMainHandStack(), s -> player.setStackInHand(Hand.MAIN_HAND, s), player);
@@ -86,5 +77,14 @@ public interface DeviceComponentType<T> {
 	boolean applyActions(T target, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, World world);
 
 
-	DeviceComponent<T> getAbsent();
+	void registerProvider(Function<BlockComponentContext, T> mapping, Block... blocks);
+
+	@SuppressWarnings("unchecked")
+	default void addProvider(Block... blocks) {
+		registerProvider(ctx -> (T) ctx.blockEntity(), blocks);
+	}
+
+	void registerProvider(Function<ItemComponentContext, T> mapping, Item... items);
+
+	void registerAction(BiPredicate<ItemComponentContext, T> action, Item... items);
 }

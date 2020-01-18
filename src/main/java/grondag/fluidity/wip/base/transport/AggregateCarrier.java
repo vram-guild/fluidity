@@ -21,7 +21,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import grondag.fluidity.Fluidity;
-import grondag.fluidity.api.device.DeviceComponent;
+import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.base.storage.helper.ListenerSet;
 import grondag.fluidity.wip.api.transport.Carrier;
@@ -81,7 +81,7 @@ public abstract class AggregateCarrier<T extends CarrierCostFunction> implements
 	}
 
 	@Override
-	public CarrierSession attach(CarrierConnector fromDNode, Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction) {
+	public CarrierSession attach(CarrierConnector fromDNode, Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction) {
 		throw new UnsupportedOperationException("Aggregate carriers do not support direct attachment");
 	}
 

@@ -25,7 +25,7 @@ import net.minecraft.util.Identifier;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.ArticleType;
-import grondag.fluidity.api.device.DeviceComponent;
+import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentRegistry;
 import grondag.fluidity.api.device.DeviceComponentType;
 
@@ -44,12 +44,12 @@ public interface CarrierProvider {
 	 * @param broadcastSupplier
 	 * @return  Will return existing connection if node is already connected.
 	 */
-	default CarrierSession attachIfPresent(CarrierType type, CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction) {
+	default CarrierSession attachIfPresent(CarrierType type, CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction) {
 		final Carrier carrier = getCarrier(type);
 		return carrier == null || carrier == Carrier.EMPTY ? CarrierSession.INVALID : carrier.attach(fromNode, componentFunction);
 	}
 
-	default CarrierSession attachIfPresent(ArticleType<?> type, CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponent<?>> componentFunction) {
+	default CarrierSession attachIfPresent(ArticleType<?> type, CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction) {
 		final CarrierType best = getBestCarrier(type);
 
 		if(best == null || best == CarrierType.EMPTY) {

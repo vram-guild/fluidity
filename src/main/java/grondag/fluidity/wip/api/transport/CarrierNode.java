@@ -15,7 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.wip.api.transport;
 
-import grondag.fluidity.api.device.DeviceComponent;
+import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentType;
 
 /**
@@ -37,7 +37,7 @@ public interface CarrierNode {
 
 	boolean isValid();
 
-	<T> DeviceComponent<T> getComponent(DeviceComponentType<T> componentType);
+	<T> DeviceComponentAccess<T> getComponent(DeviceComponentType<T> componentType);
 
 	default int flags() {
 		return FLAG_ACCEPT_CONSUMER_BROADCASTS | FLAG_ACCEPT_SUPPLIER_BROADCASTS;
