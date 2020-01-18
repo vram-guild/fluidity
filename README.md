@@ -1,3 +1,50 @@
+# Table of Contents
+- [Introduction](#introduction)
+  - [Purpose](#purpose)
+  - [Features](#features)
+  - [License](#license)
+  - [Status](#status)
+  - [Relations](#relations)
+    - [Fabric API](#fabric-api)
+    - [LibBlockAttributes](#libblockattributes)
+    - [Cardinal Components](#cardinal-components)
+    - [Vanilla Minecraft](#vanilla-minecraft)
+  - [How Fluidity is Organized](#how-fluidity-is-organized)
+  - [Dev Environment Setup](#dev-environment-setup)
+  - [Examples](#examples)
+- [Articles](#articles)
+  - [Discrete vs Bulk Articles](#discrete-vs-bulk-articles)
+  - [Getting an Article Instance](#getting-an-article-instance)
+  - [Article NBT Tags](#article-nbt-tags)
+  - [Stored Articles](#stored-articles)
+    - [Implementation Support](#implementation-support)
+    - [Stored Article Handles](#stored-article-handles)
+- [Fractions](#fractions)
+  - [Fractions without 'Fraction'](#fractions-without-fraction)
+- [Store and its Variants](#store-and-its-variants)
+  - [Querying Store Content](#querying-store-content)
+    - [Best Practice: Don't Query Store Contents](#best-practice-dont-query-store-contents)
+    - [Querying by Handles](#querying-by-handles)
+    - [Query via `forEach`](#query-via-foreach)
+    - [Querying Quantities](#querying-quantities)
+  - [Store Operations](#store-operations)
+    - [ArticleFunction](#articlefunction)
+    - [Supplier and Consumer Article Functions](#supplier-and-consumer-article-functions)
+  - [Store Event Streams and Storage Listeners](#store-event-streams-and-storage-listeners)
+  - [API Variants](#api-variants)
+  - [Implementation Variants](#implementation-variants)
+- [Transactions](#transactions)
+  - [Using Transactions](#using-transactions)
+  - [Implementing Transaction Support](#implementing-transaction-support)
+  - [Transaction Mechanics](#transaction-mechanics)
+- [Device Components](#device-components)
+  - [Registering Device Component Types](#registering-device-component-types)
+  - [Using Components](#using-components)
+  - [Providing Components](#providing-components)
+  - [Item Actions](#item-actions)
+- [Multiblocks](#multiblocks)
+- [Transport](#transport)
+
 # Introduction
 Fluidity is a game resource storage and transport API for the Fabric toolchain. 
 
@@ -40,8 +87,6 @@ Fluidity currently has no Mixins and makes no (intentional) changes to vanilla M
 
 The library offers some base implementations and helpers to more easily support `Inventory` when that is the desired outcome, along with a way to register handlers for buckets, bottles and similar items.  Even so, vanilla mechanics received cursory attention at best in the initial development and the author considers this an area of opportunity for future improvement. 
 
-# Overview
-
 ## How Fluidity is Organized
 The fludity source tree is divided into four packages as follows:
 * [**`grondag.fludity.api`**](https://github.com/grondag/fluidity/tree/master/src/main/java/grondag/fluidity/api)
@@ -56,31 +101,36 @@ Internal implementations and helpers.  Mods should not directly reference anythi
 * [**`grondag.fludity.wip`**](https://github.com/grondag/fluidity/tree/master/src/main/java/grondag/fluidity/wip)
 Work-in-process code that will *probably* become part of the library in the near future but is more experimental than even the API Guardian `EXPERIMENTAL` annotation would indicate.  Mods are welcome to look at it, test and provide feedback but should have no expectation of stability. This sub-tree replicates the api/base/impl divisions of the main API to indicate where the code will eventually land.
 
-## Articles
+## Dev Environment Setup
+
+## Examples
+
+
+# Articles
 An `Article` is a game resource that can be uniquely identified, quantified and serialized. An `ArticleType` defines the class of resource and provides packet and NBT serialization functions.  
 
 Fluidity pre-defines two article types: `ArticleType.ITEM` and `ArticleType.FLUID` to represent in-game items and fluids.  However, any class can be used as an article type via `ArticleType.Builder` and `ArticleTypeRegistry`.  Some possible uses would include non-fluid bulk crafting resources, XP, power systems, or mana.  
 
 Note that no restriction is made against defining new article types that also use `Item` and `Fluid` resources.  However, for compatibility it is recommended that mods adopt the predefined `ITEM` and `FLUID` article types for inter-mod resource storage and transport.
 
-### Discrete vs Bulk Articles
+## Discrete vs Bulk Articles
 The creator of an article type chooses if the article is *discrete* or *bulk*.  Discrete articles are meant to be counted as individual, atomic units.  Bulk articles are divisible into some unit less than one or fully continuous and thus meant to be measured using fractions. (More on those in a bit.)
 
 However, this distinction is *purely advisory.*  Fluidity is designed so that *any* article type can be measured using either sort of accounting.  Whole numbers, after all, are simply a sub-set of the rational numbers.  The main benefit to using integers over fractions is slightly better performance and memory efficiency.  But if you want to build an "item tank" that stores fractional pick-axes, this is the library for you.
 
-### Getting an Article Instance
+## Getting an Article Instance
 Use `Article.of(articleType, resource)` to get a custom article.  `Article.of(item)` and `Article.of(fluid)` are more concise for those common types.  `Article` also exposes static methods for de-serializing any article from an NBT tag or packet buffer.
 
 Retrieving an article is generally non-allocating after the first retrieval because all article instances are interned or cached. This means article instances can be compared using `==` *unless* they contain an NBT tag. (See below)  For this reason, Articles should always be compared using `.equals()` unless the situation absolutely ensures no tags are present on any article being compared.
 
-### Article NBT Tags
+## Article NBT Tags
 An `Article` *may* have an NBT CompoundTag value associated with it.  Currently this functionality is only exposed for `ITEM` articles (because Minecraft requires it) but may be opened up for other article types in a future release.  However, mod authors are *strongly* advised to avoid using tags in favor of simply creating a larger number of distinct resource instances.
 
 When an article has a non-null tag value there can be a virtually infinite number of distinct instances. Interning such articles would create the risk of excessive memory allocation.  Thus, article instances with tag values are held in a fixed-capacity cache and evicted as needed, making them slightly less efficient than articles without tags.
 
 To ensure that articles are immutable, an article's tag instance is not directly exposed. The `copyTag()` method is the only way to get the tag content and results in a new allocation every time.  If you only need to test for tag existence or test for tag equality use `hasTag()` or `doesTagMatch()`.
 
-### Stored Articles
+## Stored Articles
 When an article is being stored or transfered we need additional information: quantity and, sometimes, a location. A core design principle of Fluidity is that all such data should never be directly mutated outside of the storage/transport implementation - all changes *must* be the result of some controlled, observable transaction.
 
 This is why the API that exposes this information is immutable: `StoredArticleView`.
@@ -91,10 +141,10 @@ Note the `count()` property will not include fractional amounts and so is not a 
 
 `StoredArticleView` has a special instance meant for use in place of `null` values: `StoredArticleView.EMPTY`.  Implementations should return this instance instead of `null` when the intent is to signal the absence of a result.
 
-#### Implementation Support
+### Implementation Support
 Obviously, implementations *will* need to mutate their contents and most implementations will be firmly discrete or bulk - not both.  The [`grondag.fluidity.base.article`]() package provides specialized discrete/bulk interfaces and classes to support most types of implementations.  Use of these is entirely optional but mod authors are encouraged to examine them for illustration before creating their own.  
 
-#### Stored Article Handles
+### Stored Article Handles
 `StoredArticleView` exposes an integer `handle()` property, which is *similar* in purpose to vanilla inventory "slots" but also different in key ways:
 
 * Handles are not guaranteed to correspond to a specific, "physical" location in storage. Some implementations (something like a Storage Drawers mod, for example) may have this contract, but it is never required.
@@ -105,7 +155,7 @@ Obviously, implementations *will* need to mutate their contents and most impleme
 
 * Implementations that *do* have physical slots *may* change a handle:article mapping, but when doing so must send listeners two events: one to remove the article from its current handle association (the listener would associate the old handle with `StoredArticleView.EMPTY`) and a second event to re-add the article with its new handle.  Implementations that have other reasons to change handle:article mappings may also do so if they follow the same practice.
 
-## Fractions
+# Fractions
 Fluidity represents Fractions as three `long` values: whole units, numerator and denominator.  While two longs (numerator and denominator) would arguably be sufficient for most use cases, that arrangement would cause scale and sub-unit resolution to vary inversely.  In an unpredictable multi-mod environment, it is better for mod authors (and mod testers) if the maximum resolution and scale of fractions are both invariant.
 
 Fluidity includes two concrete implementations as part of the public API: `Fraction` and `MutableFraction`. These are and do what one would expect based on the their names. Implementations that frequently update fractional values will generally want to use `MutableFraction` instead of allocating new `Fraction` instances with every operation.
@@ -114,20 +164,20 @@ For this reason, consumers of `Fraction` should *never* retain a reference but i
 
 These classes were designed to be final in order to ensure static invocation in what are likely to be frequent calls and mod authors should not try to sub-class or modify them via reflection, Mixins or other esoteric methods. If you really need them to do something else, please submit a PR.
 
-### Fractions without 'Fraction'
+## Fractions without 'Fraction'
 In many Fluidity methods, fractional quantities are exposed and manipulated as primitive values, without use of `Fraction` itself.  These methods (see below and in the code) instead rely on `long` values that correspond to `Fraction.whole()` or `Fraction.numerator()` and `Fraction.denominator()`.  When available and appropriate for your use case (i.e. when you have fixed minimum and maximum transfer amounts) method with primitive arguments will generally be slightly more performant and easier to work with. 
 
-## Store and its Variants
+# Store and its Variants
 A `Store` in Fluidity is an instance that holds and, optionally, supplies or accepts quantified articles. Stores may also publish an event stream useful for synchronizing store contents to client-side GUIs or implementing aggregate views of multiple stores.
 
 A store may contain any `ArticleType` or combination of article types, using either discrete or bulk accounting and the interfaces are designed so that all implementations *must* support queries and operations using either discrete or bulk (fractional) quantities. This allows consumers of any storage implementation to have rigid and simple code paths, and helps to limit redundancy and the size of the API more generally.
 
 In practice, most implementations are likely to store one article type (or a small, focused set of article types) and will use the form of accounting (discrete or fractional) most appropriate for that set.  Fluidity includes base classes and helpers to make this flexibility relatively easy to attain - mod authors should only need to handle the use cases that matter for their implementation.
 
-### Querying Store Content
+## Querying Store Content
 Unlike `Inventory` a `Store` is never asked to expose its internal representation of content, or even all of its content. If you ask a store a question it will give you the answer it wants you to have. A store should not lie, but it doesn't have to tell the whole truth.  Consumers should expect store query results to be consistent, but shouldn't try to infer information the store hasn't explicitly provided.
 
-#### Best Practice: Don't Query Store Contents
+### Best Practice: Don't Query Store Contents
 The rest of this section will describe the various ways you can get information about a store, but most of the time you should not. If a store reports it has an article, that does *not* imply the store will supply a certain amount of the article if asked.  If a store is empty, that does *not* mean it can accept a particular article in whatever amount.
 
 The *only* reliable way to know if a store can accept or supply some quantity of an article is to try it - simulating if the intent is informational.  This is a very deliberate limitation in the contract of the `Store` interface, and is meant to ensure that `Store` implementations have flexibility in how they operate.  Any attempt to codify the rules what a chest or tank might be allowed to do would have to anticipate every possible use case (and thus be very extensive). And it would almost certainly fail in this attempt, eventually becoming an obstacle to somebody's cool idea.
@@ -136,23 +186,23 @@ Another expected use of store queries might be to synchronize information to cli
 
 The best (and intended) use of the query mechanism explained below is to emulate `Inventory` behaviors, or gather summary information for *ad-hoc* display or debugging, especially when working with stores from different mods. They also serve as a back-stop to handle use cases that were not otherwise anticipated. 
 
-#### Querying by Handles
+### Querying by Handles
 As described earlier, a `StoredArticleView` exposes a `handle()` property, and iterating a store's contents via handle or retrieving the article view for a specific known handle will usually be the most straightforward way to navigate store content in those rare cases when it is necessary. The relevant members are `handleCount()` and `view(handle)`.
 
 Stores are generally not meant to be thread-safe and consumers should check `handleCount()` or `isHandleValid()` before calling `view(handle)` but `Store` implementations should return `StoredArticleView.EMPTY` when an invalid handle is encountered.  This is a functionally correct result, and simplifies store implementation and usage overall.
 
-#### Query via `forEach`
+### Query via `forEach`
 `Store` also exposes a pair of specialized `forEach()` methods.  These methods have naive default implementation that simply iterate using handles, but should be overridden by `Store` implementations where iteration by handle may be expensive. Unlike a standard `forEach` method, these accept a `Predicate` as the action, and iteration will stop if the predicate returns `false.` This behavior is especially useful when you only need to act on the first article. An alternate version of `forEach()` accepts a second predicate the `Store` will use to filter articles before applying the action.  This simplifies the action predicate, and may be faster for some implementations.
 
-#### Querying Quantities
+### Querying Quantities
 Sometimes, you just need to know if a store has a particular article in stock.  The `countOf()` and `amountOf()` methods offer this ability. But note again: the only reliable way to know if a store can actually supply an article is to request it and observe what happens.  This is exactly how these methods work in their default implementation - they simulate maximum extraction of the requested article and return the result.
 
-### Store Operations
+## Store Operations
 While a store may receive requests for any article type with either discrete or fractional quantities, a store can reject or partially fulfill any request that isn't supported,  simply by returning zero or a lesser amount than what was requested. 
 
 For example, a fluid tank could be implemented using discrete accounting to store only whole buckets.  Such a tank would return empty results for any request to fill or drain any sub-unit amount, and would only partially fulfill requests for one or more units that also include a fractional amount.  A tank could also be designed to only accept a single type of fluid, and thus reject any request to drain or fill other fluids (or other types of articles).  More generally, implementations can adopt any constraint that doesn't violate the contract of exposed interfaces, and those interfaces were designed to allow flexibility.
 
-#### ArticleFunction
+### ArticleFunction
 Storage input and output operations use the same interface: `ArticleFunction`.  
 
 `ArticleFunction` is overloaded, but every variant accepts an `Article` (or something that can be converted to an `Article`, like an `Item`) and a `simulate` parameter.  When the `simulate` parameter is true, the result of the operation will be a forecast only and the state of the `Store` will not change.
@@ -171,7 +221,7 @@ Note there are some subtle differences in how the quantity input affect the outp
 
 The lesson here is this: if you can accept Fraction values then you should also make requests using Fraction values.  If you can't accept Fraction values, then primitive values are exactly what you need, because that will ensure you never get a result you can't accept.  In either case you should not assume an empty result means a store is empty or full - it only means the store can't supply or accept the amount requested in the form you requested it.   (Use `Store.isEmpty()` or `Store.isFull()` to answer those questions.)
 
-#### Supplier and Consumer Article Functions
+### Supplier and Consumer Article Functions
 The quantity parameters to `ArticleFunction`, in any form, are *always* zero or positive.  (Fraction denominators must be >= 1) The direction of articles in or out of storage is instead implied by which article function is called: 
 
 * **`Store.getSupplier()`** Use to remove articles from a store. (Or to forecast the result of a removal request,)
@@ -182,7 +232,7 @@ Both methods by default return `ArticleFunction.ALWAYS_RETURN_ZERO` - a special 
 
 Implementations should not override these methods to return `null`. The default return value can be used as-is with the (correct) result that no operation will change state.  Classes that do frequent operations on many stores may see some performance benefit from excluding inoperable stores by testing for the presence of a real implementation using the convenience methods `hasConsumer()` and `hasSupplier()`. 
  
-### Store Event Streams and Storage Listeners
+## Store Event Streams and Storage Listeners
 A store can optionally expose a `StorageEventStream` (via `Store.storageEventStream()`) to broadcast changes to storage state to interested listeners.  Listeners must implement `StorageListener` and pass themselves to `StorageEventStream.startListening()` to begin receiving events.
 
 The `StorageListener` interface, like others in Fluidity, must handle both discrete and fractional accounting.  To this end, there are two versions of events, one with a single long quantity and one with a fraction.  Here as elsewhere, Fluidity includes base classes to reduce the burden on implementations.
@@ -199,12 +249,12 @@ The same pattern applies to the `stopListening()` method - the store should resp
 
 Stores that do not implement `Store.eventStream()` should rely on the default implementation to return `StorageEventStream.UNSUPPORTED`. Consumers of event streams should check for the presence of a valid instance using `hasEventStream()` before subscribing. Subscribing to `StorageEventStream.UNSUPPORTED` logs a one-time warning as an aid to troubleshooting but no exception is thrown and no event notifications will be received. 
 
-### API Variants
+## API Variants
 The API currently includes two variations on 'Store`:
 * **`FixedStore`** For stores with fixed handles, adds handles to operations via `FixedArticleFunction` extension of `ArticleFunction` - for bins, drawers, or vanilla-like storage with fixed "slots"
 * **`InventoryStore`**  Combo of `Store`, `RecipeInputProvider` and `Inventory` with a few default handlers - useful mainly as consistent shorthand for this combo
 
-### Implementation Variants
+## Implementation Variants
 [**`grondag.fluidity.base`**](https://github.com/grondag/fluidity/tree/master/src/main/java/grondag/fluidity/base/storage) and its sub-packages include the following interfaces and classes to facilitate various types of `Store` implementations:
 
 * **`DiscreteStore` and `FixedDiscreteStore`**  Extensions of `Store` and `FixedStore` with default implementations for fractional accounting - implement these when tracking whole units
@@ -223,7 +273,7 @@ The API currently includes two variations on 'Store`:
         * **`SingleStackInventory`** `InventoryStore` implementation wrapping a single `ItemStack`, prototype for storage items
 * **`ForwardingStore`**  Wraps a `Store` instance - override methods as needed to modify behavior of an existing store 
 
-## Transactions
+# Transactions
 Transactions allow a `Store` or any class that implements `TransactionParticipant` to be notified when an operation is part of a transaction and may need to be undone.  Participants are then given an opportunity to save any necessary rollback state before the operation happens, and then notified when the transaction is committed or rolled back.
 
 Participants can be explicitly enlisted in a transaction when their involvement is known, but implementations can also self-enlist.  This is particularly useful for transportation networks with cost accounting - the initiator of an operation may not know all of the attendant costs and side effects of the transport network, or even that they exist.  If the transport network can self-enlist, all of that can be handled without complicating the initiating code. 
@@ -232,7 +282,7 @@ Transactions are useful in at least two ways:
 1. Operations across multiple participants do not have to forecast results with perfect accuracy, nor handle clean up of participant state when things do not go according to plan.  When working with complicated implementations (something like a Project E table, for example) both the forecasting and the cleanup could be nigh-impossible to get right and will inevitably result in undesirable coupling of implementations.
 2. Code that initiates an operation does not have to know of and handle all of the possible side effects that could result because transaction participants that aren't directly known or meaningful to the initiator can self-enlist.
 
-### Using Transactions
+## Using Transactions
 The transaction-related interfaces are located in `grondag.fluidity.api.transact`.
 * **`Transaction`**  A single transaction - may be nested within another transaction. The initiator obtains this instance and uses it to commit or roll back the transaction, and to enlist participants.  Should be enclosed in a try-with-resources block - default close behavior is to roll back unless `commit()` was called successfully before `close()`.
 * **`TransactionParticipant`**  Provides a `TransactionDelegate` and indicates if the participant is self-enlisting. Implement this on stores, transport carriers, machines or other game objects that can benefit from transaction handling. All Fluidity base implementations (except aggregate views) include transaction support.
@@ -256,7 +306,7 @@ try(Transaction tx = Transaction.open()) {
 
 As we'll see in the Transport section we may only have an `ArticleFunction` to work with instead of a full-fledged `Store` instance.  That's why `ArticleFunction` also extends `TransctionParticipant` - you don't have to know where a supplier or consumer function came from to enlist it in a transaction.
 
-### Implementing Transaction Support
+## Implementing Transaction Support
 The Fluidity base implementations include several different variations of transaction support that take advantage of specific implementation characteristics.  The reader can look to those as examples. In particular, see `AbstractLazyRollbackStore` and it's sub-types.
 
 The main principle to follow is to defer creating rollback state until something actually changes, unless creating rollback state is very inexpensive.  Often, the easiest way to accomplish this is to make `TransctionParticipant.isSelfEnlisting()` return true, and then call `Transaction.current.enlistSelf()` right before something changes.
@@ -273,7 +323,7 @@ However, a `Store` or other class that extends `TrasactionDelegate` *must* provi
 
 See also the related notes regarding storage event streams and listeners, above.
 
-### Transaction Mechanics
+## Transaction Mechanics
 Fluidity Transaction State is global state.  There is only ever one current transaction, across all threads.
 
 As we all know, global state is always bad.  Sometimes, it is also *least* bad. Nobody wants to wear the cleanest dirty shirt, and being forced to do so may motivate us to improve the regularity of our laundering habits, but sometimes we must choose from a menu of unsavory options. The author believes such is the case here.
@@ -304,14 +354,14 @@ Consistent with this recommendation, there is a non-zero chance support for tran
 
 Lastly, note that transactions are a server-side construct, and no client-side code should ever reference them.  This is difficult to enforce directly without expensive checks, and so for now mod authors are on the honor system to get this right.  If it becomes a problem, some checks may be added, perhaps with configuration to turn them on or off.
 
-## Device Components
+# Device Components
 A *device* in Fluidity is a functional role - there is no `Device` interface or class.  "Devices" are game objects (currently blocks and items) associated with one or more "Device Component" instances. Device components are also conceptual and can be of any type - there is no `DeviceComponent` interface.
 
 Many readers will note some resemblance here to entity attribute frameworks like Cardinal Components or the old capabilities system in Forge.  The resemblance is superficial: Fluidity facilitates *access* to device components but handles no aspects of implementation or persistence, except that some of the interfaces it defines are meant to be exposed as device components and it also provides (optional) base classes that can be used to implement those interfaces.  
 
 Fluidity is in no way a general-purpose entity attribute library, nor is it meant to replace one.  The intent here is to decouple component access from component implementation, and to do so without adding or requiring external dependences.  We also introduce some rudiments of device access control, as will be explained below. 
 
-### Registering Device Component Types
+## Registering Device Component Types
 Creating a new component type is straightforward, as shown by the code Fluidity uses to create components for storage access:
 
 ```java
@@ -333,7 +383,7 @@ Note that two components can share the same type:
 
 The second parameter to `DeviceComponentRegistry.createComponent()` is the value that should be returned when the component is absent, and visible via `DeviceComponentType.absent()`.  You can use `null` here, but cleaner code may result when the absent value is a no-effect dummy instance.  This is a choice for the component implementation to make.   
 
-### Using Components
+## Using Components
 Obtaining a device component instance is a two-step process:
 
 1) Call a variation of `DeviceComponentType.getAccess()` to retrieve a `DeviceComponentAccess` instance. Currently there are methods to get access from blocks (or block positions within a world) and from Items, which may or may not be held by a player.  Future versions may add access methods for entities or other game objects if there are interesting use cases for them. 
@@ -353,7 +403,7 @@ Often, access to a device component is for a single use.  In these cases, `Devic
 
 Similar convenience is offered by `DeviceComponentType.applyIfPresent()`. It accepts a `Function` over the component type, and returns the result of that function if a non-absent component instance is found, or `null` otherwise.
 
-### Providing Components
+## Providing Components
 Fluidity can only return component instances that have been mapped via `DeviceComponentType.registerProvider()`, like so:
 
 ```java
@@ -365,7 +415,7 @@ While access to components requires two steps, provisioning is handled by a sing
 
 Most block implementations will use a BlockEntity as their component holder/provider, but this is not required.  The provider function must map the context data to a component instance. How that happens is unspecified. The `BlockEntity` value in the context can be `null`, but `World` and `BlockPos` values will always be present.
 
-### Item Actions
+## Item Actions
 Fluidity includes special-case component handling for interactive items like buckets and bottles.  These items often need to have in-game behaviors when used on blocks that contain or are associated with a device component.  They also happen to have behaviors pre-defined by vanilla Minecraft and potentially by other mods.  This makes a single, standard and centralized handling mechanism for these behaviors impractical.  At the same time, adding special-case handling for every bottle/bucket/whatever combination to each block is also impractical.
 
 `DeviceComponentType.registerAction` associates a potential action with a device component type and one or more items.  The first argument is a `BiPredicate` that accepts an `ItemComponentContext` and a device component instance.  The intent is that multiple consumers can be registered for the same item/component, and processing will stop after any consumer returns true. Order of execution is unspecified, but this should not matter much in practice - the player can only be holding one item and clicking on one block at a time.
@@ -410,13 +460,6 @@ public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEnt
 }
 ```
  
-## Multiblocks
+# Multiblocks
 
-## Transport
-
-# Using Fluidity
-
-## Dev Environment Setup
-
-## Examples
-
+# Transport
