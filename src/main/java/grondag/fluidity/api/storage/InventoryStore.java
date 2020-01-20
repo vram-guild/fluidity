@@ -26,7 +26,7 @@ import net.minecraft.recipe.RecipeInputProvider;
 import grondag.fluidity.base.storage.discrete.DiscreteStore;
 
 /**
- *
+ * An extension of {@link Store} that implements {@link Inventory} with some default handlers.
  *
  * @see <a href="https://github.com/grondag/fluidity#store-and-its-variants">https://github.com/grondag/fluidity#store-and-its-variants</a>
  */
