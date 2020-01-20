@@ -15,6 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.base.storage.discrete;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
@@ -36,7 +37,7 @@ public class SingleArticleStore extends AbstractLazyRollbackStore<StoredDiscrete
 	protected final DiscreteNotifier notifier = new DiscreteNotifier(this);
 	protected long capacity;
 	protected long quantity;
-	protected Article storedArticle;
+	protected Article storedArticle = Article.NOTHING;
 
 	public SingleArticleStore(long defaultCapacity) {
 		capacity = defaultCapacity;
@@ -244,7 +245,7 @@ public class SingleArticleStore extends AbstractLazyRollbackStore<StoredDiscrete
 	public void writeTag(CompoundTag tag) {
 		tag.putLong("capacity", capacity);
 		tag.putLong("quantity", quantity);
-		tag.put("art", storedArticle.toTag());
+		tag.put("art", ObjectUtils.defaultIfNull(storedArticle, Article.NOTHING).toTag());
 	}
 
 	@Override
