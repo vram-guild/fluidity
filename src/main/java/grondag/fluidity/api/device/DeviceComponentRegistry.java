@@ -22,11 +22,39 @@ import net.minecraft.util.Identifier;
 
 import grondag.fluidity.impl.device.DeviceComponentRegistryImpl;
 
+/**
+ * Creates and retrieves {@code DeviceComponentType} instances.<p>
+ *
+ * Because component types are simple and server-side-only this is currently
+ * implemented as a simple ID:instance map and not an actual {@code Registry}.
+ *
+ * @see <a href="https://github.com/grondag/fluidity#device-components">https://github.com/grondag/fluidity#device-components</a>
+ */
 @API(status = Status.EXPERIMENTAL)
 public interface DeviceComponentRegistry {
-	<T> DeviceComponentType<T> createComponent(Identifier id,T absentValue);
+	/**
+	 * Creates and returns a new device component type with the given id and absent value.
+	 *
+	 * @param <T> Type parameter identifying the {@code Class} of the actual component instance
+	 * @param id Name-spaced id for this component
+	 * @param absentValue Component value to be returned when a component is not present
+	 * @return A new {@code DeviceComponentType} instance
+	 *
+	 * @throws IllegalStateException if the given id is already in use
+	 */
+	<T> DeviceComponentType<T> createComponent(Identifier id, T absentValue);
 
+	/**
+	 * Returns the {@code DeviceComponentType} instance associated with the given id, or {@code null} if not found.
+	 *
+	 * @param <T> Type parameter identifying the {@code Class} of the actual component instance
+	 * @param id Name-spaced id for the component to be found
+	 * @return the {@code DeviceComponentType} instance associated with the given id
+	 */
 	<T> DeviceComponentType<T> getComponent(Identifier id);
 
+	/**
+	 * The singleton DeviceComponentRegistry instance
+	 */
 	DeviceComponentRegistry INSTANCE = DeviceComponentRegistryImpl.INSTANCE;
 }

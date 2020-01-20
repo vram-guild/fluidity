@@ -24,17 +24,22 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.util.PacketByteBuf;
 
 /**
- * Immutable, full-resolution fraction implementation.
+ * Immutable, full-resolution rational number representation.
  */
 @API(status = Status.EXPERIMENTAL)
-public class Fraction {
+public class Fraction implements Comparable<Fraction> {
 	protected long whole;
 	protected long numerator;
 	protected long divisor;
 
+	/**
+	 * Constructs a new fraction with value of zero.
+	 * Generally better to use {@link #ZERO} instead.
+	 */
 	public Fraction() {
 		this(0, 0, 1);
 	}
+
 
 	public Fraction(long whole, long numerator, long divisor) {
 		validate(whole, numerator, divisor);
@@ -52,10 +57,20 @@ public class Fraction {
 		normalize();
 	}
 
+	/**
+	 * Deserializes an new instance from an NBT tag previously returned by {@link #toTag()}.
+	 *
+	 * @param tag NBT tag previously returned by {@link #toTag()
+	 */
 	public Fraction(Tag tag) {
 		readTagInner((CompoundTag) tag);
 	}
 
+	/**
+	 * Deserializes a new instance from previously encoded to a packet buffer by {@link #writeBuffer(PacketByteBuf)}
+	 *
+	 * @param buf packet buffer containing data encoded by {@link #writeBuffer(PacketByteBuf)}
+	 */
 	public Fraction(PacketByteBuf buf) {
 		readBufferInner(buf);
 	}
@@ -68,30 +83,74 @@ public class Fraction {
 		this(template.whole(), template.numerator(), template.divisor());
 	}
 
+	/**
+	 * The whole-number portion of this fraction.
+	 *
+	 * If this fraction is negative, both {@link #whole()} and {@link #numerator()}
+	 * will be zero or negative.
+	 *
+	 * @return The whole-number portion of this fraction
+	 */
 	public final long whole() {
 		return whole;
 	}
 
+	/**
+	 * The fractional portion of this fraction, or zero if the fraction
+	 * represents a whole number.<p>
+	 *
+	 * If this fraction is negative, both {@link #whole()} and {@link #numerator()}
+	 * will be zero or negative.<p>
+	 *
+	 * The absolute values of {@link #numerator()} will always be zero
+	 * or less than the value of {@link #divisor()}. Whole numbers are
+	 * always fully represented in {@link #whole()}.
+	 *
+	 * @return The whole-number portion of this fraction
+	 */
 	public final long numerator() {
 		return numerator;
 	}
 
+	/**
+	 * The denominator for the fractional portion of this fraction.
+	 * Will always be >= 1.
+	 *
+	 * @return the denominator for the fractional portion of this fraction
+	 */
 	public final long divisor() {
 		return divisor;
 	}
 
+	/**
+	 * Serializes this instance to the given packet buffer.
+	 *
+	 * @param buffer packet buffer to receive serialized data
+	 */
 	public final void writeBuffer(PacketByteBuf buffer) {
 		buffer.writeVarLong(whole);
 		buffer.writeVarLong(numerator);
 		buffer.writeVarLong(divisor);
 	}
 
+	/**
+	 * Serializes this instance in an NBT compound tag without
+	 * creating a new tag instance. This is meant for use cases
+	 * (mostly internal to Fluidity) where key collision is not a risk.
+	 *
+	 * @param tag NBT tag to contain serialized data
+	 */
 	public final void writeTag(CompoundTag tag) {
 		tag.putLong("whole", whole);
 		tag.putLong("numerator", numerator);
 		tag.putLong("denominator", divisor);
 	}
 
+	/**
+	 * Serializes this instance to a new NBT tag.
+	 *
+	 * @return new tag instance containing serialized data
+	 */
 	public final Tag toTag() {
 		final CompoundTag result = new CompoundTag();
 		writeTag(result);
@@ -203,6 +262,11 @@ public class Fraction {
 		return units == 1 ? base : base / units;
 	}
 
+	/**
+	 * Intended for user display. Result may be approximate due to floating point error.
+	 *
+	 * @return This fraction as a {@code double} primitive
+	 */
 	public final double toDouble() {
 		return toDouble(1);
 	}
@@ -230,14 +294,25 @@ public class Fraction {
 		}
 	}
 
+	/**
+	 * Test if this fraction is exactly zero.
+	 *
+	 * @return {@code true} if this fraction is exactly zero
+	 */
 	public final boolean isZero() {
 		return whole() == 0 && numerator() == 0;
 	}
 
+	/**
+	 * Test if this fraction is a negative number.
+	 *
+	 * @return {@code true} if this fraction is a negative number
+	 */
 	public final boolean isNegative() {
 		return whole() < 0 || (whole() == 0 && numerator() < 0);
 	}
 
+	@Override
 	public final int compareTo(Fraction o) {
 		final int result = Long.compare(whole(), o.whole());
 		return result == 0 ? Long.compare(numerator() * o.divisor(), o.numerator() * divisor()) : result;
@@ -259,25 +334,60 @@ public class Fraction {
 		return compareTo(other) <= 0;
 	}
 
-	public final Fraction toImmutable() {
-		return Fraction.of(whole(), numerator(), divisor());
+	/**
+	 * Ensures this instance is safe to retain. Should always be
+	 * called for any {@code Fraction} instance that will be retained
+	 * unless the instance is already known to be immutable.
+	 *
+	 * @return a new immutable {@code Fraction} instance if this is a {@code MutableFraction}, or this instance otherwise.
+	 */
+	public Fraction toImmutable() {
+		return this;
 	}
 
+	/**
+	 * The smallest whole number that is greater than or equal to the
+	 * rational number represented by this fraction.
+	 *
+	 * @return the smallest whole number greater than or equal to this fraction
+	 */
 	public final long ceil() {
-		return numerator() == 0 ? whole() : whole() + 1;
+		return numerator() == 0 || whole() < 0 ? whole() : whole() + 1;
 	}
 
+	/**
+	 * Returns a new value equal to this fraction multiplied by -1.
+	 *
+	 * @return A new fraction equal to this fraction multiplied by -1
+	 */
 	public final Fraction toNegated() {
 		return Fraction.of(-whole(), -numerator(), divisor());
 	}
 
-	// not great, but like keeping the MutableFraction method names simple...
+	/**
+	 * Returns a new value equal to this value less the given parameter.
+	 *
+	 * This method is allocating and for frequent and repetitive operations
+	 * it will be preferable to use a mutable fraction instance.
+	 *
+	 * @param diff value to be subtracted from this value
+	 * @return a new value equal to this value less the given parameter
+	 */
 	public final Fraction withSubtraction(Fraction diff) {
 		final MutableFraction f = new MutableFraction(this);
 		f.subtract(diff);
 		return f.toImmutable();
 	}
 
+	/**
+	 * Returns a new value equal to this value plus the given parameter.
+	 *
+	 * This method is allocating and for frequent and repetitive operations
+	 * it will be preferable to use a mutable fraction instance.
+	 *
+	 * @param diff value to be added to this value
+	 * @return a new value equal to this value plus the given parameter
+	 */
 	public final Fraction withAddition(Fraction diff) {
 		final MutableFraction f = new MutableFraction(this);
 		f.add(diff);

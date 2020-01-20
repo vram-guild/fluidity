@@ -26,20 +26,25 @@ import grondag.fluidity.impl.storage.AlwaysReturnRequestedImpl;
 import grondag.fluidity.impl.storage.AlwaysReturnZeroImpl;
 
 /**
- * Store with fixed handles - similar to slots but they don't have aribtrary limits
- * and request to accept or supply incompatible with existing content is rejected.
+ * Extension of {@code ArticleFunction} for stores with fixed handles.
+ *
+ * @see {@link FixedStore}
+ * @see <a href="https://github.com/grondag/fluidity#store-and-its-variants">https://github.com/grondag/fluidity#store-and-its-variants</a>
  */
 @API(status = Status.EXPERIMENTAL)
 public interface FixedArticleFunction extends ArticleFunction {
 	/**
-	 * Will return zero if handle slot is already occupied and different.
-	 * @param item
-	 * @param count
-	 * @param simulate
-	 * @param handle
-	 * @return
+	 * Adds or removes items to/from this store, depending on context. May return less than requested.
+	 * Will return zero article located by given handle is already occupied and different.
+	 *
+	 * @param handle article must associated with this handle or operation will return zero
+	 * @param article Item to added/removed
+	 * @param tag NBT if item has it, null otherwise.
+	 * @param count How many to add or remove. Must be >= 0;
+	 * @param simulate If true, will forecast result without making changes.
+	 * @return Count added or removed, or that would be added or removed if {@code simulate} = true.
 	 */
-	long apply(int handle, Article item, long count, boolean simulate);
+	long apply(int handle, Article article, long count, boolean simulate);
 
 	default long apply(int handle, ItemStack stack, long count, boolean simulate) {
 		return apply(handle, Article.of(stack), count, simulate);
@@ -49,9 +54,9 @@ public interface FixedArticleFunction extends ArticleFunction {
 		return apply(handle, Article.of(stack), stack.getCount(), simulate);
 	}
 
-	Fraction apply(int handle, Article item, Fraction volume, boolean simulate);
+	Fraction apply(int handle, Article article, Fraction volume, boolean simulate);
 
-	long apply(int handle, Article item, long numerator, long divisor, boolean simulate);
+	long apply(int handle, Article article, long numerator, long divisor, boolean simulate);
 
 	FixedArticleFunction ALWAYS_RETURN_REQUESTED = AlwaysReturnRequestedImpl.INSTANCE;
 	FixedArticleFunction ALWAYS_RETURN_ZERO = AlwaysReturnZeroImpl.INSTANCE;

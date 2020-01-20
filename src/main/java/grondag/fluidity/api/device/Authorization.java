@@ -18,8 +18,13 @@ package grondag.fluidity.api.device;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+/**
+ * Placeholder for a planned system of access control and authorization tokens.
+ */
 @API(status = Status.EXPERIMENTAL)
 public interface Authorization {
-
+	/**
+	 * Special instance to indicate resources that have no security restriction.
+	 */
 	Authorization PUBLIC = new Authorization() {};
 }

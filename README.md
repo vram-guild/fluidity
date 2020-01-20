@@ -44,12 +44,14 @@
   - [Item Actions](#item-actions)
 - [Multiblocks](#multiblocks)
 - [Transport](#transport)
+  - [What is a Pipe?](#what-is-a-pipe)
+  - [Carriers in Brief](#carriers-in-brief)
 
 # Introduction
-Fluidity is a game resource storage and transport API for the Fabric toolchain. 
+Fluidity is a game resource storage and transport API for the Fabric tool chain. 
 
 ## Purpose
-Provide a consistent and comprehensive API for storage and transport of any quantifiable and uniquely identifiable in-game resource, with excellent performance and flexiblity of scale and usage.
+Provide a consistent and comprehensive API for storage and transport of any quantifiable and uniquely identifiable in-game resource, with flexible usage and excellent performance at any scale.
 
 ## Features
 * Resource-type registry with pre-registered types for Items and Fluids
@@ -57,7 +59,7 @@ Provide a consistent and comprehensive API for storage and transport of any quan
 * High-resolution, large-scale fraction implementation for lossless accounting of fluids and other resources that are continuous instead of discrete, or which have sub-unit quantization
 * Registry for discovery and access to specific storage/transport implementations
 * Transactions with support for heterogeneous resource types, nesting and concurrency (with limitations)
-* Many base classes and helpers to support implementations
+* Many base classes and helpers to accelerate implementations
 
 ## License
 Fluidity is licensed under the Apache 2.0 license for easy and unrestricted inclusion or modification in other projects.
@@ -445,7 +447,7 @@ While access to components requires two steps, provisioning is handled by a sing
 Most block implementations will use a BlockEntity as their component holder/provider, but this is not required.  The provider function must map the context data to a component instance. How that happens is unspecified. The `BlockEntity` value in the context can be `null`, but `World` and `BlockPos` values will always be present.
 
 ## Item Actions
-Fluidity includes special-case component handling for interactive items like buckets and bottles.  These items often need to have in-game behaviors when used on blocks that contain or are associated with a device component.  They also happen to have behaviors pre-defined by vanilla Minecraft and potentially by other mods.  This makes a single, standard and centralized handling mechanism for these behaviors impractical.  At the same time, adding special-case handling for every bottle/bucket/whatever combination to each block is also impractical.
+Fluidity includes an opt-in system for adding behaviors to interactive items like buckets and bottles.  These items are often expected to perform some action when used on blocks that contain or are associated with a device component.  They also happen to have behaviors pre-defined by vanilla Minecraft and potentially by other mods.  This makes a single, standard and centralized handling mechanism for these behaviors impractical.  At the same time, adding special-case handling for every bottle/bucket/whatever combination to each block is also impractical.
 
 `DeviceComponentType.registerAction` associates a potential action with a device component type and one or more items.  The first argument is a `BiPredicate` that accepts an `ItemComponentContext` and a device component instance.  The intent is that multiple consumers can be registered for the same item/component, and processing will stop after any consumer returns true. Order of execution is unspecified, but this should not matter much in practice - the player can only be holding one item and clicking on one block at a time.
 
@@ -545,6 +547,29 @@ public class TankMultiBlock extends AbstractStorageMultiBlock<TankMultiBlock.Mem
 }
 ``` 
  
-The remaining task is to add reliable logic that calls `MultiBlockManager.connect()` and `MultiBlockManager.disconnect()` on the `MultiBlockManager` instance created during block registration. The methods must be called reliably when member instances are added or removed from a world.  Typically the easiest way to do this is via handlers in `BlockEntity.setWorld()`, `BlockEntity.markRemoved()`, and `BlockEntity.cancelRemoval()`.  The implementation is not difficult but the available examples are not compact. For one example, look [here](https://github.com/grondag/facility/blob/master/src/main/java/grondag/facility/storage/StorageBlockEntity.java).  
+The remaining task is to add reliable logic that calls `MultiBlockManager.connect()` and `MultiBlockManager.disconnect()` on the `MultiBlockManager` instance created during block registration. The methods must be called reliably when member instances are added or removed from a world.  Typically the easiest way to do this is via handlers in `BlockEntity.setWorld()`, `BlockEntity.markRemoved()`, and `BlockEntity.cancelRemoval()`.
+
+The implementation is not difficult but the available examples are not compact. For one example, look [here](https://github.com/grondag/facility/blob/master/src/main/java/grondag/facility/storage/StorageBlockEntity.java).  
 
 # Transport
+Storage by itself is useful, but eventually the player needs to move stuff from one place to another.  Fluidity will include APIs and base classes to accelerate the development and ensure compatibility of pipes, conduits, conveyers, cables, wires, wireless networks, etc.  The "Transport" category encompasses all of these.
+
+Note: transport features are work-in-progress and liable to change dramatically.  All code for transport is currently in the `grondag.fluidity.wip` package.
+
+## What is a Pipe?
+There are at least two concepts of a "pipe," and only one of them requires a transport API.
+
+* **Pipes as Storage:** It's intuitive to model a pipe as just another `Store` with built-in logic to pull or push content from neighboring blocks.  This models real-world behaviors and the logic can be made to depend only on local state and the state of directly-adjacent blocks. For these sorts of implementations, the existing capabilities in Fluidity may be enough.
+
+* **Pipes as Carriers:** When every pipe is also a store, every pipe generally has to process every tick - scale can be a limitation. Special case logic may creep in to dampen undesirable oscillation or cycles. The developer also has to decide if content in a broken pipe enters the world - with all of the attendant complications - or is simply lost.  An alternative is to model pipes as packet carriers in a network, and that is the approach taken in the API presented here.
+
+## Carriers in Brief
+The `Carrier` interface models a transport mechanism that can carry traffic between nodes that are connected to it.  Usually a `Carrier` will be a block or multi-block made to appear like a cable, pipe, etc. but could be a wireless network, cargo drones, or represent internal connectivity within a device. 
+
+A device that connects to a carrier must implement `CarrierConnector` and then pass that instance to a `CarrierProvider` that controls access to available carriers.  If the connection is successful, the result will be a `CarrierSession` - a private, privileged view of the carrier node associated with that connection.  Other nodes on the network will see the node (and will themselves be visible as) `CarrierNode` instances.
+
+Every `Carrier` has a single, associated `CarrierType` instance that defines what article types it can carry.  'CarrierType` can optionally include a white-list and black-list of allowed articles.  There are no limitations on the types or combination of articles a carrier can transport.
+
+`CarrierProvider` is a device component, and provides discovery and access to all carriers of any type available from a device. This means a connector does not require knowledge of specific carrier type. It can inspect the types available via `CarrierProvider.carrierTypes()` or use `getBestCarrier(ArticleType)` to have the provider pick a carrier appropriate for the content to be sent or received.
+
+As noted earlier, the transport API is in active development. Documentation is sparse. For deeper understanding, review usage of these interfaces and related classes in  [Facility](https://github.com/grondag/facility).

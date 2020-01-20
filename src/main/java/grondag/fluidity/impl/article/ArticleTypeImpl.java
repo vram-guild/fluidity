@@ -141,7 +141,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 		}
 
 		@Override
-		public Builder<U> keyFunction(Function<U, String> keyFunction) {
+		public Builder<U> translationKeyFunction(Function<U, String> keyFunction) {
 			this.keyFunction = keyFunction;
 			return this;
 		}
@@ -154,7 +154,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 			.resourceTagReader(t -> Registry.ITEM.get(new Identifier(t.asString())))
 			.resourcePacketWriter((r, p) -> p.writeVarInt(Registry.ITEM.getRawId(r)))
 			.resourcePacketReader(p -> Registry.ITEM.get(p.readVarInt()))
-			.keyFunction(i -> i.getTranslationKey())
+			.translationKeyFunction(i -> i.getTranslationKey())
 			.build());
 
 	public static final ArticleType<Fluid> FLUID = ArticleTypeRegistryImpl.INSTANCE.add("fluidity:fluid", builder(Fluid.class)
@@ -163,7 +163,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 			.resourceTagReader(t -> Registry.FLUID.get(new Identifier(t.asString())))
 			.resourcePacketWriter((r, p) -> p.writeVarInt(Registry.FLUID.getRawId(r)))
 			.resourcePacketReader(p -> Registry.FLUID.get(p.readVarInt()))
-			.keyFunction(f -> f.getDefaultState().getBlockState().getBlock().getTranslationKey())
+			.translationKeyFunction(f -> f.getDefaultState().getBlockState().getBlock().getTranslationKey())
 			.build());
 
 	public static final ArticleType<Void> NOTHING = ArticleTypeRegistryImpl.INSTANCE.add("fluidity:nothing", builder(Void.class)
@@ -172,7 +172,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 			.resourceTagReader(t -> null)
 			.resourcePacketWriter((r, p) -> {})
 			.resourcePacketReader(p -> null)
-			.keyFunction(n -> "fluidity:nothing")
+			.translationKeyFunction(n -> "fluidity:nothing")
 			.build());
 
 	public static <V> BuilderImpl<V> builder(Class<V> clazz) {

@@ -388,6 +388,7 @@ public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U, V>, U extend
 
 	private static final LongArrayList searchStack = new LongArrayList();
 
+	// PERF: if instances are to be held as static final by their creator, why do we need weak references?
 	private static final ObjectArrayList<WeakReference<MultiBlockManagerImpl>> MANAGERS = new ObjectArrayList<>();
 
 	private static final ObjectArrayList<MultiBlockManagerImpl.WorldHandler> TICK_REQUESTS = new ObjectArrayList<>();

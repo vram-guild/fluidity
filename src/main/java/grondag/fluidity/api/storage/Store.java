@@ -38,6 +38,8 @@ import grondag.fluidity.impl.storage.VoidStore;
 /**
  * Flexible storage interface for tanks, containers.
  * Interface supports both discrete items and bulk resources (such as fluids.)
+ *
+ * @see <a href="https://github.com/grondag/fluidity#store-and-its-variants">https://github.com/grondag/fluidity#store-and-its-variants</a>
  */
 @API(status = Status.EXPERIMENTAL)
 public interface Store extends TransactionParticipant {

@@ -122,7 +122,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 			}
 
 			calc.set(content);
-			calc.floor(divisor);
+			calc.roundDown(divisor);
 
 			long result = calc.toLong(divisor);
 

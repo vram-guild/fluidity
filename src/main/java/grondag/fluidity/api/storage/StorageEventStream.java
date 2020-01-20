@@ -20,12 +20,34 @@ import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.Fluidity;
 
+/**
+ * Exposes an observable stream of storage events that can be used by a listener to replicate a view
+ * of store contents or respond to actions involving the store.
+ *
+ * @see <a href="https://github.com/grondag/fluidity#store-and-its-variants">https://github.com/grondag/fluidity#store-and-its-variants</a>
+ */
 @API(status = Status.EXPERIMENTAL)
 public interface StorageEventStream {
+	/**
+	 * Begin receiving events from the store.
+	 *
+	 * @param listener observer that will receive events
+	 * @param sendNotifications if {@code true}, store will immediately send "accept" notifications for all store content visible to the listener
+	 */
 	void startListening(StorageListener listener, boolean sendNotifications);
 
+	/**
+	 * Stop receiving events from the store
+	 *
+	 * @param listener observer that will no longer receive events
+	 * @param sendNotifications if {@code true}, store will immediately send "supply" notifications for all store content visible to the listener
+	 */
 	void stopListening(StorageListener listener, boolean sendNotifications);
 
+	/**
+	 * Specialized event stream that marks the presence of a stream that isn't functional.
+	 * Logs a one-time warning if called but does not send events and done not throw an exception.
+	 */
 	StorageEventStream UNSUPPORTED = new StorageEventStream() {
 		boolean needsStartWarning = true;
 		boolean needsStopWarning = true;
@@ -48,6 +70,11 @@ public interface StorageEventStream {
 
 	};
 
+	/**
+	 * Specialized event stream that is "supported" and functions correctly, but does nothing.
+	 * Use for creative stores, trash cans and similar implementations that have no internal
+	 * state and thus no meaningful events that change it.
+	 */
 	StorageEventStream IGNORE = new StorageEventStream() {
 		@Override
 		public void startListening(StorageListener listener, boolean sendNotifications) {

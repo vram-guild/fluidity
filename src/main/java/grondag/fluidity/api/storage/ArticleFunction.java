@@ -37,15 +37,15 @@ import grondag.fluidity.impl.storage.AlwaysReturnZeroImpl;
 @API(status = Status.EXPERIMENTAL)
 public interface ArticleFunction extends TransactionParticipant {
 	/**
-	 * Adds items to this store. May return less than requested.
+	 * Adds or removes items to/from this store, depending on context. May return less than requested.
 	 *
-	 * @param item Item to add
+	 * @param article Item to added/removed
 	 * @param tag NBT if item has it, null otherwise.
-	 * @param count How many to add. Must be >= 0;
+	 * @param count How many to add or remove. Must be >= 0;
 	 * @param simulate If true, will forecast result without making changes.
-	 * @return Count added, or that would be added if {@code simulate} = true.
+	 * @return Count added or removed, or that would be added or removed if {@code simulate} = true.
 	 */
-	long apply(Article item, long count, boolean simulate);
+	long apply(Article article, long count, boolean simulate);
 
 	/**
 	 * Distinct from {@link #isFull()} - can be false even when store is not full.
@@ -76,20 +76,20 @@ public interface ArticleFunction extends TransactionParticipant {
 	}
 
 	/**
-	 * Adds up to  {@code volume} units of the bulk item to this store and
-	 * returns the number of units added.  The denominator of the result *may*
+	 * Adds or removes up to  {@code volume} units of the bulk item to this store and
+	 * returns the number of units added or removed.  The denominator of the result *may*
 	 * be different from the denominator of the input fraction.
 	 *
 	 * Storage containers or pipes that only deal in certain units (for example,
 	 * the vanilla cauldron) should return zero or a lesser amount for requests
 	 * that would result in an invalid state.<p>
 	 *
-	 * @param item  The stuff to add
-	 * @param volume How much to add
+	 * @param article  The stuff to add or remove
+	 * @param volume How much to add or remove
 	 * @param simulate If true, forecasts the result without making any changes.
-	 * @return How much stuff was added
+	 * @return How much stuff was added or removed
 	 */
-	Fraction apply(Article item, Fraction volume, boolean simulate);
+	Fraction apply(Article article, Fraction volume, boolean simulate);
 
 	/**
 	 * As with {@link #accept(BulkItem, FractionView, boolean)} BUT the result
@@ -101,13 +101,13 @@ public interface ArticleFunction extends TransactionParticipant {
 	 * the vanilla cauldron) should return zero or a lesser amount for requests
 	 * that would result in an invalid state.<p>
 	 *
-	 * @param item The stuff to add
-	 * @param numerator Fractional units to add. Can be zero.
-	 * @param divisor Denominator of units to add. Must be >= 1.
+	 * @param article The stuff to add or remove
+	 * @param numerator Fractional units to add or remove. Can be zero.
+	 * @param divisor Denominator of units to add or remove. Must be >= 1.
 	 * @param simulate If true, forecasts the result without making any changes.
-	 * @return How much was added, in units of given denominator.
+	 * @return How much was added or removed, in units of given denominator.
 	 */
-	long apply(Article item, long numerator, long divisor, boolean simulate);
+	long apply(Article article, long numerator, long divisor, boolean simulate);
 
 	ArticleFunction ALWAYS_RETURN_REQUESTED = AlwaysReturnRequestedImpl.INSTANCE;
 	ArticleFunction ALWAYS_RETURN_ZERO = AlwaysReturnZeroImpl.INSTANCE;

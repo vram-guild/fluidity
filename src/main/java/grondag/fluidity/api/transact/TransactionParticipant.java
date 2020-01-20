@@ -38,6 +38,8 @@ import org.apiguardian.api.API.Status;
 
 /**
  * Implement on objects that can participate in transactions.
+ *
+ * @see <a href="https://github.com/grondag/fluidity#transactions">https://github.com/grondag/fluidity#transactions</a>
  */
 @FunctionalInterface
 @API(status = Status.EXPERIMENTAL)
@@ -56,7 +58,10 @@ public interface TransactionParticipant {
 
 	/**
 	 * Allows instances that share the same rollback state to share a delegate.
-	 * If the same delegate is enlisted more than once, will only be asked to prepare rollback once.
+	 * If the same delegate is enlisted more than once, it will only be asked to prepare
+	 * rollback the first time.
+	 *
+	 * @return the transaction delegate for this participant
 	 */
 	TransactionDelegate getTransactionDelegate();
 
@@ -76,6 +81,10 @@ public interface TransactionParticipant {
 		 */
 		Consumer<TransactionContext> prepareRollback(TransactionContext context);
 
+		/**
+		 * Specialized transaction delegate that does nothing. Use as the delegate
+		 * for participants without any internal state to be rolled back.
+		 */
 		TransactionDelegate IGNORE = c0 -> c1 -> {};
 	}
 }

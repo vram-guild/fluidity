@@ -121,7 +121,14 @@ public interface Article {
 		return toStack(1);
 	}
 
-
+	/**
+	 * Convenient and efficient comparison of {@code Item}-type articles, especially when
+	 * the stack may contain a tag. Does not cause allocation of a new tag instance in that case.
+	 *
+	 * @param stack Stack for comparison.
+	 * @return True when this article resource is the same {@code Item} instance and both the article
+	 * and stack have no tag or both tags are equal.
+	 */
 	default boolean matches(ItemStack stack) {
 		if (isItem()) {
 			return stack.getItem() == toItem() && (hasTag() ? doesTagMatch(stack.getTag()) : !stack.hasTag());
@@ -130,45 +137,135 @@ public interface Article {
 		}
 	}
 
+	/**
+	 * Non-allocating test for presence of a non-null tag. (The tag could still be empty.)
+	 *
+	 * @return {@code true} when this article has a null tag value.
+	 */
 	boolean hasTag();
 
+	/**
+	 * Non-allocating test for tag equality.
+	 *
+	 * @param otherTag Tag to be compared.
+	 * @return {@code true} when both tags are null or both tags are equal.
+	 */
 	boolean doesTagMatch(CompoundTag otherTag);
 
+	/**
+	 * Allocates a copy of NBT tag associated with this article, or returns {@code null} if there is none.
+	 * Use {@link #hasTag()} or {@link #doesTagMatch(CompoundTag)} when the intent is to test the tag value.
+	 *
+	 * @return A copy of the tag associated with this article, or {@code null} if there is none.
+	 */
 	@Nullable CompoundTag copyTag();
 
+	/**
+	 * Serializes this instance to an NBT tag that can later be used to retrieve an equivalent instance using {@link #fromTag(Tag)}.
+	 * Note the similarity in naming to {@link #copyTag()}. This is very different.
+	 *
+	 * @return An NBT tag suitable for saving this instance in world data.
+	 */
 	Tag toTag();
 
+	/**
+	 * Serializes this instance to a packet buffer that can be used (typically on the other side of a client/server connection)
+	 * to retrieve the instance via {@link #fromPacket(PacketByteBuf)}.
+	 *
+	 * @param buf Target packet buffer for serialization output.
+	 */
 	void toPacket(PacketByteBuf buf);
 
+	/**
+	 * Supplies a translation key for displaying a localized label to the player.
+	 * Server-safe but typically used only on client.
+	 *
+	 * @return Translation key for displaying a localized label to the player.
+	 */
 	String getTranslationKey();
 
+	/**
+	 * Deserialize an instance previously serialized with {@link #toTag()}
+	 *
+	 * @param tag Earlier output of {@link #toTag()}
+	 * @return Instance equivalent to the instance encoded in the tag, or {@link #NOTHING} if the instance is no longer registered
+	 */
 	static Article fromTag(Tag tag) {
 		return ArticleImpl.fromTag(tag);
 	}
 
+	/**
+	 * Read an instance previously encoded in a packet buffer via {@link #toPacket(PacketByteBuf)}.
+	 *
+	 * @param buf The packet buffer
+	 * @return Instance encoded in the buffer, or {@link #NOTHING} if the instance cannot be read or found
+	 */
 	static Article fromPacket(PacketByteBuf buf) {
 		return ArticleImpl.fromPacket(buf);
 	}
 
+	/**
+	 * Find or create the article instance for the given article type and resource.
+	 * Instances are interned and calls are non-allocating after the first call for any given resource.
+	 *
+	 * @param <V> The class of the game resource represented by the article
+	 * @param type The article type
+	 * @param resource The game resource represented by the article
+	 * @return The article instance
+	 */
 	static <V> Article of(ArticleType<V> type, V resource) {
 		return ArticleImpl.of(type, resource, null);
 	}
 
+	/**
+	 * Find or create the article representing the given item stack, including NBT tag if present.
+	 * Calls may return different but equivalent instances if the stack has a non-null tag.
+	 * Type of the article will be {@link ArticleType#ITEM}.
+	 *
+	 * @param stack The stack the article will represent
+	 * @return Article representing the given stack
+	 */
 	static Article of(ItemStack stack) {
 		return ArticleImpl.of(stack);
 	}
 
-	static Article of(Item item, CompoundTag tag) {
+	/**
+	 * Find or create the article representing the given item and tag.
+	 * Calls may return different but equivalent instances if the tag is non-null.
+	 * Type of the article will be {@link ArticleType#ITEM}.
+	 *
+	 * @param item The Item the article will represent
+	 * @param tag NBT tag with additional item data
+	 * @return Article representing the given item and tag
+	 */
+	static Article of(Item item, @Nullable CompoundTag tag) {
 		return ArticleImpl.of(item, tag);
 	}
 
+	/**
+	 * Find or create the article representing the given item.
+	 * Type of the article will be {@link ArticleType#ITEM}.
+	 *
+	 * @param item The Item the article will represent
+	 * @return Article representing the given item
+	 */
 	static Article of(Item item) {
 		return ArticleImpl.of(item);
 	}
 
+	/**
+	 * Find or create the article representing the given fluid.
+	 * Type of the article will be {@link ArticleType#FLUID}.
+	 *
+	 * @param fluid The fluid the article will represent
+	 * @return Article representing the given fluid
+	 */
 	static Article of(Fluid fluid) {
 		return ArticleImpl.of(fluid);
 	}
 
+	/**
+	 * Use instead of {@code null} to represent the absence of any article.
+	 */
 	Article NOTHING = ArticleImpl.NOTHING;
 }

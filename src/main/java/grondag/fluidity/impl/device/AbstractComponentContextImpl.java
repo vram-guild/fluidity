@@ -17,6 +17,8 @@ package grondag.fluidity.impl.device;
 
 import java.util.function.Function;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -40,7 +42,7 @@ abstract class AbstractComponentContextImpl implements ComponentContext, DeviceC
 		this.auth = auth;
 		this.side = side;
 		this.id = id;
-		return mapping.apply(this);
+		return ObjectUtils.defaultIfNull(mapping.apply(this), componentType.absent());
 	}
 
 	@Override

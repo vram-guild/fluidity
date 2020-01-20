@@ -21,6 +21,9 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
+
 import net.minecraft.util.Identifier;
 
 import grondag.fluidity.Fluidity;
@@ -29,6 +32,7 @@ import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentRegistry;
 import grondag.fluidity.api.device.DeviceComponentType;
 
+@API(status = Status.EXPERIMENTAL)
 public interface CarrierProvider {
 	@Nullable Carrier getCarrier(CarrierType type);
 

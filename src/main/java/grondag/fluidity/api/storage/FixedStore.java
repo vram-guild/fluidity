@@ -23,8 +23,12 @@ import grondag.fluidity.impl.storage.EmptyStore;
 import grondag.fluidity.impl.storage.VoidStore;
 
 /**
- * Store with fixed handles - similar to slots but they don't have aribtrary limits
- * and request to accept or supply incompatible with existing content is rejected.
+ * Store with fixed handles - operations on the store can accept handles
+ * and operations will return zero if the article associated with that handle
+ * is different from what is expected. Use for stores with fixed storage locations
+ * that need to be explicitly specified and/or visible to the player.
+ *
+ * @see <a href="https://github.com/grondag/fluidity#store-and-its-variants">https://github.com/grondag/fluidity#store-and-its-variants</a>
  */
 @API(status = Status.EXPERIMENTAL)
 public interface FixedStore extends Store {

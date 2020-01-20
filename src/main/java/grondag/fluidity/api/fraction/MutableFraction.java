@@ -44,10 +44,22 @@ public final class MutableFraction extends Fraction {
 		super(template.whole(), template.numerator(), template.divisor());
 	}
 
+	/**
+	 * Constructs a new instance initialized with the value
+	 * previously encoded in the given tag via {@link #writeTag(CompoundTag)}.
+	 *
+	 * @param tag NBT tag with encoded value
+	 */
 	public MutableFraction(Tag tag) {
 		readTag((CompoundTag) tag);
 	}
 
+	/**
+	 * Constructs a new instance initialized with the value
+	 * previously encoded in the given packet buffer via {@link #writeBuffer(PacketByteBuf)}.
+	 *
+	 * @param buf packet buffer with encoded value
+	 */
 	public MutableFraction(PacketByteBuf buf) {
 		readBuffer(buf);
 	}
@@ -142,9 +154,10 @@ public final class MutableFraction extends Fraction {
 
 	/**
 	 * Rounds down to multiple of divisor if not already divisible by it.
+	 *
 	 * @param divisor Desired multiple
 	 */
-	public void floor(long divisor) {
+	public void roundDown(long divisor) {
 		if(this.divisor != divisor) {
 			this.set(whole, numerator * divisor / this.divisor, divisor);
 		}
@@ -168,5 +181,10 @@ public final class MutableFraction extends Fraction {
 
 	public static MutableFraction of(long whole) {
 		return new MutableFraction(whole);
+	}
+
+	@Override
+	public Fraction toImmutable() {
+		return Fraction.of(whole(), numerator(), divisor());
 	}
 }

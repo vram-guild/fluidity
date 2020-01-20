@@ -18,6 +18,9 @@ package grondag.fluidity.wip.api.transport;
 import java.util.Collections;
 import java.util.Set;
 
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
+
 import net.minecraft.util.Identifier;
 
 import grondag.fluidity.Fluidity;
@@ -28,6 +31,7 @@ import grondag.fluidity.api.device.DeviceComponentType;
 /**
  * A device component that may attach to a carrier.
  */
+@API(status = Status.EXPERIMENTAL)
 @FunctionalInterface
 public interface CarrierConnector {
 	Set<ArticleType<?>> articleTypes();
