@@ -21,6 +21,7 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -79,6 +80,25 @@ public interface Article {
 	 */
 	default Item toItem() {
 		return isItem() ? resource() : Items.AIR;
+	}
+
+	/**
+	 * True only for articles that represent in-game fluids.
+	 *
+	 * @return {@code true} if this article represents a registered {@code Fluid}
+	 */
+	default boolean isFluid() {
+		return type().isFluid();
+	}
+
+	/**
+	 * If this article represents an {@code Fluid} or is somehow associated with a fluid,
+	 * the fluid represented or associated.  Should return {@link Fluids#EMPTY} in all other cases.
+	 *
+	 * @return {@code Fluid} this article is or has, if any. {@code Fluids.EMPTY} otherwise.
+	 */
+	default Fluid toFluid() {
+		return isFluid() ? resource() : Fluids.EMPTY;
 	}
 
 	/**
