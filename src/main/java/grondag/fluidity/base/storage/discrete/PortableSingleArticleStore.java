@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package grondag.fluidity.base.storage.bulk;
+package grondag.fluidity.base.storage.discrete;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
@@ -23,20 +23,19 @@ import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.device.ItemComponentContext;
-import grondag.fluidity.api.fraction.Fraction;
 
 /**
- * A version  of {@code SimpleTank} that persists to an ItemStack.
+ * A version  of {@code SingleStackInventoryStore} that persists to an ItemStack.
  * Use for Item-based storage devices.
  *
  */
 @API(status = Status.EXPERIMENTAL)
-public class PortableTank extends SimpleTank {
+public class PortableSingleArticleStore extends SingleArticleStore {
 	protected String keyName;
 	protected java.util.function.Supplier<ItemStack> stackGetter;
 	protected java.util.function.Consumer<ItemStack> stackSetter;
 
-	public PortableTank(Fraction defaultCapacity, String keyName, ItemComponentContext ctx) {
+	public PortableSingleArticleStore(long defaultCapacity, String keyName, ItemComponentContext ctx) {
 		super(defaultCapacity);
 		stackGetter = ctx.stackGetter();
 		stackSetter = ctx.stackSetter();
@@ -52,7 +51,7 @@ public class PortableTank extends SimpleTank {
 
 	protected void saveToStack() {
 		final ItemStack stack = stackGetter.get();
-		stack.getOrCreateTag().put(keyName, this.writeTag());
+		stack.getOrCreateTag().put(keyName, writeTag());
 		stackSetter.accept(stack);
 	}
 
@@ -60,31 +59,31 @@ public class PortableTank extends SimpleTank {
 	 * Use for client-side tank render/display.  Uses stack directly and doesn't instantiate a new Store each call.
 	 *
 	 * @param stack Stack containing serialized tank data
-	 * @param keyName NBT tag name for tank data
+	 * @param keyName NBT tag name for store data
 	 * @return amount in the tank, or zero if no tank data found
 	 */
-	public static Fraction getAmount(ItemStack stack, String keyName) {
+	public static long getAmount(ItemStack stack, String keyName) {
 		final CompoundTag tag = stack.getSubTag(keyName);
-		return tag == null ? Fraction.ZERO : new Fraction(tag.getCompound("quantity"));
+		return tag == null ? 0 : tag.getLong("quantity");
 	}
 
 	/**
 	 * Use for client-side tank render/display.  Uses stack directly and doesn't instantiate a new Store each call.
 	 *
 	 * @param stack Stack containing serialized tank data
-	 * @param keyName NBT tag name for tank data
+	 * @param keyName NBT tag name for store data
 	 * @return amount in the tank, or zero if no tank data found
 	 */
-	public static Fraction getCapacity(ItemStack stack, String keyName) {
+	public static long getCapacity(ItemStack stack, String keyName) {
 		final CompoundTag tag = stack.getSubTag(keyName);
-		return tag == null ? Fraction.ZERO : new Fraction(tag.getCompound("capacity"));
+		return tag == null ? 0 : tag.getLong("capacity");
 	}
 
 	/**
 	 * Use for client-side tank render/display.  Uses stack directly and doesn't instantiate a new Store each call.
 	 *
 	 * @param stack Stack containing serialized tank data
-	 * @param keyName NBT tag name for tank data
+	 * @param keyName NBT tag name for store data
 	 * @return article in the tank, or {@code Article.NOTHING} if tank is empty or no tank data found
 	 */
 	public static Article getArticle(ItemStack stack, String keyName) {
@@ -94,8 +93,8 @@ public class PortableTank extends SimpleTank {
 			return Article.NOTHING;
 		}
 
-		final Fraction amount =  tag == null ? Fraction.ZERO : new Fraction(tag.getCompound("quantity"));
+		final long amount =  tag == null ? 0 : tag.getLong("quantity");
 
-		return amount.isZero() ? Article.NOTHING : Article.fromTag(tag.get("art"));
+		return amount == 0 ? Article.NOTHING : Article.fromTag(tag.get("art"));
 	}
 }

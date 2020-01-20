@@ -34,7 +34,7 @@ import grondag.fluidity.base.storage.AbstractLazyRollbackStore;
 
 @API(status = Status.EXPERIMENTAL)
 public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, SimpleTank> implements BulkStore {
-	protected final MutableFraction content = new MutableFraction();
+	protected final MutableFraction quantity = new MutableFraction();
 	protected final MutableFraction calc = new MutableFraction();
 	protected final View view = new View();
 	protected Article article = Article.NOTHING;
@@ -66,12 +66,12 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 
 	@Override
 	public boolean isFull() {
-		return content.isGreaterThankOrEqual(capacity);
+		return quantity.isGreaterThankOrEqual(capacity);
 	}
 
 	@Override
 	public boolean isEmpty() {
-		return content.isZero();
+		return quantity.isZero();
 	}
 
 	@Override
@@ -92,19 +92,19 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 		public Fraction apply(Article item, Fraction volume, boolean simulate) {
 			Preconditions.checkArgument(!volume.isNegative(), "Request to supply negative volume. (%s)", volume);
 
-			if (item == Article.NOTHING || !item.equals(article) || content.isZero() || volume.isZero()) {
+			if (item == Article.NOTHING || !item.equals(article) || quantity.isZero() || volume.isZero()) {
 				return Fraction.ZERO;
 			}
 
-			calc.set(content.isLessThan(volume) ? content : volume);
+			calc.set(quantity.isLessThan(volume) ? quantity : volume);
 
 			if (!simulate) {
 				rollbackHandler.prepareIfNeeded();
-				content.subtract(calc);
+				quantity.subtract(calc);
 				dirtyNotifier.run();
-				listeners.forEach(l -> l.onSupply(SimpleTank.this, 0, article, calc, content));
+				listeners.forEach(l -> l.onSupply(SimpleTank.this, 0, article, calc, quantity));
 
-				if(content.isZero()) {
+				if(quantity.isZero()) {
 					article = Article.NOTHING;
 				}
 			}
@@ -117,11 +117,11 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 			Preconditions.checkArgument(numerator >= 0, "Request to supply negative volume. (%s)", numerator);
 			Preconditions.checkArgument(divisor >= 1, "Divisor must be >= 1. (%s)", divisor);
 
-			if (item == Article.NOTHING || !item.equals(article) || content.isZero() || numerator == 0) {
+			if (item == Article.NOTHING || !item.equals(article) || quantity.isZero() || numerator == 0) {
 				return 0;
 			}
 
-			calc.set(content);
+			calc.set(quantity);
 			calc.roundDown(divisor);
 
 			long result = calc.toLong(divisor);
@@ -136,15 +136,15 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 
 			if (!simulate) {
 				rollbackHandler.prepareIfNeeded();
-				content.subtract(result, divisor);
+				quantity.subtract(result, divisor);
 				dirtyNotifier.run();
 
 				if(!listeners.isEmpty()) {
 					calc.set(result, divisor);
-					listeners.forEach(l -> l.onAccept(SimpleTank.this, 0, item, calc, content));
+					listeners.forEach(l -> l.onAccept(SimpleTank.this, 0, item, calc, quantity));
 				}
 
-				if(content.isZero()) {
+				if(quantity.isZero()) {
 					article = Article.NOTHING;
 				}
 			}
@@ -176,7 +176,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 
 			// compute available space
 			calc.set(capacity);
-			calc.subtract(content);
+			calc.subtract(quantity);
 
 			// can't accept if full
 			if (calc.isZero()) {
@@ -190,9 +190,9 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 
 			if (!simulate) {
 				rollbackHandler.prepareIfNeeded();
-				content.add(calc);
+				quantity.add(calc);
 				dirtyNotifier.run();
-				listeners.forEach(l -> l.onSupply(SimpleTank.this, 0, article, calc, content));
+				listeners.forEach(l -> l.onSupply(SimpleTank.this, 0, article, calc, quantity));
 			}
 
 			return calc;
@@ -213,7 +213,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 
 			// compute available space
 			calc.set(capacity);
-			calc.subtract(content);
+			calc.subtract(quantity);
 
 			long result = calc.toLong(divisor);
 
@@ -229,12 +229,12 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 
 			if (!simulate) {
 				rollbackHandler.prepareIfNeeded();
-				content.add(result, divisor);
+				quantity.add(result, divisor);
 				dirtyNotifier.run();
 
 				if(!listeners.isEmpty()) {
 					calc.set(result, divisor);
-					listeners.forEach(l -> l.onAccept(SimpleTank.this, 0, item, calc, content));
+					listeners.forEach(l -> l.onAccept(SimpleTank.this, 0, item, calc, quantity));
 				}
 			}
 
@@ -250,7 +250,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 
 	public void writeTag(CompoundTag tag) {
 		tag.put("capacity",capacity.toTag());
-		tag.put("content",content.toTag());
+		tag.put("quantity",quantity.toTag());
 		tag.put("art", article.toTag());
 	}
 
@@ -264,7 +264,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 	@Override
 	public void readTag(CompoundTag tag) {
 		capacity = new Fraction(tag.getCompound("capacity"));
-		content.readTag(tag.getCompound("content"));
+		quantity.readTag(tag.getCompound("quantity"));
 		article = Article.fromTag(tag.get("art"));
 	}
 
@@ -276,12 +276,12 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 
 		@Override
 		public boolean isEmpty() {
-			return content.isZero();
+			return quantity.isZero();
 		}
 
 		@Override
 		public Fraction amount() {
-			return content;
+			return quantity;
 		}
 
 		@Override
@@ -292,7 +292,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 
 	@Override
 	protected Object createRollbackState() {
-		return Pair.of(article, content.toImmutable());
+		return Pair.of(article, quantity.toImmutable());
 	}
 
 	@Override
@@ -304,17 +304,17 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 			final Fraction newContent = pair.getSecond();
 
 			if(bulkItem == article) {
-				if(newContent.isGreaterThan(content)) {
+				if(newContent.isGreaterThan(quantity)) {
 					calc.set(newContent);
-					calc.subtract(content);
+					calc.subtract(quantity);
 					consumer.apply(bulkItem, calc, false);
-				} else if (newContent.isLessThan(content)) {
-					calc.set(content);
+				} else if (newContent.isLessThan(quantity)) {
+					calc.set(quantity);
 					calc.subtract(newContent);
 					supplier.apply(bulkItem, calc, false);
 				}
 			} else {
-				supplier.apply(article, content, false);
+				supplier.apply(article, quantity, false);
 				consumer.apply(bulkItem, newContent, false);
 			}
 		}
@@ -322,12 +322,12 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 
 	@Override
 	protected void sendFirstListenerUpdate(StorageListener listener) {
-		listener.onAccept(this, 0, article, content, content);
+		listener.onAccept(this, 0, article, quantity, quantity);
 	}
 
 	@Override
 	protected void sendLastListenerUpdate(StorageListener listener) {
-		listener.onSupply(this, 0, article, content, Fraction.ZERO);
+		listener.onSupply(this, 0, article, quantity, Fraction.ZERO);
 	}
 
 	@Override
@@ -337,14 +337,14 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 
 	@Override
 	public void clear() {
-		listeners.forEach(l -> l.onSupply(this, 0, article, content, Fraction.ZERO));
-		content.set(0);
+		listeners.forEach(l -> l.onSupply(this, 0, article, quantity, Fraction.ZERO));
+		quantity.set(0);
 		dirtyNotifier.run();
 	}
 
 	@Override
 	public Fraction amount() {
-		return content;
+		return quantity;
 	}
 
 	@Override
