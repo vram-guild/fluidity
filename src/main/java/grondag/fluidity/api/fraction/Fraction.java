@@ -167,7 +167,7 @@ public class Fraction implements Comparable<Fraction> {
 	protected final void readTagInner(CompoundTag tag) {
 		whole = tag.getLong("whole");
 		numerator = tag.getLong("numerator");
-		divisor = tag.getLong("denominator");
+		divisor = Math.max(1, tag.getLong("denominator"));
 		normalize();
 	}
 

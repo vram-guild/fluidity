@@ -119,6 +119,10 @@ public class ArticleImpl<T> implements Article {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Article fromTag(Tag tag) {
+		if(tag == null) {
+			return Article.NOTHING;
+		}
+
 		final CompoundTag myTag = (CompoundTag) tag;
 		final ArticleTypeImpl type = ArticleTypeImpl.fromTag(myTag.get("type"));
 		final Object resource = type.tagReader.apply(myTag.get("res"));

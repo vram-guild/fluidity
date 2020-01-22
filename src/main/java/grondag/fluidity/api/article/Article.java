@@ -208,9 +208,9 @@ public interface Article {
 	 * Deserialize an instance previously serialized with {@link #toTag()}
 	 *
 	 * @param tag Earlier output of {@link #toTag()}
-	 * @return Instance equivalent to the instance encoded in the tag, or {@link #NOTHING} if the instance is no longer registered
+	 * @return Instance equivalent to the instance encoded in the tag, or {@link #NOTHING} if tag is null or the instance is no longer registered
 	 */
-	static Article fromTag(Tag tag) {
+	static Article fromTag(@Nullable Tag tag) {
 		return ArticleImpl.fromTag(tag);
 	}
 
