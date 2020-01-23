@@ -46,9 +46,13 @@ public abstract class AbstractPortableTank extends SimpleTank {
 	}
 
 	public AbstractPortableTank(Fraction defaultCapacity, ItemComponentContext ctx) {
+		this(defaultCapacity, ctx.stackGetter(), ctx.stackSetter());
+	}
+
+	public AbstractPortableTank(Fraction defaultCapacity, java.util.function.Supplier<ItemStack> stackGetter, java.util.function.Consumer<ItemStack> stackSetter) {
 		super(defaultCapacity);
-		stackGetter = ctx.stackGetter();
-		stackSetter = ctx.stackSetter();
+		this.stackGetter = stackGetter;
+		this.stackSetter = stackSetter;
 		dirtyNotifier = () -> saveToStack();
 
 		final CompoundTag tag = readTagFromStack(stackGetter.get());
