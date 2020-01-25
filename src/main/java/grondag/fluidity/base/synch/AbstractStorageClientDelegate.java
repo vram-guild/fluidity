@@ -108,7 +108,7 @@ public abstract class AbstractStorageClientDelegate<T extends DisplayDelegate> {
 		for(int i = LIST.size() - 1; i >= 0; --i) {
 			final T delegate = LIST.get(i);
 
-			if(delegate.isEmpty() || delegate.lowerCaseLocalizedName().contains(filter)) {
+			if(delegate.isEmpty() || !delegate.lowerCaseLocalizedName().contains(filter)) {
 				LIST.remove(i);
 			}
 		}
