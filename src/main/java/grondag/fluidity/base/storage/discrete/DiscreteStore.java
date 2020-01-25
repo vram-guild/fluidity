@@ -37,7 +37,7 @@ public interface DiscreteStore extends Store {
 
 	@Override
 	default double usage() {
-		final long cap = capacity();
+		final double cap = capacity();
 		return cap > 0 ? count() / cap : 0;
 	}
 
