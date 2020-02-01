@@ -18,6 +18,7 @@ package grondag.fluidity.api.device;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.apiguardian.api.API;
@@ -26,6 +27,8 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -118,6 +121,19 @@ public interface DeviceComponentType<T> {
 	 * that may be present at the given location
 	 */
 	DeviceComponentAccess<T> getAccess(BlockEntity blockEntity);
+
+	/**
+	 * Retrieves a {@code DeviceComponentAccess} to access device components of this type
+	 * that may be present in the given entity.<p>
+	 *
+	 * The instance that is returned may be thread-local and should never be retained.
+	 *
+	 * @param <E>  concrete type of the entity
+	 * @param entity entity to provide component access if available
+	 * @return a {@code DeviceComponentAccess} to access device components of this type
+	 * that may be present in the given entity
+	 */
+	<E extends Entity> DeviceComponentAccess<T> getAccess(E entity);
 
 	/**
 	 * Retrieves a {@code DeviceComponentAccess} to access device components of this type
@@ -219,12 +235,9 @@ public interface DeviceComponentType<T> {
 
 	/**
 	 * Causes the given blocks to provide device component instances of this type
-	 * by application of the given mapping function to block entities associated
-	 * with the given blocks.<p>
+	 * via block entities associated with the given blocks.<p>
 	 *
 	 * Use this version for blocks where the {@code BlockEntity} *is* the component instance.<p>
-	 *
-	 * The mapping function should return {@link #absent()} if no component is available.
 	 *
 	 * @param blocks one or more blocks that will provide components in this way
 	 */
@@ -232,6 +245,33 @@ public interface DeviceComponentType<T> {
 	default void addProvider(Block... blocks) {
 		registerProvider(ctx -> (T) ctx.blockEntity(), blocks);
 	}
+
+	/**
+	 * Causes the given entity types to provide device component instances of this type
+	 * by application of the given mapping function.<p>
+	 *
+	 * This will override any previous mapping of the same component type and only one
+	 * result per entity is possible.  For the reason, mod authors are advised to create
+	 * distinct component types for their use cases instead of using standard component types.<p>
+	 *
+	 * @param mapping mapping function that derives a component instance from an access context
+	 * @param entities one or more entities for which the function will apply
+	 */
+	void registerProvider(Function<EntityComponentContext, T> mapping, EntityType<?>... entities);
+
+	/**
+	 * Same as {@link #registerProvider(Function, EntityType...)} but matches all entities that
+	 * match the given predicate instead of providing specific entity types.  Use this to register
+	 * a provider for all entities that implement {@code LivingEntity}, for example. <p>
+	 *
+	 * This method may be called at any point during mod initialization (and not after) but the
+	 * predicate will only be applied after all registration is complete. Mod registration
+	 * order does not matter.<p>
+	 *
+	 * @param mapping mapping function that derives a component instance from an access context
+	 * @param predicate Mapping will apply to all entity types that match this test
+	 */
+	void registerProvider(Function<EntityComponentContext, T> mapping, Predicate<EntityType<?>> predicate);
 
 	/**
 	 * Causes the given items to provide device component instances of this type

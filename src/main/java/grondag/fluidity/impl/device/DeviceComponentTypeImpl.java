@@ -19,37 +19,50 @@ import java.util.IdentityHashMap;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 import grondag.fluidity.api.device.BlockComponentContext;
 import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentType;
+import grondag.fluidity.api.device.EntityComponentContext;
 import grondag.fluidity.api.device.ItemComponentContext;
 
 public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 	private final T absent;
 	private final Function<BlockComponentContext, ?> defaultBlockMapping;
 	private final Function<ItemComponentContext, ?> defaultItemMapping;
+	private final Function<EntityComponentContext, ?> defaultEntityMapping;
+
 	private final IdentityHashMap<Block, Function<BlockComponentContext, ?>> blockMappings = new IdentityHashMap<>();
 	private final IdentityHashMap<Item, Function<ItemComponentContext, ?>> itemMappings = new IdentityHashMap<>();
+	private final IdentityHashMap<EntityType<?>, Function<EntityComponentContext, ?>> entityMappings = new IdentityHashMap<>();
 	private final IdentityHashMap<Item, ObjectArrayList<BiPredicate<ItemComponentContext, T>>> itemActions = new IdentityHashMap<>();
+
+	private ObjectArrayList<Pair<Function<EntityComponentContext, T>, Predicate<EntityType<?>>>> deferedEntityMappings;
+
 	private final AbsentDeviceComponent<T> absentComponent;
 
 	DeviceComponentTypeImpl(T absent) {
 		this.absent = absent;
 		defaultBlockMapping = b -> absent;
 		defaultItemMapping = i -> absent;
+		defaultEntityMapping = e -> absent;
 		absentComponent = new AbsentDeviceComponent<>(this);
 	}
 
@@ -66,6 +79,17 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 	public void registerProvider(Function<BlockComponentContext, T> mapping, Block... blocks) {
 		for(final Block b : blocks) {
 			blockMappings.put(b, mapping);
+		}
+	}
+
+	Function<EntityComponentContext, ?> getMapping(Entity entity) {
+		return entityMappings.getOrDefault(entity.getType(), defaultEntityMapping);
+	}
+
+	@Override
+	public void registerProvider(Function<EntityComponentContext, T> mapping, EntityType<?>... entities) {
+		for(final EntityType<?> e : entities) {
+			entityMappings.put(e, mapping);
 		}
 	}
 
@@ -110,6 +134,13 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 	@Override
 	public DeviceComponentAccess<T> getAccess(BlockEntity blockEntity) {
 		return BlockComponentContextImpl.get(this, blockEntity);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <E extends Entity> DeviceComponentAccess<T> getAccess(E entity) {
+		applyDeferredEntityRegistrations();
+		return EntityComponentContextImpl.get(this, entity);
 	}
 
 	@Override
@@ -159,5 +190,28 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 		}
 
 		return false;
+	}
+
+	@Override
+	public void registerProvider(Function<EntityComponentContext, T> mapping, Predicate<EntityType<?>> predicate) {
+		if(deferedEntityMappings == null) {
+			deferedEntityMappings = new ObjectArrayList<>();
+		}
+
+		deferedEntityMappings.add(Pair.of(mapping, predicate));
+	}
+
+	private void applyDeferredEntityRegistrations() {
+		if(deferedEntityMappings != null) {
+			for(final Pair<Function<EntityComponentContext, T>, Predicate<EntityType<?>>> pair : deferedEntityMappings) {
+				Registry.ENTITY_TYPE.forEach(e -> {
+					if(pair.getRight().test(e)) {
+						registerProvider(pair.getLeft(), e);
+					}
+				});
+			}
+
+			deferedEntityMappings = null;
+		}
 	}
 }
