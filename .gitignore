@@ -22,6 +22,7 @@ run
 *.iml
 *.ipr
 *.iws
+.idea/
 
 ## Jars
 
@@ -43,3 +44,4 @@ discarded textures
 notes.txt
 *.csv
 .mixin.out/audit/mixin_implementation_report.txt
+.gradle/

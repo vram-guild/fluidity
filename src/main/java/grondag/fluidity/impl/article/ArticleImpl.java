@@ -105,7 +105,7 @@ public class ArticleImpl<T> implements Article {
 		result.put("type", type.toTag());
 		result.put("res",type.tagWriter.apply(resource));
 		if(this.tag != null) {
-			tag.put("tag", tag.copy());
+			result.put("tag", tag.copy());
 		}
 		return result;
 	}
