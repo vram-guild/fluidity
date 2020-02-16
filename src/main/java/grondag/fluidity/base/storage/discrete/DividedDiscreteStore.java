@@ -91,6 +91,8 @@ public class DividedDiscreteStore extends AbstractDiscreteStore<DividedDiscreteS
 				final long result = limit(a, count);
 
 				if(result > 0 && !simulate) {
+					rollbackHandler.prepareIfNeeded();
+
 					if(a.isEmpty()) {
 						a.setArticle(item);
 						a.setCount(count);
@@ -133,6 +135,7 @@ public class DividedDiscreteStore extends AbstractDiscreteStore<DividedDiscreteS
 			final long result = Math.min(count, a.count());
 
 			if(result > 0 && !simulate) {
+				rollbackHandler.prepareIfNeeded();
 				notifier.notifySupply(a, result);
 				a.addToCount(-result);
 				dirtyNotifier.run();

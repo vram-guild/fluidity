@@ -32,8 +32,8 @@ import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.storage.ArticleFunction;
-import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.api.storage.StorageListener;
+import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.api.transact.Transaction;
 import grondag.fluidity.base.article.AggregateDiscreteStoredArticle;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
@@ -103,7 +103,9 @@ public class AggregateDiscreteStore extends AbstractAggregateStore<AggregateDisc
 			} else {
 				try(Transaction tx = Transaction.open()) {
 					tx.enlist(this);
-					return acceptInner(item, count, false);
+					final long result = acceptInner(item, count, false);
+					tx.commit();
+					return result;
 				}
 			}
 		}
@@ -131,7 +133,9 @@ public class AggregateDiscreteStore extends AbstractAggregateStore<AggregateDisc
 			} else {
 				try(Transaction tx = Transaction.open()) {
 					tx.enlist(this);
-					return supplyInner(item, count, false);
+					final long result = supplyInner(item, count, false);
+					tx.commit();
+					return result;
 				}
 			}
 		}

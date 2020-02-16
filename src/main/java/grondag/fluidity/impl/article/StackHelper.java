@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2019, 2020 grondag
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -57,6 +57,10 @@ public class StackHelper {
 		}
 
 		return stack.hasTag() && tag.equals(stack.getTag());
+	}
+
+	public static boolean areItemsEqual(ItemStack a, ItemStack b) {
+		return areItemsEqual(a.getItem(), a.getTag(), b);
 	}
 
 	public static boolean areStacksEqual(ItemStack stackA, ItemStack stackB)  {

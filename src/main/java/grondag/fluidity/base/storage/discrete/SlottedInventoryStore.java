@@ -22,6 +22,7 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.InventoryStore;
@@ -30,6 +31,7 @@ import grondag.fluidity.base.storage.discrete.FixedDiscreteStore.FixedDiscreteAr
 import grondag.fluidity.base.storage.helper.FlexibleArticleManager;
 import grondag.fluidity.base.transact.TransactionHelper;
 import grondag.fluidity.impl.article.ArticleImpl;
+import grondag.fluidity.impl.article.StackHelper;
 
 /**
  *
@@ -42,27 +44,38 @@ import grondag.fluidity.impl.article.ArticleImpl;
 public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventoryStore> implements InventoryStore {
 	protected final int slotCount;
 	protected final ItemStack[] stacks;
+	protected final ItemStack[] cleanStacks;
 
 	public SlottedInventoryStore(int slotCount) {
 		super(slotCount, slotCount * 64, new FlexibleArticleManager<>(slotCount, StoredDiscreteArticle::new));
 		this.slotCount = slotCount;
 		stacks = new ItemStack[slotCount];
+		cleanStacks = new ItemStack[slotCount];
 		Arrays.fill(stacks, ItemStack.EMPTY);
+		Arrays.fill(cleanStacks, ItemStack.EMPTY);
+	}
 
+	protected void synchCleanStack(int slot) {
+		final ItemStack stack = stacks[slot];
+		final ItemStack cleanStack = cleanStacks[slot];
+
+		if (StackHelper.areStacksEqual(stack, cleanStack)) {
+			cleanStack.setCount(stack.getCount());
+		} else {
+			cleanStacks[slot] = stack == ItemStack.EMPTY ? ItemStack.EMPTY : stack.copy();
+		}
 	}
 
 	@Override
 	public ItemStack getInvStack(int slot) {
-		return slot >= 0 && slot < slotCount ? stacks[slot] : ItemStack.EMPTY;
+		Preconditions.checkElementIndex(slot, slotCount, "Invalid slot");
+		return stacks[slot];
 	}
 
 	@Override
 	public void setInvStack(int slot, ItemStack newStack) {
 		Preconditions.checkNotNull(newStack, "ItemStack must be non-null");
-
-		if (!isHandleValid(slot)) {
-			return;
-		}
+		Preconditions.checkElementIndex(slot, slotCount, "Invalid slot");
 
 		final ItemStack currentStack = stacks[slot];
 		final boolean needAcceptNotify;
@@ -87,7 +100,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 
 		rollbackHandler.prepareIfNeeded();
 		stacks[slot] = newStack;
-		markDirty();
+		synchCleanStack(slot);
 		dirtyNotifier.run();
 
 		if(needAcceptNotify) {
@@ -97,9 +110,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 
 	@Override
 	public ItemStack takeInvStack(int slot, int count) {
-		if(!isHandleValid(slot) || count == 0) {
-			return ItemStack.EMPTY;
-		}
+		Preconditions.checkElementIndex(slot, slotCount, "Invalid slot");
 
 		final ItemStack stack = stacks[slot];
 
@@ -113,7 +124,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 		final ItemStack result = stack.copy();
 		result.setCount(n);
 		stack.decrement(n);
-		markDirty();
+		synchCleanStack(slot);
 		dirtyNotifier.run();
 
 		return result;
@@ -121,9 +132,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 
 	@Override
 	public ItemStack removeInvStack(int slot) {
-		if (slot != 0) {
-			return ItemStack.EMPTY;
-		}
+		Preconditions.checkElementIndex(slot, slotCount, "Invalid slot");
 
 		final ItemStack stack = stacks[slot];
 
@@ -134,6 +143,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 		rollbackHandler.prepareIfNeeded();
 		notifySupply(stack, stack.getCount());
 		stacks[slot] = ItemStack.EMPTY;
+		cleanStacks[slot] = ItemStack.EMPTY;
 		dirtyNotifier.run();
 
 		return stack;
@@ -150,10 +160,9 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 				if (!stack.isEmpty()) {
 					notifySupply(stack, stack.getCount());
 					stacks[i] = ItemStack.EMPTY;
+					cleanStacks[i] = ItemStack.EMPTY;
 				}
 			}
-
-			markDirty();
 
 			articles.clear();
 			notifier.setCapacity(slotCount * 64);
@@ -190,8 +199,8 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 			int result = 0;
 			boolean needsRollback = true;
 
-			for(int i = 0 ; i < slotCount; i++) {
-				final ItemStack stack = stacks[i];
+			for(int slot = 0 ; slot < slotCount; slot++) {
+				final ItemStack stack = stacks[slot];
 
 				if(stack.isEmpty()) {
 					final int n = (int) Math.min(count - result, article.toItem().getMaxCount());
@@ -204,7 +213,8 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 
 						final ItemStack newStack = article.toStack(n);
 						notifyAccept(newStack, n);
-						stacks[i] = newStack;
+						stacks[slot] = newStack;
+						synchCleanStack(slot);
 						dirtyNotifier.run();
 					}
 
@@ -219,6 +229,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 						}
 
 						stack.increment(n);
+						synchCleanStack(slot);
 						notifyAccept(stack, n);
 						dirtyNotifier.run();
 					}
@@ -243,7 +254,6 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	protected class Supplier extends AbstractDiscreteStore<DividedDiscreteStore>.Supplier {
 		@Override
 		public long apply(Article article, long count, boolean simulate) {
-
 			if(article.isNothing() || count == 0) {
 				return 0;
 			}
@@ -251,10 +261,10 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 			int result = 0;
 			boolean needsRollback = true;
 
-			for(int i = 0 ; i < slotCount; i++) {
-				final ItemStack stack = stacks[i];
+			for (int slot = 0 ; slot < slotCount; slot++) {
+				final ItemStack stack = stacks[slot];
 
-				if(article.matches(stack)) {
+				if(article.matches(stack) && !stack.isEmpty()) {
 					final int n = (int) Math.min(count - result, stack.getCount());
 
 					if(!simulate) {
@@ -265,6 +275,12 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 
 						notifySupply(stack, n);
 						stack.decrement(n);
+
+						if (stack.isEmpty()) {
+							stacks[slot] = ItemStack.EMPTY;
+						}
+
+						synchCleanStack(slot);
 						dirtyNotifier.run();
 					}
 
@@ -307,5 +323,44 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	@Override
 	public int getInvSize() {
 		return slotCount;
+	}
+
+	@Override
+	public void markDirty() {
+		for (int slot = 0; slot < slotCount; ++slot) {
+
+			final ItemStack stack = stacks[slot];
+			final ItemStack cleanStack = cleanStacks[slot];
+
+			if (StackHelper.areItemsEqual(stack, cleanStack)) {
+				if(stack.getCount() == cleanStack.getCount()) {
+					continue;
+				} else {
+					final int delta = stack.getCount() - cleanStack.getCount();
+
+					if(delta > 0) {
+						notifyAccept(stack, delta);
+					} else {
+						notifySupply(cleanStack, -delta);
+					}
+
+					cleanStack.setCount(stack.getCount());
+				}
+			} else {
+				notifySupply(cleanStack, cleanStack.getCount());
+				notifyAccept(stack, stack.getCount());
+				cleanStacks[slot] = stack.copy();
+			}
+
+		}
+	}
+
+	@Override
+	public void readTag(CompoundTag tag) {
+		super.readTag(tag);
+
+		for (int slot = 0 ; slot < slotCount; slot++) {
+			cleanStacks[slot] = stacks[slot].copy();
+		}
 	}
 }
