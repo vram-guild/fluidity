@@ -171,6 +171,7 @@ public abstract class AbstractDiscreteStore<T extends AbstractDiscreteStore<T>> 
 			final long result = Math.min(count, notifier.capacity() - notifier.count());
 
 			if(result > 0 && !simulate) {
+				rollbackHandler.prepareIfNeeded();
 				final StoredDiscreteArticle article = articles.findOrCreateArticle(item);
 				article.addToCount(result);
 				notifier.notifyAccept(article, result);
@@ -217,6 +218,7 @@ public abstract class AbstractDiscreteStore<T extends AbstractDiscreteStore<T>> 
 			final long result = Math.min(count, article.count());
 
 			if(result > 0 && !simulate) {
+				rollbackHandler.prepareIfNeeded();
 				notifier.notifySupply(article, result);
 				article.addToCount(-result);
 				dirtyNotifier.run();
@@ -242,6 +244,8 @@ public abstract class AbstractDiscreteStore<T extends AbstractDiscreteStore<T>> 
 		if(isEmpty()) {
 			return;
 		}
+
+		rollbackHandler.prepareIfNeeded();
 
 		final int limit = articles.handleCount();
 

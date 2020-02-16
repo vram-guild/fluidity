@@ -337,6 +337,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 
 	@Override
 	public void clear() {
+		rollbackHandler.prepareIfNeeded();
 		listeners.forEach(l -> l.onSupply(this, 0, article, quantity, Fraction.ZERO));
 		quantity.set(0);
 		dirtyNotifier.run();
