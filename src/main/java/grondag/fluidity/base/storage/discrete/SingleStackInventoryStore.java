@@ -32,10 +32,12 @@ import grondag.fluidity.base.storage.AbstractLazyRollbackStore;
 import grondag.fluidity.base.storage.discrete.FixedDiscreteStore.FixedDiscreteArticleFunction;
 import grondag.fluidity.base.storage.discrete.helper.DiscreteNotifier;
 import grondag.fluidity.impl.article.ArticleImpl;
+import grondag.fluidity.impl.article.StackHelper;
 
 @API(status = Status.EXPERIMENTAL)
 public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredDiscreteArticle,  SingleStackInventoryStore> implements DiscreteStore, InventoryStore {
 	protected ItemStack stack = ItemStack.EMPTY;
+	protected ItemStack cleanStack = ItemStack.EMPTY;
 	protected final StoredDiscreteArticle view = new StoredDiscreteArticle();
 	protected final DiscreteNotifier notifier = new DiscreteNotifier(this);
 
@@ -81,6 +83,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 				if(!simulate) {
 					rollbackHandler.prepareIfNeeded();
 					stack = article.toStack(n);
+					cleanStack = stack.copy();
 
 					if(!listeners.isEmpty()) {
 						notifier.notifyAccept(article, 0, n, n);
@@ -98,6 +101,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 				if(!simulate) {
 					rollbackHandler.prepareIfNeeded();
 					stack.increment(n);
+					cleanStack = stack.copy();
 
 					if(!listeners.isEmpty()) {
 						notifier.notifyAccept(article, 0, n, stack.getCount());
@@ -142,6 +146,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 
 				rollbackHandler.prepareIfNeeded();
 				stack.decrement(n);
+				cleanStack = stack.copy();
 
 				if(!listeners.isEmpty()) {
 					notifier.notifySupply(article, 0, n, stack.getCount());
@@ -218,7 +223,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 		final ItemStack result = stack.copy();
 		result.setCount(n);
 		stack.decrement(n);
-		markDirty();
+		cleanStack = stack.copy();
 
 		return result;
 	}
@@ -237,6 +242,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 
 		final ItemStack result = stack;
 		stack = ItemStack.EMPTY;
+		cleanStack = ItemStack.EMPTY;
 
 		return result;
 	}
@@ -245,9 +251,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 	public void setInvStack(int slot, ItemStack newStack) {
 		Preconditions.checkElementIndex(slot, 1, "Invalid slot number");
 
-		boolean needAcceptNotify = false;
-
-		if (ItemStack.areItemsEqual(newStack, stack)) {
+		if (StackHelper.areItemsEqual(newStack, stack)) {
 			if(newStack.getCount() == stack.getCount()) {
 				return;
 			} else {
@@ -264,17 +268,13 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 		} else {
 			if(!listeners.isEmpty()) {
 				notifier.notifySupply(ArticleImpl.of(stack), 0, stack.getCount(), 0);
-				needAcceptNotify = true;
+				notifier.notifyAccept(ArticleImpl.of(newStack), 0, newStack.getCount(), newStack.getCount());
 			}
 		}
 
 		rollbackHandler.prepareIfNeeded();
 		stack = newStack;
-		markDirty();
-
-		if(needAcceptNotify) {
-			notifier.notifySupply(ArticleImpl.of(newStack), 0, newStack.getCount(), newStack.getCount());
-		}
+		cleanStack = stack.copy();
 	}
 
 	@Override
@@ -287,7 +287,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 			}
 
 			stack = ItemStack.EMPTY;
-			markDirty();
+			cleanStack = ItemStack.EMPTY;
 		}
 	}
 
@@ -300,6 +300,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 	protected void applyRollbackState(Object state, boolean isCommitted) {
 		if(!isCommitted) {
 			stack = (ItemStack) state;
+			cleanStack = stack.copy();
 		}
 	}
 
@@ -333,10 +334,35 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 	@Override
 	public void readTag(CompoundTag tag) {
 		stack = ItemStack.fromTag(tag);
+		cleanStack = stack.copy();
 	}
 
 	@Override
 	protected void onListenersEmpty() {
 		// NOOP
+	}
+
+	@Override
+	public void markDirty() {
+		if (StackHelper.areItemsEqual(stack, cleanStack)) {
+			if(stack.getCount() == cleanStack.getCount()) {
+				return;
+			} else {
+				final int delta = stack.getCount() - cleanStack.getCount();
+
+				if(!listeners.isEmpty()) {
+					if(delta > 0) {
+						notifier.notifyAccept(ArticleImpl.of(stack), 0, delta, stack.getCount());
+					} else {
+						notifier.notifySupply(ArticleImpl.of(stack), 0, -delta, stack.getCount());
+					}
+				}
+			}
+		} else if  (!listeners.isEmpty()) {
+			notifier.notifySupply(ArticleImpl.of(cleanStack), 0, cleanStack.getCount(), 0);
+			notifier.notifyAccept(ArticleImpl.of(stack), 0, stack.getCount(), stack.getCount());
+		}
+
+		cleanStack = stack.copy();
 	}
 }

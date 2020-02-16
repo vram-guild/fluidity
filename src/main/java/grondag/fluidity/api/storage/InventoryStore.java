@@ -51,9 +51,4 @@ public interface InventoryStore extends DiscreteStore, Inventory, RecipeInputPro
 	default boolean isInvEmpty() {
 		return isEmpty();
 	}
-
-	@Override
-	default void markDirty() {
-		//NOOP - default implementation doesn't support vanilla inventory listeners
-	}
 }
