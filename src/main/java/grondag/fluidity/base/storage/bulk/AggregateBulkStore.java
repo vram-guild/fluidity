@@ -102,15 +102,15 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 				return acceptInner(item, volume, true).toImmutable();
 			} else {
 				try(Transaction tx = Transaction.open()) {
-					tx.enlist(this);
-					return acceptInner(item, volume, false).toImmutable();
+					final Fraction result = acceptInner(item, volume, false).toImmutable();
+					tx.commit();
+					return result;
 				}
 			}
 		}
 
 		@Override
 		public long apply(Article item, long numerator, long divisor, boolean simulate) {
-			//TODO: make "checked" mode configurable?
 			Preconditions.checkArgument(numerator >= 0, "Request to accept negative amounts. (%s)", numerator);
 			Preconditions.checkArgument(divisor >= 1, "Request to accept divisor < 1. (%s)", divisor);
 			Preconditions.checkNotNull(item, "Request to accept null article");
@@ -123,8 +123,9 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 				return acceptInner(item, numerator, divisor, true);
 			} else {
 				try(Transaction tx = Transaction.open()) {
-					tx.enlist(this);
-					return acceptInner(item, numerator, divisor, false);
+					final long result = acceptInner(item, numerator, divisor, false);
+					tx.commit();
+					return result;
 				}
 			}
 		}
@@ -150,8 +151,9 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 				return supplyInner(item, volume, true).toImmutable();
 			} else {
 				try(Transaction tx = Transaction.open()) {
-					tx.enlist(this);
-					return supplyInner(item, volume, false).toImmutable();
+					final Fraction result = supplyInner(item, volume, false).toImmutable();
+					tx.commit();
+					return result;
 				}
 			}
 		}
@@ -170,8 +172,9 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 				return supplyInner(item, numerator, divisor, true);
 			} else {
 				try(Transaction tx = Transaction.open()) {
-					tx.enlist(this);
-					return supplyInner(item, numerator, divisor, false);
+					final long result = supplyInner(item, numerator, divisor, false);
+					tx.commit();
+					return result;
 				}
 			}
 		}
@@ -193,7 +196,6 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 				if(store.hasConsumer() && !store.isFull()) {
 
 					if(existing.contains(store)) {
-						Transaction.enlistIfOpen(store);
 						result.add(store.getConsumer().apply(item, delta.set(volume).subtract(result), simulate));
 
 						if (result.equals(volume)) {
@@ -207,7 +209,6 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 
 			if (result.isLessThan(volume)) {
 				for (final Store store : searchList) {
-					Transaction.enlistIfOpen(store);
 					final Fraction f = store.getConsumer().apply(item, delta.set(volume).subtract(result), simulate);
 
 					if(!f.isZero()) {
@@ -228,7 +229,6 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 		} else {
 			for (final Store store : stores) {
 				if(store.hasConsumer() && !store.isFull()) {
-					Transaction.enlistIfOpen(store);
 					final Fraction f = store.getConsumer().apply(item, delta.set(volume).subtract(result), simulate);
 
 					if(!f.isZero()) {
@@ -266,7 +266,6 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 				if(store.hasConsumer() && !store.isFull()) {
 
 					if(existing.contains(store)) {
-						Transaction.enlistIfOpen(store);
 						result += store.getConsumer().apply(item, numerator - result, denominator, simulate);
 
 						if (result == numerator) {
@@ -280,7 +279,6 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 
 			if (result < numerator) {
 				for (final Store store : searchList) {
-					Transaction.enlistIfOpen(store);
 					final long delta = store.getConsumer().apply(item, numerator - result, denominator, simulate);
 
 					if(delta != 0) {
@@ -301,7 +299,6 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 		} else {
 			for (final Store store : stores) {
 				if(store.hasConsumer() && !store.isFull()) {
-					Transaction.enlistIfOpen(store);
 					final long delta = store.getConsumer().apply(item, numerator - result, denominator, simulate);
 
 					if(delta != 0) {
@@ -336,7 +333,6 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 
 		for (final Store store : existing) {
 			if(store.hasSupplier()) {
-				Transaction.enlistIfOpen(store);
 				final Fraction f = store.getSupplier().apply(item, delta.set(volume).subtract(result), simulate);
 
 				if(!f.isZero()) {
@@ -370,7 +366,6 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 
 		for (final Store store : existing) {
 			if(store.hasSupplier()) {
-				Transaction.enlistIfOpen(store);
 				final long delta = store.getSupplier().apply(item, numerator - result, denominator, simulate);
 
 				if(delta != 0) {

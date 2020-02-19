@@ -17,11 +17,13 @@ package grondag.fluidity.wip.base.transport;
 
 import java.util.Iterator;
 
+import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.Store;
+import grondag.fluidity.api.transact.Transaction;
 import grondag.fluidity.wip.api.transport.CarrierNode;
 
 public class BroadcastSupplier<T extends CarrierCostFunction> implements ArticleFunction {
@@ -72,32 +74,40 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 			return Fraction.ZERO;
 		}
 
-		volume = carrier.costFunction().apply(fromNode, item, volume, simulate);
+		try (Transaction tx = Transaction.open()) {
+			// note that cost function is self-enlisting
+			volume = carrier.costFunction().apply(fromNode, item, volume, simulate);
 
-		result.set(0);
-		calc.set(volume);
+			result.set(0);
+			calc.set(volume);
 
-		final Iterator<? extends CarrierNode> it = carrier.nodes().iterator();
+			final Iterator<? extends CarrierNode> it = carrier.nodes().iterator();
 
-		while(it.hasNext()) {
-			final CarrierNode n = it.next();
+			while(it.hasNext()) {
+				final CarrierNode n = it.next();
 
-			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
-				final ArticleFunction s = n.getComponent(Store.STORAGE_COMPONENT).get().getSupplier();
-				final Fraction amt = s.apply(item, calc, simulate);
+				if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
+					final ArticleFunction s = n.getComponent(Store.STORAGE_COMPONENT).get().getSupplier();
+					tx.enlist(s); // allow for implementations that do not self-enlist
+					final Fraction amt = s.apply(item, calc, simulate);
 
-				if(!amt.isZero()) {
-					result.add(amt);
-					calc.subtract(amt);
+					if(!amt.isZero()) {
+						result.add(amt);
+						calc.subtract(amt);
 
-					if(result.isGreaterThankOrEqual(volume)) {
-						break;
+						if(result.isGreaterThankOrEqual(volume)) {
+							break;
+						}
 					}
 				}
 			}
-		}
 
-		return result;
+			tx.commit();
+			return result;
+		} catch(final Exception e) {
+			Fluidity.LOG.warn("Unlable to complete carrier broadcast supply request due to exception.", e);
+			return Fraction.ZERO;
+		}
 	}
 
 	@Override
@@ -108,31 +118,45 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 			return 0;
 		}
 
-		numerator = carrier.costFunction().apply(fromNode, item, numerator, divisor, simulate);
+		try (Transaction tx = Transaction.open()) {
+			// note that cost function is self-enlisting
+			numerator = carrier.costFunction().apply(fromNode, item, numerator, divisor, simulate);
 
-		long result = 0;
+			long result = 0;
 
-		final Iterator<? extends CarrierNode> it = carrier.nodes().iterator();
+			final Iterator<? extends CarrierNode> it = carrier.nodes().iterator();
 
-		while(it.hasNext()) {
-			final CarrierNode n = it.next();
+			while(it.hasNext()) {
+				final CarrierNode n = it.next();
 
-			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
-				final ArticleFunction s = n.getComponent(Store.STORAGE_COMPONENT).get().getSupplier();
-				result += s.apply(item, numerator - result, divisor, simulate);
+				if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
+					final ArticleFunction s = n.getComponent(Store.STORAGE_COMPONENT).get().getSupplier();
+					tx.enlist(s); // allow for implementations that do not self-enlist
+					result += s.apply(item, numerator - result, divisor, simulate);
 
-				if(result >= numerator) {
-					break;
+					if(result >= numerator) {
+						break;
+					}
 				}
 			}
-		}
 
-		return result;
+			tx.commit();
+			return result;
+		} catch(final Exception e) {
+			Fluidity.LOG.warn("Unlable to complete carrier broadcast supply request due to exception.", e);
+			return 0;
+		}
+	}
+
+	/** All transaction handling is in nodes and cost function.  Should never be used */
+	@Override
+	public TransactionDelegate getTransactionDelegate() {
+		assert false : "getTransactionDelegate called for BroadcastSupplier";
+	return TransactionDelegate.IGNORE;
 	}
 
 	@Override
-	public TransactionDelegate getTransactionDelegate() {
-		//TODO: implement proper rollback
-		return TransactionDelegate.IGNORE;
+	public boolean isSelfEnlisting() {
+		return true;
 	}
 }

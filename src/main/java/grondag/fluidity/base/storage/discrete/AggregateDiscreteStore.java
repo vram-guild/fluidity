@@ -102,7 +102,6 @@ public class AggregateDiscreteStore extends AbstractAggregateStore<AggregateDisc
 				return acceptInner(item, count, true);
 			} else {
 				try(Transaction tx = Transaction.open()) {
-					tx.enlist(this);
 					final long result = acceptInner(item, count, false);
 					tx.commit();
 					return result;
@@ -132,7 +131,6 @@ public class AggregateDiscreteStore extends AbstractAggregateStore<AggregateDisc
 				return supplyInner(item, count, true);
 			} else {
 				try(Transaction tx = Transaction.open()) {
-					tx.enlist(this);
 					final long result = supplyInner(item, count, false);
 					tx.commit();
 					return result;
@@ -163,7 +161,6 @@ public class AggregateDiscreteStore extends AbstractAggregateStore<AggregateDisc
 				if(store.hasConsumer() && !store.isFull()) {
 
 					if(existing.contains(store)) {
-						Transaction.enlistIfOpen(store);
 						result += store.getConsumer().apply(item, count - result, simulate);
 
 						if (result == count) {
@@ -177,7 +174,6 @@ public class AggregateDiscreteStore extends AbstractAggregateStore<AggregateDisc
 
 			if (result < count) {
 				for (final Store store : searchList) {
-					Transaction.enlistIfOpen(store);
 					final long delta = store.getConsumer().apply(item, count - result, simulate);
 
 					if(delta != 0) {
@@ -198,7 +194,6 @@ public class AggregateDiscreteStore extends AbstractAggregateStore<AggregateDisc
 		} else {
 			for (final Store store : stores) {
 				if(store.hasConsumer() && !store.isFull()) {
-					Transaction.enlistIfOpen(store);
 					final long delta = store.getConsumer().apply(item, count - result, simulate);
 
 					if(delta != 0) {
@@ -240,7 +235,6 @@ public class AggregateDiscreteStore extends AbstractAggregateStore<AggregateDisc
 
 		for (final Store store : existing) {
 			if(store.hasSupplier()) {
-				Transaction.enlistIfOpen(store);
 				final long delta = store.getSupplier().apply(item, count - result, simulate);
 
 				if(delta != 0) {

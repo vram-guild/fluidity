@@ -17,11 +17,13 @@ package grondag.fluidity.wip.base.transport;
 
 import java.util.Iterator;
 
+import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.Store;
+import grondag.fluidity.api.transact.Transaction;
 import grondag.fluidity.wip.api.transport.CarrierNode;
 
 public class BroadcastConsumer<T extends CarrierCostFunction> implements ArticleFunction {
@@ -39,26 +41,34 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 			return 0;
 		}
 
-		count = carrier.costFunction().apply(fromNode, item, count, simulate);
+		try (Transaction tx = Transaction.open()) {
+			// note that cost function is self-enlisting
+			count = carrier.costFunction().apply(fromNode, item, count, simulate);
 
-		long result = 0;
+			long result = 0;
 
-		final Iterator<? extends CarrierNode> it = carrier.nodes().iterator();
+			final Iterator<? extends CarrierNode> it = carrier.nodes().iterator();
 
-		while(it.hasNext()) {
-			final CarrierNode n = it.next();
+			while(it.hasNext()) {
+				final CarrierNode n = it.next();
 
-			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_CONSUMER_BROADCASTS)) {
-				final ArticleFunction c = n.getComponent(Store.STORAGE_COMPONENT).get().getConsumer();
-				result += c.apply(item, count - result, simulate);
+				if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_CONSUMER_BROADCASTS)) {
+					final ArticleFunction c = n.getComponent(Store.STORAGE_COMPONENT).get().getConsumer();
+					tx.enlist(c); // allow for implementations that do not self-enlist
+					result += c.apply(item, count - result, simulate);
 
-				if(result >= count) {
-					break;
+					if(result >= count) {
+						break;
+					}
 				}
 			}
-		}
 
-		return result;
+			tx.commit();
+			return result;
+		} catch(final Exception e) {
+			Fluidity.LOG.warn("Unlable to complete carrier broadcast accept request due to exception.", e);
+			return 0;
+		}
 	}
 
 	protected final MutableFraction calc = new MutableFraction();
@@ -72,32 +82,40 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 			return Fraction.ZERO;
 		}
 
-		volume = carrier.costFunction().apply(fromNode, item, volume, simulate);
+		try (Transaction tx = Transaction.open()) {
+			// note that cost function is self-enlisting
+			volume = carrier.costFunction().apply(fromNode, item, volume, simulate);
 
-		result.set(0);
-		calc.set(volume);
+			result.set(0);
+			calc.set(volume);
 
-		final Iterator<? extends CarrierNode> it = carrier.nodes().iterator();
+			final Iterator<? extends CarrierNode> it = carrier.nodes().iterator();
 
-		while(it.hasNext()) {
-			final CarrierNode n = it.next();
+			while(it.hasNext()) {
+				final CarrierNode n = it.next();
 
-			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_CONSUMER_BROADCASTS)) {
-				final ArticleFunction c = n.getComponent(Store.STORAGE_COMPONENT).get().getConsumer();
-				final Fraction amt = c.apply(item, calc, simulate);
+				if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_CONSUMER_BROADCASTS)) {
+					final ArticleFunction c = n.getComponent(Store.STORAGE_COMPONENT).get().getConsumer();
+					tx.enlist(c); // allow for implementations that do not self-enlist
+					final Fraction amt = c.apply(item, calc, simulate);
 
-				if(!amt.isZero()) {
-					result.add(amt);
-					calc.subtract(amt);
+					if(!amt.isZero()) {
+						result.add(amt);
+						calc.subtract(amt);
 
-					if(result.isGreaterThankOrEqual(volume)) {
-						break;
+						if(result.isGreaterThankOrEqual(volume)) {
+							break;
+						}
 					}
 				}
 			}
-		}
 
-		return result;
+			tx.commit();
+			return result;
+		} catch(final Exception e) {
+			Fluidity.LOG.warn("Unlable to complete carrier broadcast accept request due to exception.", e);
+			return Fraction.ZERO;
+		}
 	}
 
 	@Override
@@ -130,9 +148,15 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 		return result;
 	}
 
+	/** All transaction handling is in nodes and cost function.  Should never be used */
 	@Override
 	public TransactionDelegate getTransactionDelegate() {
-		//TODO: implement proper rollback
-		return TransactionDelegate.IGNORE;
+		assert false : "getTransactionDelegate called for BroadcastConsumer";
+	return TransactionDelegate.IGNORE;
+	}
+
+	@Override
+	public boolean isSelfEnlisting() {
+		return true;
 	}
 }

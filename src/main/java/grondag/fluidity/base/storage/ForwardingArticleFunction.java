@@ -86,4 +86,9 @@ public class ForwardingArticleFunction<T extends ArticleFunction> implements Art
 	public long apply(ItemStack stack, boolean simulate) {
 		return wrapped.apply(stack, simulate);
 	}
+
+	@Override
+	public boolean isSelfEnlisting() {
+		return wrapped.isSelfEnlisting();
+	}
 }
