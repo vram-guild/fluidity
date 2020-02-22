@@ -127,6 +127,48 @@ public final class MutableFraction extends Fraction {
 		return this;
 	}
 
+	public MutableFraction multiply(Fraction val) {
+		return multiply(val.whole(), val.numerator(), val.divisor());
+	}
+
+	public MutableFraction multiply(long whole) {
+		numerator *= whole;
+		this.whole *= whole;
+		normalize();
+		return this;
+	}
+
+	public MutableFraction multiply(long numerator, long divisor) {
+		return multiply(0, numerator, divisor);
+	}
+
+	public MutableFraction multiply(long whole, long numerator, long divisor) {
+		if (numerator == 0) {
+			return multiply(whole);
+		}
+
+		validate(whole, numerator, divisor);
+
+		// normalize fractional part
+		if (Math.abs(numerator) >= divisor) {
+			final long w = numerator / divisor;
+			whole += w;
+			numerator -= w * divisor;
+		}
+
+		// avoids a division later to factor out common divisor from the two steps that follow this
+		final long numeratorProduct = numerator * this.numerator;
+		this.numerator *= divisor;
+		numerator *= this.divisor;
+
+		this.divisor *= divisor;
+		this.numerator = this.numerator * whole + numerator * this.whole + numeratorProduct;
+		this.whole *= whole;
+		normalize();
+
+		return this;
+	}
+
 	public MutableFraction subtract(Fraction val) {
 		return add(-val.whole(), -val.numerator(), val.divisor());
 	}
@@ -142,13 +184,6 @@ public final class MutableFraction extends Fraction {
 	public MutableFraction negate() {
 		numerator = -numerator;
 		whole = -whole;
-		return this;
-	}
-
-	public MutableFraction multiply(long whole) {
-		numerator *= whole;
-		this.whole *= whole;
-		normalize();
 		return this;
 	}
 

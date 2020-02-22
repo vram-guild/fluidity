@@ -29,7 +29,6 @@ import grondag.fluidity.base.storage.AbstractStore;
 public class BulkTrackingNotifier extends BulkNotifier {
 	protected final MutableFraction capacity = new MutableFraction();
 	protected final MutableFraction amount = new MutableFraction();
-	protected int articleCount = 0;
 	protected BulkTrackingJournal journal = null;
 
 	public BulkTrackingNotifier(Fraction capacity, AbstractStore<? extends StoredBulkArticle, ?> owner) {
@@ -45,10 +44,6 @@ public class BulkTrackingNotifier extends BulkNotifier {
 			journal(item, delta, true);
 			amount.subtract(delta);
 			super.notifySupply(item, handle, delta, newCount);
-
-			if(newCount.isZero()) {
-				--articleCount;
-			}
 		}
 	}
 
@@ -60,10 +55,6 @@ public class BulkTrackingNotifier extends BulkNotifier {
 			journal(item, delta, false);
 			amount.add(delta);
 			super.notifyAccept(item, handle, delta, newCount);
-
-			if(newCount.equals(delta)) {
-				++articleCount;
-			}
 		}
 	}
 
@@ -105,13 +96,8 @@ public class BulkTrackingNotifier extends BulkNotifier {
 		return capacity;
 	}
 
-	public int articleCount() {
-		return articleCount;
-	}
-
 	public void clear() {
 		amount.set(0);
-		articleCount = 0;
 	}
 
 	protected void journal(Article article, Fraction delta, boolean subtract) {

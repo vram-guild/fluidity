@@ -30,13 +30,14 @@ import grondag.fluidity.api.transact.TransactionParticipant;
 import grondag.fluidity.wip.api.transport.CarrierSession;
 
 /**
- * Flexible storage interface for tanks, containers.
- * Interface supports both discrete items and bulk resources (such as fluids.)
+ * Mimics consumer/supplier functions - used to throttle throughput.
+ * All implementations should be self-enlisting because cost accounting
+ * is typically transparent to users of a carrier.
  */
 @API(status = Status.EXPERIMENTAL)
 public interface CarrierCostFunction extends TransactionParticipant {
 	/**
-	 * Adds items to this storage. May return less than requested.
+	 * Throttles articles being transported via carrier. May return less than requested.
 	 *
 	 * @param item Item to add
 	 * @param tag NBT if item has it, null otherwise.
@@ -67,8 +68,12 @@ public interface CarrierCostFunction extends TransactionParticipant {
 
 	long apply(CarrierSession sender, Article item, long numerator, long divisor, boolean simulate);
 
-	CarrierCostFunction FREE = new CarrierCostFunction() {
+	@Override
+	default boolean isSelfEnlisting() {
+		return true;
+	}
 
+	CarrierCostFunction FREE = new CarrierCostFunction() {
 		@Override
 		public TransactionDelegate getTransactionDelegate() {
 			return TransactionDelegate.IGNORE;

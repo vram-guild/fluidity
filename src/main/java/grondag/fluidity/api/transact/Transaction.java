@@ -132,4 +132,20 @@ public interface Transaction extends AutoCloseable {
 			tx.enlist(participant);
 		}
 	}
+
+
+	/**
+	 * Self-enlists the given participant in the current open transaction if there is one,
+	 * or does nothing if no transaction is open.  If the participant is already
+	 * enlisted, this has no effect even when a transaction is open. Use for self-enlisting implementations.
+	 *
+	 * @param participant the participant to be enrolled
+	 */
+	static void selfEnlistIfOpen(TransactionParticipant participant) {
+		final Transaction tx = current();
+
+		if(tx != null) {
+			tx.enlistSelf(participant);
+		}
+	}
 }

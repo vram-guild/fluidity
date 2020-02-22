@@ -24,13 +24,21 @@ import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.StoredArticleView;
-import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.api.storage.StorageListener;
+import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.TransactionParticipant.TransactionDelegate;
 import grondag.fluidity.base.article.AggregateStoredArticle;
 import grondag.fluidity.base.storage.helper.FlexibleArticleManager;
 
+/**
+ *  Transaction support: expects all member stores to be self-enlisting and relies on member store
+ *  notifications for transaction handling.  Reports as self-enlisting but never enlists because is has no
+ *  internal state that would participate in transactions that isn't redundant of members.
+ *
+ * @param <V>
+ * @param <T>
+ */
 @API(status = Status.EXPERIMENTAL)
 public abstract class AbstractAggregateStore<V extends AggregateStoredArticle, T extends AbstractAggregateStore<V, T>> extends AbstractStore<V, T> implements StorageListener, TransactionDelegate  {
 	protected final Consumer<TransactionContext> rollbackHandler = this::handleRollback;
@@ -69,18 +77,27 @@ public abstract class AbstractAggregateStore<V extends AggregateStoredArticle, T
 		return articles.handleCount();
 	}
 
+	/** Relies on members - see header */
 	protected void handleRollback(TransactionContext context) {
 		// NOOP
 	}
 
+	/** Relies on members - see header */
 	@Override
 	public TransactionDelegate getTransactionDelegate() {
 		return this;
 	}
 
+	/** Relies on members - see header */
 	@Override
 	public Consumer<TransactionContext> prepareRollback(TransactionContext context) {
 		return rollbackHandler;
+	}
+
+	/** Relies on members - see header */
+	@Override
+	public boolean isSelfEnlisting() {
+		return true;
 	}
 
 	@Override

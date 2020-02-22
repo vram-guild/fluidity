@@ -170,4 +170,14 @@ public class ForwardingStore implements Store {
 	public TransactionDelegate getTransactionDelegate() {
 		return wrapped.getTransactionDelegate();
 	}
+
+	@Override
+	public boolean isSelfEnlisting() {
+		return wrapped.isSelfEnlisting();
+	}
+
+	@Override
+	public boolean hasEventStream() {
+		return wrapped.hasEventStream();
+	}
 }

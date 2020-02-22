@@ -96,7 +96,7 @@ public class DiscreteStorageClientDelegate extends AbstractStorageClientDelegate
 
 			if(item.getCount() > 0) {
 				MAP.put(item.handle(), item);
-				LIST.add(item);
+				addToListIfIncluded(item);
 				usedCapacity += item.getCount();
 			}
 		}

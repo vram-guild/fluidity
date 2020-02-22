@@ -80,6 +80,8 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 		final ItemStack currentStack = stacks[slot];
 		final boolean needAcceptNotify;
 
+		rollbackHandler.prepareIfNeeded();
+
 		if (ItemStack.areItemsEqual(newStack, currentStack)) {
 			if(newStack.getCount() == currentStack.getCount()) {
 				return;
@@ -98,7 +100,6 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 			needAcceptNotify = true;
 		}
 
-		rollbackHandler.prepareIfNeeded();
 		stacks[slot] = newStack;
 		synchCleanStack(slot);
 		dirtyNotifier.run();
