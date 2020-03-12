@@ -180,7 +180,7 @@ public interface ItemActionHelper {
 						}
 
 						ctx.player().inventory.markDirty();
-						ctx.player().container.sendContentUpdates();
+						ctx.player().currentScreenHandler.sendContentUpdates();
 						ctx.player().method_14241();
 						tx.commit();
 						return true;
@@ -233,7 +233,7 @@ public interface ItemActionHelper {
 						}
 
 						ctx.player().inventory.markDirty();
-						ctx.player().container.sendContentUpdates();
+						ctx.player().currentScreenHandler.sendContentUpdates();
 						ctx.player().method_14241();
 						tx.commit();
 						return true;

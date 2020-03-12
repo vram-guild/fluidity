@@ -57,7 +57,7 @@ public class DividedDiscreteStore extends AbstractDiscreteStore<DividedDiscreteS
 
 	@Override
 	protected FixedDiscreteArticleFunction createConsumer() {
-		return new Consumer();
+		return new DividedDiscreteStore.Consumer();
 	}
 
 	protected class Consumer extends AbstractDiscreteStore<DividedDiscreteStore>.Consumer {
@@ -113,7 +113,7 @@ public class DividedDiscreteStore extends AbstractDiscreteStore<DividedDiscreteS
 
 	@Override
 	protected FixedDiscreteArticleFunction createSupplier() {
-		return new Supplier();
+		return new DividedDiscreteStore.Supplier();
 	}
 
 	protected class Supplier extends AbstractDiscreteStore<DividedDiscreteStore>.Supplier {

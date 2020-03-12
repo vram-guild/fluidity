@@ -22,9 +22,8 @@ import org.apiguardian.api.API.Status;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.container.Container;
 import net.minecraft.item.ItemStack;
-
+import net.minecraft.screen.ScreenHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -80,7 +79,7 @@ public enum ItemStorageAction {
 
 		// if alt/right/middle clicking on same item, don't count that as a deposit
 		if (cursorStack != null && !cursorStack.isEmpty()
-				&& !(target != null && Container.canStacksCombine(cursorStack, target.article().toStack()) && (Screen.hasAltDown() || mouseButton > 0))) {
+				&& !(target != null && ScreenHandler.canStacksCombine(cursorStack, target.article().toStack()) && (Screen.hasAltDown() || mouseButton > 0))) {
 
 			// putting something in
 			if (mouseButton == MOUSE_LEFT && !Screen.hasAltDown()) {

@@ -185,7 +185,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 
 	@Override
 	protected FixedDiscreteArticleFunction createConsumer() {
-		return new Consumer();
+		return new SlottedInventoryStore.Consumer();
 	}
 
 	protected class Consumer extends AbstractDiscreteStore<DividedDiscreteStore>.Consumer {
@@ -249,7 +249,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 
 	@Override
 	protected FixedDiscreteArticleFunction createSupplier() {
-		return new Supplier();
+		return new SlottedInventoryStore.Supplier();
 	}
 
 	protected class Supplier extends AbstractDiscreteStore<DividedDiscreteStore>.Supplier {

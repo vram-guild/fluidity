@@ -62,11 +62,11 @@ public class ItemStorageInteractionC2S {
 	}
 
 	private static void acceptInner(ItemStorageAction action, int handle, ServerPlayerEntity player) {
-		if (player.container == null || !(player.container instanceof StorageContainer)) {
+		if (player.currentScreenHandler == null || !(player.currentScreenHandler instanceof StorageContainer)) {
 			return;
 		}
 
-		final Store storage = ((StorageContainer) player.container).getStorage();
+		final Store storage = ((StorageContainer) player.currentScreenHandler).getStorage();
 
 		if(storage == null) {
 			return;
