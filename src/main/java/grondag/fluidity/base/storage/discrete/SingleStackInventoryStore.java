@@ -178,22 +178,17 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 	}
 
 	@Override
-	public boolean isEmpty() {
-		return stack.isEmpty();
-	}
-
-	@Override
 	public StoredArticleView view(int handle) {
 		return view.prepare(handle == 0 ? stack : ItemStack.EMPTY, handle);
 	}
 
 	@Override
-	public int getInvSize() {
+	public int size() {
 		return 1;
 	}
 
 	@Override
-	public boolean isInvEmpty() {
+	public boolean isEmpty() {
 		return stack.isEmpty();
 	}
 
@@ -203,12 +198,12 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 	}
 
 	@Override
-	public ItemStack getInvStack(int slot) {
+	public ItemStack getStack(int slot) {
 		return slot == 0 ? stack : ItemStack.EMPTY;
 	}
 
 	@Override
-	public ItemStack takeInvStack(int slot, int count) {
+	public ItemStack removeStack(int slot, int count) {
 		if (slot != 0 || stack.isEmpty() || count == 0) {
 			return ItemStack.EMPTY;
 		}
@@ -229,7 +224,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 	}
 
 	@Override
-	public ItemStack removeInvStack(int slot) {
+	public ItemStack removeStack(int slot) {
 		if (slot != 0 || stack.isEmpty()) {
 			return ItemStack.EMPTY;
 		}
@@ -248,7 +243,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 	}
 
 	@Override
-	public void setInvStack(int slot, ItemStack newStack) {
+	public void setStack(int slot, ItemStack newStack) {
 		Preconditions.checkElementIndex(slot, 1, "Invalid slot number");
 
 		if (StackHelper.areItemsEqual(newStack, stack)) {

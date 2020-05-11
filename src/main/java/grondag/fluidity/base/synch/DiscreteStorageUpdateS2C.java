@@ -20,10 +20,9 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.network.Packet;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.PacketByteBuf;
-
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
 import grondag.fluidity.Fluidity;

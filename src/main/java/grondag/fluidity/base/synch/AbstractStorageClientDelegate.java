@@ -23,10 +23,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
-
-import net.minecraft.util.PacketByteBuf;
-
 import net.fabricmc.fabric.api.network.PacketContext;
+import net.minecraft.network.PacketByteBuf;
 
 @API(status = Status.EXPERIMENTAL)
 public abstract class AbstractStorageClientDelegate<T extends DisplayDelegate> {

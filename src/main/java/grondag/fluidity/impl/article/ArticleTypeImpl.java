@@ -27,8 +27,8 @@ import net.minecraft.item.Item;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.registry.Registry;
 
 import grondag.fluidity.api.article.ArticleType;

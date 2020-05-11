@@ -30,11 +30,11 @@ import grondag.fluidity.impl.article.StackHelper;
 public class TransactionHelper {
 
 	public static Object prepareInventoryRollbackState(InventoryStore storage) {
-		final int size = storage.getInvSize();
+		final int size = storage.size();
 		final ItemStack[] state = new ItemStack[size];
 
 		for (int i = 0; i < size; i++) {
-			state[i] = storage.getInvStack(i).copy();
+			state[i] = storage.getStack(i).copy();
 		}
 
 		return state;
@@ -46,18 +46,18 @@ public class TransactionHelper {
 	}
 
 	public static void applyInventoryRollbackState(Object state, Inventory storage) {
-		final int size = storage.getInvSize();
+		final int size = storage.size();
 		final ItemStack[] stacks = (ItemStack[]) state;
 
 		for (int i = 0; i < size; i++) {
-			final ItemStack myStack = storage.getInvStack(i);
+			final ItemStack myStack = storage.getStack(i);
 			final ItemStack stateStack = stacks[i];
 
 			if (StackHelper.areStacksEqual(myStack, stateStack)) {
 				continue;
 			}
 
-			storage.setInvStack(i, stateStack);
+			storage.setStack(i, stateStack);
 		}
 	}
 

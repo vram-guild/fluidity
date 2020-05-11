@@ -67,13 +67,13 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	}
 
 	@Override
-	public ItemStack getInvStack(int slot) {
+	public ItemStack getStack(int slot) {
 		Preconditions.checkElementIndex(slot, slotCount, "Invalid slot");
 		return stacks[slot];
 	}
 
 	@Override
-	public void setInvStack(int slot, ItemStack newStack) {
+	public void setStack(int slot, ItemStack newStack) {
 		Preconditions.checkNotNull(newStack, "ItemStack must be non-null");
 		Preconditions.checkElementIndex(slot, slotCount, "Invalid slot");
 
@@ -110,7 +110,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	}
 
 	@Override
-	public ItemStack takeInvStack(int slot, int count) {
+	public ItemStack removeStack(int slot, int count) {
 		Preconditions.checkElementIndex(slot, slotCount, "Invalid slot");
 
 		final ItemStack stack = stacks[slot];
@@ -132,7 +132,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	}
 
 	@Override
-	public ItemStack removeInvStack(int slot) {
+	public ItemStack removeStack(int slot) {
 		Preconditions.checkElementIndex(slot, slotCount, "Invalid slot");
 
 		final ItemStack stack = stacks[slot];
@@ -322,7 +322,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	}
 
 	@Override
-	public int getInvSize() {
+	public int size() {
 		return slotCount;
 	}
 

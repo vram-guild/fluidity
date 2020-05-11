@@ -17,11 +17,8 @@ package grondag.fluidity.base.synch;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
-
-import net.minecraft.util.PacketByteBuf;
-
 import net.fabricmc.fabric.api.network.PacketContext;
-
+import net.minecraft.network.PacketByteBuf;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.MutableFraction;

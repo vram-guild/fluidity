@@ -32,7 +32,7 @@ import grondag.fluidity.base.storage.discrete.DiscreteStore;
  */
 @API(status = Status.EXPERIMENTAL)
 public interface InventoryStore extends DiscreteStore, Inventory, RecipeInputProvider {
-	@Override default boolean canPlayerUseInv(PlayerEntity player) {
+	@Override default boolean canPlayerUse(PlayerEntity player) {
 		return true;
 	}
 
@@ -48,7 +48,7 @@ public interface InventoryStore extends DiscreteStore, Inventory, RecipeInputPro
 	}
 
 	@Override
-	default boolean isInvEmpty() {
+	default boolean isEmpty() {
 		return isEmpty();
 	}
 }

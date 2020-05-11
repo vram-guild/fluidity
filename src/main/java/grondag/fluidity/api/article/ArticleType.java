@@ -26,8 +26,7 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.Tag;
-import net.minecraft.util.PacketByteBuf;
-
+import net.minecraft.network.PacketByteBuf;
 import grondag.fluidity.impl.article.ArticleTypeImpl;
 
 @API(status = Status.EXPERIMENTAL)

@@ -20,7 +20,7 @@ import org.apiguardian.api.API.Status;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.util.PacketByteBuf;
+import net.minecraft.network.PacketByteBuf;
 
 @API(status = Status.EXPERIMENTAL)
 public final class MutableFraction extends Fraction {
