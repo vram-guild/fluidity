@@ -23,6 +23,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
@@ -148,7 +149,7 @@ public class ItemStorageInteractionC2S {
 				cursorStack.decrement(added);
 				player.inventory.setCursorStack(cursorStack);
 				player.inventory.markDirty();
-				player.method_14241();
+				player.updateCursorStack();
 			}
 		}
 		return;
@@ -191,7 +192,7 @@ public class ItemStorageInteractionC2S {
 			cursorStack.increment(toAdd);
 			player.inventory.setCursorStack(cursorStack);
 			player.inventory.markDirty();
-			player.method_14241();
+			player.updateCursorStack();
 		} else {
 			howMany = Math.min(howMany, targetResource.toItem().getMaxCount());
 
@@ -204,7 +205,7 @@ public class ItemStorageInteractionC2S {
 			final ItemStack newStack = targetResource.toStack(toAdd);
 			player.inventory.setCursorStack(newStack);
 			player.inventory.markDirty();
-			player.method_14241();
+			player.updateCursorStack();
 		}
 
 	}

@@ -181,7 +181,7 @@ public interface ItemActionHelper {
 
 						ctx.player().inventory.markDirty();
 						ctx.player().currentScreenHandler.sendContentUpdates();
-						ctx.player().method_14241();
+						ctx.player().updateCursorStack();
 						tx.commit();
 						return true;
 					}
@@ -234,7 +234,7 @@ public interface ItemActionHelper {
 
 						ctx.player().inventory.markDirty();
 						ctx.player().currentScreenHandler.sendContentUpdates();
-						ctx.player().method_14241();
+						ctx.player().updateCursorStack();
 						tx.commit();
 						return true;
 					}
