@@ -23,6 +23,8 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.client.resource.language.I18n;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 import grondag.fluidity.api.article.Article;
 
@@ -148,7 +150,12 @@ public interface DisplayDelegate {
 		}
 	}
 
+	@Deprecated
 	static String getSortLabel(int sortIndex) {
 		return I18n.translate(getSortTranslactionKey(sortIndex));
+	}
+
+	static Text getSortText(int sortIndex) {
+		return new TranslatableText(getSortTranslactionKey(sortIndex));
 	}
 }
