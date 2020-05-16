@@ -24,6 +24,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -75,6 +76,7 @@ public enum ItemStorageAction {
 
 		final boolean isShift = Screen.hasShiftDown();
 
+		@SuppressWarnings("resource")
 		final ItemStack cursorStack = MinecraftClient.getInstance().player.inventory.getCursorStack();
 
 		// if alt/right/middle clicking on same item, don't count that as a deposit
