@@ -413,7 +413,7 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 
 	@Override
 	public boolean isFull() {
-		return notifier.amount().isGreaterThankOrEqual(notifier.volume());
+		return notifier.amount().isGreaterThanOrEqual(notifier.volume());
 	}
 
 	@Override

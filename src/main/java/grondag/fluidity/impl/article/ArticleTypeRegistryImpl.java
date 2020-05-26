@@ -19,12 +19,14 @@ import static org.apiguardian.api.API.Status.INTERNAL;
 
 import java.util.function.Consumer;
 
+import com.mojang.serialization.Lifecycle;
 import org.apiguardian.api.API;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.DefaultedRegistry;
 import net.minecraft.util.registry.MutableRegistry;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
 
 import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.article.ArticleTypeRegistry;
@@ -40,11 +42,12 @@ public final class ArticleTypeRegistryImpl implements ArticleTypeRegistry {
 
 	public static ArticleTypeRegistryImpl INSTANCE = new ArticleTypeRegistryImpl();
 
+	private static final RegistryKey REGISTRY_KEY = RegistryKey.ofRegistry(new Identifier("fluidity:article_types"));
 	private static final MutableRegistry<ArticleTypeImpl> REGISTRY;
 
 	static {
-		REGISTRY = Registry.REGISTRIES.add(new Identifier("fluidity:article_types"),
-				(MutableRegistry<ArticleTypeImpl>) new DefaultedRegistry("fluidity:nothing"));
+		REGISTRY = (MutableRegistry<ArticleTypeImpl>) ((MutableRegistry) Registry.REGISTRIES).add(REGISTRY_KEY,
+				new DefaultedRegistry("fluidity:nothing", REGISTRY_KEY, Lifecycle.experimental()));
 	}
 
 	@Override
@@ -79,7 +82,7 @@ public final class ArticleTypeRegistryImpl implements ArticleTypeRegistry {
 
 	@Override
 	public ArticleType add(Identifier id, ArticleType articleType) {
-		return REGISTRY.add(id, (ArticleTypeImpl) articleType);
+		return REGISTRY.add(RegistryKey.of(REGISTRY_KEY, id), (ArticleTypeImpl) articleType);
 	}
 
 	@Override

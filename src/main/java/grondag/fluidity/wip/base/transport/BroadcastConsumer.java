@@ -103,7 +103,7 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 						result.add(amt);
 						calc.subtract(amt);
 
-						if(result.isGreaterThankOrEqual(volume)) {
+						if(result.isGreaterThanOrEqual(volume)) {
 							break;
 						}
 					}

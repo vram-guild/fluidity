@@ -66,7 +66,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 
 	@Override
 	public boolean isFull() {
-		return quantity.isGreaterThankOrEqual(capacity);
+		return quantity.isGreaterThanOrEqual(capacity);
 	}
 
 	@Override
@@ -184,7 +184,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 			}
 
 			// can't accept more than we got
-			if (calc.isGreaterThankOrEqual(volume)) {
+			if (calc.isGreaterThanOrEqual(volume)) {
 				calc.set(volume);
 			}
 

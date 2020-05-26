@@ -322,7 +322,15 @@ public class Fraction implements Comparable<Fraction> {
 		return compareTo(other) > 0;
 	}
 
+	/**
+	 * @deprecated spelling
+	 */
+	@Deprecated
 	public final boolean isGreaterThankOrEqual(Fraction other) {
+		return isGreaterThanOrEqual(other);
+	}
+
+	public final boolean isGreaterThanOrEqual(Fraction other) {
 		return compareTo(other) >= 0;
 	}
 
@@ -330,7 +338,15 @@ public class Fraction implements Comparable<Fraction> {
 		return compareTo(other) < 0;
 	}
 
+	/**
+	 * @deprecated spelling
+	 */
+	@Deprecated
 	public final boolean isLessThankOrEqual(Fraction other) {
+		return isLessThanOrEqual(other);
+	}
+
+	public final boolean isLessThanOrEqual(Fraction other) {
 		return compareTo(other) <= 0;
 	}
 

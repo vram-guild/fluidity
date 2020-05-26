@@ -17,13 +17,13 @@ package grondag.fluidity.impl;
 
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -35,6 +35,7 @@ import org.apiguardian.api.API.Status;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.FluidityConfig;
@@ -343,7 +344,7 @@ public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U, V>, U extend
 		}
 	}
 
-	private final Int2ObjectOpenHashMap<WorldHandler> worlds = new Int2ObjectOpenHashMap<>();
+	private final IdentityHashMap<World, WorldHandler> worlds = new IdentityHashMap<>();
 
 	private final Supplier<U> compoundSupplier;
 	private final BiPredicate<T, T> connectionTest;
@@ -358,18 +359,18 @@ public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U, V>, U extend
 		MANAGERS.add(new WeakReference(this));
 	}
 
-	private WorldHandler world(int dimensionId) {
-		return worlds.computeIfAbsent(dimensionId, d -> new WorldHandler());
+	private WorldHandler worldHandler(World world) {
+		return worlds.computeIfAbsent(world, d -> new WorldHandler());
 	}
 
 	@Override
 	public void connect(T device) {
-		world(device.getDimensionId()).request(device, true);
+		worldHandler(device.getWorld()).request(device, true);
 	}
 
 	@Override
 	public void disconnect(T device) {
-		world(device.getDimensionId()).request(device, false);
+		worldHandler(device.getWorld()).request(device, false);
 	}
 
 	private static final ObjectArrayList<MultiBlockMember> neighbors = new ObjectArrayList<>();

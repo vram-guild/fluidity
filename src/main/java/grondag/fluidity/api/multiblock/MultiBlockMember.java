@@ -21,6 +21,7 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 /**
  * Represents a type of "member" associate with a block, often related to a device component.
@@ -82,10 +83,10 @@ public interface MultiBlockMember<T extends MultiBlockMember<T, U, V>, U extends
 	}
 
 	/**
-	 * The numeric ID of the world dimension for the world in which this member is located.
+	 * The world in which this member is located.
 	 * Used with {@link #getPackedPos()} to unambiguously locate this member.
 	 *
 	 * @return the numeric ID of the world dimension for the world in which this member is located
 	 */
-	int getDimensionId();
+	World getWorld();
 }
