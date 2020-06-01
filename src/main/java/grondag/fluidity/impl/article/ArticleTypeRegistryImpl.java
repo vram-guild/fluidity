@@ -43,50 +43,50 @@ public final class ArticleTypeRegistryImpl implements ArticleTypeRegistry {
 	public static ArticleTypeRegistryImpl INSTANCE = new ArticleTypeRegistryImpl();
 
 	private static final RegistryKey REGISTRY_KEY = RegistryKey.ofRegistry(new Identifier("fluidity:article_types"));
-	private static final MutableRegistry<ArticleTypeImpl> REGISTRY;
+	private static final MutableRegistry<ArticleTypeImpl> ARTICLE_REGISTRY;
 
 	static {
-		REGISTRY = (MutableRegistry<ArticleTypeImpl>) ((MutableRegistry) Registry.REGISTRIES).add(REGISTRY_KEY,
+		ARTICLE_REGISTRY = (MutableRegistry<ArticleTypeImpl>) ((MutableRegistry) Registry.REGISTRIES).add(REGISTRY_KEY,
 				new DefaultedRegistry("fluidity:nothing", REGISTRY_KEY, Lifecycle.experimental()));
 	}
 
 	@Override
 	public <T> Identifier getId(ArticleType<T> article) {
-		return REGISTRY.getId((ArticleTypeImpl) article);
+		return ARTICLE_REGISTRY.getId((ArticleTypeImpl) article);
 	}
 
 	@Override
 	public int getRawId(ArticleType article) {
-		return REGISTRY.getRawId((ArticleTypeImpl) article);
+		return ARTICLE_REGISTRY.getRawId((ArticleTypeImpl) article);
 	}
 
 	@Override
 	public ArticleTypeImpl get(Identifier id) {
-		return REGISTRY.get(id);
+		return ARTICLE_REGISTRY.get(id);
 	}
 
 	@Override
 	public ArticleTypeImpl get(String idString) {
-		return REGISTRY.get(new Identifier(idString));
+		return ARTICLE_REGISTRY.get(new Identifier(idString));
 	}
 
 	@Override
 	public ArticleTypeImpl get(int index) {
-		return REGISTRY.get(index);
+		return ARTICLE_REGISTRY.get(index);
 	}
 
 	@Override
 	public void forEach(Consumer<? super ArticleType<?>> consumer) {
-		REGISTRY.forEach((Consumer<? super ArticleType>) consumer);
+		ARTICLE_REGISTRY.forEach((Consumer<? super ArticleType>) consumer);
 	}
 
 	@Override
 	public ArticleType add(Identifier id, ArticleType articleType) {
-		return REGISTRY.add(RegistryKey.of(REGISTRY_KEY, id), (ArticleTypeImpl) articleType);
+		return ARTICLE_REGISTRY.add(RegistryKey.of(REGISTRY_KEY, id), (ArticleTypeImpl) articleType);
 	}
 
 	@Override
 	public boolean contains(Identifier id) {
-		return REGISTRY.getIds().contains(id);
+		return ARTICLE_REGISTRY.getIds().contains(id);
 	}
 }
