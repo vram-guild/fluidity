@@ -106,17 +106,13 @@ Work-in-process code that will *probably* become part of the library in the near
 ## Dev Environment Setup
 Fluidity requires Fabric API but has no external run-time dependencies beyond those already bundled with Minecraft and Fabric.
  
-Add Grondag's unfortunate, terrible, bad maven repo to your gradle repositories block:
+Add the maven repo where my libraries live to your gradle repositories block:
 
 ```gradle
 repositories {
   maven {
-    name = "grondag"
-    url = "https://grondag-repo.appspot.com"
-    credentials {
-      username "guest"
-      password ""
-    }
+    name = "dblsaiko"
+    url = "https://maven.dblsaiko.net/"
   }
 }
 ```
