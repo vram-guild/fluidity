@@ -27,6 +27,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.PacketByteBuf;
+
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
 
@@ -85,7 +86,7 @@ public class ArticleImpl<T> implements Article {
 			return true;
 		} else if(obj instanceof ArticleImpl) {
 			final ArticleImpl<?> other = (ArticleImpl<?>) obj;
-			return other.resource == resource && other.tag == tag && other.type == type;
+			return other.resource == resource && other.type == type && doesTagMatch(other.tag);
 		} else {
 			return false;
 		}
