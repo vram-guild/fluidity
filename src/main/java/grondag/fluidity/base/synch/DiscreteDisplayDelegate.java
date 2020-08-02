@@ -27,6 +27,7 @@ import grondag.fluidity.impl.DiscreteDisplayDelegateImpl;
  */
 @API(status = Status.EXPERIMENTAL)
 public interface DiscreteDisplayDelegate extends DisplayDelegate {
+	@Override
 	long getCount();
 
 	void setCount(long count);

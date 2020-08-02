@@ -73,14 +73,28 @@ public interface Store extends TransactionParticipant {
 	 */
 	StoredArticleView view(int handle);
 
+	/**
+	 * True if Store is a virtual view of some other storage.
+	 * Can be used by aggregate views to exclude cycles.
+	 * Should generally be true for aggregate views.
+	 */
 	default boolean isView() {
 		return false;
 	}
 
+	/**
+	 * For stores that are views, this is the underlying store.
+	 * Note that the underlying store may also be a view and
+	 * views that cannot map to a single store - like aggregate views
+	 * - should return self. (The default implementation.)
+	 */
 	default Store viewOwner() {
 		return this;
 	}
 
+	/**
+	 * True if Store is an aggregate view of potentially multiple Stores.
+	 */
 	default boolean isAggregate() {
 		return false;
 	}
@@ -152,6 +166,14 @@ public interface Store extends TransactionParticipant {
 
 	default boolean hasEventStream() {
 		return eventStream() != StorageEventStream.UNSUPPORTED;
+	}
+
+	/**
+	 * Should become false if store is broken or destroyed, goes offline, etc.
+	 * Intended use is to disconnect non-listening ScreenHandlers.
+	 */
+	default boolean isValid() {
+		return true;
 	}
 
 	CompoundTag writeTag();

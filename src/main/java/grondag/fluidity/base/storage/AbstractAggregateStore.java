@@ -110,4 +110,14 @@ public abstract class AbstractAggregateStore<V extends AggregateStoredArticle, T
 		//TODO: Implement and remove warning
 		Fluidity.LOG.warn("Unhandled disconnect in aggregate storage.");
 	}
+
+	@Override
+	public boolean isAggregate() {
+		return true;
+	}
+
+	@Override
+	public boolean isView() {
+		return true;
+	}
 }

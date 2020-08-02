@@ -68,7 +68,7 @@ public class ItemStorageInteractionC2S {
 
 		final Store storage = ((StorageContainer) player.currentScreenHandler).getStorage();
 
-		if(storage == null) {
+		if(storage == null || !storage.isValid()) {
 			return;
 		}
 

@@ -23,9 +23,9 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.api.storage.StorageEventStream;
 import grondag.fluidity.api.storage.StorageListener;
+import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.base.article.StoredArticle;
 import grondag.fluidity.base.storage.helper.ListenerSet;
 
@@ -34,11 +34,26 @@ public abstract class AbstractStore<V extends StoredArticle, T extends AbstractS
 	public final ListenerSet<StorageListener> listeners = new ListenerSet<>(this::sendFirstListenerUpdate, this::sendLastListenerUpdate, this::onListenersEmpty);
 	protected Predicate<Article> filter = Predicates.alwaysTrue();
 	protected Runnable dirtyNotifier = Runnables.doNothing();
+	protected boolean isValid = true;
 
 	@SuppressWarnings("unchecked")
 	public T filter(Predicate<Article> filter) {
 		this.filter = filter == null ? Predicates.alwaysTrue() : filter;
 		return (T) this;
+	}
+
+
+	@Override
+	public boolean isValid() {
+		return isValid;
+	}
+
+	/**
+	 * Marks store invalid and sends disconnect event to all listeners.
+	 */
+	public void disconnect() {
+		isValid = false;
+		listeners.forEach(l -> l.disconnect(this, false, false));
 	}
 
 	@Override

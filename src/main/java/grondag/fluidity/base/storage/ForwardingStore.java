@@ -128,12 +128,12 @@ public class ForwardingStore implements Store {
 
 	@Override
 	public boolean isView() {
-		return wrapped.isView();
+		return true;
 	}
 
 	@Override
 	public Store viewOwner() {
-		return wrapped.viewOwner();
+		return wrapped;
 	}
 
 	@Override
