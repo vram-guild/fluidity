@@ -18,6 +18,7 @@ package grondag.fluidity.wip.base.transport;
 import java.util.function.Function;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import grondag.fluidity.Fluidity;
@@ -27,12 +28,14 @@ import grondag.fluidity.base.storage.helper.ListenerSet;
 import grondag.fluidity.wip.api.transport.Carrier;
 import grondag.fluidity.wip.api.transport.CarrierConnector;
 import grondag.fluidity.wip.api.transport.CarrierListener;
+import grondag.fluidity.wip.api.transport.CarrierNode;
 import grondag.fluidity.wip.api.transport.CarrierSession;
 import grondag.fluidity.wip.api.transport.CarrierType;
 
 public abstract class AggregateCarrier<T extends CarrierCostFunction> implements LimitedCarrier<T>, CarrierListener {
 	protected final ListenerSet<CarrierListener> listeners = new ListenerSet<>(this::sendFirstListenerUpdate, this::sendLastListenerUpdate, this::onListenersEmpty);
-	protected final Long2ObjectOpenHashMap<CarrierSession> nodes = new Long2ObjectOpenHashMap<>();
+	protected final Long2ObjectOpenHashMap<CarrierSession> nodeMap = new Long2ObjectOpenHashMap<>();
+	protected final ObjectArrayList<CarrierSession> nodeList = new ObjectArrayList<>();
 	protected final ObjectOpenHashSet<SubCarrier<T>> carriers = new ObjectOpenHashSet<>();
 
 	protected final CarrierType carrierType;
@@ -68,14 +71,16 @@ public abstract class AggregateCarrier<T extends CarrierCostFunction> implements
 
 	@Override
 	public void onAttach(Carrier carrier, CarrierSession node) {
-		if(nodes.put(node.nodeAddress(), node) == null) {
+		if(nodeMap.put(node.nodeAddress(), node) == null) {
+			nodeList.add(node);
 			listeners.forEach(l -> l.onAttach(this, node));
 		}
 	}
 
 	@Override
 	public void onDetach(Carrier carrier, CarrierSession node) {
-		if(nodes.remove(node.nodeAddress()) != null) {
+		if(nodeMap.remove(node.nodeAddress()) != null) {
+			nodeList.remove(node);
 			listeners.forEach(l -> l.onDetach(this, node));
 		}
 	}
@@ -91,11 +96,21 @@ public abstract class AggregateCarrier<T extends CarrierCostFunction> implements
 	}
 
 	protected void sendFirstListenerUpdate(CarrierListener listener) {
-		nodes.values().forEach(a -> listener.onAttach(a.carrier(), a));
+		final int limit = nodeList.size();
+
+		for (int i = 0; i < limit; ++i) {
+			final CarrierSession a = nodeList.get(i);
+			listener.onAttach(a.carrier(), a);
+		}
 	}
 
 	protected void sendLastListenerUpdate(CarrierListener listener) {
-		nodes.values().forEach(a -> listener.onDetach(a.carrier(), a));
+		final int limit = nodeList.size();
+
+		for (int i = 0; i < limit; ++i) {
+			final CarrierSession a = nodeList.get(i);
+			listener.onDetach(a.carrier(), a);
+		}
 	}
 
 	protected void onListenersEmpty() {
@@ -114,10 +129,12 @@ public abstract class AggregateCarrier<T extends CarrierCostFunction> implements
 
 	@Override
 	public int nodeCount() {
-		return nodes.size();
+		return nodeList.size();
 	}
+
+	@SuppressWarnings("unchecked")
 	@Override
-	public Iterable<? extends CarrierSession> nodes() {
-		return nodes.values();
+	public <V extends CarrierNode> V nodeByIndex(int index) {
+		return (V) nodeList.get(index);
 	}
 }

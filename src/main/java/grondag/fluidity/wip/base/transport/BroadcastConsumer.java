@@ -15,8 +15,6 @@
  ******************************************************************************/
 package grondag.fluidity.wip.base.transport;
 
-import java.util.Iterator;
-
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
@@ -37,7 +35,9 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 	public long apply(Article item, long count, boolean simulate) {
 		final LimitedCarrier<T> carrier = fromNode.carrier();
 
-		if(carrier.nodeCount() <= 1) {
+		final int nodeCount = carrier.nodeCount();
+
+		if(nodeCount <= 1) {
 			return 0;
 		}
 
@@ -47,10 +47,8 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 
 			long result = 0;
 
-			final Iterator<? extends CarrierNode> it = carrier.nodes().iterator();
-
-			while(it.hasNext()) {
-				final CarrierNode n = it.next();
+			for (int i = 0; i < nodeCount; ++i) {
+				final CarrierNode n = carrier.nodeByIndex(i);
 
 				if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_CONSUMER_BROADCASTS)) {
 					final ArticleFunction c = n.getComponent(Store.STORAGE_COMPONENT).get().getConsumer();
@@ -78,7 +76,9 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 	public Fraction apply(Article item, Fraction volume, boolean simulate) {
 		final LimitedCarrier<T> carrier = fromNode.carrier();
 
-		if(carrier.nodeCount() <= 1) {
+		final int nodeCount = carrier.nodeCount();
+
+		if(nodeCount <= 1) {
 			return Fraction.ZERO;
 		}
 
@@ -89,10 +89,8 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 			result.set(0);
 			calc.set(volume);
 
-			final Iterator<? extends CarrierNode> it = carrier.nodes().iterator();
-
-			while(it.hasNext()) {
-				final CarrierNode n = it.next();
+			for (int i = 0; i < nodeCount; ++i) {
+				final CarrierNode n = carrier.nodeByIndex(i);
 
 				if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_CONSUMER_BROADCASTS)) {
 					final ArticleFunction c = n.getComponent(Store.STORAGE_COMPONENT).get().getConsumer();
@@ -122,7 +120,9 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 	public long apply(Article item, long numerator, long divisor, boolean simulate) {
 		final LimitedCarrier<T> carrier = fromNode.carrier();
 
-		if(carrier.nodeCount() <= 1) {
+		final int nodeCount = carrier.nodeCount();
+
+		if(nodeCount <= 1) {
 			return 0;
 		}
 
@@ -130,10 +130,8 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 
 		long result = 0;
 
-		final Iterator<? extends CarrierNode> it = carrier.nodes().iterator();
-
-		while(it.hasNext()) {
-			final CarrierNode n = it.next();
+		for (int i = 0; i < nodeCount; ++i) {
+			final CarrierNode n = carrier.nodeByIndex(i);
 
 			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_CONSUMER_BROADCASTS)) {
 				final ArticleFunction c = n.getComponent(Store.STORAGE_COMPONENT).get().getConsumer();

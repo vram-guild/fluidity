@@ -15,7 +15,6 @@
  ******************************************************************************/
 package grondag.fluidity.wip.api.transport;
 
-import java.util.Collections;
 import java.util.function.Function;
 
 import org.apiguardian.api.API;
@@ -43,7 +42,13 @@ public interface Carrier {
 
 	int nodeCount();
 
-	Iterable<? extends CarrierNode> nodes();
+	/**
+	 * Use to iterates nodes. Iterator not exposed to avoid allocation. Not thread-safe.
+	 * @param <T>
+	 * @param index must be >=0 and < {@link #nodes()}
+	 * @return
+	 */
+	<T extends CarrierNode> T nodeByIndex(int index);
 
 	Carrier EMPTY = new Carrier() {
 		@Override
@@ -77,8 +82,8 @@ public interface Carrier {
 		}
 
 		@Override
-		public Iterable<? extends CarrierSession> nodes() {
-			return Collections.emptyList();
+		public <T extends CarrierNode> T nodeByIndex(int index) {
+			throw new ArrayIndexOutOfBoundsException();
 		}
 	};
 }
