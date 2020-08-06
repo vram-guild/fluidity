@@ -18,6 +18,7 @@ package grondag.fluidity.wip.api.transport;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.api.storage.ArticleFunction;
@@ -31,6 +32,18 @@ public interface CarrierSession extends CarrierNode {
 	ArticleFunction broadcastConsumer();
 
 	ArticleFunction broadcastSupplier();
+
+	default CarrierNode randomPeer() {
+		return carrier().randomPeerOf(nodeAddress());
+	}
+
+	default CarrierNode supplierOf(Article article) {
+		return carrier().supplierOf(article, nodeAddress());
+	}
+
+	default CarrierNode consumerOf(Article article) {
+		return carrier().consumerOf(article, nodeAddress());
+	}
 
 	void close();
 
@@ -68,6 +81,11 @@ public interface CarrierSession extends CarrierNode {
 		@Override
 		public <T> DeviceComponentAccess<T> getComponent(DeviceComponentType<T> componentType) {
 			return componentType.getAbsentAccess();
+		}
+
+		@Override
+		public CarrierNode randomPeer() {
+			return CarrierNode.INVALID;
 		}
 	};
 }

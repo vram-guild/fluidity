@@ -113,6 +113,12 @@ public abstract class BasicCarrier<T extends CarrierCostFunction> implements Lim
 		return (V) nodeList.get(index);
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public <V extends CarrierNode> V nodeByAddress(long address) {
+		return (V) nodeMap.getOrDefault(address, CarrierSession.INVALID);
+	}
+
 	public LimitedCarrier<T> effectiveCarrier() {
 		return this;
 	}

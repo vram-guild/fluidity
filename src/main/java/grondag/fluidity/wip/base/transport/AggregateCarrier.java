@@ -137,4 +137,10 @@ public abstract class AggregateCarrier<T extends CarrierCostFunction> implements
 	public <V extends CarrierNode> V nodeByIndex(int index) {
 		return (V) nodeList.get(index);
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <V extends CarrierNode> V nodeByAddress(long address) {
+		return (V) nodeMap.getOrDefault(address, CarrierSession.INVALID);
+	}
 }

@@ -15,13 +15,17 @@
  ******************************************************************************/
 package grondag.fluidity.wip.api.transport;
 
+import java.util.Random;
 import java.util.function.Function;
 
+import io.netty.util.internal.ThreadLocalRandom;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentType;
+import grondag.fluidity.api.storage.Store;
 
 
 @API(status = Status.EXPERIMENTAL)
@@ -49,6 +53,63 @@ public interface Carrier {
 	 * @return
 	 */
 	<T extends CarrierNode> T nodeByIndex(int index);
+
+	<V extends CarrierNode> V nodeByAddress(long address);
+
+	default CarrierNode randomPeerOf(long requestorAddress) {
+		final int nodeCount = nodeCount();
+		CarrierNode result = CarrierNode.INVALID;
+		int attempts = 0;
+
+		if (nodeCount == 2) {
+			result = nodeByIndex(0);
+
+			if (result.nodeAddress() == requestorAddress) {
+				result = nodeByIndex(1);
+			}
+		} else if (nodeCount > 2) {
+			final Random r = ThreadLocalRandom.current();
+
+			do {
+				final CarrierNode node = nodeByIndex(r.nextInt(nodeCount));
+
+				if (node.isValid() &&  node.nodeAddress() != requestorAddress) {
+					result = node;
+					break;
+				}
+			} while(++attempts < 4);
+		}
+
+		return result;
+	}
+
+	default CarrierNode supplierOf(Article article, long requestorAddress) {
+		final int nodeCount = nodeCount();
+
+		for (int i = 0; i < nodeCount; ++i) {
+			final CarrierNode node = nodeByIndex(i);
+
+			if (node.nodeAddress() != requestorAddress && node.getComponent(Store.STORAGE_COMPONENT).get().canSupply(article)) {
+				return node;
+			}
+		}
+
+		return CarrierNode.INVALID;
+	}
+
+	default CarrierNode consumerOf(Article article, long requestorAddress) {
+		final int nodeCount = nodeCount();
+
+		for (int i = 0; i < nodeCount; ++i) {
+			final CarrierNode node = nodeByIndex(i);
+
+			if (node.nodeAddress() != requestorAddress && node.getComponent(Store.STORAGE_COMPONENT).get().canConsume(article)) {
+				return node;
+			}
+		}
+
+		return CarrierNode.INVALID;
+	}
 
 	Carrier EMPTY = new Carrier() {
 		@Override
@@ -84,6 +145,17 @@ public interface Carrier {
 		@Override
 		public <T extends CarrierNode> T nodeByIndex(int index) {
 			throw new ArrayIndexOutOfBoundsException();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public <V extends CarrierNode> V nodeByAddress(long address) {
+			return (V) CarrierSession.INVALID;
+		}
+
+		@Override
+		public CarrierNode randomPeerOf(long nodeAddress) {
+			return CarrierNode.INVALID;
 		}
 	};
 }

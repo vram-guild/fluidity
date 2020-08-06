@@ -21,6 +21,7 @@ import org.apiguardian.api.API;
 
 import net.minecraft.nbt.CompoundTag;
 
+import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.FixedArticleFunction;
@@ -106,5 +107,15 @@ public final class CreativeStore implements FixedStore {
 	@Override
 	public StorageEventStream eventStream() {
 		return StorageEventStream.IGNORE;
+	}
+
+	@Override
+	public boolean canSupply(Article article) {
+		return true;
+	}
+
+	@Override
+	public boolean canConsume(Article article) {
+		return false;
 	}
 }

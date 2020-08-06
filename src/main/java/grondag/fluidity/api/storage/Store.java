@@ -152,6 +152,32 @@ public interface Store extends TransactionParticipant {
 		return getSupplier().apply(item, Fraction.MAX_VALUE, true);
 	}
 
+	boolean canSupply(Article article);
+
+	boolean canConsume(Article article);
+
+	/**
+	 * DO NOT RETAIN A REFERENCE.
+	 * @return View of a single article that is in this store, or {@link StoredArticleView#EMPTY} if store is empty.
+	 */
+	default StoredArticleView getAnyArticle() {
+		if (isEmpty()) {
+			return StoredArticleView.EMPTY;
+		} else {
+			final int limit = handleCount();
+
+			for (int i = 0; i < limit; ++i) {
+				final StoredArticleView a = view(i);
+
+				if (!a.isEmpty()) {
+					return a;
+				}
+			}
+		}
+
+		return StoredArticleView.EMPTY;
+	}
+
 	long capacity();
 
 	Fraction volume();

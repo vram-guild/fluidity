@@ -41,24 +41,30 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 			return 0;
 		}
 
-		count = carrier.costFunction().apply(fromNode, item, count, simulate);
+		try (Transaction tx = Transaction.open()) {
+			count = carrier.costFunction().apply(fromNode, item, count, simulate);
 
-		long result = 0;
+			long result = 0;
 
-		for (int i = 0; i < nodeCount; ++i) {
-			final CarrierNode n = carrier.nodeByIndex(i);
+			for (int i = 0; i < nodeCount; ++i) {
+				final CarrierNode n = carrier.nodeByIndex(i);
 
-			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
-				final ArticleFunction s = n.getComponent(Store.STORAGE_COMPONENT).get().getSupplier();
-				result += s.apply(item, count - result, simulate);
+				if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
+					final ArticleFunction s = n.getComponent(Store.STORAGE_COMPONENT).get().getSupplier();
+					tx.enlist(s); // allow for implementations that do not self-enlist
+					result += s.apply(item, count - result, simulate);
 
-				if(result >= count) {
-					break;
+					if(result >= count) {
+						break;
+					}
 				}
 			}
-		}
 
-		return result;
+			return result;
+		} catch(final Exception e) {
+			Fluidity.LOG.warn("Unlable to complete carrier broadcast supply request due to exception.", e);
+			return 0;
+		}
 	}
 
 	protected final MutableFraction calc = new MutableFraction();

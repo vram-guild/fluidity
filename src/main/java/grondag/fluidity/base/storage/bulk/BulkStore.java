@@ -47,4 +47,14 @@ public interface BulkStore extends Store {
 			return apply(item, count, 1, simulate);
 		}
 	}
+
+	@Override
+	default boolean canSupply(Article article) {
+		return !getSupplier().apply(article, Fraction.ONE, true).isZero();
+	}
+
+	@Override
+	default boolean canConsume(Article article) {
+		return !getConsumer().apply(article, Fraction.ONE, true).isZero();
+	}
 }
