@@ -25,7 +25,7 @@ import org.apiguardian.api.API.Status;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentType;
-import grondag.fluidity.api.storage.Store;
+import grondag.fluidity.api.storage.ArticleFunction;
 
 
 @API(status = Status.EXPERIMENTAL)
@@ -89,7 +89,7 @@ public interface Carrier {
 		for (int i = 0; i < nodeCount; ++i) {
 			final CarrierNode node = nodeByIndex(i);
 
-			if (node.nodeAddress() != requestorAddress && node.getComponent(Store.STORAGE_COMPONENT).get().canSupply(article)) {
+			if (node.nodeAddress() != requestorAddress && node.getComponent(ArticleFunction.SUPPLIER_COMPONENT).get().canApply(article)) {
 				return node;
 			}
 		}
@@ -103,7 +103,7 @@ public interface Carrier {
 		for (int i = 0; i < nodeCount; ++i) {
 			final CarrierNode node = nodeByIndex(i);
 
-			if (node.nodeAddress() != requestorAddress && node.getComponent(Store.STORAGE_COMPONENT).get().canConsume(article)) {
+			if (node.nodeAddress() != requestorAddress && node.getComponent(ArticleFunction.CONSUMER_COMPONENT).get().canApply(article)) {
 				return node;
 			}
 		}

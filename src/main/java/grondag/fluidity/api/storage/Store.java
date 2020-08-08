@@ -152,10 +152,6 @@ public interface Store extends TransactionParticipant {
 		return getSupplier().apply(item, Fraction.MAX_VALUE, true);
 	}
 
-	boolean canSupply(Article article);
-
-	boolean canConsume(Article article);
-
 	/**
 	 * DO NOT RETAIN A REFERENCE.
 	 * @return View of a single article that is in this store, or {@link StoredArticleView#EMPTY} if store is empty.

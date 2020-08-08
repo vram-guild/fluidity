@@ -20,7 +20,6 @@ import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.storage.ArticleFunction;
-import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.api.transact.Transaction;
 import grondag.fluidity.wip.api.transport.CarrierNode;
 
@@ -50,7 +49,7 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 				final CarrierNode n = carrier.nodeByIndex(i);
 
 				if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
-					final ArticleFunction s = n.getComponent(Store.STORAGE_COMPONENT).get().getSupplier();
+					final ArticleFunction s = n.getComponent(ArticleFunction.SUPPLIER_COMPONENT).get();
 					tx.enlist(s); // allow for implementations that do not self-enlist
 					result += s.apply(item, count - result, simulate);
 
@@ -91,7 +90,7 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 				final CarrierNode n = carrier.nodeByIndex(i);
 
 				if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
-					final ArticleFunction s = n.getComponent(Store.STORAGE_COMPONENT).get().getSupplier();
+					final ArticleFunction s = n.getComponent(ArticleFunction.SUPPLIER_COMPONENT).get();
 					tx.enlist(s); // allow for implementations that do not self-enlist
 					final Fraction amt = s.apply(item, calc, simulate);
 
@@ -134,7 +133,7 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 				final CarrierNode n = carrier.nodeByIndex(i);
 
 				if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
-					final ArticleFunction s = n.getComponent(Store.STORAGE_COMPONENT).get().getSupplier();
+					final ArticleFunction s = n.getComponent(ArticleFunction.SUPPLIER_COMPONENT).get();
 					tx.enlist(s); // allow for implementations that do not self-enlist
 					result += s.apply(item, numerator - result, divisor, simulate);
 
@@ -162,5 +161,31 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 	@Override
 	public boolean isSelfEnlisting() {
 		return true;
+	}
+
+	@Override
+	public Article suggestArticle() {
+		final LimitedCarrier<T> carrier = fromNode.carrier();
+
+		final int nodeCount = carrier.nodeCount();
+
+		if(nodeCount <= 1) {
+			return Article.NOTHING;
+		}
+
+		for (int i = 0; i < nodeCount; ++i) {
+			final CarrierNode n = carrier.nodeByIndex(i);
+
+			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
+				final ArticleFunction c = n.getComponent(ArticleFunction.SUPPLIER_COMPONENT).get();
+				final Article a = c.suggestArticle();
+
+				if (!a.isNothing()) {
+					return a;
+				}
+			}
+		}
+
+		return Article.NOTHING;
 	}
 }

@@ -53,14 +53,4 @@ public interface DiscreteStore extends Store {
 			return whole == 0 ? 0 : apply(item, whole, simulate) * divisor;
 		}
 	}
-
-	@Override
-	default boolean canSupply(Article article) {
-		return getSupplier().apply(article, 1, true) > 0;
-	}
-
-	@Override
-	default boolean canConsume(Article article) {
-		return getConsumer().apply(article, 1, true) > 0;
-	}
 }

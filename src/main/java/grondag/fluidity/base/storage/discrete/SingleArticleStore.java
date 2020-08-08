@@ -124,6 +124,11 @@ public class SingleArticleStore extends AbstractLazyRollbackStore<StoredDiscrete
 				return 0;
 			}
 		}
+
+		@Override
+		public Article suggestArticle() {
+			return getAnyArticle().article();
+		}
 	}
 
 	protected final FixedDiscreteArticleFunction supplier = createSupplier();
@@ -166,6 +171,11 @@ public class SingleArticleStore extends AbstractLazyRollbackStore<StoredDiscrete
 			} else {
 				return 0;
 			}
+		}
+
+		@Override
+		public Article suggestArticle() {
+			return getAnyArticle().article();
 		}
 	}
 

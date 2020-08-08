@@ -68,4 +68,9 @@ public final class AlwaysReturnZeroImpl implements FixedArticleFunction {
 	public boolean canApply() {
 		return false;
 	}
+
+	@Override
+	public Article suggestArticle() {
+		return Article.NOTHING;
+	}
 }

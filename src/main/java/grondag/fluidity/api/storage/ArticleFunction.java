@@ -23,8 +23,12 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Identifier;
 
+import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.device.DeviceComponentRegistry;
+import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.transact.TransactionParticipant;
 import grondag.fluidity.impl.storage.AlwaysReturnRequestedImpl;
@@ -58,6 +62,13 @@ public interface ArticleFunction extends TransactionParticipant {
 		return true;
 	}
 
+	default boolean canApply(Article article) {
+		if (article.type().isBulk()) {
+			return !apply(article, Fraction.ONE, true).isZero();
+		} else {
+			return apply(article, 1, true) == 1;
+		}
+	}
 
 	default long apply(Item item, @Nullable CompoundTag tag, long count, boolean simulate) {
 		return apply(Article.of(item, tag), count, simulate);
@@ -109,6 +120,11 @@ public interface ArticleFunction extends TransactionParticipant {
 	 */
 	long apply(Article article, long numerator, long divisor, boolean simulate);
 
+	Article suggestArticle();
+
 	ArticleFunction ALWAYS_RETURN_REQUESTED = AlwaysReturnRequestedImpl.INSTANCE;
 	ArticleFunction ALWAYS_RETURN_ZERO = AlwaysReturnZeroImpl.INSTANCE;
+
+	DeviceComponentType<ArticleFunction> SUPPLIER_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "article_supplier"), ALWAYS_RETURN_ZERO);
+	DeviceComponentType<ArticleFunction> CONSUMER_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "article_consumer"), ALWAYS_RETURN_ZERO);
 }

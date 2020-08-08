@@ -156,6 +156,11 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 		public TransactionDelegate getTransactionDelegate() {
 			return SimpleTank.this;
 		}
+
+		@Override
+		public Article suggestArticle() {
+			return getAnyArticle().article();
+		}
 	}
 
 	protected final Consumer consumer = new Consumer();
@@ -246,6 +251,10 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 			return SimpleTank.this;
 		}
 
+		@Override
+		public Article suggestArticle() {
+			return getAnyArticle().article();
+		}
 	}
 
 	public void writeTag(CompoundTag tag) {

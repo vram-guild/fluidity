@@ -124,6 +124,11 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 			// implement in subtypes
 			throw new UnsupportedOperationException();
 		}
+
+		@Override
+		public Article suggestArticle() {
+			return getAnyArticle().article();
+		}
 	}
 
 	protected final FixedDiscreteArticleFunction supplier = createSupplier();
@@ -169,6 +174,11 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 		public long apply(int handle, Article item, long count, boolean simulate) {
 			// implement in subtypes
 			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Article suggestArticle() {
+			return getAnyArticle().article();
 		}
 	}
 

@@ -191,6 +191,11 @@ public abstract class AbstractDiscreteStore<T extends AbstractDiscreteStore<T>> 
 			// implement in subtypes
 			throw new UnsupportedOperationException();
 		}
+
+		@Override
+		public Article suggestArticle() {
+			return getAnyArticle().article();
+		}
 	}
 
 	protected final FixedDiscreteArticleFunction supplier = createSupplier();
@@ -236,6 +241,11 @@ public abstract class AbstractDiscreteStore<T extends AbstractDiscreteStore<T>> 
 		public long apply(int handle, Article item, long count, boolean simulate) {
 			// implement in subtypes
 			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Article suggestArticle() {
+			return getAnyArticle().article();
 		}
 	}
 

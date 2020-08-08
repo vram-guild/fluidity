@@ -129,6 +129,11 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 				}
 			}
 		}
+
+		@Override
+		public Article suggestArticle() {
+			return getAnyArticle().article();
+		}
 	}
 
 	protected final Supplier supplier = new Supplier();
@@ -177,6 +182,11 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 					return result;
 				}
 			}
+		}
+
+		@Override
+		public Article suggestArticle() {
+			return getAnyArticle().article();
 		}
 	}
 

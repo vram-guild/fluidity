@@ -20,7 +20,6 @@ import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.storage.ArticleFunction;
-import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.api.transact.Transaction;
 import grondag.fluidity.wip.api.transport.CarrierNode;
 
@@ -51,7 +50,7 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 				final CarrierNode n = carrier.nodeByIndex(i);
 
 				if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_CONSUMER_BROADCASTS)) {
-					final ArticleFunction c = n.getComponent(Store.STORAGE_COMPONENT).get().getConsumer();
+					final ArticleFunction c = n.getComponent(ArticleFunction.CONSUMER_COMPONENT).get();
 					tx.enlist(c); // allow for implementations that do not self-enlist
 					result += c.apply(item, count - result, simulate);
 
@@ -93,7 +92,7 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 				final CarrierNode n = carrier.nodeByIndex(i);
 
 				if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_CONSUMER_BROADCASTS)) {
-					final ArticleFunction c = n.getComponent(Store.STORAGE_COMPONENT).get().getConsumer();
+					final ArticleFunction c = n.getComponent(ArticleFunction.CONSUMER_COMPONENT).get();
 					tx.enlist(c); // allow for implementations that do not self-enlist
 					final Fraction amt = c.apply(item, calc, simulate);
 
@@ -126,24 +125,31 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 			return 0;
 		}
 
-		numerator = carrier.costFunction().apply(fromNode, item, numerator, divisor, simulate);
+		try (Transaction tx = Transaction.open()) {
+			// note that cost function is self-enlisting
+			numerator = carrier.costFunction().apply(fromNode, item, numerator, divisor, simulate);
 
-		long result = 0;
+			long result = 0;
 
-		for (int i = 0; i < nodeCount; ++i) {
-			final CarrierNode n = carrier.nodeByIndex(i);
+			for (int i = 0; i < nodeCount; ++i) {
+				final CarrierNode n = carrier.nodeByIndex(i);
 
-			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_CONSUMER_BROADCASTS)) {
-				final ArticleFunction c = n.getComponent(Store.STORAGE_COMPONENT).get().getConsumer();
-				result += c.apply(item, numerator - result, divisor, simulate);
+				if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_CONSUMER_BROADCASTS)) {
+					final ArticleFunction c = n.getComponent(ArticleFunction.CONSUMER_COMPONENT).get();
+					result += c.apply(item, numerator - result, divisor, simulate);
 
-				if(result >= numerator) {
-					break;
+					if(result >= numerator) {
+						break;
+					}
 				}
 			}
-		}
 
-		return result;
+			tx.commit();
+			return result;
+		} catch(final Exception e) {
+			Fluidity.LOG.warn("Unlable to complete carrier broadcast accept request due to exception.", e);
+			return 0;
+		}
 	}
 
 	/** All transaction handling is in nodes and cost function.  Should never be used */
@@ -156,5 +162,31 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 	@Override
 	public boolean isSelfEnlisting() {
 		return true;
+	}
+
+	@Override
+	public Article suggestArticle() {
+		final LimitedCarrier<T> carrier = fromNode.carrier();
+
+		final int nodeCount = carrier.nodeCount();
+
+		if(nodeCount <= 1) {
+			return Article.NOTHING;
+		}
+
+		for (int i = 0; i < nodeCount; ++i) {
+			final CarrierNode n = carrier.nodeByIndex(i);
+
+			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_CONSUMER_BROADCASTS)) {
+				final ArticleFunction c = n.getComponent(ArticleFunction.CONSUMER_COMPONENT).get();
+				final Article a = c.suggestArticle();
+
+				if (!a.isNothing()) {
+					return a;
+				}
+			}
+		}
+
+		return Article.NOTHING;
 	}
 }

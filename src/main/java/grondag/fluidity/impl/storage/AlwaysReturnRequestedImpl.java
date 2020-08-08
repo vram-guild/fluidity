@@ -68,4 +68,9 @@ public final class AlwaysReturnRequestedImpl implements FixedArticleFunction {
 	public boolean canApply() {
 		return true;
 	}
+
+	@Override
+	public Article suggestArticle() {
+		return Article.NOTHING;
+	}
 }

@@ -113,6 +113,11 @@ public class AggregateDiscreteStore extends AbstractAggregateStore<AggregateDisc
 		public TransactionDelegate getTransactionDelegate() {
 			return AggregateDiscreteStore.this;
 		}
+
+		@Override
+		public Article suggestArticle() {
+			return getAnyArticle().article();
+		}
 	}
 
 	protected final Supplier supplier = new Supplier();
@@ -142,8 +147,12 @@ public class AggregateDiscreteStore extends AbstractAggregateStore<AggregateDisc
 		public TransactionDelegate getTransactionDelegate() {
 			return AggregateDiscreteStore.this;
 		}
-	}
 
+		@Override
+		public Article suggestArticle() {
+			return getAnyArticle().article();
+		}
+	}
 
 	protected long acceptInner(Article item, long count, boolean simulate) {
 		long result = 0;

@@ -91,4 +91,9 @@ public class ForwardingArticleFunction<T extends ArticleFunction> implements Art
 	public boolean isSelfEnlisting() {
 		return wrapped.isSelfEnlisting();
 	}
+
+	@Override
+	public Article suggestArticle() {
+		return wrapped.suggestArticle();
+	}
 }

@@ -21,7 +21,6 @@ import org.apiguardian.api.API;
 
 import net.minecraft.nbt.CompoundTag;
 
-import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.FixedArticleFunction;
@@ -107,15 +106,5 @@ public final class VoidStore implements FixedStore {
 	@Override
 	public double usage() {
 		return 0;
-	}
-
-	@Override
-	public boolean canSupply(Article article) {
-		return false;
-	}
-
-	@Override
-	public boolean canConsume(Article article) {
-		return true;
 	}
 }

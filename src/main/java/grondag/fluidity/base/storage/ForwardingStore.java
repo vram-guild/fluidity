@@ -180,14 +180,4 @@ public class ForwardingStore implements Store {
 	public boolean hasEventStream() {
 		return wrapped.hasEventStream();
 	}
-
-	@Override
-	public boolean canSupply(Article article) {
-		return wrapped.canSupply(article);
-	}
-
-	@Override
-	public boolean canConsume(Article article) {
-		return wrapped.canConsume(article);
-	}
 }
