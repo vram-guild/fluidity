@@ -23,6 +23,7 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.MutableFraction;
@@ -158,7 +159,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 		}
 
 		@Override
-		public Article suggestArticle() {
+		public Article suggestArticle(ArticleType<?> type) {
 			return getAnyArticle().article();
 		}
 	}
@@ -252,7 +253,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 		}
 
 		@Override
-		public Article suggestArticle() {
+		public Article suggestArticle(ArticleType<?> type) {
 			return getAnyArticle().article();
 		}
 	}

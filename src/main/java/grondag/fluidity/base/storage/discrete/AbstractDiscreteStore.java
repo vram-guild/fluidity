@@ -25,6 +25,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 
 import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.StorageListener;
@@ -193,7 +194,7 @@ public abstract class AbstractDiscreteStore<T extends AbstractDiscreteStore<T>> 
 		}
 
 		@Override
-		public Article suggestArticle() {
+		public Article suggestArticle(ArticleType<?> type) {
 			return getAnyArticle().article();
 		}
 	}
@@ -244,7 +245,7 @@ public abstract class AbstractDiscreteStore<T extends AbstractDiscreteStore<T>> 
 		}
 
 		@Override
-		public Article suggestArticle() {
+		public Article suggestArticle(ArticleType<?> type) {
 			return getAnyArticle().article();
 		}
 	}

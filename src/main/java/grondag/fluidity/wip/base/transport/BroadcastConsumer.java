@@ -17,6 +17,7 @@ package grondag.fluidity.wip.base.transport;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.api.storage.ArticleFunction;
@@ -165,7 +166,7 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 	}
 
 	@Override
-	public Article suggestArticle() {
+	public Article suggestArticle(ArticleType<?> type) {
 		final LimitedCarrier<T> carrier = fromNode.carrier();
 
 		final int nodeCount = carrier.nodeCount();
@@ -179,9 +180,9 @@ public class BroadcastConsumer<T extends CarrierCostFunction> implements Article
 
 			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_CONSUMER_BROADCASTS)) {
 				final ArticleFunction c = n.getComponent(ArticleFunction.CONSUMER_COMPONENT).get();
-				final Article a = c.suggestArticle();
+				final Article a = c.suggestArticle(type);
 
-				if (!a.isNothing()) {
+				if (!a.isNothing() && (type == null || a.type() == type)) {
 					return a;
 				}
 			}

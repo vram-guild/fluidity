@@ -20,6 +20,7 @@ import static org.apiguardian.api.API.Status.INTERNAL;
 import org.apiguardian.api.API;
 
 import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.FixedArticleFunction;
 
@@ -70,7 +71,7 @@ public final class AlwaysReturnZeroImpl implements FixedArticleFunction {
 	}
 
 	@Override
-	public Article suggestArticle() {
+	public Article suggestArticle(ArticleType<?> type) {
 		return Article.NOTHING;
 	}
 }

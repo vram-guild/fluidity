@@ -27,6 +27,7 @@ import net.minecraft.util.Identifier;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.device.DeviceComponentRegistry;
 import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.api.fraction.Fraction;
@@ -120,7 +121,11 @@ public interface ArticleFunction extends TransactionParticipant {
 	 */
 	long apply(Article article, long numerator, long divisor, boolean simulate);
 
-	Article suggestArticle();
+	/**
+	 * Indicates a preference for type of article suggested.  System may respond
+	 * with what is available if not of given type. Leave null for no preference.
+	 */
+	Article suggestArticle(@Nullable ArticleType<?> type);
 
 	ArticleFunction ALWAYS_RETURN_REQUESTED = AlwaysReturnRequestedImpl.INSTANCE;
 	ArticleFunction ALWAYS_RETURN_ZERO = AlwaysReturnZeroImpl.INSTANCE;

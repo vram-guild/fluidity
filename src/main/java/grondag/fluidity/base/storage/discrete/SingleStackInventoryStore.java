@@ -23,6 +23,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.InventoryStore;
@@ -126,7 +127,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 		}
 
 		@Override
-		public Article suggestArticle() {
+		public Article suggestArticle(ArticleType<?> type) {
 			return getAnyArticle().article();
 		}
 	}
@@ -177,7 +178,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 		}
 
 		@Override
-		public Article suggestArticle() {
+		public Article suggestArticle(ArticleType<?> type) {
 			return getAnyArticle().article();
 		}
 	}
