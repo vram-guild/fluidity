@@ -195,7 +195,7 @@ public abstract class AbstractDiscreteStore<T extends AbstractDiscreteStore<T>> 
 
 		@Override
 		public Article suggestArticle(ArticleType<?> type) {
-			return getAnyArticle().article();
+			return type == null ? getAnyArticle().article() : getAnyMatch(type.viewPredicate()).article();
 		}
 	}
 
@@ -246,7 +246,7 @@ public abstract class AbstractDiscreteStore<T extends AbstractDiscreteStore<T>> 
 
 		@Override
 		public Article suggestArticle(ArticleType<?> type) {
-			return getAnyArticle().article();
+			return type == null ? getAnyArticle().article() : getAnyMatch(type.viewPredicate()).article();
 		}
 	}
 

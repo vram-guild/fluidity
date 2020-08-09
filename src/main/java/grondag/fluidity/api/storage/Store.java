@@ -174,6 +174,28 @@ public interface Store extends TransactionParticipant {
 		return StoredArticleView.EMPTY;
 	}
 
+	/**
+	 * DO NOT RETAIN A REFERENCE.
+	 * @return View of a single, non-empty matching article that is in this store, or {@link StoredArticleView#EMPTY} if store is empty.
+	 */
+	default StoredArticleView getAnyMatch(Predicate<? super StoredArticleView> test) {
+		if (isEmpty()) {
+			return StoredArticleView.EMPTY;
+		} else {
+			final int limit = handleCount();
+
+			for (int i = 0; i < limit; ++i) {
+				final StoredArticleView a = view(i);
+
+				if (!a.isEmpty() && test.test(a)) {
+					return a;
+				}
+			}
+		}
+
+		return StoredArticleView.EMPTY;
+	}
+
 	long capacity();
 
 	Fraction volume();

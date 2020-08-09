@@ -17,6 +17,7 @@ package grondag.fluidity.impl.article;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import com.google.common.base.Preconditions;
 import org.apiguardian.api.API;
@@ -33,6 +34,7 @@ import net.minecraft.util.registry.Registry;
 
 import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.article.ArticleTypeRegistry;
+import grondag.fluidity.api.article.StoredArticleView;
 
 @API(status = Status.INTERNAL)
 public class ArticleTypeImpl<T> implements ArticleType<T> {
@@ -45,6 +47,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	final Function<Tag, T> tagReader;
 	final Function<T, Tag> tagWriter;
 	final Function<T, String> keyFunction;
+	final Predicate<? super StoredArticleView> viewPredicate;
 
 	ArticleTypeImpl(BuilderImpl<T> builder) {
 		this.clazz = builder.clazz;
@@ -56,6 +59,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 		this.keyFunction = builder.keyFunction;
 		this.isFluid = clazz == Fluid.class;
 		this.isItem = clazz == Item.class;
+		viewPredicate = v -> v.article().type() == this;
 	}
 
 	@Override
@@ -86,6 +90,11 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	@Override
 	public void toPacket(PacketByteBuf buf) {
 		buf.writeVarInt(ArticleTypeRegistryImpl.INSTANCE.getRawId(this));
+	}
+
+	@Override
+	public Predicate<? super StoredArticleView> viewPredicate() {
+		return viewPredicate;
 	}
 
 	private static class BuilderImpl<U> implements Builder<U> {

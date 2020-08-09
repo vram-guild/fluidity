@@ -128,7 +128,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 
 		@Override
 		public Article suggestArticle(ArticleType<?> type) {
-			return getAnyArticle().article();
+			return type == null ? getAnyArticle().article() : getAnyMatch(type.viewPredicate()).article();
 		}
 	}
 
@@ -179,7 +179,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 
 		@Override
 		public Article suggestArticle(ArticleType<?> type) {
-			return getAnyArticle().article();
+			return type == null ? getAnyArticle().article() : getAnyMatch(type.viewPredicate()).article();
 		}
 	}
 

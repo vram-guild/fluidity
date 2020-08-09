@@ -117,7 +117,7 @@ public class AggregateDiscreteStore extends AbstractAggregateStore<AggregateDisc
 
 		@Override
 		public Article suggestArticle(ArticleType<?> type) {
-			return getAnyArticle().article();
+			return type == null ? getAnyArticle().article() : getAnyMatch(type.viewPredicate()).article();
 		}
 	}
 
@@ -151,7 +151,7 @@ public class AggregateDiscreteStore extends AbstractAggregateStore<AggregateDisc
 
 		@Override
 		public Article suggestArticle(ArticleType<?> type) {
-			return getAnyArticle().article();
+			return type == null ? getAnyArticle().article() : getAnyMatch(type.viewPredicate()).article();
 		}
 	}
 

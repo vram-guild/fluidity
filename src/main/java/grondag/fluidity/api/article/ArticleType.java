@@ -18,6 +18,7 @@ package grondag.fluidity.api.article;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import com.google.common.collect.ImmutableSet;
 import org.apiguardian.api.API;
@@ -27,6 +28,7 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.PacketByteBuf;
+
 import grondag.fluidity.impl.article.ArticleTypeImpl;
 
 @API(status = Status.EXPERIMENTAL)
@@ -85,6 +87,12 @@ public interface ArticleType<T> {
 	 * @param buf Target packet buffer for serialization output.
 	 */
 	void toPacket(PacketByteBuf buf);
+
+	/**
+	 * Convenient, non-allocating predicate to match articles of this type.
+	 * @return  view predicate that matches articles of this type
+	 */
+	Predicate<? super StoredArticleView> viewPredicate();
 
 	/**
 	 * Deserialize an instance previously serialized with {@link #toTag()}

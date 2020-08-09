@@ -133,7 +133,7 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 
 		@Override
 		public Article suggestArticle(ArticleType<?> type) {
-			return getAnyArticle().article();
+			return type == null ? getAnyArticle().article() : getAnyMatch(type.viewPredicate()).article();
 		}
 	}
 
@@ -187,7 +187,7 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 
 		@Override
 		public Article suggestArticle(ArticleType<?> type) {
-			return getAnyArticle().article();
+			return type == null ? getAnyArticle().article() : getAnyMatch(type.viewPredicate()).article();
 		}
 	}
 

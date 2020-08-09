@@ -160,7 +160,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 
 		@Override
 		public Article suggestArticle(ArticleType<?> type) {
-			return getAnyArticle().article();
+			return type == null ? getAnyArticle().article() : getAnyMatch(type.viewPredicate()).article();
 		}
 	}
 
@@ -254,7 +254,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 
 		@Override
 		public Article suggestArticle(ArticleType<?> type) {
-			return getAnyArticle().article();
+			return type == null ? getAnyArticle().article() : getAnyMatch(type.viewPredicate()).article();
 		}
 	}
 

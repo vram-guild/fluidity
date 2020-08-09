@@ -28,6 +28,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.PacketByteBuf;
+
 import grondag.fluidity.impl.article.ArticleImpl;
 
 /**
@@ -149,10 +150,10 @@ public interface Article {
 	 * and stack have no tag or both tags are equal.
 	 */
 	default boolean matches(ItemStack stack) {
-		if (isItem()) {
-			return stack.getItem() == toItem() && (hasTag() ? doesTagMatch(stack.getTag()) : !stack.hasTag());
+		if (stack == null || stack.isEmpty()) {
+			return isNothing();
 		} else {
-			return stack == ItemStack.EMPTY;
+			return isItem() && stack.getItem() == toItem() && (hasTag() ? doesTagMatch(stack.getTag()) : !stack.hasTag());
 		}
 	}
 
