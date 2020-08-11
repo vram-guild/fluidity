@@ -32,6 +32,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
+import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.article.ArticleTypeRegistry;
 import grondag.fluidity.api.article.StoredArticleView;
@@ -48,6 +49,8 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	final Function<T, Tag> tagWriter;
 	final Function<T, String> keyFunction;
 	final Predicate<? super StoredArticleView> viewPredicate;
+	final Predicate<Article> articlePredicate;
+	final Predicate<ArticleType<?>> typePredicate;
 
 	ArticleTypeImpl(BuilderImpl<T> builder) {
 		this.clazz = builder.clazz;
@@ -60,6 +63,8 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 		this.isFluid = clazz == Fluid.class;
 		this.isItem = clazz == Item.class;
 		viewPredicate = v -> v.article().type() == this;
+		articlePredicate = a -> a.type() == this;
+		typePredicate = t -> t == this;
 	}
 
 	@Override
@@ -95,6 +100,16 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	@Override
 	public Predicate<? super StoredArticleView> viewPredicate() {
 		return viewPredicate;
+	}
+
+	@Override
+	public Predicate<Article> articlePredicate() {
+		return articlePredicate;
+	}
+
+	@Override
+	public Predicate<ArticleType<?>> typePredicate() {
+		return typePredicate;
 	}
 
 	private static class BuilderImpl<U> implements Builder<U> {

@@ -95,6 +95,18 @@ public interface ArticleType<T> {
 	Predicate<? super StoredArticleView> viewPredicate();
 
 	/**
+	 * Convenient, non-allocating predicate to match articles of this type.
+	 * @return  predicate that matches articles of this type
+	 */
+	Predicate<Article> articlePredicate();
+
+	/**
+	 * Convenient, non-allocating predicate to match this type.
+	 * @return  predicate that matches this type
+	 */
+	Predicate<ArticleType<?>> typePredicate();
+
+	/**
 	 * Deserialize an instance previously serialized with {@link #toTag()}
 	 *
 	 * @param tag Earlier output of {@link #toTag()}

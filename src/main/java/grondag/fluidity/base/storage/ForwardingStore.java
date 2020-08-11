@@ -23,11 +23,13 @@ import org.apiguardian.api.API.Status;
 import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.ArticleFunction;
 import grondag.fluidity.api.storage.StorageEventStream;
 import grondag.fluidity.api.storage.Store;
+import grondag.fluidity.api.util.AmbiguousBoolean;
 
 @API(status = Status.EXPERIMENTAL)
 public class ForwardingStore implements Store {
@@ -179,5 +181,10 @@ public class ForwardingStore implements Store {
 	@Override
 	public boolean hasEventStream() {
 		return wrapped.hasEventStream();
+	}
+
+	@Override
+	public AmbiguousBoolean allowsType(ArticleType<?> type) {
+		return wrapped.allowsType(type);
 	}
 }

@@ -22,10 +22,14 @@ import com.google.common.util.concurrent.Runnables;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import net.minecraft.fluid.Fluid;
+
 import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.storage.StorageEventStream;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.storage.Store;
+import grondag.fluidity.api.util.AmbiguousBoolean;
 import grondag.fluidity.base.article.StoredArticle;
 import grondag.fluidity.base.storage.helper.ListenerSet;
 
@@ -35,6 +39,7 @@ public abstract class AbstractStore<V extends StoredArticle, T extends AbstractS
 	protected Predicate<Article> filter = Predicates.alwaysTrue();
 	protected Runnable dirtyNotifier = Runnables.doNothing();
 	protected boolean isValid = true;
+	protected Predicate<ArticleType<?>> typeFilter = null;
 
 	@SuppressWarnings("unchecked")
 	public T filter(Predicate<Article> filter) {
@@ -42,10 +47,27 @@ public abstract class AbstractStore<V extends StoredArticle, T extends AbstractS
 		return (T) this;
 	}
 
+	@SuppressWarnings("unchecked")
+	public T typeFilter(Predicate<ArticleType<?>> typeFilter) {
+		this.typeFilter = typeFilter;
+		return (T) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public T filter(ArticleType<Fluid> type) {
+		filter(type.articlePredicate());
+		typeFilter(type.typePredicate());
+		return (T) this;
+	}
 
 	@Override
 	public boolean isValid() {
 		return isValid;
+	}
+
+	@Override
+	public AmbiguousBoolean allowsType(ArticleType<?> type) {
+		return typeFilter == null ? AmbiguousBoolean.MAYBE : (typeFilter.test(type) ? AmbiguousBoolean.YES : AmbiguousBoolean.NO);
 	}
 
 	/**

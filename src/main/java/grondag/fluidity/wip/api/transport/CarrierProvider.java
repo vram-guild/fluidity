@@ -48,19 +48,19 @@ public interface CarrierProvider {
 	 * @param broadcastSupplier
 	 * @return  Will return existing connection if node is already connected.
 	 */
-	default CarrierSession attachIfPresent(CarrierType type, CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction) {
+	default CarrierSession attachIfPresent(CarrierType type, Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction) {
 		final Carrier carrier = getCarrier(type);
-		return carrier == null || carrier == Carrier.EMPTY ? CarrierSession.INVALID : carrier.attach(fromNode, componentFunction);
+		return carrier == null || carrier == Carrier.EMPTY ? CarrierSession.INVALID : carrier.attach(componentFunction);
 	}
 
-	default CarrierSession attachIfPresent(ArticleType<?> type, CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction) {
+	default CarrierSession attachIfPresent(ArticleType<?> type, Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction) {
 		final CarrierType best = getBestCarrier(type);
 
 		if(best == null || best == CarrierType.EMPTY) {
 			return CarrierSession.INVALID;
 		}
 
-		return attachIfPresent(best, fromNode, componentFunction);
+		return attachIfPresent(best, componentFunction);
 	}
 
 	CarrierProvider EMPTY = new CarrierProvider() {

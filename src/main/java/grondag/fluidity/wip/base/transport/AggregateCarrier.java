@@ -26,7 +26,6 @@ import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.base.storage.helper.ListenerSet;
 import grondag.fluidity.wip.api.transport.Carrier;
-import grondag.fluidity.wip.api.transport.CarrierConnector;
 import grondag.fluidity.wip.api.transport.CarrierListener;
 import grondag.fluidity.wip.api.transport.CarrierNode;
 import grondag.fluidity.wip.api.transport.CarrierSession;
@@ -86,7 +85,7 @@ public abstract class AggregateCarrier<T extends CarrierCostFunction> implements
 	}
 
 	@Override
-	public CarrierSession attach(CarrierConnector fromDNode, Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction) {
+	public CarrierSession attach(Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction) {
 		throw new UnsupportedOperationException("Aggregate carriers do not support direct attachment");
 	}
 

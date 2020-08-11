@@ -36,7 +36,7 @@ public interface Carrier {
 		return false;
 	}
 
-	CarrierSession attach(CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction);
+	CarrierSession attach(Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction);
 
 	void startListening(CarrierListener listener, boolean sendNotifications);
 
@@ -118,7 +118,7 @@ public interface Carrier {
 		}
 
 		@Override
-		public CarrierSession attach(CarrierConnector fromNode, Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction) {
+		public CarrierSession attach(Function<DeviceComponentType<?>, DeviceComponentAccess<?>> componentFunction) {
 			return CarrierSession.INVALID;
 		}
 

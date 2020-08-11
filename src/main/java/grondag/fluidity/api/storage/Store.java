@@ -26,11 +26,13 @@ import net.minecraft.util.Identifier;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.device.DeviceComponentRegistry;
 import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.transact.TransactionParticipant;
+import grondag.fluidity.api.util.AmbiguousBoolean;
 import grondag.fluidity.impl.storage.CreativeStore;
 import grondag.fluidity.impl.storage.EmptyStore;
 import grondag.fluidity.impl.storage.VoidStore;
@@ -241,4 +243,14 @@ public interface Store extends TransactionParticipant {
 	 * @return Internal {@link Store} of this device, or the regular storage if not a multiblock.
 	 */
 	DeviceComponentType<Store> INTERNAL_STORAGE_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "internal_storage"), EMPTY);
+
+	/**
+	 * Indicates if store could potentially supply or consume article of given type.
+	 * Strongly advised to override to allow optimized usage of stores.
+	 * @param type Article type of interest.
+	 * @return Indicator if the store may supply or consume articles of type.
+	 */
+	default AmbiguousBoolean allowsType(ArticleType<?> type) {
+		return AmbiguousBoolean.MAYBE;
+	}
 }
