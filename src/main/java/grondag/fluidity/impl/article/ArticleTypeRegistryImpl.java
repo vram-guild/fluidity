@@ -47,7 +47,7 @@ public final class ArticleTypeRegistryImpl implements ArticleTypeRegistry {
 
 	static {
 		ARTICLE_REGISTRY = (MutableRegistry<ArticleTypeImpl>) ((MutableRegistry) Registry.REGISTRIES).add(REGISTRY_KEY,
-				new DefaultedRegistry("fluidity:nothing", REGISTRY_KEY, Lifecycle.experimental()));
+				new DefaultedRegistry("fluidity:nothing", REGISTRY_KEY, Lifecycle.stable()), Lifecycle.stable());
 	}
 
 	@Override
@@ -82,7 +82,7 @@ public final class ArticleTypeRegistryImpl implements ArticleTypeRegistry {
 
 	@Override
 	public ArticleType add(Identifier id, ArticleType articleType) {
-		return ARTICLE_REGISTRY.add(RegistryKey.of(REGISTRY_KEY, id), (ArticleTypeImpl) articleType);
+		return ARTICLE_REGISTRY.add(RegistryKey.of(REGISTRY_KEY, id), (ArticleTypeImpl) articleType, Lifecycle.stable());
 	}
 
 	@Override
