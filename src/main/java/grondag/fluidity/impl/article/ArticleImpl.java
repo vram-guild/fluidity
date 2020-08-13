@@ -21,6 +21,7 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -159,7 +160,7 @@ public class ArticleImpl<T> implements Article {
 	}
 
 	public static Article of(Fluid fluid) {
-		return ArticleCache.getArticle(ArticleType.FLUID, fluid, null);
+		return fluid == Fluids.EMPTY ? NOTHING : ArticleCache.getArticle(ArticleType.FLUID, fluid, null);
 	}
 
 	@Override

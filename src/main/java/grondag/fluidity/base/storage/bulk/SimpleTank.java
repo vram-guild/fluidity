@@ -172,7 +172,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 		public Fraction apply(Article item, Fraction volume, boolean simulate) {
 			Preconditions.checkArgument(!volume.isNegative(), "Request to accept negative volume. (%s)", volume);
 
-			if (item == Article.NOTHING || volume.isZero() || (!item.equals(article) && article != Article.NOTHING)) {
+			if (item == Article.NOTHING || volume.isZero()|| (!item.equals(article) && article != Article.NOTHING) || !filter.test(item)) {
 				return Fraction.ZERO;
 			}
 
@@ -209,7 +209,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 			Preconditions.checkArgument(numerator >= 0, "Request to accept negative volume. (%s)", numerator);
 			Preconditions.checkArgument(divisor >= 1, "Divisor must be >= 1. (%s)", divisor);
 
-			if (item == Article.NOTHING || numerator == 0 || (!item.equals(article) && article != Article.NOTHING)) {
+			if (item == Article.NOTHING || numerator == 0 || (!item.equals(article) && article != Article.NOTHING) || !filter.test(item)) {
 				return 0;
 			}
 
