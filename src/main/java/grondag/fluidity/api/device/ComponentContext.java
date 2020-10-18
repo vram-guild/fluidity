@@ -15,10 +15,9 @@
  ******************************************************************************/
 package grondag.fluidity.api.device;
 
-import javax.annotation.Nullable;
-
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;

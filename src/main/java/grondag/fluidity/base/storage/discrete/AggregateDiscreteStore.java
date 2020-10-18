@@ -17,17 +17,7 @@ package grondag.fluidity.base.storage.discrete;
 
 import java.util.Set;
 
-import javax.annotation.Nullable;
-
 import com.google.common.base.Preconditions;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
-
-import net.minecraft.item.Item;
-import net.minecraft.nbt.CompoundTag;
-
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -40,6 +30,14 @@ import grondag.fluidity.base.article.AggregateDiscreteStoredArticle;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractAggregateStore;
 import grondag.fluidity.base.storage.discrete.helper.DiscreteTrackingNotifier;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.item.Item;
+import net.minecraft.nbt.CompoundTag;
 
 // NB: Previous versions attempted to consolidate member notifications
 // but this can lead to de-sync and other problems with creative bins

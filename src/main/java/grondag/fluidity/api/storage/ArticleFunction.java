@@ -15,16 +15,6 @@
  ******************************************************************************/
 package grondag.fluidity.api.storage;
 
-import javax.annotation.Nullable;
-
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Identifier;
-
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -34,6 +24,14 @@ import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.transact.TransactionParticipant;
 import grondag.fluidity.impl.storage.AlwaysReturnRequestedImpl;
 import grondag.fluidity.impl.storage.AlwaysReturnZeroImpl;
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Identifier;
 
 /**
  * Flexible storage interface for tanks, containers.

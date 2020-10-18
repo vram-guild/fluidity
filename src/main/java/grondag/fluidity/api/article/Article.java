@@ -15,10 +15,10 @@
  ******************************************************************************/
 package grondag.fluidity.api.article;
 
-import javax.annotation.Nullable;
-
+import grondag.fluidity.impl.article.ArticleImpl;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
@@ -28,8 +28,6 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.PacketByteBuf;
-
-import grondag.fluidity.impl.article.ArticleImpl;
 
 /**
  * Represents a game resource that may be stored or transported.<p>

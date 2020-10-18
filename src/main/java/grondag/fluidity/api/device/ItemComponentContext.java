@@ -18,10 +18,9 @@ package grondag.fluidity.api.device;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javax.annotation.Nullable;
-
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;

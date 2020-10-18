@@ -19,18 +19,16 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.function.Function;
 
-import javax.annotation.Nullable;
-
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
-
-import net.minecraft.util.Identifier;
-
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentRegistry;
 import grondag.fluidity.api.device.DeviceComponentType;
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.util.Identifier;
 
 @API(status = Status.EXPERIMENTAL)
 public interface CarrierProvider {

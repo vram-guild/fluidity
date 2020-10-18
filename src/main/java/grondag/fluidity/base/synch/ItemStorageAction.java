@@ -15,10 +15,9 @@
  ******************************************************************************/
 package grondag.fluidity.base.synch;
 
-import javax.annotation.Nullable;
-
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -81,7 +80,7 @@ public enum ItemStorageAction {
 
 		// if alt/right/middle clicking on same item, don't count that as a deposit
 		if (cursorStack != null && !cursorStack.isEmpty()
-				&& !(target != null && ScreenHandler.canStacksCombine(cursorStack, target.article().toStack()) && (Screen.hasAltDown() || mouseButton > 0))) {
+		&& !(target != null && ScreenHandler.canStacksCombine(cursorStack, target.article().toStack()) && (Screen.hasAltDown() || mouseButton > 0))) {
 
 			// putting something in
 			if (mouseButton == MOUSE_LEFT && !Screen.hasAltDown()) {

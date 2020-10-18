@@ -15,19 +15,17 @@
  ******************************************************************************/
 package grondag.fluidity.wip.base.transport;
 
-import javax.annotation.Nullable;
-
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.transact.TransactionParticipant;
 import grondag.fluidity.wip.api.transport.CarrierSession;
+import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
 /**
  * Mimics consumer/supplier functions - used to throttle throughput.

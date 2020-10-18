@@ -22,8 +22,11 @@ import java.util.Iterator;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 
-import javax.annotation.Nullable;
-
+import grondag.fluidity.Fluidity;
+import grondag.fluidity.FluidityConfig;
+import grondag.fluidity.api.multiblock.MultiBlock;
+import grondag.fluidity.api.multiblock.MultiBlockManager;
+import grondag.fluidity.api.multiblock.MultiBlockMember;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -32,16 +35,11 @@ import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import grondag.fluidity.Fluidity;
-import grondag.fluidity.FluidityConfig;
-import grondag.fluidity.api.multiblock.MultiBlock;
-import grondag.fluidity.api.multiblock.MultiBlockManager;
-import grondag.fluidity.api.multiblock.MultiBlockMember;
 
 @API(status = Status.EXPERIMENTAL)
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -160,14 +158,14 @@ public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U, V>, U extend
 				if(fromOwner.memberCount() > toOwner.memberCount()) {
 					if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
 						Fluidity.trace("Merging compound device %s from device %s @ %s into comound device %s from device %s @ %s",
-								toOwner, toDevice.toString(), toDevice.getBlockPos().toString(), fromOwner, fromDevice.toString(), fromDevice.getBlockPos().toString());
+							toOwner, toDevice.toString(), toDevice.getBlockPos().toString(), fromOwner, fromDevice.toString(), fromDevice.getBlockPos().toString());
 					}
 
 					handleMerge(toOwner, fromOwner);
 				} else {
 					if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
 						Fluidity.trace("Merging compound device %s from device %s @ %s into comound device %s from device %s @ %s",
-								fromOwner, fromDevice.toString(), fromDevice.getBlockPos().toString(), toOwner, toDevice.toString(), toDevice.getBlockPos().toString());
+							fromOwner, fromDevice.toString(), fromDevice.getBlockPos().toString(), toOwner, toDevice.toString(), toDevice.getBlockPos().toString());
 					}
 
 					handleMerge(fromOwner, toOwner);

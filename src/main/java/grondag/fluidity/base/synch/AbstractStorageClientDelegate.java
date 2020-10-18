@@ -17,14 +17,15 @@ package grondag.fluidity.base.synch;
 
 import java.util.Comparator;
 
-import javax.annotation.Nullable;
-
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
-import net.fabricmc.fabric.api.network.PacketContext;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.network.PacketByteBuf;
+
+import net.fabricmc.fabric.api.network.PacketContext;
 
 @API(status = Status.EXPERIMENTAL)
 public abstract class AbstractStorageClientDelegate<T extends DisplayDelegate> {

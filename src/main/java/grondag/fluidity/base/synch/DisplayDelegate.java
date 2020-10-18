@@ -17,16 +17,14 @@ package grondag.fluidity.base.synch;
 
 import java.util.Comparator;
 
-import javax.annotation.Nullable;
-
+import grondag.fluidity.api.article.Article;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-
-import grondag.fluidity.api.article.Article;
 
 /**
  * Client-side representation of server inventory that supports
@@ -116,18 +114,18 @@ public interface DisplayDelegate {
 
 	static Comparator<DisplayDelegate> getSort(int sortIndex) {
 		switch(sortIndex % SORT_COUNT) {
-		case 0:
-		default:
-			return SORT_BY_NAME_ASC;
+			case 0:
+			default:
+				return SORT_BY_NAME_ASC;
 
-		case 1:
-			return SORT_BY_NAME_DESC;
+			case 1:
+				return SORT_BY_NAME_DESC;
 
-		case 2:
-			return SORT_BY_QTY_ASC;
+			case 2:
+				return SORT_BY_QTY_ASC;
 
-		case 3:
-			return SORT_BY_QTY_DESC;
+			case 3:
+				return SORT_BY_QTY_DESC;
 		}
 	}
 
@@ -135,18 +133,18 @@ public interface DisplayDelegate {
 
 	static String getSortTranslactionKey(int sortIndex) {
 		switch(sortIndex % SORT_COUNT) {
-		case 0:
-		default:
-			return "label.fluidity.sort_by_name_asc";
+			case 0:
+			default:
+				return "label.fluidity.sort_by_name_asc";
 
-		case 1:
-			return "label.fluidity.sort_by_name_desc";
+			case 1:
+				return "label.fluidity.sort_by_name_desc";
 
-		case 2:
-			return "label.fluidity.sort_by_qty_asc";
+			case 2:
+				return "label.fluidity.sort_by_qty_asc";
 
-		case 3:
-			return "label.fluidity.sort_by_qty_desc";
+			case 3:
+				return "label.fluidity.sort_by_qty_desc";
 		}
 	}
 

@@ -15,10 +15,11 @@
  ******************************************************************************/
 package grondag.fluidity.impl.article;
 
-import javax.annotation.Nullable;
-
+import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.article.ArticleType;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
@@ -28,9 +29,6 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.PacketByteBuf;
-
-import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.article.ArticleType;
 
 @API(status = Status.INTERNAL)
 public class ArticleImpl<T> implements Article {

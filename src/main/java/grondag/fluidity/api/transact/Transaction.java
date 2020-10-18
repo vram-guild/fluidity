@@ -15,12 +15,10 @@
  ******************************************************************************/
 package grondag.fluidity.api.transact;
 
-import javax.annotation.Nullable;
-
+import grondag.fluidity.impl.TransactionImpl;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
-
-import grondag.fluidity.impl.TransactionImpl;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a aggregate operation involving one or
