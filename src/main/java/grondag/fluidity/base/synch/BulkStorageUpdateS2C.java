@@ -23,7 +23,8 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
+
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
@@ -61,8 +62,8 @@ public final class BulkStorageUpdateS2C {
 	}
 
 	private static void send(Identifier id, ServerPlayerEntity player, PacketByteBuf buf) {
-		final Packet<?> packet = ServerSidePacketRegistry.INSTANCE.toPacket(id, buf);
-		ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, packet);
+		final Packet<?> packet = ServerPlayNetworking.createS2CPacket(id, buf);
+		player.networkHandler.sendPacket(packet);
 	}
 
 	public static Identifier ID_FULL_REFRESH = new Identifier(Fluidity.MOD_ID, "ffrs2c");

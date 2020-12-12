@@ -17,8 +17,13 @@ package grondag.fluidity.base.synch;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
-import net.fabricmc.fabric.api.network.PacketContext;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
+
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.MutableFraction;
@@ -48,37 +53,37 @@ public class BulkStorageClientDelegate extends AbstractStorageClientDelegate<Bul
 	}
 
 	@Override
-	public void handleUpdateWithCapacity(PacketContext context, PacketByteBuf buf) {
-		final BulkDisplayDelegate[] items = readItems(buf);
-		final Fraction newCapacity = new Fraction(buf);
+	public void handleUpdateWithCapacity(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender) {
+		final BulkDisplayDelegate[] items = readItems(buffer);
+		final Fraction newCapacity = new Fraction(buffer);
 
-		if (context.getTaskQueue().isOnThread()) {
+		if (client.isOnThread()) {
 			handleUpdateInner(items, newCapacity);
 		} else {
-			context.getTaskQueue().execute(() -> handleUpdateInner(items, newCapacity));
+			client.execute(() -> handleUpdateInner(items, newCapacity));
 		}
 	}
 
 	@Override
-	public void handleUpdate(PacketContext context, PacketByteBuf buf) {
-		final BulkDisplayDelegate[] items = readItems(buf);
+	public void handleUpdate(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender) {
+		final BulkDisplayDelegate[] items = readItems(buffer);
 
-		if (context.getTaskQueue().isOnThread()) {
+		if (client.isOnThread()) {
 			handleUpdateInner(items, null);
 		} else {
-			context.getTaskQueue().execute(() -> handleUpdateInner(items, null));
+			client.execute(() -> handleUpdateInner(items, null));
 		}
 	}
 
 	@Override
-	public void handleFullRefresh(PacketContext context, PacketByteBuf buf) {
-		final BulkDisplayDelegate[] items = readItems(buf);
-		final Fraction newCapacity = new Fraction(buf);
+	public void handleFullRefresh(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender) {
+		final BulkDisplayDelegate[] items = readItems(buffer);
+		final Fraction newCapacity = new Fraction(buffer);
 
-		if (context.getTaskQueue().isOnThread()) {
+		if (client.isOnThread()) {
 			handleFullRefreshInner(items, newCapacity);
 		} else {
-			context.getTaskQueue().execute(() -> handleFullRefreshInner(items, newCapacity));
+			client.execute(() -> handleFullRefreshInner(items, newCapacity));
 		}
 	}
 

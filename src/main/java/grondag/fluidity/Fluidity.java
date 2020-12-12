@@ -27,7 +27,7 @@ import net.minecraft.potion.Potions;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.server.ServerStartCallback;
 import net.fabricmc.fabric.api.event.server.ServerTickCallback;
-import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import grondag.fluidity.api.device.ItemActionHelper;
 import grondag.fluidity.base.synch.ItemStorageInteractionC2S;
@@ -55,7 +55,7 @@ public class Fluidity implements ModInitializer {
 			MultiBlockManagerImpl.start(s);
 		});
 
-		ServerSidePacketRegistry.INSTANCE.register(ItemStorageInteractionC2S.ID, ItemStorageInteractionC2S::accept);
+		ServerPlayNetworking.registerGlobalReceiver(ItemStorageInteractionC2S.ID, ItemStorageInteractionC2S::accept);
 
 		ItemActionHelper.addPotionActions(Fluids.WATER, Potions.WATER);
 		ItemActionHelper.addItemActions(Fluids.WATER, Items.BUCKET, Items.WATER_BUCKET);

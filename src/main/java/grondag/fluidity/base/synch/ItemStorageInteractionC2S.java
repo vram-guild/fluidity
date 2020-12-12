@@ -19,15 +19,18 @@ import io.netty.buffer.Unpooled;
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
-import net.fabricmc.fabric.api.network.PacketContext;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
@@ -43,21 +46,22 @@ public class ItemStorageInteractionC2S {
 
 	@Environment(EnvType.CLIENT)
 	public static void sendPacket(ItemStorageAction action, DiscreteDisplayDelegate target) {
-		final PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-		buf.writeEnumConstant(action);
-		buf.writeInt(target == null ? -1 : target.handle());
-		ClientSidePacketRegistry.INSTANCE.sendToServer(ID, buf);
+		if (MinecraftClient.getInstance().getNetworkHandler() != null) {
+			final PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeEnumConstant(action);
+			buf.writeInt(target == null ? -1 : target.handle());
+			ClientPlayNetworking.send(ID, buf);
+		}
 	}
 
-	public static void accept(PacketContext context, PacketByteBuf buf) {
+	public static void accept(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
 		final ItemStorageAction action = buf.readEnumConstant(ItemStorageAction.class);
 		final int handle = buf.readInt();
-		final ServerPlayerEntity player = (ServerPlayerEntity) context.getPlayer();
 
-		if (context.getTaskQueue().isOnThread()) {
+		if (server.isOnThread()) {
 			acceptInner(action, handle, player);
 		} else {
-			context.getTaskQueue().execute(() -> acceptInner(action, handle, player));
+			server.execute(() -> acceptInner(action, handle, player));
 		}
 	}
 

@@ -17,8 +17,13 @@ package grondag.fluidity.base.synch;
 
 import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
-import net.fabricmc.fabric.api.network.PacketContext;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
+
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+
 import grondag.fluidity.api.article.Article;
 
 @API(status = Status.EXPERIMENTAL)
@@ -46,37 +51,37 @@ public class DiscreteStorageClientDelegate extends AbstractStorageClientDelegate
 	}
 
 	@Override
-	public void handleUpdateWithCapacity(PacketContext context, PacketByteBuf buf) {
-		final DiscreteDisplayDelegate[] items = readItems(buf);
-		final long newCapacity = buf.readVarLong();
+	public void handleUpdateWithCapacity(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender) {
+		final DiscreteDisplayDelegate[] items = readItems(buffer);
+		final long newCapacity = buffer.readVarLong();
 
-		if (context.getTaskQueue().isOnThread()) {
+		if (client.isOnThread()) {
 			handleUpdateInner(items, newCapacity);
 		} else {
-			context.getTaskQueue().execute(() -> handleUpdateInner(items, newCapacity));
+			client.execute(() -> handleUpdateInner(items, newCapacity));
 		}
 	}
 
 	@Override
-	public void handleUpdate(PacketContext context, PacketByteBuf buf) {
-		final DiscreteDisplayDelegate[] items = readItems(buf);
+	public void handleUpdate(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender) {
+		final DiscreteDisplayDelegate[] items = readItems(buffer);
 
-		if (context.getTaskQueue().isOnThread()) {
+		if (client.isOnThread()) {
 			handleUpdateInner(items, -1);
 		} else {
-			context.getTaskQueue().execute(() -> handleUpdateInner(items, -1));
+			client.execute(() -> handleUpdateInner(items, -1));
 		}
 	}
 
 	@Override
-	public void handleFullRefresh(PacketContext context, PacketByteBuf buf) {
-		final DiscreteDisplayDelegate[] items = readItems(buf);
-		final long newCapacity = buf.readVarLong();
+	public void handleFullRefresh(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender) {
+		final DiscreteDisplayDelegate[] items = readItems(buffer);
+		final long newCapacity = buffer.readVarLong();
 
-		if (context.getTaskQueue().isOnThread()) {
+		if (client.isOnThread()) {
 			handleFullRefreshInner(items, newCapacity);
 		} else {
-			context.getTaskQueue().execute(() -> handleFullRefreshInner(items, newCapacity));
+			client.execute(() -> handleFullRefreshInner(items, newCapacity));
 		}
 	}
 

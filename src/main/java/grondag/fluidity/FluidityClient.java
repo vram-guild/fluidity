@@ -19,7 +19,7 @@ import org.apiguardian.api.API;
 import org.apiguardian.api.API.Status;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import grondag.fluidity.base.synch.BulkStorageClientDelegate;
 import grondag.fluidity.base.synch.BulkStorageUpdateS2C;
@@ -32,12 +32,12 @@ public class FluidityClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		ClientSidePacketRegistry.INSTANCE.register(DiscreteStorageUpdateS2C.ID_FULL_REFRESH, DiscreteStorageClientDelegate.INSTANCE::handleFullRefresh);
-		ClientSidePacketRegistry.INSTANCE.register(DiscreteStorageUpdateS2C.ID_UPDATE, DiscreteStorageClientDelegate.INSTANCE::handleUpdate);
-		ClientSidePacketRegistry.INSTANCE.register(DiscreteStorageUpdateS2C.ID_UPDATE_WITH_CAPACITY, DiscreteStorageClientDelegate.INSTANCE::handleUpdateWithCapacity);
+		ClientPlayNetworking.registerGlobalReceiver(DiscreteStorageUpdateS2C.ID_FULL_REFRESH, DiscreteStorageClientDelegate.INSTANCE::handleFullRefresh);
+		ClientPlayNetworking.registerGlobalReceiver(DiscreteStorageUpdateS2C.ID_UPDATE, DiscreteStorageClientDelegate.INSTANCE::handleUpdate);
+		ClientPlayNetworking.registerGlobalReceiver(DiscreteStorageUpdateS2C.ID_UPDATE_WITH_CAPACITY, DiscreteStorageClientDelegate.INSTANCE::handleUpdateWithCapacity);
 
-		ClientSidePacketRegistry.INSTANCE.register(BulkStorageUpdateS2C.ID_FULL_REFRESH, BulkStorageClientDelegate.INSTANCE::handleFullRefresh);
-		ClientSidePacketRegistry.INSTANCE.register(BulkStorageUpdateS2C.ID_UPDATE, BulkStorageClientDelegate.INSTANCE::handleUpdate);
-		ClientSidePacketRegistry.INSTANCE.register(BulkStorageUpdateS2C.ID_UPDATE_WITH_CAPACITY, BulkStorageClientDelegate.INSTANCE::handleUpdateWithCapacity);
+		ClientPlayNetworking.registerGlobalReceiver(BulkStorageUpdateS2C.ID_FULL_REFRESH, BulkStorageClientDelegate.INSTANCE::handleFullRefresh);
+		ClientPlayNetworking.registerGlobalReceiver(BulkStorageUpdateS2C.ID_UPDATE, BulkStorageClientDelegate.INSTANCE::handleUpdate);
+		ClientPlayNetworking.registerGlobalReceiver(BulkStorageUpdateS2C.ID_UPDATE_WITH_CAPACITY, BulkStorageClientDelegate.INSTANCE::handleUpdateWithCapacity);
 	}
 }
