@@ -20,11 +20,10 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class ListenerSet<L> implements Iterable<L>, Iterator<L> {
 	protected final ObjectArrayList<WeakReference<L>> listeners = new ObjectArrayList<>();
 	protected int index = -1;

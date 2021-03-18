@@ -15,15 +15,14 @@
  ******************************************************************************/
 package grondag.fluidity.impl;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.MutableFraction;
 import grondag.fluidity.base.synch.BulkDisplayDelegate;
 
-@API(status = Status.INTERNAL)
+@Internal
 public class BulkDisplayDelegateImpl extends AbstractDisplayDelegateImpl implements BulkDisplayDelegate {
 	final MutableFraction amount = new MutableFraction();
 

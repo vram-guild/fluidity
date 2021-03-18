@@ -18,8 +18,7 @@ package grondag.fluidity.base.storage.discrete;
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.Object2LongMap.Entry;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -37,7 +36,7 @@ import grondag.fluidity.base.storage.discrete.helper.DiscreteTrackingNotifier;
 import grondag.fluidity.base.storage.helper.AbstractArticleManager;
 import grondag.fluidity.impl.article.ArticleImpl;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public abstract class AbstractDiscreteStore<T extends AbstractDiscreteStore<T>> extends AbstractLazyRollbackStore<StoredDiscreteArticle, T> implements DiscreteStore {
 	protected final AbstractArticleManager<StoredDiscreteArticle> articles;
 	protected final DiscreteTrackingNotifier notifier;

@@ -16,8 +16,7 @@
 package grondag.fluidity.base.synch;
 
 import io.netty.buffer.Unpooled;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
@@ -30,7 +29,7 @@ import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public final class BulkStorageUpdateS2C {
 	private BulkStorageUpdateS2C() {}
 

@@ -18,8 +18,7 @@ package grondag.fluidity.api.multiblock;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.impl.MultiBlockManagerImpl;
 
@@ -33,7 +32,7 @@ import grondag.fluidity.impl.MultiBlockManagerImpl;
  *
  * @see <a href="https://github.com/grondag/fluidity#multiblocks">https://github.com/grondag/fluidity#multiblocks</a>
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface MultiBlockManager<T extends MultiBlockMember<T, U, V>, U extends MultiBlock<T, U, V>, V> {
 	/**
 	 * Call to notify the manager when a member is added to the world.

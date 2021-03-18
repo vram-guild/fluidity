@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.api.device;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.Identifier;
@@ -27,7 +26,7 @@ import net.minecraft.world.World;
  * Data object that carries information to device components regarding
  * their state and the conditions in which they are being accessed.
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface ComponentContext {
 	/**
 	 * Identifies a requested location or sub-component within the device component,

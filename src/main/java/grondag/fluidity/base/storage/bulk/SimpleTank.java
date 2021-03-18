@@ -17,8 +17,7 @@ package grondag.fluidity.base.storage.bulk;
 
 import com.google.common.base.Preconditions;
 import com.mojang.datafixers.util.Pair;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.nbt.CompoundTag;
 
@@ -33,7 +32,7 @@ import grondag.fluidity.base.article.StoredBulkArticle;
 import grondag.fluidity.base.article.StoredBulkArticleView;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStore;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, SimpleTank> implements BulkStore {
 	protected final MutableFraction quantity = new MutableFraction();
 	protected final MutableFraction calc = new MutableFraction();

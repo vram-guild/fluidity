@@ -15,16 +15,14 @@
  ******************************************************************************/
 package grondag.fluidity.impl.storage;
 
-import static org.apiguardian.api.API.Status.INTERNAL;
-
-import org.apiguardian.api.API;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.FixedArticleFunction;
 
-@API(status = INTERNAL)
+@Internal
 public final class AlwaysReturnZeroImpl implements FixedArticleFunction {
 	private AlwaysReturnZeroImpl() {}
 

@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.wip.api.transport;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.device.DeviceComponentAccess;
@@ -27,7 +26,7 @@ import grondag.fluidity.api.storage.ArticleFunction;
  * Visible to the node that obtained the carrier.
  *
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface CarrierSession extends CarrierNode {
 	ArticleFunction broadcastConsumer();
 

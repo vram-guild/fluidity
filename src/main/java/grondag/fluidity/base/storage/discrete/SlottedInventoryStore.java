@@ -18,8 +18,7 @@ package grondag.fluidity.base.storage.discrete;
 import java.util.Arrays;
 
 import com.google.common.base.Preconditions;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
@@ -40,7 +39,7 @@ import grondag.fluidity.impl.article.StackHelper;
  * large transaction. A journaling approach that captures changes as they are made
  * is likely to be preferable for performant implementations.
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventoryStore> implements InventoryStore {
 	protected final int slotCount;
 	protected final ItemStack[] stacks;

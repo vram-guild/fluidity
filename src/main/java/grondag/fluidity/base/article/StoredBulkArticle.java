@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.base.article;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.item.ItemStack;
 
@@ -24,7 +23,7 @@ import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.MutableFraction;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class StoredBulkArticle extends AbstractStoredArticle implements StoredBulkArticleView {
 	protected final MutableFraction volume = new MutableFraction();
 

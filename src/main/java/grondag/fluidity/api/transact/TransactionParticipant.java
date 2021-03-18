@@ -33,8 +33,7 @@ package grondag.fluidity.api.transact;
 
 import java.util.function.Consumer;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 /**
  * Implement on objects that can participate in transactions.
@@ -42,7 +41,7 @@ import org.apiguardian.api.API.Status;
  * @see <a href="https://github.com/grondag/fluidity#transactions">https://github.com/grondag/fluidity#transactions</a>
  */
 @FunctionalInterface
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface TransactionParticipant {
 	/**
 	 * Override for implementations that want to enlist lazily.

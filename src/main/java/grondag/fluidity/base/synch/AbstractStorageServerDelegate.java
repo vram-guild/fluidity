@@ -16,17 +16,16 @@
 package grondag.fluidity.base.synch;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.api.storage.StorageListener;
+import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.base.article.AbstractStoredArticle;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public abstract class AbstractStorageServerDelegate<T extends AbstractStoredArticle> implements StorageListener {
 	protected ServerPlayerEntity player;
 	protected Store storage;

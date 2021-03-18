@@ -18,14 +18,13 @@ package grondag.fluidity.base.transact;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.api.transact.Transaction;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.TransactionParticipant;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class LazyRollbackHandler {
 	public  final Consumer<TransactionContext> externalHandler = this::handleExternal;
 	protected final Supplier<Object> rollbackSupplier;

@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.base.synch;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -28,7 +27,7 @@ import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.MutableFraction;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class BulkStorageClientDelegate extends AbstractStorageClientDelegate<BulkDisplayDelegate> {
 	public static final BulkStorageClientDelegate INSTANCE = new BulkStorageClientDelegate();
 

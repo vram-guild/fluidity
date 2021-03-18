@@ -15,6 +15,14 @@
  ******************************************************************************/
 package grondag.fluidity.api.storage;
 
+import org.jetbrains.annotations.ApiStatus.Experimental;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Identifier;
+
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -24,20 +32,12 @@ import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.transact.TransactionParticipant;
 import grondag.fluidity.impl.storage.AlwaysReturnRequestedImpl;
 import grondag.fluidity.impl.storage.AlwaysReturnZeroImpl;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Identifier;
 
 /**
  * Flexible storage interface for tanks, containers.
  * Interface supports both discrete items and bulk resources (such as fluids.)
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface ArticleFunction extends TransactionParticipant {
 	/**
 	 * Adds or removes items to/from this store, depending on context. May return less than requested.

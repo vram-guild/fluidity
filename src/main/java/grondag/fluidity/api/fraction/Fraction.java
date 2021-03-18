@@ -16,8 +16,7 @@
 package grondag.fluidity.api.fraction;
 
 import it.unimi.dsi.fastutil.HashCommon;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -26,7 +25,7 @@ import net.minecraft.network.PacketByteBuf;
 /**
  * Immutable, full-resolution rational number representation.
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class Fraction implements Comparable<Fraction> {
 	protected long whole;
 	protected long numerator;

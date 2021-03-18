@@ -15,11 +15,9 @@
  ******************************************************************************/
 package grondag.fluidity.api.article;
 
-import static org.apiguardian.api.API.Status.EXPERIMENTAL;
-
 import java.util.function.Consumer;
 
-import org.apiguardian.api.API;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.util.Identifier;
 
@@ -29,7 +27,7 @@ import grondag.fluidity.impl.article.ArticleTypeRegistryImpl;
  * Registry for {@code ArticleType} instances.
  * Registration should occur once during mod initialization.
  */
-@API(status = EXPERIMENTAL)
+@Experimental
 public interface ArticleTypeRegistry {
 	/**
 	 * Return the registry instance.

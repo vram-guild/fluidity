@@ -20,8 +20,7 @@ import java.util.Set;
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.nbt.CompoundTag;
 
@@ -45,8 +44,7 @@ import grondag.fluidity.base.storage.bulk.helper.BulkTrackingNotifier;
 // A future version may consolidate notifications for downstream listeners
 // (for performance) but will have to do so based on actual member notifications.
 
-
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStoredArticle, AggregateBulkStore> implements BulkStore, BulkStorageListener {
 	protected final BulkTrackingNotifier notifier;
 

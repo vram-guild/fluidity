@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.base.synch;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -26,7 +25,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender;
 
 import grondag.fluidity.api.article.Article;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class DiscreteStorageClientDelegate extends AbstractStorageClientDelegate<DiscreteDisplayDelegate> {
 	public static final DiscreteStorageClientDelegate INSTANCE = new  DiscreteStorageClientDelegate();
 

@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.api.storage;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.item.ItemStack;
 
@@ -31,7 +30,7 @@ import grondag.fluidity.impl.storage.AlwaysReturnZeroImpl;
  * @see {@link FixedStore}
  * @see <a href="https://github.com/grondag/fluidity#store-and-its-variants">https://github.com/grondag/fluidity#store-and-its-variants</a>
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface FixedArticleFunction extends ArticleFunction {
 	/**
 	 * Adds or removes items to/from this store, depending on context. May return less than requested.

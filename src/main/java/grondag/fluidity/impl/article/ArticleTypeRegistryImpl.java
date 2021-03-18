@@ -15,12 +15,10 @@
  ******************************************************************************/
 package grondag.fluidity.impl.article;
 
-import static org.apiguardian.api.API.Status.INTERNAL;
-
 import java.util.function.Consumer;
 
 import com.mojang.serialization.Lifecycle;
-import org.apiguardian.api.API;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.DefaultedRegistry;
@@ -32,7 +30,7 @@ import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.article.ArticleTypeRegistry;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-@API(status = INTERNAL)
+@Internal
 public final class ArticleTypeRegistryImpl implements ArticleTypeRegistry {
 	private ArticleTypeRegistryImpl() {
 

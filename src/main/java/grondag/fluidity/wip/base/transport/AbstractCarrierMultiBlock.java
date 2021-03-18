@@ -15,14 +15,13 @@
  ******************************************************************************/
 package grondag.fluidity.wip.base.transport;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.api.multiblock.MultiBlockMember;
 import grondag.fluidity.base.multiblock.AbstractMultiBlock;
 import grondag.fluidity.wip.api.transport.CarrierType;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class AbstractCarrierMultiBlock<T extends MultiBlockMember<T, U, SubCarrier>, U extends AbstractCarrierMultiBlock<T, U>> extends AbstractMultiBlock<T, U, SubCarrier> {
 	protected final AggregateCarrier carrier;

@@ -15,14 +15,12 @@
  ******************************************************************************/
 package grondag.fluidity.base.synch;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandler;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -30,7 +28,7 @@ import net.fabricmc.api.Environment;
 /**
  * Possible interactions with remote storage. Distinct from vanilla container interactions.
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public enum ItemStorageAction {
 	/** move targeted stack to player's inventory */
 	QUICK_MOVE_STACK,
@@ -76,11 +74,11 @@ public enum ItemStorageAction {
 		final boolean isShift = Screen.hasShiftDown();
 
 		@SuppressWarnings("resource")
-		final ItemStack cursorStack = MinecraftClient.getInstance().player.inventory.getCursorStack();
+		final ItemStack cursorStack = MinecraftClient.getInstance().player.currentScreenHandler.getCursorStack();
 
 		// if alt/right/middle clicking on same item, don't count that as a deposit
 		if (cursorStack != null && !cursorStack.isEmpty()
-		&& !(target != null && ScreenHandler.canStacksCombine(cursorStack, target.article().toStack()) && (Screen.hasAltDown() || mouseButton > 0))) {
+		&& !(target != null && ItemStack.canCombine(cursorStack, target.article().toStack()) && (Screen.hasAltDown() || mouseButton > 0))) {
 
 			// putting something in
 			if (mouseButton == MOUSE_LEFT && !Screen.hasAltDown()) {

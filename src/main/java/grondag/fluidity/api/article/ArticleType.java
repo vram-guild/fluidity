@@ -21,8 +21,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import com.google.common.collect.ImmutableSet;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
@@ -31,7 +30,7 @@ import net.minecraft.network.PacketByteBuf;
 
 import grondag.fluidity.impl.article.ArticleTypeImpl;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 /**
  * Describes a game resource used as an {@code Article}.
  *

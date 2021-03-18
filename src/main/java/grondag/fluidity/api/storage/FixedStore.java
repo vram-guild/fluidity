@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.api.storage;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.impl.storage.CreativeStore;
 import grondag.fluidity.impl.storage.EmptyStore;
@@ -30,7 +29,7 @@ import grondag.fluidity.impl.storage.VoidStore;
  *
  * @see <a href="https://github.com/grondag/fluidity#store-and-its-variants">https://github.com/grondag/fluidity#store-and-its-variants</a>
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface FixedStore extends Store {
 	@Override
 	default FixedArticleFunction getConsumer() {

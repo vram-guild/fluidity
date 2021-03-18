@@ -19,8 +19,7 @@ import java.util.function.Predicate;
 
 import com.google.common.base.Predicates;
 import com.google.common.util.concurrent.Runnables;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.fluid.Fluid;
 
@@ -33,7 +32,7 @@ import grondag.fluidity.api.util.AmbiguousBoolean;
 import grondag.fluidity.base.article.StoredArticle;
 import grondag.fluidity.base.storage.helper.ListenerSet;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public abstract class AbstractStore<V extends StoredArticle, T extends AbstractStore<V, T>> implements Store, StorageEventStream {
 	public final ListenerSet<StorageListener> listeners = new ListenerSet<>(this::sendFirstListenerUpdate, this::sendLastListenerUpdate, this::onListenersEmpty);
 	protected Predicate<Article> filter = Predicates.alwaysTrue();

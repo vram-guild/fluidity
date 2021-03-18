@@ -15,24 +15,24 @@
  ******************************************************************************/
 package grondag.fluidity.wip.base.transport;
 
-import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.Fraction;
-import grondag.fluidity.api.transact.TransactionParticipant;
-import grondag.fluidity.wip.api.transport.CarrierSession;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
+import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.fraction.Fraction;
+import grondag.fluidity.api.transact.TransactionParticipant;
+import grondag.fluidity.wip.api.transport.CarrierSession;
+
 /**
  * Mimics consumer/supplier functions - used to throttle throughput.
  * All implementations should be self-enlisting because cost accounting
  * is typically transparent to users of a carrier.
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface CarrierCostFunction extends TransactionParticipant {
 	/**
 	 * Throttles articles being transported via carrier. May return less than requested.

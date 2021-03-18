@@ -15,15 +15,14 @@
  ******************************************************************************/
 package grondag.fluidity.base.storage.discrete;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.storage.Store;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface DiscreteStorageListener extends StorageListener {
 	@Override
 	default void onCapacityChange(Store storage, Fraction capacityDelta) {

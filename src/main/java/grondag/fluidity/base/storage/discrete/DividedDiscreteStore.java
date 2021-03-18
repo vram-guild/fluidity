@@ -16,15 +16,14 @@
 package grondag.fluidity.base.storage.discrete;
 
 import com.google.common.base.Preconditions;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.FixedArticleFunction;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.helper.FixedArticleManager;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class DividedDiscreteStore extends AbstractDiscreteStore<DividedDiscreteStore> implements FixedDiscreteStore {
 	protected final int divisionCount;
 	protected final long capacityPerDivision;

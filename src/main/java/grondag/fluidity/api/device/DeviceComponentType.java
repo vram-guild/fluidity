@@ -21,8 +21,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -47,7 +46,7 @@ import net.minecraft.world.World;
  *
  * @see <a href="https://github.com/grondag/fluidity#device-components">https://github.com/grondag/fluidity#device-components</a>
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface DeviceComponentType<T> {
 	/**
 	 * Component value that will be returned when a component is not present in a device.

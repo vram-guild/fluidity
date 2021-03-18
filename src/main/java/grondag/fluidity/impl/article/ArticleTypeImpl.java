@@ -20,8 +20,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import com.google.common.base.Preconditions;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
@@ -37,7 +36,7 @@ import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.article.ArticleTypeRegistry;
 import grondag.fluidity.api.article.StoredArticleView;
 
-@API(status = Status.INTERNAL)
+@Internal
 public class ArticleTypeImpl<T> implements ArticleType<T> {
 	final Class<T> clazz;
 	final boolean isBulk;

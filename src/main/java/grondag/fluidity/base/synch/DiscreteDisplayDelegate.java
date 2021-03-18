@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.base.synch;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.impl.DiscreteDisplayDelegateImpl;
@@ -25,7 +24,7 @@ import grondag.fluidity.impl.DiscreteDisplayDelegateImpl;
  * Client-side representation of server inventory that supports
  * very large quantities and slotless/virtual containers via handles.
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface DiscreteDisplayDelegate extends DisplayDelegate {
 	@Override
 	long getCount();

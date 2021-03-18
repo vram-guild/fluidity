@@ -15,10 +15,9 @@
  ******************************************************************************/
 package grondag.fluidity.wip.api.transport;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface CarrierListener {
 	/**
 	 * Called when carrier being listened to becomes unavailable.

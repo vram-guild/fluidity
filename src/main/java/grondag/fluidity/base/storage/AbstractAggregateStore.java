@@ -19,8 +19,7 @@ import java.util.function.Consumer;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.StoredArticleView;
@@ -39,7 +38,7 @@ import grondag.fluidity.base.storage.helper.FlexibleArticleManager;
  * @param <V>
  * @param <T>
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public abstract class AbstractAggregateStore<V extends AggregateStoredArticle, T extends AbstractAggregateStore<V, T>> extends AbstractStore<V, T> implements StorageListener, TransactionDelegate  {
 	protected final Consumer<TransactionContext> rollbackHandler = this::handleRollback;
 	protected final FlexibleArticleManager<V> articles;

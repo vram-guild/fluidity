@@ -17,8 +17,7 @@ package grondag.fluidity.base.storage;
 
 import java.util.function.Predicate;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.nbt.CompoundTag;
 
@@ -31,7 +30,7 @@ import grondag.fluidity.api.storage.StorageEventStream;
 import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.api.util.AmbiguousBoolean;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class ForwardingStore implements Store {
 	protected Store wrapped = Store.EMPTY;
 

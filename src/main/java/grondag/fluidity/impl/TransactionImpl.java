@@ -21,8 +21,7 @@ import java.util.IdentityHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import net.minecraft.server.MinecraftServer;
 
@@ -31,7 +30,7 @@ import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.TransactionParticipant;
 import grondag.fluidity.api.transact.TransactionParticipant.TransactionDelegate;
 
-@API(status = Status.INTERNAL)
+@Internal
 public final class TransactionImpl implements Transaction {
 
 	private final class ContextImpl implements TransactionContext {

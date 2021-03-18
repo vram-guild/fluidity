@@ -16,8 +16,7 @@
 package grondag.fluidity.base.storage.discrete;
 
 import com.google.common.base.Preconditions;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
@@ -35,7 +34,7 @@ import grondag.fluidity.base.storage.discrete.helper.DiscreteNotifier;
 import grondag.fluidity.impl.article.ArticleImpl;
 import grondag.fluidity.impl.article.StackHelper;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredDiscreteArticle,  SingleStackInventoryStore> implements DiscreteStore, InventoryStore {
 	protected ItemStack stack = ItemStack.EMPTY;
 	protected ItemStack cleanStack = ItemStack.EMPTY;
@@ -339,7 +338,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 
 	@Override
 	public void readTag(CompoundTag tag) {
-		stack = ItemStack.fromTag(tag);
+		stack = ItemStack.fromNbt(tag);
 		cleanStack = stack.copy();
 	}
 

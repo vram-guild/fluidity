@@ -15,14 +15,13 @@
  ******************************************************************************/
 package grondag.fluidity.api.fraction;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.PacketByteBuf;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public final class MutableFraction extends Fraction {
 	public MutableFraction() {
 		super();

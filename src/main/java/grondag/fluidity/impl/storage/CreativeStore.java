@@ -15,9 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.impl.storage;
 
-import static org.apiguardian.api.API.Status.INTERNAL;
-
-import org.apiguardian.api.API;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import net.minecraft.nbt.CompoundTag;
 
@@ -27,7 +25,7 @@ import grondag.fluidity.api.storage.FixedArticleFunction;
 import grondag.fluidity.api.storage.FixedStore;
 import grondag.fluidity.api.storage.StorageEventStream;
 
-@API(status = INTERNAL)
+@Internal
 public final class CreativeStore implements FixedStore {
 	private CreativeStore() {}
 

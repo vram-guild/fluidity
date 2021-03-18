@@ -18,8 +18,7 @@ package grondag.fluidity.api.storage;
 import java.util.function.Predicate;
 
 import com.google.common.base.Predicates;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
@@ -43,7 +42,7 @@ import grondag.fluidity.impl.storage.VoidStore;
  *
  * @see <a href="https://github.com/grondag/fluidity#store-and-its-variants">https://github.com/grondag/fluidity#store-and-its-variants</a>
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface Store extends TransactionParticipant {
 	default ArticleFunction getConsumer() {
 		return ArticleFunction.ALWAYS_RETURN_ZERO;

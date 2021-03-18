@@ -15,13 +15,12 @@
  ******************************************************************************/
 package grondag.fluidity.base.storage.discrete;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.helper.FlexibleArticleManager;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class FlexibleDiscreteStore extends AbstractDiscreteStore<FlexibleDiscreteStore> {
 	public FlexibleDiscreteStore(int startingHandleCount, long capacity) {
 		super(startingHandleCount, capacity, new FlexibleArticleManager<>(startingHandleCount, StoredDiscreteArticle::new));

@@ -21,8 +21,7 @@ import java.util.concurrent.ExecutionException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import net.minecraft.nbt.CompoundTag;
 
@@ -30,7 +29,7 @@ import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
 
-@API(status = Status.INTERNAL)
+@Internal
 public class ArticleCache {
 	static class ArticleKey {
 		private ArticleType<?> type;

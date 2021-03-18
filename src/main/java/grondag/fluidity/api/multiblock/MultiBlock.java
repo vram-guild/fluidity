@@ -17,8 +17,7 @@ package grondag.fluidity.api.multiblock;
 
 import java.util.function.Consumer;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 /**
  * Represents a collection of member blocks in a world.
@@ -30,7 +29,7 @@ import org.apiguardian.api.API.Status;
  *
  * @see <a href="https://github.com/grondag/fluidity#multiblocks">https://github.com/grondag/fluidity#multiblocks</a>
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface MultiBlock<T extends MultiBlockMember<T, U, V>, U extends MultiBlock<T, U, V>, V> {
 	/**
 	 * Called when the multi block is destroyed because no members remain.

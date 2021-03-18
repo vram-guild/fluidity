@@ -17,15 +17,14 @@ package grondag.fluidity.base.multiblock;
 
 import java.util.function.Function;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.world.World;
 
 import grondag.fluidity.api.multiblock.MultiBlock;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public abstract class AbstractBlockEntityMember<T extends AbstractBlockEntityMember<T, U, V, B>, U extends MultiBlock<T, U, V>, V, B extends BlockEntity> extends AbstractMember<T, U, V> {
 	protected final B blockEntity;
 	protected final Function<B, V> componentFunction;

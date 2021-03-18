@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.api.device;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -28,7 +27,7 @@ import net.minecraft.util.math.BlockPos;
  * Sub-type of {@code ComponentContext} for block devices,
  * needed to carry block-specific information.
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface BlockComponentContext extends ComponentContext {
 	/**
 	 * Locates the block component within the world.

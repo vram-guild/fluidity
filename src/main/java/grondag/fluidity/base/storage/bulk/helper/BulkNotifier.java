@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.base.storage.bulk.helper;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
@@ -24,7 +23,7 @@ import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredBulkArticle;
 import grondag.fluidity.base.storage.AbstractStore;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class BulkNotifier {
 	protected final AbstractStore<? extends StoredBulkArticle, ?> owner;
 

@@ -15,17 +15,18 @@
  ******************************************************************************/
 package grondag.fluidity.base.synch;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
+
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
+
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.base.article.StoredBulkArticle;
 import grondag.fluidity.base.storage.bulk.BulkStorageListener;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class BulkStorageServerDelegate extends AbstractStorageServerDelegate<StoredBulkArticle> implements BulkStorageListener {
 	public BulkStorageServerDelegate(ServerPlayerEntity player, Store storage) {
 		super(player, storage);

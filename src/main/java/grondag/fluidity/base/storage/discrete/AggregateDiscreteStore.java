@@ -18,6 +18,14 @@ package grondag.fluidity.base.storage.discrete;
 import java.util.Set;
 
 import com.google.common.base.Preconditions;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.apache.commons.lang3.ObjectUtils;
+import org.jetbrains.annotations.ApiStatus.Experimental;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.item.Item;
+import net.minecraft.nbt.CompoundTag;
+
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -30,14 +38,6 @@ import grondag.fluidity.base.article.AggregateDiscreteStoredArticle;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractAggregateStore;
 import grondag.fluidity.base.storage.discrete.helper.DiscreteTrackingNotifier;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.item.Item;
-import net.minecraft.nbt.CompoundTag;
 
 // NB: Previous versions attempted to consolidate member notifications
 // but this can lead to de-sync and other problems with creative bins
@@ -45,8 +45,7 @@ import net.minecraft.nbt.CompoundTag;
 // A future version may consolidate notifications for downstream listeners
 // (for performance) but will have to do so based on actual member notifications.
 
-
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class AggregateDiscreteStore extends AbstractAggregateStore<AggregateDiscreteStoredArticle, AggregateDiscreteStore> implements DiscreteStore, DiscreteStorageListener {
 	protected final DiscreteTrackingNotifier notifier;
 

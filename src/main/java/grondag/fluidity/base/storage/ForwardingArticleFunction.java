@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.base.storage;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -27,7 +26,7 @@ import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.ArticleFunction;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class ForwardingArticleFunction<T extends ArticleFunction> implements ArticleFunction {
 	protected T wrapped;
 

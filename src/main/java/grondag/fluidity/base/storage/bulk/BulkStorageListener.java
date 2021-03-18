@@ -15,15 +15,14 @@
  ******************************************************************************/
 package grondag.fluidity.base.storage.bulk;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
-import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.api.storage.StorageListener;
+import grondag.fluidity.api.storage.Store;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface BulkStorageListener extends StorageListener {
 	@Override
 	default void onAccept(Store storage, int handle, Article item, long delta, long newCount) {

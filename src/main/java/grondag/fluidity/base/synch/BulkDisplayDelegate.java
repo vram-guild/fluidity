@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.base.synch;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
@@ -26,7 +25,7 @@ import grondag.fluidity.impl.BulkDisplayDelegateImpl;
  * Client-side representation of server inventory that supports
  * very large quantities and slotless/virtual containers via handles.
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface BulkDisplayDelegate extends DisplayDelegate  {
 	Fraction getAmount();
 

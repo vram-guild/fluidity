@@ -17,15 +17,14 @@ package grondag.fluidity.base.storage;
 
 import java.util.function.Consumer;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.TransactionParticipant.TransactionDelegate;
 import grondag.fluidity.base.article.AbstractStoredArticle;
 import grondag.fluidity.base.transact.LazyRollbackHandler;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public abstract class AbstractLazyRollbackStore<V extends AbstractStoredArticle, T extends AbstractLazyRollbackStore<V, T>> extends AbstractStore<V, T> implements TransactionDelegate {
 	protected final LazyRollbackHandler rollbackHandler = new LazyRollbackHandler(this::createRollbackState, this::applyRollbackState, this);
 

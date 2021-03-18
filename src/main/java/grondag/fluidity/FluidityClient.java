@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -26,8 +25,7 @@ import grondag.fluidity.base.synch.BulkStorageUpdateS2C;
 import grondag.fluidity.base.synch.DiscreteStorageClientDelegate;
 import grondag.fluidity.base.synch.DiscreteStorageUpdateS2C;
 
-@API(status = Status.INTERNAL)
-
+@Internal
 public class FluidityClient implements ClientModInitializer {
 
 	@Override

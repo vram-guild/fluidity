@@ -17,8 +17,7 @@ package grondag.fluidity;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Items;
@@ -35,7 +34,7 @@ import grondag.fluidity.impl.MultiBlockManagerImpl;
 import grondag.fluidity.impl.TransactionImpl;
 import grondag.fluidity.impl.article.ArticleTypeImpl;
 
-@API(status = Status.INTERNAL)
+@Internal
 public class Fluidity implements ModInitializer {
 	public static final String MOD_ID = "fluidity";
 	public static final Logger LOG = LogManager.getLogger("Fluidity");

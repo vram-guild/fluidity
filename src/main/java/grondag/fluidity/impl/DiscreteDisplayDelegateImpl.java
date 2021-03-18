@@ -15,13 +15,12 @@
  ******************************************************************************/
 package grondag.fluidity.impl;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.base.synch.DiscreteDisplayDelegate;
 
-@API(status = Status.INTERNAL)
+@Internal
 public class DiscreteDisplayDelegateImpl extends AbstractDisplayDelegateImpl implements DiscreteDisplayDelegate {
 	long count;
 

@@ -1,7 +1,6 @@
 package grondag.fluidity.api.device;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
@@ -22,7 +21,7 @@ import grondag.fluidity.api.transact.Transaction;
  *
  * @see <a href="https://github.com/grondag/fluidity#item-actionss">https://github.com/grondag/fluidity#item-actions</a>
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface ItemActionHelper {
 	/**
 	 * Adds an action to fill bottles from a component of type {@link Store#STORAGE_COMPONENT}.
@@ -59,7 +58,7 @@ public interface ItemActionHelper {
 						if(stack.getCount() == 1) {
 							ctx.stackSetter().accept(PotionUtil.setPotion(new ItemStack(Items.POTION), potion));
 						} else {
-							ctx.player().inventory.offerOrDrop(ctx.world(), PotionUtil.setPotion(new ItemStack(Items.POTION), potion));
+							ctx.player().getInventory().offerOrDrop(PotionUtil.setPotion(new ItemStack(Items.POTION), potion));
 							stack.decrement(1);
 							ctx.stackSetter().accept(stack.isEmpty() ? ItemStack.EMPTY : stack);
 						}
@@ -174,14 +173,15 @@ public interface ItemActionHelper {
 						if(stack.getCount() == 1) {
 							ctx.stackSetter().accept(new ItemStack(fullItem));
 						} else {
-							ctx.player().inventory.offerOrDrop(ctx.world(), new ItemStack(fullItem));
+							ctx.player().getInventory().offerOrDrop(new ItemStack(fullItem));
 							stack.decrement(1);
 							ctx.stackSetter().accept(stack.isEmpty() ? ItemStack.EMPTY : stack);
 						}
 
-						ctx.player().inventory.markDirty();
+						ctx.player().getInventory().markDirty();
 						ctx.player().currentScreenHandler.sendContentUpdates();
-						ctx.player().updateCursorStack();
+						// No longer present in 1.17 - not needed?
+						//ctx.player().updateCursorStack();
 						tx.commit();
 						return true;
 					}
@@ -227,14 +227,15 @@ public interface ItemActionHelper {
 						if(stack.getCount() == 1) {
 							ctx.stackSetter().accept(new ItemStack(emptyItem));
 						} else {
-							ctx.player().inventory.offerOrDrop(ctx.world(), new ItemStack(emptyItem));
+							ctx.player().getInventory().offerOrDrop(new ItemStack(emptyItem));
 							stack.decrement(1);
 							ctx.stackSetter().accept(stack.isEmpty() ? ItemStack.EMPTY : stack);
 						}
 
-						ctx.player().inventory.markDirty();
+						ctx.player().getInventory().markDirty();
 						ctx.player().currentScreenHandler.sendContentUpdates();
-						ctx.player().updateCursorStack();
+						// No longer present in 1.17 - not needed?
+						// ctx.player().updateCursorStack();
 						tx.commit();
 						return true;
 					}

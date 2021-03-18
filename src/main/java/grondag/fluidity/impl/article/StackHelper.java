@@ -15,15 +15,14 @@
  ******************************************************************************/
 package grondag.fluidity.impl.article;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 
-@API(status = Status.INTERNAL)
+@Internal
 public class StackHelper {
 	public static ItemStack newStack(Item item, CompoundTag tag, long count) {
 		if (item == null || item == Items.AIR || count <= 0) {

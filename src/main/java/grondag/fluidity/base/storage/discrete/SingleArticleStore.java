@@ -17,8 +17,7 @@ package grondag.fluidity.base.storage.discrete;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.nbt.CompoundTag;
 
@@ -32,7 +31,7 @@ import grondag.fluidity.base.storage.AbstractLazyRollbackStore;
 import grondag.fluidity.base.storage.discrete.FixedDiscreteStore.FixedDiscreteArticleFunction;
 import grondag.fluidity.base.storage.discrete.helper.DiscreteNotifier;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class SingleArticleStore extends AbstractLazyRollbackStore<StoredDiscreteArticle,  SingleArticleStore> implements DiscreteStore {
 	protected final StoredDiscreteArticle view = new StoredDiscreteArticle();
 	protected final DiscreteNotifier notifier = new DiscreteNotifier(this);

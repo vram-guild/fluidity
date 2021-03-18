@@ -15,16 +15,17 @@
  ******************************************************************************/
 package grondag.fluidity.base.synch;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
+
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
+
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.discrete.DiscreteStorageListener;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class DiscreteStorageServerDelegate extends AbstractStorageServerDelegate<StoredDiscreteArticle> implements DiscreteStorageListener {
 	public DiscreteStorageServerDelegate(ServerPlayerEntity player, Store storage) {
 		super(player, storage);

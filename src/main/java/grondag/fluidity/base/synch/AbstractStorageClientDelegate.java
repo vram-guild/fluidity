@@ -19,8 +19,7 @@ import java.util.Comparator;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.MinecraftClient;
@@ -29,7 +28,7 @@ import net.minecraft.network.PacketByteBuf;
 
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public abstract class AbstractStorageClientDelegate<T extends DisplayDelegate> {
 	protected final Int2ObjectOpenHashMap<T> MAP = new Int2ObjectOpenHashMap<>();
 

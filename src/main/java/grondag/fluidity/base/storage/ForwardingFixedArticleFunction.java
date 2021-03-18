@@ -15,14 +15,13 @@
  ******************************************************************************/
 package grondag.fluidity.base.storage;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.FixedArticleFunction;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class ForwardingFixedArticleFunction<T extends FixedArticleFunction> extends ForwardingArticleFunction<T> implements FixedArticleFunction {
 	public ForwardingFixedArticleFunction(T wrapped) {
 		super(wrapped);

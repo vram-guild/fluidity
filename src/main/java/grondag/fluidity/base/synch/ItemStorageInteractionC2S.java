@@ -16,8 +16,7 @@
 package grondag.fluidity.base.synch;
 
 import io.netty.buffer.Unpooled;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
@@ -40,7 +39,7 @@ import grondag.fluidity.api.storage.Store;
  * Sent when player interacts with the GUI of an IStorage (vs container slots).
  * IStorage has no concept of slots.
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class ItemStorageInteractionC2S {
 	public static final Identifier ID = new Identifier(Fluidity.MOD_ID, "posci");
 
@@ -144,16 +143,16 @@ public class ItemStorageInteractionC2S {
 	}
 
 	private static void doPut(boolean single, ServerPlayerEntity player, Store container) {
-		final ItemStack cursorStack = player.inventory.getCursorStack();
+		final ItemStack cursorStack = player.currentScreenHandler.getCursorStack();
 
 		if (cursorStack != null && !cursorStack.isEmpty()) {
 			final int added = (int) container.getConsumer().apply(cursorStack, single ? 1 : cursorStack.getCount(), false);
 
 			if (added > 0){
 				cursorStack.decrement(added);
-				player.inventory.setCursorStack(cursorStack);
-				player.inventory.markDirty();
-				player.updateCursorStack();
+				player.currentScreenHandler.setCursorStack(cursorStack);
+				player.getInventory().markDirty();
+				player.currentScreenHandler.syncState();
 			}
 		}
 		return;
@@ -171,8 +170,8 @@ public class ItemStorageInteractionC2S {
 		}
 
 		final ItemStack newStack = targetResource.toStack(toMove);
-		player.inventory.offerOrDrop(player.world, newStack);
-		player.inventory.markDirty();
+		player.getInventory().offerOrDrop(newStack);
+		player.getInventory().markDirty();
 	}
 
 	private static void doTake(int howMany, ServerPlayerEntity player, Article targetResource, Store container) {
@@ -180,7 +179,7 @@ public class ItemStorageInteractionC2S {
 			return;
 		}
 
-		final ItemStack cursorStack = player.inventory.getCursorStack();
+		final ItemStack cursorStack = player.currentScreenHandler.getCursorStack();
 
 		if (cursorStack != null && !cursorStack.isEmpty()) {
 			if (!targetResource.matches(cursorStack)) {
@@ -194,9 +193,9 @@ public class ItemStorageInteractionC2S {
 			howMany = Math.min(howMany, cursorStack.getMaxCount() - cursorStack.getCount());
 			final int toAdd = (int) container.getSupplier().apply(targetResource, howMany, false);
 			cursorStack.increment(toAdd);
-			player.inventory.setCursorStack(cursorStack);
-			player.inventory.markDirty();
-			player.updateCursorStack();
+			player.currentScreenHandler.setCursorStack(cursorStack);
+			player.getInventory().markDirty();
+			player.currentScreenHandler.syncState();
 		} else {
 			howMany = Math.min(howMany, targetResource.toItem().getMaxCount());
 
@@ -207,9 +206,9 @@ public class ItemStorageInteractionC2S {
 			}
 
 			final ItemStack newStack = targetResource.toStack(toAdd);
-			player.inventory.setCursorStack(newStack);
-			player.inventory.markDirty();
-			player.updateCursorStack();
+			player.currentScreenHandler.setCursorStack(newStack);
+			player.getInventory().markDirty();
+			player.currentScreenHandler.syncState();
 		}
 
 	}

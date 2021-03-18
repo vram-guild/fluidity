@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.api.transact;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 /**
  * Defines the object used to share data between a transaction and a specific participant.<p>
@@ -25,7 +24,7 @@ import org.apiguardian.api.API.Status;
  *
  * @see <a href="https://github.com/grondag/fluidity#transactions">https://github.com/grondag/fluidity#transactions</a>
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface TransactionContext {
 	/**
 	 * Use during {@link TransactionParticipant.TransactionDelegate#prepareRollback(TransactionContext)} to

@@ -15,10 +15,10 @@
  ******************************************************************************/
 package grondag.fluidity.api.transact;
 
-import grondag.fluidity.impl.TransactionImpl;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
+
+import grondag.fluidity.impl.TransactionImpl;
 
 /**
  * Represents a aggregate operation involving one or
@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @see <a href="https://github.com/grondag/fluidity#transactions">https://github.com/grondag/fluidity#transactions</a>
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface Transaction extends AutoCloseable {
 	/**
 	 * Close the transaction and notify all participants to reverse all state changes

@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.api.storage;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.Fluidity;
 
@@ -26,7 +25,7 @@ import grondag.fluidity.Fluidity;
  *
  * @see <a href="https://github.com/grondag/fluidity#store-and-its-variants">https://github.com/grondag/fluidity#store-and-its-variants</a>
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface StorageEventStream {
 	/**
 	 * Begin receiving events from the store.

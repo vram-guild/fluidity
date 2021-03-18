@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.api.storage;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
@@ -30,7 +29,7 @@ import grondag.fluidity.base.storage.discrete.DiscreteStore;
  *
  * @see <a href="https://github.com/grondag/fluidity#store-and-its-variants">https://github.com/grondag/fluidity#store-and-its-variants</a>
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface InventoryStore extends DiscreteStore, Inventory, RecipeInputProvider {
 	@Override default boolean canPlayerUse(PlayerEntity player) {
 		return true;

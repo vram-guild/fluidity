@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.api.storage;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
@@ -26,7 +25,7 @@ import grondag.fluidity.api.fraction.Fraction;
  *
  * @see <a href="https://github.com/grondag/fluidity#store-and-its-variants">https://github.com/grondag/fluidity#store-and-its-variants</a>
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface StorageListener {
 	/**
 	 * Called when store being listened to becomes unavailable.

@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.base.article;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
@@ -27,7 +26,7 @@ import grondag.fluidity.api.fraction.Fraction;
  * Containers (especially virtual ones) could contain both types of article.
  * Most containers will not need this and should instead use the specific view type for their content.
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface StoredDiscreteArticleView extends StoredArticleView{
 	@Override
 	default Fraction amount() {

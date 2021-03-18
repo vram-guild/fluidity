@@ -18,14 +18,13 @@ package grondag.fluidity.wip.api.transport;
 import java.util.Collections;
 import java.util.Set;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
 
 @FunctionalInterface
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface CarrierType {
 
 	Set<ArticleType<?>> articleTypes();

@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.wip.api.transport;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentType;
@@ -24,7 +23,7 @@ import grondag.fluidity.api.device.DeviceComponentType;
 /**
  * Public view of a device component attached to a carrier.
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface CarrierNode {
 	Carrier carrier();
 

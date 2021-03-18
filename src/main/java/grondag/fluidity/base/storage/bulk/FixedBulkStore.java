@@ -15,14 +15,13 @@
  ******************************************************************************/
 package grondag.fluidity.base.storage.bulk;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.FixedArticleFunction;
 import grondag.fluidity.api.storage.FixedStore;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface FixedBulkStore extends BulkStore, FixedStore {
 	public interface FixedBulkArticleSupplier extends BulkArticleFunction, FixedArticleFunction {
 		@Override

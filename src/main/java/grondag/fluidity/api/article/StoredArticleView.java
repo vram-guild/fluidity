@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.api.article;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.item.ItemStack;
 
@@ -29,7 +28,7 @@ import grondag.fluidity.api.fraction.Fraction;
  * {@code StoredDiscreteArticleView} or {{@code StoredBulkArticleView} interfaces,
  * but all code using a {@code StoredArticleView} should depend on this more general interface.
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface StoredArticleView {
 	/**
 	 * The article being stored.  Should be {@link Article#NOTHING} if this view is empty.

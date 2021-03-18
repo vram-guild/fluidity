@@ -15,9 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.api.article;
 
-import grondag.fluidity.impl.article.ArticleImpl;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.fluid.Fluid;
@@ -29,13 +27,15 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.PacketByteBuf;
 
+import grondag.fluidity.impl.article.ArticleImpl;
+
 /**
  * Represents a game resource that may be stored or transported.<p>
  *
  * Typically an ItemStack, Fluid, XP, or power but could by any
  * instance that is uniquely identifiable, quantifiable and serializable to/from NBT and packet buffers.
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface Article {
 	/**
 	 * The {@link ArticleType} for this instance.  Controls how the

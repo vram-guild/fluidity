@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.api.multiblock;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.math.BlockPos;
@@ -34,7 +33,7 @@ import net.minecraft.world.World;
  *
  * @see <a href="https://github.com/grondag/fluidity#multiblocks">https://github.com/grondag/fluidity#multiblocks</a>
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface MultiBlockMember<T extends MultiBlockMember<T, U, V>, U extends MultiBlock<T, U, V>, V> {
 	/**
 	 * The multiblock to which this member belongs, or {@code null} if not currently part of one.

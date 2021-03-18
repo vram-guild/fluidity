@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.base.storage.discrete;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
@@ -29,7 +28,7 @@ import grondag.fluidity.api.device.ItemComponentContext;
  * Use for Item-based storage devices.
  *
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class PortableSingleArticleStore extends SingleArticleStore {
 	protected String keyName;
 	protected java.util.function.Supplier<ItemStack> stackGetter;

@@ -18,8 +18,7 @@ package grondag.fluidity.api.device;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.Identifier;
@@ -33,7 +32,7 @@ import net.minecraft.util.math.Direction;
  *
  * @see <a href="https://github.com/grondag/fluidity#using-components">https://github.com/grondag/fluidity#using-components</a>
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface DeviceComponentAccess<T> {
 	/**
 	 * Identifies the type of the device component to which this instance controls access.

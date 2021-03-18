@@ -17,20 +17,20 @@ package grondag.fluidity.base.synch;
 
 import java.util.Comparator;
 
-import grondag.fluidity.api.article.Article;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
+import grondag.fluidity.api.article.Article;
+
 /**
  * Client-side representation of server inventory that supports
  * very large quantities and slotless/virtual containers via handles.
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface DisplayDelegate {
 	/**
 	 * Uniquely identifies this resource within the server-side container.

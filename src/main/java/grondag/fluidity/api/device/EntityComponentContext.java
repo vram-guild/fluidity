@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.api.device;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.entity.Entity;
 
@@ -24,7 +23,7 @@ import net.minecraft.entity.Entity;
  * Sub-type of {@code ComponentContext} for block devices,
  * needed to carry block-specific information.
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface EntityComponentContext extends ComponentContext {
 	/**
 	 * {@code Entity} instance that may contain device component

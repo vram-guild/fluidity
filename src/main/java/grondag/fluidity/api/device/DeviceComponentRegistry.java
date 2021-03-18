@@ -15,8 +15,7 @@
  ******************************************************************************/
 package grondag.fluidity.api.device;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.util.Identifier;
 
@@ -30,7 +29,7 @@ import grondag.fluidity.impl.device.DeviceComponentRegistryImpl;
  *
  * @see <a href="https://github.com/grondag/fluidity#device-components">https://github.com/grondag/fluidity#device-components</a>
  */
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface DeviceComponentRegistry {
 	/**
 	 * Creates and returns a new device component type with the given id and absent value.

@@ -19,8 +19,7 @@ import java.util.Random;
 import java.util.function.Function;
 
 import io.netty.util.internal.ThreadLocalRandom;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.device.DeviceComponentAccess;
@@ -28,7 +27,7 @@ import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.api.storage.ArticleFunction;
 
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public interface Carrier {
 	CarrierType carrierType();
 

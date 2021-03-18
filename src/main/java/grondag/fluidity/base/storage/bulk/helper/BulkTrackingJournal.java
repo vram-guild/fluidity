@@ -18,15 +18,14 @@ package grondag.fluidity.base.storage.bulk.helper;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.util.math.BlockPos;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.MutableFraction;
 
-@API(status = Status.EXPERIMENTAL)
+@Experimental
 public class BulkTrackingJournal {
 	private BulkTrackingJournal() {}
 

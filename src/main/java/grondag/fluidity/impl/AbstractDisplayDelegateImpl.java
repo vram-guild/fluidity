@@ -15,14 +15,13 @@
  ******************************************************************************/
 package grondag.fluidity.impl;
 
-import org.apiguardian.api.API;
-import org.apiguardian.api.API.Status;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import net.minecraft.client.resource.language.I18n;
 
 import grondag.fluidity.api.article.Article;
 
-@API(status = Status.INTERNAL)
+@Internal
 abstract class AbstractDisplayDelegateImpl {
 	Article article = Article.NOTHING;
 	int handle;
