@@ -19,7 +19,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -252,21 +252,21 @@ public class SingleArticleStore extends AbstractLazyRollbackStore<StoredDiscrete
 		return capacity;
 	}
 
-	public void writeTag(CompoundTag tag) {
+	public void writeTag(NbtCompound tag) {
 		tag.putLong("capacity", capacity);
 		tag.putLong("quantity", quantity);
 		tag.put("art", ObjectUtils.defaultIfNull(storedArticle, Article.NOTHING).toTag());
 	}
 
 	@Override
-	public CompoundTag writeTag() {
-		final CompoundTag result = new CompoundTag();
+	public NbtCompound writeTag() {
+		final NbtCompound result = new NbtCompound();
 		writeTag(result);
 		return result;
 	}
 
 	@Override
-	public void readTag(CompoundTag tag) {
+	public void readTag(NbtCompound tag) {
 		capacity = tag.getLong("capacity");
 		quantity = tag.getLong("quantity");
 		storedArticle = Article.fromTag(tag.get("art"));

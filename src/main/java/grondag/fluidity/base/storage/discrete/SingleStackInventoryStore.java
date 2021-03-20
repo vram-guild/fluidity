@@ -19,7 +19,7 @@ import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -332,12 +332,12 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 	}
 
 	@Override
-	public CompoundTag writeTag() {
+	public NbtCompound writeTag() {
 		return stack.getTag();
 	}
 
 	@Override
-	public void readTag(CompoundTag tag) {
+	public void readTag(NbtCompound tag) {
 		stack = ItemStack.fromNbt(tag);
 		cleanStack = stack.copy();
 	}

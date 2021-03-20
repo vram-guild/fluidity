@@ -18,8 +18,8 @@ package grondag.fluidity.api.fraction;
 import it.unimi.dsi.fastutil.HashCommon;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 
 /**
@@ -61,8 +61,8 @@ public class Fraction implements Comparable<Fraction> {
 	 *
 	 * @param tag NBT tag previously returned by {@link #toTag()
 	 */
-	public Fraction(Tag tag) {
-		readTagInner((CompoundTag) tag);
+	public Fraction(NbtElement tag) {
+		readTagInner((NbtCompound) tag);
 	}
 
 	/**
@@ -139,7 +139,7 @@ public class Fraction implements Comparable<Fraction> {
 	 *
 	 * @param tag NBT tag to contain serialized data
 	 */
-	public final void writeTag(CompoundTag tag) {
+	public final void writeTag(NbtCompound tag) {
 		tag.putLong("whole", whole);
 		tag.putLong("numerator", numerator);
 		tag.putLong("denominator", divisor);
@@ -150,8 +150,8 @@ public class Fraction implements Comparable<Fraction> {
 	 *
 	 * @return new tag instance containing serialized data
 	 */
-	public final Tag toTag() {
-		final CompoundTag result = new CompoundTag();
+	public final NbtElement toTag() {
+		final NbtCompound result = new NbtCompound();
 		writeTag(result);
 		return result;
 	}
@@ -163,7 +163,7 @@ public class Fraction implements Comparable<Fraction> {
 		normalize();
 	}
 
-	protected final void readTagInner(CompoundTag tag) {
+	protected final void readTagInner(NbtCompound tag) {
 		whole = tag.getLong("whole");
 		numerator = tag.getLong("numerator");
 		divisor = Math.max(1, tag.getLong("denominator"));

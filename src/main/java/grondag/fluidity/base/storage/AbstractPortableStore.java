@@ -17,7 +17,7 @@
  import com.google.common.util.concurrent.Runnables;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 import grondag.fluidity.api.device.ItemComponentContext;
 import grondag.fluidity.api.storage.Store;
@@ -51,7 +51,7 @@ import grondag.fluidity.api.storage.Store;
 		 dirtyNotifier = () -> saveToStack();
 		 setWrapped(wrapped);
 
-		 final CompoundTag tag = readTagFromStack(stackGetter.get());
+		 final NbtCompound tag = readTagFromStack(stackGetter.get());
 
 		 if(tag != null && !tag.isEmpty()) {
 			 readTag(tag);
@@ -61,9 +61,9 @@ import grondag.fluidity.api.storage.Store;
 	 /**
 	  * Override if tag isn't at root (for block entities, for example)
 	  */
-	 protected abstract CompoundTag readTagFromStack(ItemStack stack);
+	 protected abstract NbtCompound readTagFromStack(ItemStack stack);
 
-	 protected abstract void  writeTagToStack(ItemStack stack, CompoundTag tag);
+	 protected abstract void  writeTagToStack(ItemStack stack, NbtCompound tag);
 
 	 /**
 	  * For client-side display, create and retain a static reference and call this each frame.

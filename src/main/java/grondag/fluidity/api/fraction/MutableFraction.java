@@ -17,8 +17,8 @@ package grondag.fluidity.api.fraction;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 
 @Experimental
@@ -45,12 +45,12 @@ public final class MutableFraction extends Fraction {
 
 	/**
 	 * Constructs a new instance initialized with the value
-	 * previously encoded in the given tag via {@link #writeTag(CompoundTag)}.
+	 * previously encoded in the given tag via {@link #writeTag(NbtCompound)}.
 	 *
 	 * @param tag NBT tag with encoded value
 	 */
-	public MutableFraction(Tag tag) {
-		readTag((CompoundTag) tag);
+	public MutableFraction(NbtElement tag) {
+		readTag((NbtCompound) tag);
 	}
 
 	/**
@@ -201,7 +201,7 @@ public final class MutableFraction extends Fraction {
 		super.readBufferInner(buffer);
 	}
 
-	public void readTag(CompoundTag tag) {
+	public void readTag(NbtCompound tag) {
 		super.readTagInner(tag);
 	}
 

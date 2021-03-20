@@ -19,7 +19,7 @@ import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -68,7 +68,7 @@ public class ForwardingArticleFunction<T extends ArticleFunction> implements Art
 	}
 
 	@Override
-	public long apply(Item item, CompoundTag tag, long count, boolean simulate) {
+	public long apply(Item item, NbtCompound tag, long count, boolean simulate) {
 		return wrapped.apply(item, tag, count, simulate);
 	}
 

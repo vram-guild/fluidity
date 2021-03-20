@@ -23,8 +23,8 @@ import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 
 import grondag.fluidity.impl.article.ArticleImpl;
@@ -168,15 +168,15 @@ public interface Article {
 	 * @param otherTag Tag to be compared.
 	 * @return {@code true} when both tags are null or both tags are equal.
 	 */
-	boolean doesTagMatch(CompoundTag otherTag);
+	boolean doesTagMatch(NbtCompound otherTag);
 
 	/**
 	 * Allocates a copy of NBT tag associated with this article, or returns {@code null} if there is none.
-	 * Use {@link #hasTag()} or {@link #doesTagMatch(CompoundTag)} when the intent is to test the tag value.
+	 * Use {@link #hasTag()} or {@link #doesTagMatch(NbtCompound)} when the intent is to test the tag value.
 	 *
 	 * @return A copy of the tag associated with this article, or {@code null} if there is none.
 	 */
-	@Nullable CompoundTag copyTag();
+	@Nullable NbtCompound copyTag();
 
 	/**
 	 * Serializes this instance to an NBT tag that can later be used to retrieve an equivalent instance using {@link #fromTag(Tag)}.
@@ -184,7 +184,7 @@ public interface Article {
 	 *
 	 * @return An NBT tag suitable for saving this instance in world data.
 	 */
-	Tag toTag();
+	NbtElement toTag();
 
 	/**
 	 * Serializes this instance to a packet buffer that can be used (typically on the other side of a client/server connection)
@@ -208,7 +208,7 @@ public interface Article {
 	 * @param tag Earlier output of {@link #toTag()}
 	 * @return Instance equivalent to the instance encoded in the tag, or {@link #NOTHING} if tag is null or the instance is no longer registered
 	 */
-	static Article fromTag(@Nullable Tag tag) {
+	static Article fromTag(@Nullable NbtElement tag) {
 		return ArticleImpl.fromTag(tag);
 	}
 
@@ -256,7 +256,7 @@ public interface Article {
 	 * @param tag NBT tag with additional item data
 	 * @return Article representing the given item and tag
 	 */
-	static Article of(Item item, @Nullable CompoundTag tag) {
+	static Article of(Item item, @Nullable NbtCompound tag) {
 		return ArticleImpl.of(item, tag);
 	}
 

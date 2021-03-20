@@ -25,7 +25,7 @@ import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 
 import grondag.fluidity.impl.article.ArticleTypeImpl;
@@ -77,7 +77,7 @@ public interface ArticleType<T> {
 	 *
 	 * @return An NBT tag suitable for saving this instance in world data.
 	 */
-	Tag toTag();
+	NbtElement toTag();
 
 	/**
 	 * Serializes this instance to a packet buffer that can be used (typically on the other side of a client/server connection)
@@ -111,7 +111,7 @@ public interface ArticleType<T> {
 	 * @param tag Earlier output of {@link #toTag()}
 	 * @return Instance equivalent to the instance encoded in the tag, or {@link #NOTHING} if the instance is no longer registered
 	 */
-	static <T> ArticleType<T> fromTag(Tag tag) {
+	static <T> ArticleType<T> fromTag(NbtElement tag) {
 		return ArticleTypeImpl.fromTag(tag);
 	}
 
@@ -185,7 +185,7 @@ public interface ArticleType<T> {
 		 * @param tagWriter Function to serialize an article resource to NBT
 		 * @return This builder instance
 		 */
-		Builder<U> resourceTagWriter(Function<U, Tag> tagWriter);
+		Builder<U> resourceTagWriter(Function<U, NbtElement> tagWriter);
 
 		/**
 		 * Sets function to deserialize article resources from NBT.
@@ -194,7 +194,7 @@ public interface ArticleType<T> {
 		 * @param tagReader Function to deserialize an article resource from NBT
 		 * @return This builder instance
 		 */
-		Builder<U> resourceTagReader(Function<Tag, U> tagReader);
+		Builder<U> resourceTagReader(Function<NbtElement, U> tagReader);
 
 		/**
 		 * Sets function to serialize article resources to a packet buffer.

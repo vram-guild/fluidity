@@ -20,8 +20,8 @@ import it.unimi.dsi.fastutil.objects.Object2LongMap.Entry;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -67,11 +67,11 @@ public abstract class AbstractDiscreteStore<T extends AbstractDiscreteStore<T>> 
 	}
 
 	@Override
-	public CompoundTag writeTag() {
-		final CompoundTag result = new CompoundTag();
+	public NbtCompound writeTag() {
+		final NbtCompound result = new NbtCompound();
 
 		if(!isEmpty()) {
-			final ListTag list = new ListTag();
+			final NbtList list = new NbtList();
 			final int limit = articles.handleCount();
 
 			for (int i = 0; i < limit; i++) {
@@ -89,11 +89,11 @@ public abstract class AbstractDiscreteStore<T extends AbstractDiscreteStore<T>> 
 	}
 
 	@Override
-	public void readTag(CompoundTag tag) {
+	public void readTag(NbtCompound tag) {
 		clear();
 
 		if(tag.contains(AbstractDiscreteStore.TAG_ITEMS)) {
-			final ListTag list = tag.getList(AbstractDiscreteStore.TAG_ITEMS, 10);
+			final NbtList list = tag.getList(AbstractDiscreteStore.TAG_ITEMS, 10);
 			final int limit = list.size();
 			final StoredDiscreteArticle lookup = new StoredDiscreteArticle();
 

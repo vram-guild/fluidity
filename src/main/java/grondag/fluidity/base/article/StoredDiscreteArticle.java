@@ -18,7 +18,7 @@ package grondag.fluidity.base.article;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 import grondag.fluidity.api.article.Article;
 
@@ -72,14 +72,14 @@ public class StoredDiscreteArticle extends AbstractStoredArticle implements Stor
 		return of(Article.of(item), count, handle);
 	}
 
-	public CompoundTag toTag() {
-		final CompoundTag result = new CompoundTag();
+	public NbtCompound toTag() {
+		final NbtCompound result = new NbtCompound();
 		result.put("art", article.toTag());
 		result.putLong("count", count);
 		return result;
 	}
 
-	public void readTag(CompoundTag tag) {
+	public void readTag(NbtCompound tag) {
 		setArticle(Article.fromTag(tag.get("art")));
 		count = tag.getLong("count");
 	}

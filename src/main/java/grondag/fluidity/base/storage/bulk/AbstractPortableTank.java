@@ -18,7 +18,7 @@ package grondag.fluidity.base.storage.bulk;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 import grondag.fluidity.api.device.ItemComponentContext;
 import grondag.fluidity.api.fraction.Fraction;
@@ -54,7 +54,7 @@ public abstract class AbstractPortableTank extends SimpleTank {
 		this.stackSetter = stackSetter;
 		dirtyNotifier = () -> saveToStack();
 
-		final CompoundTag tag = readTagFromStack(stackGetter.get());
+		final NbtCompound tag = readTagFromStack(stackGetter.get());
 
 		if(tag != null && !tag.isEmpty()) {
 			readTag(tag);
@@ -64,9 +64,9 @@ public abstract class AbstractPortableTank extends SimpleTank {
 	/**
 	 * Override if tag isn't at root (for block entities, for example)
 	 */
-	protected abstract CompoundTag readTagFromStack(ItemStack stack);
+	protected abstract NbtCompound readTagFromStack(ItemStack stack);
 
-	protected abstract void  writeTagToStack(ItemStack stack, CompoundTag tag);
+	protected abstract void  writeTagToStack(ItemStack stack, NbtCompound tag);
 
 	/**
 	 * For client-side display, create and retain a static reference and call this each frame.

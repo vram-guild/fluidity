@@ -19,7 +19,7 @@ import com.google.common.base.Preconditions;
 import com.mojang.datafixers.util.Pair;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -257,21 +257,21 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 		}
 	}
 
-	public void writeTag(CompoundTag tag) {
+	public void writeTag(NbtCompound tag) {
 		tag.put("capacity",capacity.toTag());
 		tag.put("quantity",quantity.toTag());
 		tag.put("art", article.toTag());
 	}
 
 	@Override
-	public CompoundTag writeTag() {
-		final CompoundTag result = new CompoundTag();
+	public NbtCompound writeTag() {
+		final NbtCompound result = new NbtCompound();
 		writeTag(result);
 		return result;
 	}
 
 	@Override
-	public void readTag(CompoundTag tag) {
+	public void readTag(NbtCompound tag) {
 		capacity = new Fraction(tag.getCompound("capacity"));
 		quantity.readTag(tag.getCompound("quantity"));
 		article = Article.fromTag(tag.get("art"));

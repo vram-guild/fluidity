@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
@@ -46,7 +46,7 @@ public interface CarrierCostFunction extends TransactionParticipant {
 	long apply(CarrierSession sender, Article item, long count, boolean simulate);
 
 
-	default long apply(CarrierSession sender, Item item, @Nullable CompoundTag tag, long count, boolean simulate) {
+	default long apply(CarrierSession sender, Item item, @Nullable NbtCompound tag, long count, boolean simulate) {
 		return apply(sender, Article.of(item, tag), count, simulate);
 	}
 

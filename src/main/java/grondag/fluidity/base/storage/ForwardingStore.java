@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -108,12 +108,12 @@ public class ForwardingStore implements Store {
 	}
 
 	@Override
-	public CompoundTag writeTag() {
+	public NbtCompound writeTag() {
 		return wrapped.writeTag();
 	}
 
 	@Override
-	public void readTag(CompoundTag tag) {
+	public void readTag(NbtCompound tag) {
 		wrapped.readTag(tag);
 	}
 

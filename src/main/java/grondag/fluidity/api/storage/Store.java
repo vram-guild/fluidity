@@ -20,7 +20,7 @@ import java.util.function.Predicate;
 import com.google.common.base.Predicates;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 
 import grondag.fluidity.Fluidity;
@@ -221,9 +221,9 @@ public interface Store extends TransactionParticipant {
 		return true;
 	}
 
-	CompoundTag writeTag();
+	NbtCompound writeTag();
 
-	void readTag(CompoundTag tag);
+	void readTag(NbtCompound tag);
 
 	Predicate <? super StoredArticleView> NOT_EMPTY = a -> !a.isEmpty();
 

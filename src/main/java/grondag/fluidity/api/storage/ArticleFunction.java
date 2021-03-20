@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 
 import grondag.fluidity.Fluidity;
@@ -69,7 +69,7 @@ public interface ArticleFunction extends TransactionParticipant {
 		}
 	}
 
-	default long apply(Item item, @Nullable CompoundTag tag, long count, boolean simulate) {
+	default long apply(Item item, @Nullable NbtCompound tag, long count, boolean simulate) {
 		return apply(Article.of(item, tag), count, simulate);
 	}
 

@@ -24,7 +24,7 @@ import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.item.Item;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
@@ -78,7 +78,7 @@ public class AggregateDiscreteStore extends AbstractAggregateStore<AggregateDisc
 	}
 
 	@Nullable
-	protected StoredDiscreteArticle getArticle(Item item, CompoundTag tag) {
+	protected StoredDiscreteArticle getArticle(Item item, NbtCompound tag) {
 		return articles.get(Article.of(item, tag));
 	}
 
@@ -368,12 +368,12 @@ public class AggregateDiscreteStore extends AbstractAggregateStore<AggregateDisc
 	}
 
 	@Override
-	public CompoundTag writeTag() {
+	public NbtCompound writeTag() {
 		throw new UnsupportedOperationException("Aggregate storage view do not support saving");
 	}
 
 	@Override
-	public void readTag(CompoundTag tag) {
+	public void readTag(NbtCompound tag) {
 		throw new UnsupportedOperationException("Aggregate storage view do not support saving");
 	}
 

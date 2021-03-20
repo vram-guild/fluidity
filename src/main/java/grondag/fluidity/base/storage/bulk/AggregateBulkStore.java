@@ -22,7 +22,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
@@ -501,12 +501,12 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 	}
 
 	@Override
-	public CompoundTag writeTag() {
+	public NbtCompound writeTag() {
 		throw new UnsupportedOperationException("Aggregate storage view do not support saving");
 	}
 
 	@Override
-	public void readTag(CompoundTag tag) {
+	public void readTag(NbtCompound tag) {
 		throw new UnsupportedOperationException("Aggregate storage view do not support saving");
 	}
 

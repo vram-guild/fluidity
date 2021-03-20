@@ -20,11 +20,11 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 @Internal
 public class StackHelper {
-	public static ItemStack newStack(Item item, CompoundTag tag, long count) {
+	public static ItemStack newStack(Item item, NbtCompound tag, long count) {
 		if (item == null || item == Items.AIR || count <= 0) {
 			return ItemStack.EMPTY;
 		}
@@ -34,7 +34,7 @@ public class StackHelper {
 		return result;
 	}
 
-	public static boolean areItemsEqual(Item itemA, CompoundTag tagA, Item itemB, CompoundTag tagB) {
+	public static boolean areItemsEqual(Item itemA, NbtCompound tagA, Item itemB, NbtCompound tagB) {
 		if (itemA != itemB) {
 			return false;
 		}
@@ -46,7 +46,7 @@ public class StackHelper {
 		return tagB != null && tagA.equals(tagB);
 	}
 
-	public static boolean areItemsEqual(Item item, CompoundTag tag, ItemStack stack) {
+	public static boolean areItemsEqual(Item item, NbtCompound tag, ItemStack stack) {
 		if (item != stack.getItem()) {
 			return false;
 		}

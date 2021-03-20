@@ -21,7 +21,7 @@ import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.InventoryStore;
@@ -356,7 +356,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	}
 
 	@Override
-	public void readTag(CompoundTag tag) {
+	public void readTag(NbtCompound tag) {
 		super.readTag(tag);
 
 		for (int slot = 0 ; slot < slotCount; slot++) {

@@ -23,7 +23,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
@@ -64,10 +64,10 @@ public class ArticleCache {
 		private ArticleType<?> type;
 		private Object resource;
 		private int hashCode;
-		public CompoundTag tag;
+		public NbtCompound tag;
 
 
-		FatArticleKey set (ArticleType<?> type, Object resource, CompoundTag tag) {
+		FatArticleKey set (ArticleType<?> type, Object resource, NbtCompound tag) {
 			this.type = type;
 			this.resource = resource;
 			this.tag = tag.copy();
@@ -108,7 +108,7 @@ public class ArticleCache {
 	private static boolean warnOnTaggedFailure = true;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	static Article getArticle(ArticleType type, Object resource, CompoundTag tag) {
+	static Article getArticle(ArticleType type, Object resource, NbtCompound tag) {
 		if(type == ArticleType.NOTHING) {
 			return Article.NOTHING;
 		}

@@ -24,9 +24,9 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
-import net.minecraft.nbt.ByteTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtByte;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -44,8 +44,8 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	final boolean isItem;
 	final BiConsumer<T, PacketByteBuf> packetWriter;
 	final Function<PacketByteBuf, T> packetReader;
-	final Function<Tag, T> tagReader;
-	final Function<T, Tag> tagWriter;
+	final Function<NbtElement, T> tagReader;
+	final Function<T, NbtElement> tagWriter;
 	final Function<T, String> keyFunction;
 	final Predicate<? super StoredArticleView> viewPredicate;
 	final Predicate<Article> articlePredicate;
@@ -87,8 +87,8 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	}
 
 	@Override
-	public Tag toTag() {
-		return StringTag.of(ArticleTypeRegistry.instance().getId(this).toString());
+	public NbtElement toTag() {
+		return NbtString.of(ArticleTypeRegistry.instance().getId(this).toString());
 	}
 
 	@Override
@@ -116,8 +116,8 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 		private boolean isBulk = false;
 		private BiConsumer<U, PacketByteBuf> packetWriter;
 		private Function<PacketByteBuf, U> packetReader;
-		private Function<U, Tag> tagWriter;
-		private Function<Tag, U> tagReader;
+		private Function<U, NbtElement> tagWriter;
+		private Function<NbtElement, U> tagReader;
 		private Function<U, String> keyFunction;
 
 		BuilderImpl(Class<U> clazz) {
@@ -140,13 +140,13 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 		}
 
 		@Override
-		public Builder<U> resourceTagWriter(Function<U, Tag> tagWriter) {
+		public Builder<U> resourceTagWriter(Function<U, NbtElement> tagWriter) {
 			this.tagWriter = tagWriter;
 			return this;
 		}
 
 		@Override
-		public Builder<U> resourceTagReader(Function<Tag, U> tagReader) {
+		public Builder<U> resourceTagReader(Function<NbtElement, U> tagReader) {
 			this.tagReader = tagReader;
 			return this;
 		}
@@ -173,7 +173,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	public static final ArticleType<Item> ITEM = ArticleTypeRegistryImpl.INSTANCE.add("fluidity:item",
 			builder(Item.class)
 			.bulk(false)
-			.resourceTagWriter(r -> StringTag.of(Registry.ITEM.getId(r).toString()))
+			.resourceTagWriter(r -> NbtString.of(Registry.ITEM.getId(r).toString()))
 			.resourceTagReader(t -> Registry.ITEM.get(new Identifier(t.asString())))
 			.resourcePacketWriter((r, p) -> p.writeVarInt(Registry.ITEM.getRawId(r)))
 			.resourcePacketReader(p -> Registry.ITEM.get(p.readVarInt()))
@@ -182,7 +182,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 
 	public static final ArticleType<Fluid> FLUID = ArticleTypeRegistryImpl.INSTANCE.add("fluidity:fluid", builder(Fluid.class)
 			.bulk(true)
-			.resourceTagWriter(r -> StringTag.of(Registry.FLUID.getId(r).toString()))
+			.resourceTagWriter(r -> NbtString.of(Registry.FLUID.getId(r).toString()))
 			.resourceTagReader(t -> Registry.FLUID.get(new Identifier(t.asString())))
 			.resourcePacketWriter((r, p) -> p.writeVarInt(Registry.FLUID.getRawId(r)))
 			.resourcePacketReader(p -> Registry.FLUID.get(p.readVarInt()))
@@ -191,7 +191,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 
 	public static final ArticleType<Void> NOTHING = ArticleTypeRegistryImpl.INSTANCE.add("fluidity:nothing", builder(Void.class)
 			.bulk(false)
-			.resourceTagWriter(r -> ByteTag.ZERO)
+			.resourceTagWriter(r -> NbtByte.ZERO)
 			.resourceTagReader(t -> null)
 			.resourcePacketWriter((r, p) -> {})
 			.resourcePacketReader(p -> null)
@@ -203,7 +203,7 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> ArticleTypeImpl<T> fromTag(Tag tag) {
+	public static <T> ArticleTypeImpl<T> fromTag(NbtElement tag) {
 		return ArticleTypeRegistryImpl.INSTANCE.get(tag.asString());
 	}
 
