@@ -113,7 +113,7 @@ public class ArticleImpl<T> implements Article {
 	public void toPacket(PacketByteBuf buf) {
 		type.toPacket(buf);
 		type.packetWriter.accept(resource, buf);
-		buf.writeCompoundTag(tag);
+		buf.writeCompound(tag);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -133,7 +133,7 @@ public class ArticleImpl<T> implements Article {
 	public static Article fromPacket(PacketByteBuf buf) {
 		final ArticleTypeImpl type = ArticleTypeImpl.fromPacket(buf);
 		final Object resource = type.packetReader.apply(buf);
-		final NbtCompound aTag = buf.readCompoundTag();
+		final NbtCompound aTag = buf.readCompound();
 		return of(type, resource, aTag);
 	}
 
