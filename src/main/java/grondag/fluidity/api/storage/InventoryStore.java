@@ -19,8 +19,8 @@ import org.jetbrains.annotations.ApiStatus.Experimental;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.recipe.RecipeFinder;
 import net.minecraft.recipe.RecipeInputProvider;
+import net.minecraft.recipe.RecipeMatcher;
 
 import grondag.fluidity.base.storage.discrete.DiscreteStore;
 
@@ -36,10 +36,10 @@ public interface InventoryStore extends DiscreteStore, Inventory, RecipeInputPro
 	}
 
 	@Override
-	default void provideRecipeInputs(RecipeFinder finder) {
+	default void provideRecipeInputs(RecipeMatcher matcher) {
 		this.forEach(v -> {
 			if (!v.isEmpty()) {
-				finder.addItem(v.toStack());
+				matcher.addInput(v.toStack());
 			}
 
 			return true;
