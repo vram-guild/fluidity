@@ -121,7 +121,7 @@ public interface Article {
 		final ItemStack result = new ItemStack(item, (int) Math.min(item.getMaxCount(), count));
 
 		if(hasTag()) {
-			result.setTag(copyTag());
+			result.setNbt(copyTag());
 		}
 
 		return result;
@@ -151,7 +151,7 @@ public interface Article {
 		if (stack == null || stack.isEmpty()) {
 			return isNothing();
 		} else {
-			return isItem() && stack.getItem() == toItem() && (hasTag() ? doesTagMatch(stack.getTag()) : !stack.hasTag());
+			return isItem() && stack.getItem() == toItem() && (hasTag() ? doesTagMatch(stack.getNbt()) : !stack.hasNbt());
 		}
 	}
 

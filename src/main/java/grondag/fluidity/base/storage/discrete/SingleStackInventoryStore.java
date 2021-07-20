@@ -333,7 +333,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 
 	@Override
 	public NbtCompound writeTag() {
-		return stack.getTag();
+		return stack.getNbt();
 	}
 
 	@Override

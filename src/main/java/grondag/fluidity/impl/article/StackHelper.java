@@ -30,7 +30,7 @@ public class StackHelper {
 		}
 
 		final ItemStack result = new ItemStack(item, (int) Math.min(item.getMaxCount(), count));
-		result.setTag(tag);
+		result.setNbt(tag);
 		return result;
 	}
 
@@ -52,14 +52,14 @@ public class StackHelper {
 		}
 
 		if (tag == null) {
-			return !stack.hasTag();
+			return !stack.hasNbt();
 		}
 
-		return stack.hasTag() && tag.equals(stack.getTag());
+		return stack.hasNbt() && tag.equals(stack.getNbt());
 	}
 
 	public static boolean areItemsEqual(ItemStack a, ItemStack b) {
-		return areItemsEqual(a.getItem(), a.getTag(), b);
+		return areItemsEqual(a.getItem(), a.getNbt(), b);
 	}
 
 	public static boolean areStacksEqual(ItemStack stackA, ItemStack stackB)  {

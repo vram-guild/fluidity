@@ -146,7 +146,7 @@ public class ArticleImpl<T> implements Article {
 	}
 
 	public static Article of(ItemStack stack) {
-		return stack.isEmpty() ? Article.NOTHING : of(stack.getItem(), stack.getTag());
+		return stack.isEmpty() ? Article.NOTHING : of(stack.getItem(), stack.getNbt());
 	}
 
 	public static Article of(Item item, @Nullable NbtCompound tag) {
