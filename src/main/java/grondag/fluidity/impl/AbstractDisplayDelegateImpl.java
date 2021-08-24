@@ -15,6 +15,8 @@
  ******************************************************************************/
 package grondag.fluidity.impl;
 
+import java.util.Locale;
+
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 import net.minecraft.client.resource.language.I18n;
@@ -42,7 +44,7 @@ abstract class AbstractDisplayDelegateImpl {
 		if(!article.equals(this.article)) {
 			this.article = article;
 			localizedName = article.isNothing() ? "" : I18n.translate(article.getTranslationKey());
-			lowerCaseLocalizedName = localizedName.toLowerCase();
+			lowerCaseLocalizedName = localizedName.toLowerCase(Locale.ROOT);
 		}
 	}
 

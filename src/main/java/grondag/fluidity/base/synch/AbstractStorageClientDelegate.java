@@ -16,6 +16,7 @@
 package grondag.fluidity.base.synch;
 
 import java.util.Comparator;
+import java.util.Locale;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -77,7 +78,7 @@ public abstract class AbstractStorageClientDelegate<T extends DisplayDelegate> {
 			filter = "";
 		}
 
-		this.filter = filter.toLowerCase();
+		this.filter = filter.toLowerCase(Locale.ROOT);
 		updateFilter();
 	}
 
