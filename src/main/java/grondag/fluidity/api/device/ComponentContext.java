@@ -15,12 +15,11 @@
  ******************************************************************************/
 package grondag.fluidity.api.device;
 
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
 
 /**
  * Data object that carries information to device components regarding
@@ -37,7 +36,7 @@ public interface ComponentContext {
 	 *
 	 * @see <a href="https://github.com/grondag/fluidity#using-components">https://github.com/grondag/fluidity#using-components</a>
 	 */
-	@Nullable Identifier id();
+	@Nullable ResourceLocation id();
 
 	/**
 	 * The side from which access to the device component was requested,
@@ -65,5 +64,5 @@ public interface ComponentContext {
 	 *
 	 * @return The server-side game world in which the device component is located
 	 */
-	World world();
+	Level world();
 }

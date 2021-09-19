@@ -16,14 +16,11 @@
 package grondag.fluidity.base.storage.bulk;
 
 import java.util.Set;
-
+import net.minecraft.nbt.CompoundTag;
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.nbt.NbtCompound;
-
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -501,12 +498,12 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 	}
 
 	@Override
-	public NbtCompound writeTag() {
+	public CompoundTag writeTag() {
 		throw new UnsupportedOperationException("Aggregate storage view do not support saving");
 	}
 
 	@Override
-	public void readTag(NbtCompound tag) {
+	public void readTag(CompoundTag tag) {
 		throw new UnsupportedOperationException("Aggregate storage view do not support saving");
 	}
 

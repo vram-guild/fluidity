@@ -16,12 +16,9 @@
 package grondag.fluidity.base.multiblock;
 
 import java.util.function.Function;
-
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.world.World;
-
 import grondag.fluidity.api.multiblock.MultiBlock;
 
 @Experimental
@@ -36,12 +33,12 @@ public abstract class AbstractBlockEntityMember<T extends AbstractBlockEntityMem
 
 	@Override
 	public long getPackedPos() {
-		return blockEntity.getPos().asLong();
+		return blockEntity.getBlockPos().asLong();
 	}
 
 	@Override
-	public World getWorld() {
-		return blockEntity.getWorld();
+	public Level getWorld() {
+		return blockEntity.getLevel();
 	}
 
 	@Override

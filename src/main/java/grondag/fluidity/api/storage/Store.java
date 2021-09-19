@@ -16,13 +16,10 @@
 package grondag.fluidity.api.storage;
 
 import java.util.function.Predicate;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import com.google.common.base.Predicates;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.Identifier;
-
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -221,9 +218,9 @@ public interface Store extends TransactionParticipant {
 		return true;
 	}
 
-	NbtCompound writeTag();
+	CompoundTag writeTag();
 
-	void readTag(NbtCompound tag);
+	void readTag(CompoundTag tag);
 
 	Predicate <? super StoredArticleView> NOT_EMPTY = a -> !a.isEmpty();
 
@@ -231,7 +228,7 @@ public interface Store extends TransactionParticipant {
 	Store VOID = VoidStore.INSTANCE;
 	Store CREATIVE = CreativeStore.INSTANCE;
 
-	DeviceComponentType<Store> STORAGE_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "storage"), EMPTY);
+	DeviceComponentType<Store> STORAGE_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new ResourceLocation(Fluidity.MOD_ID, "storage"), EMPTY);
 
 	/**
 	 * Multiblock storage devices may elect to return the compound storage instance as the main storage service.
@@ -241,7 +238,7 @@ public interface Store extends TransactionParticipant {
 	 *
 	 * @return Internal {@link Store} of this device, or the regular storage if not a multiblock.
 	 */
-	DeviceComponentType<Store> INTERNAL_STORAGE_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "internal_storage"), EMPTY);
+	DeviceComponentType<Store> INTERNAL_STORAGE_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new ResourceLocation(Fluidity.MOD_ID, "internal_storage"), EMPTY);
 
 	/**
 	 * Indicates if store could potentially supply or consume article of given type.

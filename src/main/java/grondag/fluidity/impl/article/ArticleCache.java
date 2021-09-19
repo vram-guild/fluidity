@@ -17,14 +17,11 @@ package grondag.fluidity.impl.article;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-
+import net.minecraft.nbt.CompoundTag;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.jetbrains.annotations.ApiStatus.Internal;
-
-import net.minecraft.nbt.NbtCompound;
-
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -64,10 +61,10 @@ public class ArticleCache {
 		private ArticleType<?> type;
 		private Object resource;
 		private int hashCode;
-		public NbtCompound tag;
+		public CompoundTag tag;
 
 
-		FatArticleKey set (ArticleType<?> type, Object resource, NbtCompound tag) {
+		FatArticleKey set (ArticleType<?> type, Object resource, CompoundTag tag) {
 			this.type = type;
 			this.resource = resource;
 			this.tag = tag.copy();
@@ -108,7 +105,7 @@ public class ArticleCache {
 	private static boolean warnOnTaggedFailure = true;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	static Article getArticle(ArticleType type, Object resource, NbtCompound tag) {
+	static Article getArticle(ArticleType type, Object resource, CompoundTag tag) {
 		if(type == ArticleType.NOTHING) {
 			return Article.NOTHING;
 		}

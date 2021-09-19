@@ -18,8 +18,8 @@ package grondag.fluidity.base.storage.discrete;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -75,7 +75,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 				return 0;
 			}
 
-			final int maxCount = article.toItem().getMaxCount();
+			final int maxCount = article.toItem().getMaxStackSize();
 
 			if(stack.isEmpty()) {
 				final int n = (int) Math.min(count, maxCount);
@@ -96,11 +96,11 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 
 				return n;
 			} else if(article.matches(stack)) {
-				final int n = (int) Math.min(count, article.toItem().getMaxCount() - stack.getCount());
+				final int n = (int) Math.min(count, article.toItem().getMaxStackSize() - stack.getCount());
 
 				if(!simulate) {
 					rollbackHandler.prepareIfNeeded();
-					stack.increment(n);
+					stack.grow(n);
 					cleanStack = stack.copy();
 
 					if(!listeners.isEmpty()) {
@@ -147,10 +147,10 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 			final int n = (int) Math.min(count, stack.getCount());
 
 			if(!simulate) {
-				final int oldMax = stack.getMaxCount();
+				final int oldMax = stack.getMaxStackSize();
 
 				rollbackHandler.prepareIfNeeded();
-				stack.decrement(n);
+				stack.shrink(n);
 				cleanStack = stack.copy();
 
 				if(!listeners.isEmpty()) {
@@ -193,7 +193,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 	}
 
 	@Override
-	public int size() {
+	public int getContainerSize() {
 		return 1;
 	}
 
@@ -204,16 +204,16 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 
 	@Override
 	public boolean isFull() {
-		return !stack.isEmpty() && stack.getCount() >= stack.getMaxCount();
+		return !stack.isEmpty() && stack.getCount() >= stack.getMaxStackSize();
 	}
 
 	@Override
-	public ItemStack getStack(int slot) {
+	public ItemStack getItem(int slot) {
 		return slot == 0 ? stack : ItemStack.EMPTY;
 	}
 
 	@Override
-	public ItemStack removeStack(int slot, int count) {
+	public ItemStack removeItem(int slot, int count) {
 		if (slot != 0 || stack.isEmpty() || count == 0) {
 			return ItemStack.EMPTY;
 		}
@@ -227,14 +227,14 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 
 		final ItemStack result = stack.copy();
 		result.setCount(n);
-		stack.decrement(n);
+		stack.shrink(n);
 		cleanStack = stack.copy();
 
 		return result;
 	}
 
 	@Override
-	public ItemStack removeStack(int slot) {
+	public ItemStack removeItemNoUpdate(int slot) {
 		if (slot != 0 || stack.isEmpty()) {
 			return ItemStack.EMPTY;
 		}
@@ -253,7 +253,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 	}
 
 	@Override
-	public void setStack(int slot, ItemStack newStack) {
+	public void setItem(int slot, ItemStack newStack) {
 		Preconditions.checkElementIndex(slot, 1, "Invalid slot number");
 
 		if (StackHelper.areItemsEqual(newStack, stack)) {
@@ -297,6 +297,11 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 	}
 
 	@Override
+	public void clearContent() {
+		clear();
+	}
+
+	@Override
 	protected Object createRollbackState() {
 		return stack.copy();
 	}
@@ -311,7 +316,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 
 	@Override
 	protected void sendFirstListenerUpdate(StorageListener listener) {
-		listener.onCapacityChange(this, stack.getMaxCount());
+		listener.onCapacityChange(this, stack.getMaxStackSize());
 		listener.onAccept(this, 0, ArticleImpl.of(stack), stack.getCount(), stack.getCount());
 	}
 
@@ -328,17 +333,17 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 
 	@Override
 	public long capacity() {
-		return stack.isEmpty() ? 64 : stack.getMaxCount();
+		return stack.isEmpty() ? 64 : stack.getMaxStackSize();
 	}
 
 	@Override
-	public NbtCompound writeTag() {
-		return stack.getNbt();
+	public CompoundTag writeTag() {
+		return stack.getTag();
 	}
 
 	@Override
-	public void readTag(NbtCompound tag) {
-		stack = ItemStack.fromNbt(tag);
+	public void readTag(CompoundTag tag) {
+		stack = ItemStack.of(tag);
 		cleanStack = stack.copy();
 	}
 
@@ -348,7 +353,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 	}
 
 	@Override
-	public void markDirty() {
+	public void setChanged() {
 		if (StackHelper.areItemsEqual(stack, cleanStack)) {
 			if(stack.getCount() == cleanStack.getCount()) {
 				return;

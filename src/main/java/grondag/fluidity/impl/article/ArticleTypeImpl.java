@@ -18,19 +18,16 @@ package grondag.fluidity.impl.article;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.ByteTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.material.Fluid;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.ApiStatus.Internal;
-
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.nbt.NbtByte;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.article.ArticleTypeRegistry;
@@ -42,10 +39,10 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	final boolean isBulk;
 	final boolean isFluid;
 	final boolean isItem;
-	final BiConsumer<T, PacketByteBuf> packetWriter;
-	final Function<PacketByteBuf, T> packetReader;
-	final Function<NbtElement, T> tagReader;
-	final Function<T, NbtElement> tagWriter;
+	final BiConsumer<T, FriendlyByteBuf> packetWriter;
+	final Function<FriendlyByteBuf, T> packetReader;
+	final Function<Tag, T> tagReader;
+	final Function<T, Tag> tagWriter;
 	final Function<T, String> keyFunction;
 	final Predicate<? super StoredArticleView> viewPredicate;
 	final Predicate<Article> articlePredicate;
@@ -87,12 +84,12 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	}
 
 	@Override
-	public NbtElement toTag() {
-		return NbtString.of(ArticleTypeRegistry.instance().getId(this).toString());
+	public Tag toTag() {
+		return StringTag.valueOf(ArticleTypeRegistry.instance().getId(this).toString());
 	}
 
 	@Override
-	public void toPacket(PacketByteBuf buf) {
+	public void toPacket(FriendlyByteBuf buf) {
 		buf.writeVarInt(ArticleTypeRegistryImpl.INSTANCE.getRawId(this));
 	}
 
@@ -114,10 +111,10 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	private static class BuilderImpl<U> implements Builder<U> {
 		private final Class<U> clazz;
 		private boolean isBulk = false;
-		private BiConsumer<U, PacketByteBuf> packetWriter;
-		private Function<PacketByteBuf, U> packetReader;
-		private Function<U, NbtElement> tagWriter;
-		private Function<NbtElement, U> tagReader;
+		private BiConsumer<U, FriendlyByteBuf> packetWriter;
+		private Function<FriendlyByteBuf, U> packetReader;
+		private Function<U, Tag> tagWriter;
+		private Function<Tag, U> tagReader;
 		private Function<U, String> keyFunction;
 
 		BuilderImpl(Class<U> clazz) {
@@ -140,25 +137,25 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 		}
 
 		@Override
-		public Builder<U> resourceTagWriter(Function<U, NbtElement> tagWriter) {
+		public Builder<U> resourceTagWriter(Function<U, Tag> tagWriter) {
 			this.tagWriter = tagWriter;
 			return this;
 		}
 
 		@Override
-		public Builder<U> resourceTagReader(Function<NbtElement, U> tagReader) {
+		public Builder<U> resourceTagReader(Function<Tag, U> tagReader) {
 			this.tagReader = tagReader;
 			return this;
 		}
 
 		@Override
-		public Builder<U> resourcePacketWriter(BiConsumer<U, PacketByteBuf> packetWriter) {
+		public Builder<U> resourcePacketWriter(BiConsumer<U, FriendlyByteBuf> packetWriter) {
 			this.packetWriter = packetWriter;
 			return this;
 		}
 
 		@Override
-		public Builder<U> resourcePacketReader(Function<PacketByteBuf, U> packetReader) {
+		public Builder<U> resourcePacketReader(Function<FriendlyByteBuf, U> packetReader) {
 			this.packetReader = packetReader;
 			return this;
 		}
@@ -173,25 +170,25 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	public static final ArticleType<Item> ITEM = ArticleTypeRegistryImpl.INSTANCE.add("fluidity:item",
 			builder(Item.class)
 			.bulk(false)
-			.resourceTagWriter(r -> NbtString.of(Registry.ITEM.getId(r).toString()))
-			.resourceTagReader(t -> Registry.ITEM.get(new Identifier(t.asString())))
-			.resourcePacketWriter((r, p) -> p.writeVarInt(Registry.ITEM.getRawId(r)))
-			.resourcePacketReader(p -> Registry.ITEM.get(p.readVarInt()))
-			.translationKeyFunction(i -> i.getTranslationKey())
+			.resourceTagWriter(r -> StringTag.valueOf(Registry.ITEM.getKey(r).toString()))
+			.resourceTagReader(t -> Registry.ITEM.get(new ResourceLocation(t.getAsString())))
+			.resourcePacketWriter((r, p) -> p.writeVarInt(Registry.ITEM.getId(r)))
+			.resourcePacketReader(p -> Registry.ITEM.byId(p.readVarInt()))
+			.translationKeyFunction(i -> i.getDescriptionId())
 			.build());
 
 	public static final ArticleType<Fluid> FLUID = ArticleTypeRegistryImpl.INSTANCE.add("fluidity:fluid", builder(Fluid.class)
 			.bulk(true)
-			.resourceTagWriter(r -> NbtString.of(Registry.FLUID.getId(r).toString()))
-			.resourceTagReader(t -> Registry.FLUID.get(new Identifier(t.asString())))
-			.resourcePacketWriter((r, p) -> p.writeVarInt(Registry.FLUID.getRawId(r)))
-			.resourcePacketReader(p -> Registry.FLUID.get(p.readVarInt()))
-			.translationKeyFunction(f -> f.getDefaultState().getBlockState().getBlock().getTranslationKey())
+			.resourceTagWriter(r -> StringTag.valueOf(Registry.FLUID.getKey(r).toString()))
+			.resourceTagReader(t -> Registry.FLUID.get(new ResourceLocation(t.getAsString())))
+			.resourcePacketWriter((r, p) -> p.writeVarInt(Registry.FLUID.getId(r)))
+			.resourcePacketReader(p -> Registry.FLUID.byId(p.readVarInt()))
+			.translationKeyFunction(f -> f.defaultFluidState().createLegacyBlock().getBlock().getDescriptionId())
 			.build());
 
 	public static final ArticleType<Void> NOTHING = ArticleTypeRegistryImpl.INSTANCE.add("fluidity:nothing", builder(Void.class)
 			.bulk(false)
-			.resourceTagWriter(r -> NbtByte.ZERO)
+			.resourceTagWriter(r -> ByteTag.ZERO)
 			.resourceTagReader(t -> null)
 			.resourcePacketWriter((r, p) -> {})
 			.resourcePacketReader(p -> null)
@@ -203,12 +200,12 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> ArticleTypeImpl<T> fromTag(NbtElement tag) {
-		return ArticleTypeRegistryImpl.INSTANCE.get(tag.asString());
+	public static <T> ArticleTypeImpl<T> fromTag(Tag tag) {
+		return ArticleTypeRegistryImpl.INSTANCE.get(tag.getAsString());
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> ArticleTypeImpl<T> fromPacket(PacketByteBuf buf) {
+	public static <T> ArticleTypeImpl<T> fromPacket(FriendlyByteBuf buf) {
 		return ArticleTypeRegistryImpl.INSTANCE.get(buf.readVarInt());
 	}
 

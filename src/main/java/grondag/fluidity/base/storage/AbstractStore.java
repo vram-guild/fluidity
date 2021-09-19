@@ -16,13 +16,10 @@
 package grondag.fluidity.base.storage;
 
 import java.util.function.Predicate;
-
+import net.minecraft.world.level.material.Fluid;
 import com.google.common.base.Predicates;
 import com.google.common.util.concurrent.Runnables;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.fluid.Fluid;
-
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.storage.StorageEventStream;

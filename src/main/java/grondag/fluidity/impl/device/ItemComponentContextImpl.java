@@ -17,18 +17,16 @@ package grondag.fluidity.impl.device;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.World;
-
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import grondag.fluidity.api.device.ItemComponentContext;
 
 @SuppressWarnings("rawtypes")
 public final class ItemComponentContextImpl extends AbstractComponentContextImpl implements ItemComponentContext {
 	private Supplier<ItemStack> stackGetter;
 	private Consumer<ItemStack> stackSetter;
-	private ServerPlayerEntity player;
+	private ServerPlayer player;
 
 	@Override
 	public Supplier<ItemStack> stackGetter() {
@@ -41,17 +39,17 @@ public final class ItemComponentContextImpl extends AbstractComponentContextImpl
 	}
 
 	@Override
-	public ServerPlayerEntity player() {
+	public ServerPlayer player() {
 		return player;
 	}
 
 	@Override
-	protected World getWorldLazily() {
-		return player == null ? null : player.world;
+	protected Level getWorldLazily() {
+		return player == null ? null : player.level;
 	}
 
 	@SuppressWarnings("unchecked")
-	private ItemComponentContextImpl prepare(DeviceComponentTypeImpl componentType, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, World world) {
+	private ItemComponentContextImpl prepare(DeviceComponentTypeImpl componentType, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, Level world) {
 		this.componentType = componentType;
 		this.stackSetter = stackSetter;
 		this.stackGetter = stackGetter;
@@ -62,23 +60,23 @@ public final class ItemComponentContextImpl extends AbstractComponentContextImpl
 	}
 
 	@SuppressWarnings("unchecked")
-	private ItemComponentContextImpl  prepare(DeviceComponentTypeImpl componentType, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayerEntity player) {
+	private ItemComponentContextImpl  prepare(DeviceComponentTypeImpl componentType, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayer player) {
 		this.componentType = componentType;
 		this.stackSetter = stackSetter;
 		this.stackGetter = stackGetter;
 		this.player = player;
-		world = player.world;
+		world = player.level;
 		mapping = componentType.getMapping(stackGetter.get().getItem());
 		return this;
 	}
 
 	private static final ThreadLocal<ItemComponentContextImpl> POOL = ThreadLocal.withInitial(ItemComponentContextImpl::new);
 
-	static ItemComponentContextImpl get(DeviceComponentTypeImpl componentType, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, World world) {
+	static ItemComponentContextImpl get(DeviceComponentTypeImpl componentType, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, Level world) {
 		return POOL.get().prepare(componentType, stackGetter, stackSetter, world);
 	}
 
-	static ItemComponentContextImpl  get(DeviceComponentTypeImpl componentType, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayerEntity player) {
+	static ItemComponentContextImpl  get(DeviceComponentTypeImpl componentType, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayer player) {
 		return POOL.get().prepare(componentType, stackGetter, stackSetter, player);
 	}
 }

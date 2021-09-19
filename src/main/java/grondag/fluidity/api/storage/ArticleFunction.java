@@ -17,12 +17,6 @@ package grondag.fluidity.api.storage;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.Identifier;
-
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -32,6 +26,10 @@ import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.transact.TransactionParticipant;
 import grondag.fluidity.impl.storage.AlwaysReturnRequestedImpl;
 import grondag.fluidity.impl.storage.AlwaysReturnZeroImpl;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Flexible storage interface for tanks, containers.
@@ -69,7 +67,7 @@ public interface ArticleFunction extends TransactionParticipant {
 		}
 	}
 
-	default long apply(Item item, @Nullable NbtCompound tag, long count, boolean simulate) {
+	default long apply(Item item, @Nullable CompoundTag tag, long count, boolean simulate) {
 		return apply(Article.of(item, tag), count, simulate);
 	}
 
@@ -128,6 +126,6 @@ public interface ArticleFunction extends TransactionParticipant {
 	ArticleFunction ALWAYS_RETURN_REQUESTED = AlwaysReturnRequestedImpl.INSTANCE;
 	ArticleFunction ALWAYS_RETURN_ZERO = AlwaysReturnZeroImpl.INSTANCE;
 
-	DeviceComponentType<ArticleFunction> SUPPLIER_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "article_supplier"), ALWAYS_RETURN_ZERO);
-	DeviceComponentType<ArticleFunction> CONSUMER_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "article_consumer"), ALWAYS_RETURN_ZERO);
+	DeviceComponentType<ArticleFunction> SUPPLIER_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new ResourceLocation(Fluidity.MOD_ID, "article_supplier"), ALWAYS_RETURN_ZERO);
+	DeviceComponentType<ArticleFunction> CONSUMER_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new ResourceLocation(Fluidity.MOD_ID, "article_consumer"), ALWAYS_RETURN_ZERO);
 }

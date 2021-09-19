@@ -16,24 +16,22 @@
 package grondag.fluidity.base.synch;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-
 import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.base.article.AbstractStoredArticle;
 
 @Experimental
 public abstract class AbstractStorageServerDelegate<T extends AbstractStoredArticle> implements StorageListener {
-	protected ServerPlayerEntity player;
+	protected ServerPlayer player;
 	protected Store storage;
 	protected boolean isFirstUpdate = true;
 	protected boolean capacityChange = true;
 	protected final Int2ObjectOpenHashMap<T> updates = new Int2ObjectOpenHashMap<>();
 
-	public AbstractStorageServerDelegate(ServerPlayerEntity player, Store storage) {
+	public AbstractStorageServerDelegate(ServerPlayer player, Store storage) {
 		this.player = player;
 		this.storage = storage;
 		storage.eventStream().startListening(this, true);
@@ -49,7 +47,7 @@ public abstract class AbstractStorageServerDelegate<T extends AbstractStoredArti
 
 	public abstract void sendUpdates();
 
-	public void close(PlayerEntity playerEntity) {
+	public void close(Player playerEntity) {
 		if(playerEntity == player && storage != null) {
 			storage.eventStream().stopListening(this, false);
 			storage = null;

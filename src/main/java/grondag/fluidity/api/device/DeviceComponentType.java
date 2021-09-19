@@ -20,27 +20,25 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 /**
  * Describes and provides access to "device component" instances that may be retrieved
  * for blocks or items in the world. <p>
  *
  * This interface should never be implemented by mod authors. Create new instances
- * using {@link DeviceComponentRegistry#createComponent(net.minecraft.util.Identifier, Object)}.<p>
+ * using {@link DeviceComponentRegistry#createComponent(net.minecraft.resources.ResourceLocation, Object)}.<p>
  *
  * @param <T> Type parameter identifying the {@code Class} of component instances of this component type
  *
@@ -82,7 +80,7 @@ public interface DeviceComponentType<T> {
 	 *
 	 * The instance that is returned may be thread-local and should never be retained.<p>
 	 *
-	 * Note that {@link #getAccess(World, BlockPos, BlockState)} may be more performant
+	 * Note that {@link #getAccess(Level, BlockPos, BlockState)} may be more performant
 	 * if 1) you know this component type requires block state and 2) the block state
 	 * and the given position is already on the call stack.<p>
 	 *
@@ -91,7 +89,7 @@ public interface DeviceComponentType<T> {
 	 * @return a {@code DeviceComponentAccess} to access device components of this type
 	 * that may be present at the given location
 	 */
-	DeviceComponentAccess<T> getAccess(World world, BlockPos pos);
+	DeviceComponentAccess<T> getAccess(Level world, BlockPos pos);
 
 	/**
 	 * Retrieves a {@code DeviceComponentAccess} to access device components of this type
@@ -105,7 +103,7 @@ public interface DeviceComponentType<T> {
 	 * @return a {@code DeviceComponentAccess} to access device components of this type
 	 * that may be present at the given location
 	 */
-	DeviceComponentAccess<T>  getAccess(World world, BlockPos pos, BlockState blockState);
+	DeviceComponentAccess<T>  getAccess(Level world, BlockPos pos, BlockState blockState);
 
 	/**
 	 * Retrieves a {@code DeviceComponentAccess} to access device components of this type
@@ -144,8 +142,8 @@ public interface DeviceComponentType<T> {
 	 * @return a {@code DeviceComponentAccess} to access device components of this type
 	 * that may be present in the held item
 	 */
-	default DeviceComponentAccess<T> getAccessForHeldItem(ServerPlayerEntity player) {
-		return getAccessForHeldItem(() -> player.getMainHandStack(), s -> player.setStackInHand(Hand.MAIN_HAND, s), player);
+	default DeviceComponentAccess<T> getAccessForHeldItem(ServerPlayer player) {
+		return getAccessForHeldItem(() -> player.getMainHandItem(), s -> player.setItemInHand(InteractionHand.MAIN_HAND, s), player);
 	}
 
 	/**
@@ -160,7 +158,7 @@ public interface DeviceComponentType<T> {
 	 * @return a {@code DeviceComponentAccess} to access device components of this type
 	 * that may be present in the item stack
 	 */
-	DeviceComponentAccess<T> getAccessForHeldItem(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayerEntity player);
+	DeviceComponentAccess<T> getAccessForHeldItem(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayer player);
 
 	/**
 	 * Retrieves a {@code DeviceComponentAccess} to access device components of this type
@@ -174,7 +172,7 @@ public interface DeviceComponentType<T> {
 	 * @return a {@code DeviceComponentAccess} to access device components of this type
 	 * that may be present in the item stack
 	 */
-	DeviceComponentAccess<T> getAccess(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, World world);
+	DeviceComponentAccess<T> getAccess(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, Level world);
 
 	/**
 	 * Applies registered item actions to a component instance of this type until one is successful.
@@ -186,8 +184,8 @@ public interface DeviceComponentType<T> {
 	 *
 	 * @see <a href="https://github.com/grondag/fluidity#item-actions">https://github.com/grondag/fluidity#item-actions</a>
 	 */
-	default boolean applyActionsWithHeld(T target, ServerPlayerEntity player) {
-		return applyActions(target, () -> player.getMainHandStack(), s -> player.setStackInHand(Hand.MAIN_HAND, s), player);
+	default boolean applyActionsWithHeld(T target, ServerPlayer player) {
+		return applyActions(target, () -> player.getMainHandItem(), s -> player.setItemInHand(InteractionHand.MAIN_HAND, s), player);
 	}
 
 	/**
@@ -202,7 +200,7 @@ public interface DeviceComponentType<T> {
 	 *
 	 * @see <a href="https://github.com/grondag/fluidity#item-actions">https://github.com/grondag/fluidity#item-actions</a>
 	 */
-	boolean applyActions(T target, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayerEntity player);
+	boolean applyActions(T target, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayer player);
 
 	/**
 	 * Applies registered item actions to a component instance of this type until one is successful.
@@ -218,7 +216,7 @@ public interface DeviceComponentType<T> {
 	 *
 	 * @see <a href="https://github.com/grondag/fluidity#item-actions">https://github.com/grondag/fluidity#item-actions</a>
 	 */
-	boolean applyActions(T target, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, World world);
+	boolean applyActions(T target, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, Level world);
 
 	/**
 	 * Causes the given blocks to provide device component instances of this type

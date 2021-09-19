@@ -16,30 +16,28 @@
 package grondag.fluidity.api.storage;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.recipe.RecipeInputProvider;
-import net.minecraft.recipe.RecipeMatcher;
-
 import grondag.fluidity.base.storage.discrete.DiscreteStore;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.StackedContents;
+import net.minecraft.world.inventory.StackedContentsCompatible;
 
 /**
- * An extension of {@link Store} that implements {@link Inventory} with some default handlers.
+ * An extension of {@link Store} that implements {@link Container} with some default handlers.
  *
  * @see <a href="https://github.com/grondag/fluidity#store-and-its-variants">https://github.com/grondag/fluidity#store-and-its-variants</a>
  */
 @Experimental
-public interface InventoryStore extends DiscreteStore, Inventory, RecipeInputProvider {
-	@Override default boolean canPlayerUse(PlayerEntity player) {
+public interface InventoryStore extends DiscreteStore, Container, StackedContentsCompatible {
+	@Override default boolean stillValid(Player player) {
 		return true;
 	}
 
 	@Override
-	default void provideRecipeInputs(RecipeMatcher matcher) {
+	default void fillStackedContents(StackedContents matcher) {
 		this.forEach(v -> {
 			if (!v.isEmpty()) {
-				matcher.addInput(v.toStack());
+				matcher.accountStack(v.toStack());
 			}
 
 			return true;

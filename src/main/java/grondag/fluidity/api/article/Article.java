@@ -17,17 +17,15 @@ package grondag.fluidity.api.article;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.network.PacketByteBuf;
-
 import grondag.fluidity.impl.article.ArticleImpl;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 
 /**
  * Represents a game resource that may be stored or transported.<p>
@@ -107,7 +105,7 @@ public interface Article {
 	 * Changes to the returned instance will have no effect on this article.
 	 *
 	 * @param count  Accepts a long for convenience when used with storage implementations, but stack
-	 * size will be limited {@link Item#getMaxCount()} if the given {@code count} value is higher.
+	 * size will be limited {@link Item#getMaxStackSize()} if the given {@code count} value is higher.
 	 *
 	 * @return A new item stack instance with the given count (or the max possible for the item, if lower)
 	 * or {@link ItemStack#EMPTY} if this article does not represent a non-empty Item.
@@ -118,10 +116,10 @@ public interface Article {
 		}
 
 		final Item item = resource();
-		final ItemStack result = new ItemStack(item, (int) Math.min(item.getMaxCount(), count));
+		final ItemStack result = new ItemStack(item, (int) Math.min(item.getMaxStackSize(), count));
 
 		if(hasTag()) {
-			result.setNbt(copyTag());
+			result.setTag(copyTag());
 		}
 
 		return result;
@@ -151,7 +149,7 @@ public interface Article {
 		if (stack == null || stack.isEmpty()) {
 			return isNothing();
 		} else {
-			return isItem() && stack.getItem() == toItem() && (hasTag() ? doesTagMatch(stack.getNbt()) : !stack.hasNbt());
+			return isItem() && stack.getItem() == toItem() && (hasTag() ? doesTagMatch(stack.getTag()) : !stack.hasTag());
 		}
 	}
 
@@ -168,15 +166,15 @@ public interface Article {
 	 * @param otherTag Tag to be compared.
 	 * @return {@code true} when both tags are null or both tags are equal.
 	 */
-	boolean doesTagMatch(NbtCompound otherTag);
+	boolean doesTagMatch(CompoundTag otherTag);
 
 	/**
 	 * Allocates a copy of NBT tag associated with this article, or returns {@code null} if there is none.
-	 * Use {@link #hasTag()} or {@link #doesTagMatch(NbtCompound)} when the intent is to test the tag value.
+	 * Use {@link #hasTag()} or {@link #doesTagMatch(CompoundTag)} when the intent is to test the tag value.
 	 *
 	 * @return A copy of the tag associated with this article, or {@code null} if there is none.
 	 */
-	@Nullable NbtCompound copyTag();
+	@Nullable CompoundTag copyTag();
 
 	/**
 	 * Serializes this instance to an NBT tag that can later be used to retrieve an equivalent instance using {@link #fromTag(Tag)}.
@@ -184,15 +182,15 @@ public interface Article {
 	 *
 	 * @return An NBT tag suitable for saving this instance in world data.
 	 */
-	NbtElement toTag();
+	Tag toTag();
 
 	/**
 	 * Serializes this instance to a packet buffer that can be used (typically on the other side of a client/server connection)
-	 * to retrieve the instance via {@link #fromPacket(PacketByteBuf)}.
+	 * to retrieve the instance via {@link #fromPacket(FriendlyByteBuf)}.
 	 *
 	 * @param buf Target packet buffer for serialization output.
 	 */
-	void toPacket(PacketByteBuf buf);
+	void toPacket(FriendlyByteBuf buf);
 
 	/**
 	 * Supplies a translation key for displaying a localized label to the player.
@@ -208,17 +206,17 @@ public interface Article {
 	 * @param tag Earlier output of {@link #toTag()}
 	 * @return Instance equivalent to the instance encoded in the tag, or {@link #NOTHING} if tag is null or the instance is no longer registered
 	 */
-	static Article fromTag(@Nullable NbtElement tag) {
+	static Article fromTag(@Nullable Tag tag) {
 		return ArticleImpl.fromTag(tag);
 	}
 
 	/**
-	 * Read an instance previously encoded in a packet buffer via {@link #toPacket(PacketByteBuf)}.
+	 * Read an instance previously encoded in a packet buffer via {@link #toPacket(FriendlyByteBuf)}.
 	 *
 	 * @param buf The packet buffer
 	 * @return Instance encoded in the buffer, or {@link #NOTHING} if the instance cannot be read or found
 	 */
-	static Article fromPacket(PacketByteBuf buf) {
+	static Article fromPacket(FriendlyByteBuf buf) {
 		return ArticleImpl.fromPacket(buf);
 	}
 
@@ -256,7 +254,7 @@ public interface Article {
 	 * @param tag NBT tag with additional item data
 	 * @return Article representing the given item and tag
 	 */
-	static Article of(Item item, @Nullable NbtCompound tag) {
+	static Article of(Item item, @Nullable CompoundTag tag) {
 		return ArticleImpl.of(item, tag);
 	}
 

@@ -15,11 +15,10 @@
  ******************************************************************************/
 package grondag.fluidity.api.fraction;
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.network.PacketByteBuf;
 
 @Experimental
 public final class MutableFraction extends Fraction {
@@ -45,21 +44,21 @@ public final class MutableFraction extends Fraction {
 
 	/**
 	 * Constructs a new instance initialized with the value
-	 * previously encoded in the given tag via {@link #writeTag(NbtCompound)}.
+	 * previously encoded in the given tag via {@link #writeTag(CompoundTag)}.
 	 *
 	 * @param tag NBT tag with encoded value
 	 */
-	public MutableFraction(NbtElement tag) {
-		readTag((NbtCompound) tag);
+	public MutableFraction(Tag tag) {
+		readTag((CompoundTag) tag);
 	}
 
 	/**
 	 * Constructs a new instance initialized with the value
-	 * previously encoded in the given packet buffer via {@link #writeBuffer(PacketByteBuf)}.
+	 * previously encoded in the given packet buffer via {@link #writeBuffer(FriendlyByteBuf)}.
 	 *
 	 * @param buf packet buffer with encoded value
 	 */
-	public MutableFraction(PacketByteBuf buf) {
+	public MutableFraction(FriendlyByteBuf buf) {
 		readBuffer(buf);
 	}
 
@@ -197,11 +196,11 @@ public final class MutableFraction extends Fraction {
 		}
 	}
 
-	public void readBuffer(PacketByteBuf buffer) {
+	public void readBuffer(FriendlyByteBuf buffer) {
 		super.readBufferInner(buffer);
 	}
 
-	public void readTag(NbtCompound tag) {
+	public void readTag(CompoundTag tag) {
 		super.readTagInner(tag);
 	}
 

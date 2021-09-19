@@ -1,18 +1,16 @@
 package grondag.fluidity.api.device;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionUtil;
-
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.api.transact.Transaction;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.level.material.Fluid;
 
 /**
  * Helper methods for registering common item actions.
@@ -56,10 +54,10 @@ public interface ItemActionHelper {
 						final ItemStack stack = ctx.stackGetter().get();
 
 						if(stack.getCount() == 1) {
-							ctx.stackSetter().accept(PotionUtil.setPotion(new ItemStack(Items.POTION), potion));
+							ctx.stackSetter().accept(PotionUtils.setPotion(new ItemStack(Items.POTION), potion));
 						} else {
-							ctx.player().getInventory().offerOrDrop(PotionUtil.setPotion(new ItemStack(Items.POTION), potion));
-							stack.decrement(1);
+							ctx.player().getInventory().placeItemBackInInventory(PotionUtils.setPotion(new ItemStack(Items.POTION), potion));
+							stack.shrink(1);
 							ctx.stackSetter().accept(stack.isEmpty() ? ItemStack.EMPTY : stack);
 						}
 
@@ -98,7 +96,7 @@ public interface ItemActionHelper {
 	 */
 	static void addPotionDrainAction(Fluid fluid, Potion potion, long denominator) {
 		Store.STORAGE_COMPONENT.registerAction((ctx, store) -> {
-			if(store.hasConsumer() && ctx.player() != null && PotionUtil.getPotion(ctx.stackGetter().get()) == potion) {
+			if(store.hasConsumer() && ctx.player() != null && PotionUtils.getPotion(ctx.stackGetter().get()) == potion) {
 				try(Transaction tx = Transaction.open()) {
 					tx.enlist(store);
 
@@ -173,13 +171,13 @@ public interface ItemActionHelper {
 						if(stack.getCount() == 1) {
 							ctx.stackSetter().accept(new ItemStack(fullItem));
 						} else {
-							ctx.player().getInventory().offerOrDrop(new ItemStack(fullItem));
-							stack.decrement(1);
+							ctx.player().getInventory().placeItemBackInInventory(new ItemStack(fullItem));
+							stack.shrink(1);
 							ctx.stackSetter().accept(stack.isEmpty() ? ItemStack.EMPTY : stack);
 						}
 
-						ctx.player().getInventory().markDirty();
-						ctx.player().currentScreenHandler.sendContentUpdates();
+						ctx.player().getInventory().setChanged();
+						ctx.player().containerMenu.broadcastChanges();
 						// No longer present in 1.17 - not needed?
 						//ctx.player().updateCursorStack();
 						tx.commit();
@@ -227,13 +225,13 @@ public interface ItemActionHelper {
 						if(stack.getCount() == 1) {
 							ctx.stackSetter().accept(new ItemStack(emptyItem));
 						} else {
-							ctx.player().getInventory().offerOrDrop(new ItemStack(emptyItem));
-							stack.decrement(1);
+							ctx.player().getInventory().placeItemBackInInventory(new ItemStack(emptyItem));
+							stack.shrink(1);
 							ctx.stackSetter().accept(stack.isEmpty() ? ItemStack.EMPTY : stack);
 						}
 
-						ctx.player().getInventory().markDirty();
-						ctx.player().currentScreenHandler.sendContentUpdates();
+						ctx.player().getInventory().setChanged();
+						ctx.player().containerMenu.broadcastChanges();
 						// No longer present in 1.17 - not needed?
 						// ctx.player().updateCursorStack();
 						tx.commit();

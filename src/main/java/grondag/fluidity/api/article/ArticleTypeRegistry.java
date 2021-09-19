@@ -16,11 +16,8 @@
 package grondag.fluidity.api.article;
 
 import java.util.function.Consumer;
-
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.util.Identifier;
-
 import grondag.fluidity.impl.article.ArticleTypeRegistryImpl;
 
 /**
@@ -45,10 +42,10 @@ public interface ArticleTypeRegistry {
 	 * @param id name-spaced identifier
 	 * @return The {@code ArticleType} associated with the given ID, or {@link ArticleType#NOTHING} if not found.
 	 */
-	<T> ArticleType<T> get(Identifier id);
+	<T> ArticleType<T> get(ResourceLocation id);
 
 	/**
-	 * Like {@link #get(Identifier)} but accepts a namespace:id {@code String}.
+	 * Like {@link #get(ResourceLocation)} but accepts a namespace:id {@code String}.
 	 *
 	 * @param <T> {@code Class} of the game resource the {@code ArticleType} represents
 	 * @param idString namespace:id {@code String} identifying the article type
@@ -75,7 +72,7 @@ public interface ArticleTypeRegistry {
 	 * @param articleType The instance for which an ID will be returned
 	 * @return The name-spaced identifier associated with the given instance
 	 */
-	<T> Identifier getId(ArticleType<T> articleType);
+	<T> ResourceLocation getId(ArticleType<T> articleType);
 
 	/**
 	 * Find the "raw" integer index associated with the given instance.
@@ -101,7 +98,7 @@ public interface ArticleTypeRegistry {
 	 * @param id The name-spaced identifier to be tested.
 	 * @return {@code true} if the registry contains an instance associated with the given ID
 	 */
-	boolean contains(Identifier id);
+	boolean contains(ResourceLocation id);
 
 	/**
 	 * Associates an {@code ArticleType} instance with a name-spaced identifier,
@@ -112,10 +109,10 @@ public interface ArticleTypeRegistry {
 	 * @param articleType The instance being added
 	 * @return The instance that was added
 	 */
-	<T> ArticleType<T> add(Identifier id, ArticleType<T> articleType);
+	<T> ArticleType<T> add(ResourceLocation id, ArticleType<T> articleType);
 
 	/**
-	 * A version of {@link #add(Identifier, ArticleType)} that accepts a namespace:id {@code String}.
+	 * A version of {@link #add(ResourceLocation, ArticleType)} that accepts a namespace:id {@code String}.
 	 *
 	 * @param <T> {@code Class} of the game resource the {@code ArticleType} represents
 	 * @param id A namespaced:id {@code String} identifying the instance being added
@@ -123,6 +120,6 @@ public interface ArticleTypeRegistry {
 	 * @return The instance that was added
 	 */
 	default <T> ArticleType<T> add(String idString, ArticleType<T> articleType) {
-		return add(new Identifier(idString), articleType);
+		return add(new ResourceLocation(idString), articleType);
 	}
 }

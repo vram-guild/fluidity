@@ -16,13 +16,11 @@
 package grondag.fluidity.api.storage;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.item.ItemStack;
-
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.impl.storage.AlwaysReturnRequestedImpl;
 import grondag.fluidity.impl.storage.AlwaysReturnZeroImpl;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Extension of {@code ArticleFunction} for stores with fixed handles.

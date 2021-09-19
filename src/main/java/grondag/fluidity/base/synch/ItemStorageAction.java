@@ -17,13 +17,11 @@ package grondag.fluidity.base.synch;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.item.ItemStack;
-
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Possible interactions with remote storage. Distinct from vanilla container interactions.
@@ -74,11 +72,11 @@ public enum ItemStorageAction {
 		final boolean isShift = Screen.hasShiftDown();
 
 		@SuppressWarnings("resource")
-		final ItemStack cursorStack = MinecraftClient.getInstance().player.currentScreenHandler.getCursorStack();
+		final ItemStack cursorStack = Minecraft.getInstance().player.containerMenu.getCarried();
 
 		// if alt/right/middle clicking on same item, don't count that as a deposit
 		if (cursorStack != null && !cursorStack.isEmpty()
-		&& !(target != null && ItemStack.canCombine(cursorStack, target.article().toStack()) && (Screen.hasAltDown() || mouseButton > 0))) {
+		&& !(target != null && ItemStack.isSameItemSameTags(cursorStack, target.article().toStack()) && (Screen.hasAltDown() || mouseButton > 0))) {
 
 			// putting something in
 			if (mouseButton == MOUSE_LEFT && !Screen.hasAltDown()) {

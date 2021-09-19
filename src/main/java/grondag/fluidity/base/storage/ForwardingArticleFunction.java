@@ -16,15 +16,13 @@
 package grondag.fluidity.base.storage;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.ArticleFunction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 @Experimental
 public class ForwardingArticleFunction<T extends ArticleFunction> implements ArticleFunction {
@@ -68,7 +66,7 @@ public class ForwardingArticleFunction<T extends ArticleFunction> implements Art
 	}
 
 	@Override
-	public long apply(Item item, NbtCompound tag, long count, boolean simulate) {
+	public long apply(Item item, CompoundTag tag, long count, boolean simulate) {
 		return wrapped.apply(item, tag, count, simulate);
 	}
 

@@ -17,12 +17,10 @@ package grondag.fluidity.api.device;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
-
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
 
 /**
  * Controls access to device components within a component provider (a device) that has already
@@ -52,7 +50,7 @@ public interface DeviceComponentAccess<T> {
 	 *
 	 * @see <a href="https://github.com/grondag/fluidity#using-components">https://github.com/grondag/fluidity#using-components</a>
 	 */
-	T get(Authorization auth, @Nullable Direction side, @Nullable Identifier id);
+	T get(Authorization auth, @Nullable Direction side, @Nullable ResourceLocation id);
 
 	/**
 	 * Retrieves the device component with the given access parameters, or {@link DeviceComponentType#absent()} if the component
@@ -64,7 +62,7 @@ public interface DeviceComponentAccess<T> {
 	 *
 	 * @see <a href="https://github.com/grondag/fluidity#using-components">https://github.com/grondag/fluidity#using-components</a>
 	 */
-	default T get(@Nullable Direction side, @Nullable Identifier id) {
+	default T get(@Nullable Direction side, @Nullable ResourceLocation id) {
 		return get(Authorization.PUBLIC, side, id);
 	}
 
@@ -90,7 +88,7 @@ public interface DeviceComponentAccess<T> {
 	 *
 	 * @see <a href="https://github.com/grondag/fluidity#using-components">https://github.com/grondag/fluidity#using-components</a>
 	 */
-	default T get(@Nullable Identifier id) {
+	default T get(@Nullable ResourceLocation id) {
 		return get(Authorization.PUBLIC, null, id);
 	}
 
@@ -131,7 +129,7 @@ public interface DeviceComponentAccess<T> {
 	 *
 	 * @see <a href="https://github.com/grondag/fluidity#using-components">https://github.com/grondag/fluidity#using-components</a>
 	 */
-	default boolean acceptIfPresent(Authorization auth, @Nullable Direction side, @Nullable Identifier id, Consumer<T> action) {
+	default boolean acceptIfPresent(Authorization auth, @Nullable Direction side, @Nullable ResourceLocation id, Consumer<T> action) {
 		final T svc = get(auth, side, id);
 
 		if(svc != componentType().absent()) {
@@ -153,7 +151,7 @@ public interface DeviceComponentAccess<T> {
 	 *
 	 * @see <a href="https://github.com/grondag/fluidity#using-components">https://github.com/grondag/fluidity#using-components</a>
 	 */
-	default boolean acceptIfPresent(@Nullable Direction side, @Nullable Identifier id, Consumer<T> action) {
+	default boolean acceptIfPresent(@Nullable Direction side, @Nullable ResourceLocation id, Consumer<T> action) {
 		return acceptIfPresent(Authorization.PUBLIC, side, id, action);
 	}
 
@@ -181,7 +179,7 @@ public interface DeviceComponentAccess<T> {
 	 *
 	 * @see <a href="https://github.com/grondag/fluidity#using-components">https://github.com/grondag/fluidity#using-components</a>
 	 */
-	default boolean acceptIfPresent(@Nullable Identifier id, Consumer<T> action) {
+	default boolean acceptIfPresent(@Nullable ResourceLocation id, Consumer<T> action) {
 		return acceptIfPresent(Authorization.PUBLIC, null, id, action);
 	}
 
@@ -224,7 +222,7 @@ public interface DeviceComponentAccess<T> {
 	 *
 	 * @see <a href="https://github.com/grondag/fluidity#using-components">https://github.com/grondag/fluidity#using-components</a>
 	 */
-	default <V> V applyIfPresent(Authorization auth, @Nullable Direction side, @Nullable Identifier id, Function<T, V> function) {
+	default <V> V applyIfPresent(Authorization auth, @Nullable Direction side, @Nullable ResourceLocation id, Function<T, V> function) {
 		final T svc = get(auth, side, id);
 
 		if(svc != componentType().absent()) {
@@ -245,7 +243,7 @@ public interface DeviceComponentAccess<T> {
 	 *
 	 * @see <a href="https://github.com/grondag/fluidity#using-components">https://github.com/grondag/fluidity#using-components</a>
 	 */
-	default <V> V applyIfPresent(@Nullable Direction side, @Nullable Identifier id, Function<T, V> function) {
+	default <V> V applyIfPresent(@Nullable Direction side, @Nullable ResourceLocation id, Function<T, V> function) {
 		return applyIfPresent(Authorization.PUBLIC, side, id, function);
 	}
 
@@ -273,7 +271,7 @@ public interface DeviceComponentAccess<T> {
 	 *
 	 * @see <a href="https://github.com/grondag/fluidity#using-components">https://github.com/grondag/fluidity#using-components</a>
 	 */
-	default <V> V applyIfPresent(@Nullable Identifier id, Function<T, V> function) {
+	default <V> V applyIfPresent(@Nullable ResourceLocation id, Function<T, V> function) {
 		return applyIfPresent(Authorization.PUBLIC, null, id, function);
 	}
 

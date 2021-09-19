@@ -16,10 +16,8 @@
 package grondag.fluidity.api.article;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.item.ItemStack;
-
 import grondag.fluidity.api.fraction.Fraction;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * A view of an article in storage. The article may be of any type.<p>

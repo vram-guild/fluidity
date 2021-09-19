@@ -16,12 +16,10 @@
 package grondag.fluidity.base.storage.discrete;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.device.ItemComponentContext;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * A version  of {@code SingleStackInventoryStore} that persists to an ItemStack.
@@ -43,14 +41,14 @@ public class PortableSingleArticleStore extends SingleArticleStore {
 
 		final ItemStack stack = stackGetter.get();
 
-		if(stack.hasNbt() &&  stack.getNbt().contains(keyName)) {
-			readTag((NbtCompound) stack.getNbt().get(keyName));
+		if(stack.hasTag() &&  stack.getTag().contains(keyName)) {
+			readTag((CompoundTag) stack.getTag().get(keyName));
 		}
 	}
 
 	protected void saveToStack() {
 		final ItemStack stack = stackGetter.get();
-		stack.getOrCreateNbt().put(keyName, writeTag());
+		stack.getOrCreateTag().put(keyName, writeTag());
 		stackSetter.accept(stack);
 	}
 
@@ -62,7 +60,7 @@ public class PortableSingleArticleStore extends SingleArticleStore {
 	 * @return amount in the tank, or zero if no tank data found
 	 */
 	public static long getAmount(ItemStack stack, String keyName) {
-		final NbtCompound tag = stack.getSubNbt(keyName);
+		final CompoundTag tag = stack.getTagElement(keyName);
 		return tag == null ? 0 : tag.getLong("quantity");
 	}
 
@@ -74,7 +72,7 @@ public class PortableSingleArticleStore extends SingleArticleStore {
 	 * @return amount in the tank, or zero if no tank data found
 	 */
 	public static long getCapacity(ItemStack stack, String keyName) {
-		final NbtCompound tag = stack.getSubNbt(keyName);
+		final CompoundTag tag = stack.getTagElement(keyName);
 		return tag == null ? 0 : tag.getLong("capacity");
 	}
 
@@ -86,7 +84,7 @@ public class PortableSingleArticleStore extends SingleArticleStore {
 	 * @return article in the tank, or {@code Article.NOTHING} if tank is empty or no tank data found
 	 */
 	public static Article getArticle(ItemStack stack, String keyName) {
-		final NbtCompound tag = stack.getSubNbt(keyName);
+		final CompoundTag tag = stack.getTagElement(keyName);
 
 		if(tag == null) {
 			return Article.NOTHING;

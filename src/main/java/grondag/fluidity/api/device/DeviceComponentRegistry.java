@@ -16,10 +16,8 @@
 package grondag.fluidity.api.device;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.util.Identifier;
-
 import grondag.fluidity.impl.device.DeviceComponentRegistryImpl;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Creates and retrieves {@code DeviceComponentType} instances.<p>
@@ -41,7 +39,7 @@ public interface DeviceComponentRegistry {
 	 *
 	 * @throws IllegalStateException if the given id is already in use
 	 */
-	<T> DeviceComponentType<T> createComponent(Identifier id, T absentValue);
+	<T> DeviceComponentType<T> createComponent(ResourceLocation id, T absentValue);
 
 	/**
 	 * Returns the {@code DeviceComponentType} instance associated with the given id, or {@code null} if not found.
@@ -50,7 +48,7 @@ public interface DeviceComponentRegistry {
 	 * @param id Name-spaced id for the component to be found
 	 * @return the {@code DeviceComponentType} instance associated with the given id
 	 */
-	<T> DeviceComponentType<T> getComponent(Identifier id);
+	<T> DeviceComponentType<T> getComponent(ResourceLocation id);
 
 	/**
 	 * The singleton DeviceComponentRegistry instance

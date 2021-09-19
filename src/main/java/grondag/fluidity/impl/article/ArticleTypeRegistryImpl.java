@@ -16,16 +16,13 @@
 package grondag.fluidity.impl.article;
 
 import java.util.function.Consumer;
-
+import net.minecraft.core.DefaultedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.core.WritableRegistry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import com.mojang.serialization.Lifecycle;
 import org.jetbrains.annotations.ApiStatus.Internal;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.DefaultedRegistry;
-import net.minecraft.util.registry.MutableRegistry;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-
 import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.article.ArticleTypeRegistry;
 
@@ -40,37 +37,37 @@ public final class ArticleTypeRegistryImpl implements ArticleTypeRegistry {
 
 	public static ArticleTypeRegistryImpl INSTANCE = new ArticleTypeRegistryImpl();
 
-	private static final RegistryKey REGISTRY_KEY = RegistryKey.ofRegistry(new Identifier("fluidity:article_types"));
-	private static final MutableRegistry<ArticleTypeImpl> ARTICLE_REGISTRY;
+	private static final ResourceKey REGISTRY_KEY = ResourceKey.createRegistryKey(new ResourceLocation("fluidity:article_types"));
+	private static final WritableRegistry<ArticleTypeImpl> ARTICLE_REGISTRY;
 
 	static {
-		ARTICLE_REGISTRY = (MutableRegistry<ArticleTypeImpl>) ((MutableRegistry) Registry.REGISTRIES).add(REGISTRY_KEY,
+		ARTICLE_REGISTRY = (WritableRegistry<ArticleTypeImpl>) ((WritableRegistry) Registry.REGISTRY).register(REGISTRY_KEY,
 				new DefaultedRegistry("fluidity:nothing", REGISTRY_KEY, Lifecycle.stable()), Lifecycle.stable());
 	}
 
 	@Override
-	public <T> Identifier getId(ArticleType<T> article) {
-		return ARTICLE_REGISTRY.getId((ArticleTypeImpl) article);
+	public <T> ResourceLocation getId(ArticleType<T> article) {
+		return ARTICLE_REGISTRY.getKey((ArticleTypeImpl) article);
 	}
 
 	@Override
 	public int getRawId(ArticleType article) {
-		return ARTICLE_REGISTRY.getRawId((ArticleTypeImpl) article);
+		return ARTICLE_REGISTRY.getId((ArticleTypeImpl) article);
 	}
 
 	@Override
-	public ArticleTypeImpl get(Identifier id) {
+	public ArticleTypeImpl get(ResourceLocation id) {
 		return ARTICLE_REGISTRY.get(id);
 	}
 
 	@Override
 	public ArticleTypeImpl get(String idString) {
-		return ARTICLE_REGISTRY.get(new Identifier(idString));
+		return ARTICLE_REGISTRY.get(new ResourceLocation(idString));
 	}
 
 	@Override
 	public ArticleTypeImpl get(int index) {
-		return ARTICLE_REGISTRY.get(index);
+		return ARTICLE_REGISTRY.byId(index);
 	}
 
 	@Override
@@ -79,12 +76,12 @@ public final class ArticleTypeRegistryImpl implements ArticleTypeRegistry {
 	}
 
 	@Override
-	public ArticleType add(Identifier id, ArticleType articleType) {
-		return ARTICLE_REGISTRY.add(RegistryKey.of(REGISTRY_KEY, id), (ArticleTypeImpl) articleType, Lifecycle.stable());
+	public ArticleType add(ResourceLocation id, ArticleType articleType) {
+		return ARTICLE_REGISTRY.register(ResourceKey.create(REGISTRY_KEY, id), (ArticleTypeImpl) articleType, Lifecycle.stable());
 	}
 
 	@Override
-	public boolean contains(Identifier id) {
-		return ARTICLE_REGISTRY.getIds().contains(id);
+	public boolean contains(ResourceLocation id) {
+		return ARTICLE_REGISTRY.keySet().contains(id);
 	}
 }

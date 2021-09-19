@@ -16,13 +16,10 @@
 package grondag.fluidity.base.synch;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.PacketByteBuf;
-
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.fraction.MutableFraction;
@@ -40,7 +37,7 @@ public class BulkStorageClientDelegate extends AbstractStorageClientDelegate<Bul
 	 */
 
 
-	protected BulkDisplayDelegate[] readItems(PacketByteBuf buf) {
+	protected BulkDisplayDelegate[] readItems(FriendlyByteBuf buf) {
 		final int limit = buf.readInt();
 		final BulkDisplayDelegate[] items = new BulkDisplayDelegate[limit];
 
@@ -52,11 +49,11 @@ public class BulkStorageClientDelegate extends AbstractStorageClientDelegate<Bul
 	}
 
 	@Override
-	public void handleUpdateWithCapacity(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender) {
+	public void handleUpdateWithCapacity(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buffer, PacketSender responseSender) {
 		final BulkDisplayDelegate[] items = readItems(buffer);
 		final Fraction newCapacity = new Fraction(buffer);
 
-		if (client.isOnThread()) {
+		if (client.isSameThread()) {
 			handleUpdateInner(items, newCapacity);
 		} else {
 			client.execute(() -> handleUpdateInner(items, newCapacity));
@@ -64,10 +61,10 @@ public class BulkStorageClientDelegate extends AbstractStorageClientDelegate<Bul
 	}
 
 	@Override
-	public void handleUpdate(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender) {
+	public void handleUpdate(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buffer, PacketSender responseSender) {
 		final BulkDisplayDelegate[] items = readItems(buffer);
 
-		if (client.isOnThread()) {
+		if (client.isSameThread()) {
 			handleUpdateInner(items, null);
 		} else {
 			client.execute(() -> handleUpdateInner(items, null));
@@ -75,11 +72,11 @@ public class BulkStorageClientDelegate extends AbstractStorageClientDelegate<Bul
 	}
 
 	@Override
-	public void handleFullRefresh(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender) {
+	public void handleFullRefresh(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buffer, PacketSender responseSender) {
 		final BulkDisplayDelegate[] items = readItems(buffer);
 		final Fraction newCapacity = new Fraction(buffer);
 
-		if (client.isOnThread()) {
+		if (client.isSameThread()) {
 			handleFullRefreshInner(items, newCapacity);
 		} else {
 			client.execute(() -> handleFullRefreshInner(items, newCapacity));

@@ -18,12 +18,9 @@ package grondag.fluidity.wip.api.transport;
 import java.util.Collections;
 import java.util.Set;
 import java.util.function.Function;
-
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.util.Identifier;
-
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.device.DeviceComponentAccess;
@@ -78,5 +75,5 @@ public interface CarrierProvider {
 		}
 	};
 
-	DeviceComponentType<CarrierProvider> CARRIER_PROVIDER_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new Identifier(Fluidity.MOD_ID, "carrier_provider"), EMPTY);
+	DeviceComponentType<CarrierProvider> CARRIER_PROVIDER_COMPONENT = DeviceComponentRegistry.INSTANCE.createComponent(new ResourceLocation(Fluidity.MOD_ID, "carrier_provider"), EMPTY);
 }

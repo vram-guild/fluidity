@@ -17,12 +17,9 @@ package grondag.fluidity.base.storage.helper;
 
 import java.lang.reflect.Array;
 import java.util.function.Supplier;
-
+import net.minecraft.util.Mth;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.util.math.MathHelper;
-
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.base.article.StoredArticle;
 
@@ -39,7 +36,7 @@ public class FlexibleArticleManager<V extends StoredArticle> extends AbstractArt
 		super(articleFactory);
 
 
-		startingHandleCount = MathHelper.smallestEncompassingPowerOfTwo(startingHandleCount);
+		startingHandleCount = Mth.smallestEncompassingPowerOfTwo(startingHandleCount);
 		final V[] handles = (V[]) Array.newInstance(articleFactory.get().getClass(), startingHandleCount);
 
 		for(int i = 0; i < startingHandleCount; i++) {

@@ -18,9 +18,6 @@ package grondag.fluidity.base.storage.discrete;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.nbt.NbtCompound;
-
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.article.StoredArticleView;
@@ -30,6 +27,7 @@ import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStore;
 import grondag.fluidity.base.storage.discrete.FixedDiscreteStore.FixedDiscreteArticleFunction;
 import grondag.fluidity.base.storage.discrete.helper.DiscreteNotifier;
+import net.minecraft.nbt.CompoundTag;
 
 @Experimental
 public class SingleArticleStore extends AbstractLazyRollbackStore<StoredDiscreteArticle,  SingleArticleStore> implements DiscreteStore {
@@ -252,21 +250,21 @@ public class SingleArticleStore extends AbstractLazyRollbackStore<StoredDiscrete
 		return capacity;
 	}
 
-	public void writeTag(NbtCompound tag) {
+	public void writeTag(CompoundTag tag) {
 		tag.putLong("capacity", capacity);
 		tag.putLong("quantity", quantity);
 		tag.put("art", ObjectUtils.defaultIfNull(storedArticle, Article.NOTHING).toTag());
 	}
 
 	@Override
-	public NbtCompound writeTag() {
-		final NbtCompound result = new NbtCompound();
+	public CompoundTag writeTag() {
+		final CompoundTag result = new CompoundTag();
 		writeTag(result);
 		return result;
 	}
 
 	@Override
-	public void readTag(NbtCompound tag) {
+	public void readTag(CompoundTag tag) {
 		capacity = tag.getLong("capacity");
 		quantity = tag.getLong("quantity");
 		storedArticle = Article.fromTag(tag.get("art"));

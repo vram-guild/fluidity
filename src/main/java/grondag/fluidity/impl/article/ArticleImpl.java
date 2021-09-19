@@ -17,28 +17,26 @@ package grondag.fluidity.impl.article;
 
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.network.PacketByteBuf;
-
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 
 @Internal
 public class ArticleImpl<T> implements Article {
 	final ArticleTypeImpl<T> type;
 	final T resource;
-	final NbtCompound tag;
+	final CompoundTag tag;
 	final int hashCode;
 	String translationKey;
 
-	ArticleImpl(ArticleType<T> type, T resource, @Nullable NbtCompound tag) {
+	ArticleImpl(ArticleType<T> type, T resource, @Nullable CompoundTag tag) {
 		this.type = (ArticleTypeImpl<T>) type;
 		this.resource = resource;
 		this.tag = tag;
@@ -70,12 +68,12 @@ public class ArticleImpl<T> implements Article {
 
 	@Override
 	@Nullable
-	public final NbtCompound copyTag() {
+	public final CompoundTag copyTag() {
 		return tag.copy();
 	}
 
 	@Override
-	public final boolean doesTagMatch(@Nullable NbtCompound otherTag) {
+	public final boolean doesTagMatch(@Nullable CompoundTag otherTag) {
 		return tag == null ? otherTag == null : tag.equals(otherTag);
 	}
 
@@ -99,8 +97,8 @@ public class ArticleImpl<T> implements Article {
 	public static final ArticleImpl<Void> NOTHING = new ArticleImpl<>(ArticleType.NOTHING, null, null);
 
 	@Override
-	public NbtElement toTag() {
-		final NbtCompound result = new NbtCompound();
+	public Tag toTag() {
+		final CompoundTag result = new CompoundTag();
 		result.put("type", type.toTag());
 		result.put("res",type.tagWriter.apply(resource));
 		if(this.tag != null) {
@@ -110,34 +108,34 @@ public class ArticleImpl<T> implements Article {
 	}
 
 	@Override
-	public void toPacket(PacketByteBuf buf) {
+	public void toPacket(FriendlyByteBuf buf) {
 		type.toPacket(buf);
 		type.packetWriter.accept(resource, buf);
 		buf.writeNbt(tag);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static Article fromTag(NbtElement tag) {
+	public static Article fromTag(Tag tag) {
 		if(tag == null) {
 			return Article.NOTHING;
 		}
 
-		final NbtCompound myTag = (NbtCompound) tag;
+		final CompoundTag myTag = (CompoundTag) tag;
 		final ArticleTypeImpl type = ArticleTypeImpl.fromTag(myTag.get("type"));
 		final Object resource = type.tagReader.apply(myTag.get("res"));
-		final NbtCompound aTag = myTag.contains("tag") ? myTag.getCompound("tag") : null;
+		final CompoundTag aTag = myTag.contains("tag") ? myTag.getCompound("tag") : null;
 		return of(type, resource, aTag);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static Article fromPacket(PacketByteBuf buf) {
+	public static Article fromPacket(FriendlyByteBuf buf) {
 		final ArticleTypeImpl type = ArticleTypeImpl.fromPacket(buf);
 		final Object resource = type.packetReader.apply(buf);
-		final NbtCompound aTag = buf.readNbt();
+		final CompoundTag aTag = buf.readNbt();
 		return of(type, resource, aTag);
 	}
 
-	public static <V> Article of(ArticleType<V> type, V resource, @Nullable NbtCompound tag) {
+	public static <V> Article of(ArticleType<V> type, V resource, @Nullable CompoundTag tag) {
 		return ArticleCache.getArticle(type, resource, tag);
 	}
 
@@ -146,10 +144,10 @@ public class ArticleImpl<T> implements Article {
 	}
 
 	public static Article of(ItemStack stack) {
-		return stack.isEmpty() ? Article.NOTHING : of(stack.getItem(), stack.getNbt());
+		return stack.isEmpty() ? Article.NOTHING : of(stack.getItem(), stack.getTag());
 	}
 
-	public static Article of(Item item, @Nullable NbtCompound tag) {
+	public static Article of(Item item, @Nullable CompoundTag tag) {
 		if(item == Items.AIR || item == null) {
 			return NOTHING;
 		} else {

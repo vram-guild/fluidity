@@ -17,9 +17,7 @@ package grondag.fluidity.impl.device;
 
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-
-import net.minecraft.util.Identifier;
-
+import net.minecraft.resources.ResourceLocation;
 import grondag.fluidity.api.device.DeviceComponentRegistry;
 import grondag.fluidity.api.device.DeviceComponentType;
 
@@ -28,10 +26,10 @@ public class DeviceComponentRegistryImpl implements DeviceComponentRegistry {
 
 	public static final DeviceComponentRegistry INSTANCE = new DeviceComponentRegistryImpl();
 
-	private static final Object2ObjectOpenHashMap<Identifier, DeviceComponentType<?>> TYPES_BY_ID = new Object2ObjectOpenHashMap<>();
+	private static final Object2ObjectOpenHashMap<ResourceLocation, DeviceComponentType<?>> TYPES_BY_ID = new Object2ObjectOpenHashMap<>();
 
 	@Override
-	public <T> DeviceComponentType<T> createComponent(Identifier id, T absentValue) {
+	public <T> DeviceComponentType<T> createComponent(ResourceLocation id, T absentValue) {
 		Preconditions.checkState(!TYPES_BY_ID.containsKey(id), "Device component already registered with ID " + id.toString());
 		final DeviceComponentType<T> result = new DeviceComponentTypeImpl<>(absentValue);
 		TYPES_BY_ID.put(id, result);
@@ -40,7 +38,7 @@ public class DeviceComponentRegistryImpl implements DeviceComponentRegistry {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> DeviceComponentType<T> getComponent(Identifier id) {
+	public <T> DeviceComponentType<T> getComponent(ResourceLocation id) {
 		return (DeviceComponentType<T>) TYPES_BY_ID.get(id);
 	}
 }

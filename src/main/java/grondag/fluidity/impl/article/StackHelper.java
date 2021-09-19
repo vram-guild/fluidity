@@ -15,26 +15,25 @@
  ******************************************************************************/
 package grondag.fluidity.impl.article;
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.ApiStatus.Internal;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
 
 @Internal
 public class StackHelper {
-	public static ItemStack newStack(Item item, NbtCompound tag, long count) {
+	public static ItemStack newStack(Item item, CompoundTag tag, long count) {
 		if (item == null || item == Items.AIR || count <= 0) {
 			return ItemStack.EMPTY;
 		}
 
-		final ItemStack result = new ItemStack(item, (int) Math.min(item.getMaxCount(), count));
-		result.setNbt(tag);
+		final ItemStack result = new ItemStack(item, (int) Math.min(item.getMaxStackSize(), count));
+		result.setTag(tag);
 		return result;
 	}
 
-	public static boolean areItemsEqual(Item itemA, NbtCompound tagA, Item itemB, NbtCompound tagB) {
+	public static boolean areItemsEqual(Item itemA, CompoundTag tagA, Item itemB, CompoundTag tagB) {
 		if (itemA != itemB) {
 			return false;
 		}
@@ -46,20 +45,20 @@ public class StackHelper {
 		return tagB != null && tagA.equals(tagB);
 	}
 
-	public static boolean areItemsEqual(Item item, NbtCompound tag, ItemStack stack) {
+	public static boolean areItemsEqual(Item item, CompoundTag tag, ItemStack stack) {
 		if (item != stack.getItem()) {
 			return false;
 		}
 
 		if (tag == null) {
-			return !stack.hasNbt();
+			return !stack.hasTag();
 		}
 
-		return stack.hasNbt() && tag.equals(stack.getNbt());
+		return stack.hasTag() && tag.equals(stack.getTag());
 	}
 
 	public static boolean areItemsEqual(ItemStack a, ItemStack b) {
-		return areItemsEqual(a.getItem(), a.getNbt(), b);
+		return areItemsEqual(a.getItem(), a.getTag(), b);
 	}
 
 	public static boolean areStacksEqual(ItemStack stackA, ItemStack stackB)  {
@@ -67,7 +66,7 @@ public class StackHelper {
 			return true;
 		}
 
-		if (stackA.isItemEqual(stackB) && stackA.getCount() == stackB.getCount()) {
+		if (stackA.sameItemStackIgnoreDurability(stackB) && stackA.getCount() == stackB.getCount()) {
 			return true;
 		}
 

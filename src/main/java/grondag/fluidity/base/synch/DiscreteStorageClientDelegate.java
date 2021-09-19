@@ -16,13 +16,10 @@
 package grondag.fluidity.base.synch;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.PacketByteBuf;
-
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
 import grondag.fluidity.api.article.Article;
 
 @Experimental
@@ -38,7 +35,7 @@ public class DiscreteStorageClientDelegate extends AbstractStorageClientDelegate
 	 */
 
 
-	protected DiscreteDisplayDelegate[] readItems(PacketByteBuf buf) {
+	protected DiscreteDisplayDelegate[] readItems(FriendlyByteBuf buf) {
 		final int limit = buf.readInt();
 		final DiscreteDisplayDelegate[] items = new DiscreteDisplayDelegate[limit];
 
@@ -50,11 +47,11 @@ public class DiscreteStorageClientDelegate extends AbstractStorageClientDelegate
 	}
 
 	@Override
-	public void handleUpdateWithCapacity(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender) {
+	public void handleUpdateWithCapacity(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buffer, PacketSender responseSender) {
 		final DiscreteDisplayDelegate[] items = readItems(buffer);
 		final long newCapacity = buffer.readVarLong();
 
-		if (client.isOnThread()) {
+		if (client.isSameThread()) {
 			handleUpdateInner(items, newCapacity);
 		} else {
 			client.execute(() -> handleUpdateInner(items, newCapacity));
@@ -62,10 +59,10 @@ public class DiscreteStorageClientDelegate extends AbstractStorageClientDelegate
 	}
 
 	@Override
-	public void handleUpdate(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender) {
+	public void handleUpdate(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buffer, PacketSender responseSender) {
 		final DiscreteDisplayDelegate[] items = readItems(buffer);
 
-		if (client.isOnThread()) {
+		if (client.isSameThread()) {
 			handleUpdateInner(items, -1);
 		} else {
 			client.execute(() -> handleUpdateInner(items, -1));
@@ -73,11 +70,11 @@ public class DiscreteStorageClientDelegate extends AbstractStorageClientDelegate
 	}
 
 	@Override
-	public void handleFullRefresh(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender) {
+	public void handleFullRefresh(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buffer, PacketSender responseSender) {
 		final DiscreteDisplayDelegate[] items = readItems(buffer);
 		final long newCapacity = buffer.readVarLong();
 
-		if (client.isOnThread()) {
+		if (client.isSameThread()) {
 			handleFullRefreshInner(items, newCapacity);
 		} else {
 			client.execute(() -> handleFullRefreshInner(items, newCapacity));

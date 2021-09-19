@@ -17,15 +17,13 @@ package grondag.fluidity.wip.base.transport;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.transact.TransactionParticipant;
 import grondag.fluidity.wip.api.transport.CarrierSession;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Mimics consumer/supplier functions - used to throttle throughput.
@@ -46,7 +44,7 @@ public interface CarrierCostFunction extends TransactionParticipant {
 	long apply(CarrierSession sender, Article item, long count, boolean simulate);
 
 
-	default long apply(CarrierSession sender, Item item, @Nullable NbtCompound tag, long count, boolean simulate) {
+	default long apply(CarrierSession sender, Item item, @Nullable CompoundTag tag, long count, boolean simulate) {
 		return apply(sender, Article.of(item, tag), count, simulate);
 	}
 

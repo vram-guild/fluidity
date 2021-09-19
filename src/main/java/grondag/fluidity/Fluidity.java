@@ -18,16 +18,13 @@ package grondag.fluidity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus.Internal;
-
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.Items;
-import net.minecraft.potion.Potions;
-
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.server.ServerStartCallback;
 import net.fabricmc.fabric.api.event.server.ServerTickCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.level.material.Fluids;
 import grondag.fluidity.api.device.ItemActionHelper;
 import grondag.fluidity.base.synch.ItemStorageInteractionC2S;
 import grondag.fluidity.impl.MultiBlockManagerImpl;

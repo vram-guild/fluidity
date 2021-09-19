@@ -17,15 +17,13 @@ package grondag.fluidity.base.synch;
 
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.item.ItemStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -41,35 +39,35 @@ import grondag.fluidity.api.storage.Store;
  */
 @Experimental
 public class ItemStorageInteractionC2S {
-	public static final Identifier ID = new Identifier(Fluidity.MOD_ID, "posci");
+	public static final ResourceLocation ID = new ResourceLocation(Fluidity.MOD_ID, "posci");
 
 	@Environment(EnvType.CLIENT)
 	public static void sendPacket(ItemStorageAction action, DiscreteDisplayDelegate target) {
-		if (MinecraftClient.getInstance().getNetworkHandler() != null) {
-			final PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-			buf.writeEnumConstant(action);
+		if (Minecraft.getInstance().getConnection() != null) {
+			final FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+			buf.writeEnum(action);
 			buf.writeInt(target == null ? -1 : target.handle());
 			ClientPlayNetworking.send(ID, buf);
 		}
 	}
 
-	public static void accept(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
-		final ItemStorageAction action = buf.readEnumConstant(ItemStorageAction.class);
+	public static void accept(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
+		final ItemStorageAction action = buf.readEnum(ItemStorageAction.class);
 		final int handle = buf.readInt();
 
-		if (server.isOnThread()) {
+		if (server.isSameThread()) {
 			acceptInner(action, handle, player);
 		} else {
 			server.execute(() -> acceptInner(action, handle, player));
 		}
 	}
 
-	private static void acceptInner(ItemStorageAction action, int handle, ServerPlayerEntity player) {
-		if (player.currentScreenHandler == null || !(player.currentScreenHandler instanceof StorageContainer)) {
+	private static void acceptInner(ItemStorageAction action, int handle, ServerPlayer player) {
+		if (player.containerMenu == null || !(player.containerMenu instanceof StorageContainer)) {
 			return;
 		}
 
-		final Store storage = ((StorageContainer) player.currentScreenHandler).getStorage();
+		final Store storage = ((StorageContainer) player.containerMenu).getStorage();
 
 		if(storage == null || !storage.isValid()) {
 			return;
@@ -91,7 +89,7 @@ public class ItemStorageInteractionC2S {
 				return;
 			}
 
-			final int toMove = (int) Math.max(1, Math.min(targetResource.toItem().getMaxCount() / 2, storage.countOf(targetResource)) / 2);
+			final int toMove = (int) Math.max(1, Math.min(targetResource.toItem().getMaxStackSize() / 2, storage.countOf(targetResource)) / 2);
 			doQuickMove(toMove, player, targetResource, storage);
 			return;
 		}
@@ -108,7 +106,7 @@ public class ItemStorageInteractionC2S {
 				return;
 			}
 
-			final int toMove = (int) Math.min(targetResource.toItem().getMaxCount(), storage.countOf(targetResource));
+			final int toMove = (int) Math.min(targetResource.toItem().getMaxStackSize(), storage.countOf(targetResource));
 			doQuickMove(toMove, player, targetResource, storage);
 			return;
 		}
@@ -122,7 +120,7 @@ public class ItemStorageInteractionC2S {
 				return;
 			}
 
-			final int toTake = (int) Math.max(1, Math.min(targetResource.toItem().getMaxCount() / 2, storage.countOf(targetResource) / 2));
+			final int toTake = (int) Math.max(1, Math.min(targetResource.toItem().getMaxStackSize() / 2, storage.countOf(targetResource) / 2));
 			doTake(toTake, player, targetResource, storage);
 			return;
 		}
@@ -132,7 +130,7 @@ public class ItemStorageInteractionC2S {
 				return;
 			}
 
-			final int toTake = (int) Math.min(targetResource.toItem().getMaxCount(), storage.countOf(targetResource));
+			final int toTake = (int) Math.min(targetResource.toItem().getMaxStackSize(), storage.countOf(targetResource));
 			doTake(toTake, player, targetResource, storage);
 			return;
 		}
@@ -142,23 +140,23 @@ public class ItemStorageInteractionC2S {
 		}
 	}
 
-	private static void doPut(boolean single, ServerPlayerEntity player, Store container) {
-		final ItemStack cursorStack = player.currentScreenHandler.getCursorStack();
+	private static void doPut(boolean single, ServerPlayer player, Store container) {
+		final ItemStack cursorStack = player.containerMenu.getCarried();
 
 		if (cursorStack != null && !cursorStack.isEmpty()) {
 			final int added = (int) container.getConsumer().apply(cursorStack, single ? 1 : cursorStack.getCount(), false);
 
 			if (added > 0){
-				cursorStack.decrement(added);
-				player.currentScreenHandler.setCursorStack(cursorStack);
-				player.getInventory().markDirty();
-				player.currentScreenHandler.syncState();
+				cursorStack.shrink(added);
+				player.containerMenu.setCarried(cursorStack);
+				player.getInventory().setChanged();
+				player.containerMenu.sendAllDataToRemote();
 			}
 		}
 		return;
 	}
 
-	private static void doQuickMove(int howMany, ServerPlayerEntity player, Article targetResource, Store listener) {
+	private static void doQuickMove(int howMany, ServerPlayer player, Article targetResource, Store listener) {
 		if (howMany == 0 || targetResource == null || targetResource.isNothing()) {
 			return;
 		}
@@ -170,34 +168,34 @@ public class ItemStorageInteractionC2S {
 		}
 
 		final ItemStack newStack = targetResource.toStack(toMove);
-		player.getInventory().offerOrDrop(newStack);
-		player.getInventory().markDirty();
+		player.getInventory().placeItemBackInInventory(newStack);
+		player.getInventory().setChanged();
 	}
 
-	private static void doTake(int howMany, ServerPlayerEntity player, Article targetResource, Store container) {
+	private static void doTake(int howMany, ServerPlayer player, Article targetResource, Store container) {
 		if (howMany == 0 || targetResource == null || targetResource.isNothing()) {
 			return;
 		}
 
-		final ItemStack cursorStack = player.currentScreenHandler.getCursorStack();
+		final ItemStack cursorStack = player.containerMenu.getCarried();
 
 		if (cursorStack != null && !cursorStack.isEmpty()) {
 			if (!targetResource.matches(cursorStack)) {
 				return;
 			}
 
-			if (cursorStack.getCount() >= cursorStack.getMaxCount()) {
+			if (cursorStack.getCount() >= cursorStack.getMaxStackSize()) {
 				return;
 			}
 
-			howMany = Math.min(howMany, cursorStack.getMaxCount() - cursorStack.getCount());
+			howMany = Math.min(howMany, cursorStack.getMaxStackSize() - cursorStack.getCount());
 			final int toAdd = (int) container.getSupplier().apply(targetResource, howMany, false);
-			cursorStack.increment(toAdd);
-			player.currentScreenHandler.setCursorStack(cursorStack);
-			player.getInventory().markDirty();
-			player.currentScreenHandler.syncState();
+			cursorStack.grow(toAdd);
+			player.containerMenu.setCarried(cursorStack);
+			player.getInventory().setChanged();
+			player.containerMenu.sendAllDataToRemote();
 		} else {
-			howMany = Math.min(howMany, targetResource.toItem().getMaxCount());
+			howMany = Math.min(howMany, targetResource.toItem().getMaxStackSize());
 
 			final int toAdd = (int) container.getSupplier().apply(targetResource, howMany, false);
 
@@ -206,9 +204,9 @@ public class ItemStorageInteractionC2S {
 			}
 
 			final ItemStack newStack = targetResource.toStack(toAdd);
-			player.currentScreenHandler.setCursorStack(newStack);
-			player.getInventory().markDirty();
-			player.currentScreenHandler.syncState();
+			player.containerMenu.setCarried(newStack);
+			player.getInventory().setChanged();
+			player.containerMenu.sendAllDataToRemote();
 		}
 
 	}

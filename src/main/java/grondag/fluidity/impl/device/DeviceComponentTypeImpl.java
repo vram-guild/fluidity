@@ -21,22 +21,19 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.lang3.tuple.Pair;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
-
 import grondag.fluidity.api.device.BlockComponentContext;
 import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentType;
@@ -120,13 +117,13 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public DeviceComponentAccess<T> getAccess(World world, BlockPos pos) {
+	public DeviceComponentAccess<T> getAccess(Level world, BlockPos pos) {
 		return BlockComponentContextImpl.get(this, world, pos);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public DeviceComponentAccess<T> getAccess(World world, BlockPos pos, BlockState blockState) {
+	public DeviceComponentAccess<T> getAccess(Level world, BlockPos pos, BlockState blockState) {
 		return BlockComponentContextImpl.get(this, world, pos, blockState);
 	}
 
@@ -150,18 +147,18 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public DeviceComponentAccess<T> getAccessForHeldItem(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayerEntity player) {
+	public DeviceComponentAccess<T> getAccessForHeldItem(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayer player) {
 		return ItemComponentContextImpl.get(this, stackGetter, stackSetter, player);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public DeviceComponentAccess<T> getAccess(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, World world) {
+	public DeviceComponentAccess<T> getAccess(Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, Level world) {
 		return ItemComponentContextImpl.get(this, stackGetter, stackSetter, world);
 	}
 
 	@Override
-	public boolean applyActions(T target, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayerEntity player) {
+	public boolean applyActions(T target, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayer player) {
 		final ObjectArrayList<BiPredicate<ItemComponentContext, T>> actions = itemActions.get(stackGetter.get().getItem());
 
 		if(actions != null && !actions.isEmpty()) {
@@ -172,7 +169,7 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 	}
 
 	@Override
-	public boolean applyActions(T target, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, World world) {
+	public boolean applyActions(T target, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, Level world) {
 		final ObjectArrayList<BiPredicate<ItemComponentContext, T>> actions = itemActions.get(stackGetter.get().getItem());
 
 		if(actions != null && !actions.isEmpty()) {

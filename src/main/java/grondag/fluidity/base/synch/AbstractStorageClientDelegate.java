@@ -22,12 +22,10 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.PacketByteBuf;
-
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
 
 @Experimental
 public abstract class AbstractStorageClientDelegate<T extends DisplayDelegate> {
@@ -58,11 +56,11 @@ public abstract class AbstractStorageClientDelegate<T extends DisplayDelegate> {
 		return true;
 	}
 
-	public abstract void handleUpdateWithCapacity(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender);
+	public abstract void handleUpdateWithCapacity(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buffer, PacketSender responseSender);
 
-	public abstract void handleUpdate(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender);
+	public abstract void handleUpdate(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buffer, PacketSender responseSender);
 
-	public abstract void handleFullRefresh(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buffer, PacketSender responseSender);
+	public abstract void handleFullRefresh(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buffer, PacketSender responseSender);
 
 	public int getSortIndex() {
 		return sortIndex;

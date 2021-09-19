@@ -15,11 +15,10 @@
  ******************************************************************************/
 package grondag.fluidity.api.multiblock;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 /**
  * Represents a type of "member" associate with a block, often related to a device component.
@@ -77,7 +76,7 @@ public interface MultiBlockMember<T extends MultiBlockMember<T, U, V>, U extends
 	 * @return position of this member in the world where it resides
 	 */
 	default BlockPos getBlockPos() {
-		return BlockPos.fromLong(getPackedPos());
+		return BlockPos.of(getPackedPos());
 	}
 
 	/**
@@ -86,5 +85,5 @@ public interface MultiBlockMember<T extends MultiBlockMember<T, U, V>, U extends
 	 *
 	 * @return the numeric ID of the world dimension for the world in which this member is located
 	 */
-	World getWorld();
+	Level getWorld();
 }

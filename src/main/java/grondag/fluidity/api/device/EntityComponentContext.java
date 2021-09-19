@@ -15,9 +15,8 @@
  ******************************************************************************/
 package grondag.fluidity.api.device;
 
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.entity.Entity;
 
 /**
  * Sub-type of {@code ComponentContext} for block devices,

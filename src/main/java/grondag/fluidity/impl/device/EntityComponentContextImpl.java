@@ -15,10 +15,9 @@
  ******************************************************************************/
 package grondag.fluidity.impl.device;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.world.World;
-
 import grondag.fluidity.api.device.EntityComponentContext;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 
 @SuppressWarnings("rawtypes")
 public final class EntityComponentContextImpl extends AbstractComponentContextImpl implements EntityComponentContext {
@@ -31,8 +30,8 @@ public final class EntityComponentContextImpl extends AbstractComponentContextIm
 	}
 
 	@Override
-	protected World getWorldLazily() {
-		return entity.world;
+	protected Level getWorldLazily() {
+		return entity.level;
 	}
 
 	@SuppressWarnings("unchecked")

@@ -17,12 +17,10 @@ package grondag.fluidity.api.device;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
 
 /**
  * Sub-type of {@code ComponentContext} for item devices,
@@ -37,7 +35,7 @@ public interface ItemComponentContext extends ComponentContext {
 	 *
 	 * @return The player holding the item in which the device component resides
 	 */
-	@Nullable ServerPlayerEntity player();
+	@Nullable ServerPlayer player();
 
 	/**
 	 * Supplier for the item stack that houses the state for this device component.

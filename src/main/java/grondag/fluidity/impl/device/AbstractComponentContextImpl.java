@@ -16,13 +16,10 @@
 package grondag.fluidity.impl.device;
 
 import java.util.function.Function;
-
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.ObjectUtils;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-
 import grondag.fluidity.api.device.Authorization;
 import grondag.fluidity.api.device.ComponentContext;
 import grondag.fluidity.api.device.DeviceComponentAccess;
@@ -32,13 +29,13 @@ import grondag.fluidity.api.device.DeviceComponentType;
 abstract class AbstractComponentContextImpl implements ComponentContext, DeviceComponentAccess {
 	protected DeviceComponentTypeImpl componentType;
 	protected Function<ComponentContext, ?> mapping;
-	protected World world;
-	protected Identifier id;
+	protected Level world;
+	protected ResourceLocation id;
 	protected Direction  side;
 	protected Authorization auth;
 
 	@Override
-	public final Object get(Authorization auth, Direction side, Identifier id) {
+	public final Object get(Authorization auth, Direction side, ResourceLocation id) {
 		this.auth = auth;
 		this.side = side;
 		this.id = id;
@@ -51,7 +48,7 @@ abstract class AbstractComponentContextImpl implements ComponentContext, DeviceC
 	}
 
 	@Override
-	public final Identifier id() {
+	public final ResourceLocation id() {
 		return id;
 	}
 
@@ -65,11 +62,11 @@ abstract class AbstractComponentContextImpl implements ComponentContext, DeviceC
 		return auth;
 	}
 
-	protected abstract World getWorldLazily();
+	protected abstract Level getWorldLazily();
 
 	@Override
-	public final World world() {
-		World result = world;
+	public final Level world() {
+		Level result = world;
 
 		if(result == null) {
 			result = getWorldLazily();

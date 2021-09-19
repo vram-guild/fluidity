@@ -16,13 +16,10 @@
 package grondag.fluidity.base.storage.discrete;
 
 import java.util.Arrays;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.InventoryStore;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
@@ -66,13 +63,13 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	}
 
 	@Override
-	public ItemStack getStack(int slot) {
+	public ItemStack getItem(int slot) {
 		Preconditions.checkElementIndex(slot, slotCount, "Invalid slot");
 		return stacks[slot];
 	}
 
 	@Override
-	public void setStack(int slot, ItemStack newStack) {
+	public void setItem(int slot, ItemStack newStack) {
 		Preconditions.checkNotNull(newStack, "ItemStack must be non-null");
 		Preconditions.checkElementIndex(slot, slotCount, "Invalid slot");
 
@@ -81,7 +78,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 
 		rollbackHandler.prepareIfNeeded();
 
-		if (ItemStack.areItemsEqual(newStack, currentStack)) {
+		if (ItemStack.isSameIgnoreDurability(newStack, currentStack)) {
 			if(newStack.getCount() == currentStack.getCount()) {
 				return;
 			} else {
@@ -109,7 +106,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	}
 
 	@Override
-	public ItemStack removeStack(int slot, int count) {
+	public ItemStack removeItem(int slot, int count) {
 		Preconditions.checkElementIndex(slot, slotCount, "Invalid slot");
 
 		final ItemStack stack = stacks[slot];
@@ -123,7 +120,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 		notifySupply(stack, n);
 		final ItemStack result = stack.copy();
 		result.setCount(n);
-		stack.decrement(n);
+		stack.shrink(n);
 		synchCleanStack(slot);
 		dirtyNotifier.run();
 
@@ -131,7 +128,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	}
 
 	@Override
-	public ItemStack removeStack(int slot) {
+	public ItemStack removeItemNoUpdate(int slot) {
 		Preconditions.checkElementIndex(slot, slotCount, "Invalid slot");
 
 		final ItemStack stack = stacks[slot];
@@ -150,7 +147,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	}
 
 	@Override
-	public void clear() {
+	public void clearContent() {
 		if(!isEmpty()) {
 			rollbackHandler.prepareIfNeeded();
 
@@ -203,7 +200,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 				final ItemStack stack = stacks[slot];
 
 				if(stack.isEmpty()) {
-					final int n = (int) Math.min(count - result, article.toItem().getMaxCount());
+					final int n = (int) Math.min(count - result, article.toItem().getMaxStackSize());
 
 					if(!simulate) {
 						if(needsRollback) {
@@ -220,7 +217,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 
 					result += n;
 				} else if(article.matches(stack)) {
-					final int n = (int) Math.min(count - result, article.toItem().getMaxCount() - stack.getCount());
+					final int n = (int) Math.min(count - result, article.toItem().getMaxStackSize() - stack.getCount());
 
 					if(!simulate) {
 						if(needsRollback) {
@@ -228,7 +225,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 							needsRollback = false;
 						}
 
-						stack.increment(n);
+						stack.grow(n);
 						synchCleanStack(slot);
 						notifyAccept(stack, n);
 						dirtyNotifier.run();
@@ -274,7 +271,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 						}
 
 						notifySupply(stack, n);
-						stack.decrement(n);
+						stack.shrink(n);
 
 						if (stack.isEmpty()) {
 							stacks[slot] = ItemStack.EMPTY;
@@ -299,8 +296,8 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	protected void notifySupply(ItemStack stack, int count) {
 		final boolean isEmpty = stack.getCount() == count;
 
-		if(isEmpty && stack.getMaxCount() != 64) {
-			notifier.addToCapacity(64 - stack.getMaxCount());
+		if(isEmpty && stack.getMaxStackSize() != 64) {
+			notifier.addToCapacity(64 - stack.getMaxStackSize());
 		}
 
 		final StoredDiscreteArticle article = articles.findOrCreateArticle(ArticleImpl.of(stack));
@@ -311,8 +308,8 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	protected void notifyAccept(ItemStack stack, int count) {
 		final int newCount = stack.getCount();
 
-		if(newCount == count && stack.getMaxCount() != 64) {
-			notifier.addToCapacity(stack.getMaxCount() - 64);
+		if(newCount == count && stack.getMaxStackSize() != 64) {
+			notifier.addToCapacity(stack.getMaxStackSize() - 64);
 		}
 
 		final StoredDiscreteArticle article = articles.findOrCreateArticle(ArticleImpl.of(stack));
@@ -321,12 +318,12 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	}
 
 	@Override
-	public int size() {
+	public int getContainerSize() {
 		return slotCount;
 	}
 
 	@Override
-	public void markDirty() {
+	public void setChanged() {
 		for (int slot = 0; slot < slotCount; ++slot) {
 
 			final ItemStack stack = stacks[slot];
@@ -356,7 +353,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	}
 
 	@Override
-	public void readTag(NbtCompound tag) {
+	public void readTag(CompoundTag tag) {
 		super.readTag(tag);
 
 		for (int slot = 0 ; slot < slotCount; slot++) {

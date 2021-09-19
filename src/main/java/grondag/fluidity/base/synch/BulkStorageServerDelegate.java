@@ -16,19 +16,17 @@
 package grondag.fluidity.base.synch;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.base.article.StoredBulkArticle;
 import grondag.fluidity.base.storage.bulk.BulkStorageListener;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 
 @Experimental
 public class BulkStorageServerDelegate extends AbstractStorageServerDelegate<StoredBulkArticle> implements BulkStorageListener {
-	public BulkStorageServerDelegate(ServerPlayerEntity player, Store storage) {
+	public BulkStorageServerDelegate(ServerPlayer player, Store storage) {
 		super(player, storage);
 	}
 
@@ -67,7 +65,7 @@ public class BulkStorageServerDelegate extends AbstractStorageServerDelegate<Sto
 			return;
 		}
 
-		final PacketByteBuf buf = BulkStorageUpdateS2C.begin(updates.size());
+		final FriendlyByteBuf buf = BulkStorageUpdateS2C.begin(updates.size());
 
 		for(final StoredBulkArticle a : updates.values()) {
 			BulkStorageUpdateS2C.append(buf, a.article(), a.amount(), a.handle());

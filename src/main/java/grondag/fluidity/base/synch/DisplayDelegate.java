@@ -16,14 +16,11 @@
 package grondag.fluidity.base.synch;
 
 import java.util.Comparator;
-
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.client.resource.language.I18n;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-
 import grondag.fluidity.api.article.Article;
 
 /**
@@ -71,8 +68,8 @@ public interface DisplayDelegate {
 				return -1;
 			}
 
-			final String s1 = I18n.translate(o1.localizedName());
-			final String s2 = I18n.translate(o2.localizedName());
+			final String s1 = I18n.get(o1.localizedName());
+			final String s2 = I18n.get(o2.localizedName());
 			return s1.compareTo(s2);
 		}
 	};
@@ -150,10 +147,10 @@ public interface DisplayDelegate {
 
 	@Deprecated
 	static String getSortLabel(int sortIndex) {
-		return I18n.translate(getSortTranslactionKey(sortIndex));
+		return I18n.get(getSortTranslactionKey(sortIndex));
 	}
 
-	static Text getSortText(int sortIndex) {
-		return new TranslatableText(getSortTranslactionKey(sortIndex));
+	static Component getSortText(int sortIndex) {
+		return new TranslatableComponent(getSortTranslactionKey(sortIndex));
 	}
 }

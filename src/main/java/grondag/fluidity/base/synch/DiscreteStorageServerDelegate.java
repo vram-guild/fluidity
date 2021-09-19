@@ -16,18 +16,16 @@
 package grondag.fluidity.base.synch;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.discrete.DiscreteStorageListener;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 
 @Experimental
 public class DiscreteStorageServerDelegate extends AbstractStorageServerDelegate<StoredDiscreteArticle> implements DiscreteStorageListener {
-	public DiscreteStorageServerDelegate(ServerPlayerEntity player, Store storage) {
+	public DiscreteStorageServerDelegate(ServerPlayer player, Store storage) {
 		super(player, storage);
 	}
 
@@ -66,7 +64,7 @@ public class DiscreteStorageServerDelegate extends AbstractStorageServerDelegate
 			return;
 		}
 
-		final PacketByteBuf buf = DiscreteStorageUpdateS2C.begin(updates.size());
+		final FriendlyByteBuf buf = DiscreteStorageUpdateS2C.begin(updates.size());
 
 		for(final StoredDiscreteArticle a : updates.values()) {
 			DiscreteStorageUpdateS2C.append(buf, a.article(), a.count(), a.handle());

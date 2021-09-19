@@ -30,11 +30,9 @@ import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
-
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
+import net.minecraft.world.level.Level;
 import grondag.fluidity.Fluidity;
 import grondag.fluidity.FluidityConfig;
 import grondag.fluidity.api.multiblock.MultiBlock;
@@ -96,12 +94,12 @@ public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U, V>, U extend
 
 			reverseMap.put(device, pos);
 
-			tryPairing(device, get(BlockPos.add(pos, 1, 0, 0)));
-			tryPairing(device, get(BlockPos.add(pos, -1, 0, 0)));
-			tryPairing(device, get(BlockPos.add(pos, 0, 1, 0)));
-			tryPairing(device, get(BlockPos.add(pos, 0, -1, 0)));
-			tryPairing(device, get(BlockPos.add(pos, 0, 0, 1)));
-			tryPairing(device, get(BlockPos.add(pos, 0, 0, -1)));
+			tryPairing(device, get(BlockPos.offset(pos, 1, 0, 0)));
+			tryPairing(device, get(BlockPos.offset(pos, -1, 0, 0)));
+			tryPairing(device, get(BlockPos.offset(pos, 0, 1, 0)));
+			tryPairing(device, get(BlockPos.offset(pos, 0, -1, 0)));
+			tryPairing(device, get(BlockPos.offset(pos, 0, 0, 1)));
+			tryPairing(device, get(BlockPos.offset(pos, 0, 0, -1)));
 		}
 
 		private void tryPairing(T fromDevice, @Nullable T toDevice) {
@@ -202,12 +200,12 @@ public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U, V>, U extend
 
 			// look for neighboring connections
 			neighbors.clear();
-			addNeighbor(owner, get(BlockPos.add(pos, 1, 0, 0)));
-			addNeighbor(owner, get(BlockPos.add(pos, -1, 0, 0)));
-			addNeighbor(owner, get(BlockPos.add(pos, 0, 1, 0)));
-			addNeighbor(owner, get(BlockPos.add(pos, 0, -1, 0)));
-			addNeighbor(owner, get(BlockPos.add(pos, 0, 0, 1)));
-			addNeighbor(owner, get(BlockPos.add(pos, 0, 0, -1)));
+			addNeighbor(owner, get(BlockPos.offset(pos, 1, 0, 0)));
+			addNeighbor(owner, get(BlockPos.offset(pos, -1, 0, 0)));
+			addNeighbor(owner, get(BlockPos.offset(pos, 0, 1, 0)));
+			addNeighbor(owner, get(BlockPos.offset(pos, 0, -1, 0)));
+			addNeighbor(owner, get(BlockPos.offset(pos, 0, 0, 1)));
+			addNeighbor(owner, get(BlockPos.offset(pos, 0, 0, -1)));
 
 			if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
 				Fluidity.trace("Device %s @ %s removed from compound device %s", device.toString(), device.getBlockPos().toString(), owner.toString());
@@ -238,7 +236,7 @@ public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U, V>, U extend
 
 		private void handleComplicatedSplit(U owner, long pos) {
 			if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
-				Fluidity.trace("Compound Device %s requires complicated split due to removal of device @ %s", owner.toString(), BlockPos.fromLong(pos).toString());
+				Fluidity.trace("Compound Device %s requires complicated split due to removal of device @ %s", owner.toString(), BlockPos.of(pos).toString());
 			}
 
 			splitIndex = 0;
@@ -319,12 +317,12 @@ public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U, V>, U extend
 
 			while(!searchStack.isEmpty()) {
 				final long p = searchStack.popLong();
-				visit(owner, BlockPos.add(p, 1, 0, 0));
-				visit(owner, BlockPos.add(p, -1, 0, 0));
-				visit(owner, BlockPos.add(p, 0, 1, 0));
-				visit(owner, BlockPos.add(p, 0, -1, 0));
-				visit(owner, BlockPos.add(p, 0, 0, 1));
-				visit(owner, BlockPos.add(p, 0, 0, -1));
+				visit(owner, BlockPos.offset(p, 1, 0, 0));
+				visit(owner, BlockPos.offset(p, -1, 0, 0));
+				visit(owner, BlockPos.offset(p, 0, 1, 0));
+				visit(owner, BlockPos.offset(p, 0, -1, 0));
+				visit(owner, BlockPos.offset(p, 0, 0, 1));
+				visit(owner, BlockPos.offset(p, 0, 0, -1));
 			}
 		}
 
@@ -342,7 +340,7 @@ public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U, V>, U extend
 		}
 	}
 
-	private final IdentityHashMap<World, WorldHandler> worlds = new IdentityHashMap<>();
+	private final IdentityHashMap<Level, WorldHandler> worlds = new IdentityHashMap<>();
 
 	private final Supplier<U> compoundSupplier;
 	private final BiPredicate<T, T> connectionTest;
@@ -357,7 +355,7 @@ public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U, V>, U extend
 		MANAGERS.add(new WeakReference(this));
 	}
 
-	private WorldHandler worldHandler(World world) {
+	private WorldHandler worldHandler(Level world) {
 		return worlds.computeIfAbsent(world, d -> new WorldHandler());
 	}
 

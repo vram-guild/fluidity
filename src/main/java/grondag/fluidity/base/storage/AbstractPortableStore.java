@@ -15,12 +15,10 @@
  ******************************************************************************/package grondag.fluidity.base.storage;
 
  import com.google.common.util.concurrent.Runnables;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-
 import grondag.fluidity.api.device.ItemComponentContext;
 import grondag.fluidity.api.storage.Store;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 
  /**
   * Forwarding store that causes changes to be serialized to an item stack.
@@ -51,7 +49,7 @@ import grondag.fluidity.api.storage.Store;
 		 dirtyNotifier = () -> saveToStack();
 		 setWrapped(wrapped);
 
-		 final NbtCompound tag = readTagFromStack(stackGetter.get());
+		 final CompoundTag tag = readTagFromStack(stackGetter.get());
 
 		 if(tag != null && !tag.isEmpty()) {
 			 readTag(tag);
@@ -61,9 +59,9 @@ import grondag.fluidity.api.storage.Store;
 	 /**
 	  * Override if tag isn't at root (for block entities, for example)
 	  */
-	 protected abstract NbtCompound readTagFromStack(ItemStack stack);
+	 protected abstract CompoundTag readTagFromStack(ItemStack stack);
 
-	 protected abstract void  writeTagToStack(ItemStack stack, NbtCompound tag);
+	 protected abstract void  writeTagToStack(ItemStack stack, CompoundTag tag);
 
 	 /**
 	  * For client-side display, create and retain a static reference and call this each frame.

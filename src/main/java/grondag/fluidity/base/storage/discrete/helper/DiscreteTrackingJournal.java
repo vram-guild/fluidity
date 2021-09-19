@@ -16,12 +16,9 @@
 package grondag.fluidity.base.storage.discrete.helper;
 
 import java.util.concurrent.ArrayBlockingQueue;
-
+import net.minecraft.core.BlockPos;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.util.math.BlockPos;
-
 import grondag.fluidity.api.article.Article;
 
 @Experimental

@@ -19,15 +19,12 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.material.Fluid;
 import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.network.PacketByteBuf;
-
 import grondag.fluidity.impl.article.ArticleTypeImpl;
 
 @Experimental
@@ -77,15 +74,15 @@ public interface ArticleType<T> {
 	 *
 	 * @return An NBT tag suitable for saving this instance in world data.
 	 */
-	NbtElement toTag();
+	Tag toTag();
 
 	/**
 	 * Serializes this instance to a packet buffer that can be used (typically on the other side of a client/server connection)
-	 * to retrieve the instance via {@link #fromPacket(PacketByteBuf)}.
+	 * to retrieve the instance via {@link #fromPacket(FriendlyByteBuf)}.
 	 *
 	 * @param buf Target packet buffer for serialization output.
 	 */
-	void toPacket(PacketByteBuf buf);
+	void toPacket(FriendlyByteBuf buf);
 
 	/**
 	 * Convenient, non-allocating predicate to match articles of this type.
@@ -111,17 +108,17 @@ public interface ArticleType<T> {
 	 * @param tag Earlier output of {@link #toTag()}
 	 * @return Instance equivalent to the instance encoded in the tag, or {@link #NOTHING} if the instance is no longer registered
 	 */
-	static <T> ArticleType<T> fromTag(NbtElement tag) {
+	static <T> ArticleType<T> fromTag(Tag tag) {
 		return ArticleTypeImpl.fromTag(tag);
 	}
 
 	/**
-	 * Read an instance previously encoded in a packet buffer via {@link #toPacket(PacketByteBuf)}.
+	 * Read an instance previously encoded in a packet buffer via {@link #toPacket(FriendlyByteBuf)}.
 	 *
 	 * @param buf The packet buffer
 	 * @return Instance encoded in the buffer, or {@link #NOTHING} if the instance cannot be read or found
 	 */
-	static <T> ArticleType<T> fromPacket(PacketByteBuf buf) {
+	static <T> ArticleType<T> fromPacket(FriendlyByteBuf buf) {
 		return ArticleTypeImpl.fromPacket(buf);
 	}
 
@@ -185,7 +182,7 @@ public interface ArticleType<T> {
 		 * @param tagWriter Function to serialize an article resource to NBT
 		 * @return This builder instance
 		 */
-		Builder<U> resourceTagWriter(Function<U, NbtElement> tagWriter);
+		Builder<U> resourceTagWriter(Function<U, Tag> tagWriter);
 
 		/**
 		 * Sets function to deserialize article resources from NBT.
@@ -194,7 +191,7 @@ public interface ArticleType<T> {
 		 * @param tagReader Function to deserialize an article resource from NBT
 		 * @return This builder instance
 		 */
-		Builder<U> resourceTagReader(Function<NbtElement, U> tagReader);
+		Builder<U> resourceTagReader(Function<Tag, U> tagReader);
 
 		/**
 		 * Sets function to serialize article resources to a packet buffer.
@@ -203,7 +200,7 @@ public interface ArticleType<T> {
 		 * @param packetWriter Function to serialize an article resource to a packet buffer
 		 * @return This builder instance
 		 */
-		Builder<U> resourcePacketWriter(BiConsumer<U, PacketByteBuf> packetWriter);
+		Builder<U> resourcePacketWriter(BiConsumer<U, FriendlyByteBuf> packetWriter);
 
 		/**
 		 * Sets function to deserialize article resources from a packet buffer.
@@ -212,7 +209,7 @@ public interface ArticleType<T> {
 		 * @param packetReader Function to deserialize an article resource from a packet buffer
 		 * @return This builder instance
 		 */
-		Builder<U> resourcePacketReader(Function<PacketByteBuf, U> packetReader);
+		Builder<U> resourcePacketReader(Function<FriendlyByteBuf, U> packetReader);
 
 		/**
 		 * Sets function to derive a translation key for an article resource of this type.

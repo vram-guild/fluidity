@@ -18,9 +18,6 @@ package grondag.fluidity.base.storage.bulk;
 import com.google.common.base.Preconditions;
 import com.mojang.datafixers.util.Pair;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.nbt.NbtCompound;
-
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.article.StoredArticleView;
@@ -31,6 +28,7 @@ import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredBulkArticle;
 import grondag.fluidity.base.article.StoredBulkArticleView;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStore;
+import net.minecraft.nbt.CompoundTag;
 
 @Experimental
 public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, SimpleTank> implements BulkStore {
@@ -257,21 +255,21 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 		}
 	}
 
-	public void writeTag(NbtCompound tag) {
+	public void writeTag(CompoundTag tag) {
 		tag.put("capacity",capacity.toTag());
 		tag.put("quantity",quantity.toTag());
 		tag.put("art", article.toTag());
 	}
 
 	@Override
-	public NbtCompound writeTag() {
-		final NbtCompound result = new NbtCompound();
+	public CompoundTag writeTag() {
+		final CompoundTag result = new CompoundTag();
 		writeTag(result);
 		return result;
 	}
 
 	@Override
-	public void readTag(NbtCompound tag) {
+	public void readTag(CompoundTag tag) {
 		capacity = new Fraction(tag.getCompound("capacity"));
 		quantity.readTag(tag.getCompound("quantity"));
 		article = Article.fromTag(tag.get("art"));

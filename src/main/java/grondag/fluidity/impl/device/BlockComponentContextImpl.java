@@ -15,13 +15,12 @@
  ******************************************************************************/
 package grondag.fluidity.impl.device;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 import grondag.fluidity.api.device.BlockComponentContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 @SuppressWarnings("rawtypes")
 public final class BlockComponentContextImpl extends AbstractComponentContextImpl implements BlockComponentContext {
@@ -40,7 +39,7 @@ public final class BlockComponentContextImpl extends AbstractComponentContextImp
 		BlockPos result = pos;
 
 		if(result == null && blockEntity != null) {
-			result = blockEntity.getPos();
+			result = blockEntity.getBlockPos();
 			pos = result;
 		}
 
@@ -65,12 +64,12 @@ public final class BlockComponentContextImpl extends AbstractComponentContextImp
 	}
 
 	@Override
-	protected World getWorldLazily() {
-		return blockEntity == null ? null : blockEntity.getWorld();
+	protected Level getWorldLazily() {
+		return blockEntity == null ? null : blockEntity.getLevel();
 	}
 
 	@SuppressWarnings("unchecked")
-	private BlockComponentContextImpl prepare(DeviceComponentTypeImpl componentType, World world, BlockPos pos) {
+	private BlockComponentContextImpl prepare(DeviceComponentTypeImpl componentType, Level world, BlockPos pos) {
 		this.componentType = componentType;
 		this.world = world;
 		this.pos = pos;
@@ -82,7 +81,7 @@ public final class BlockComponentContextImpl extends AbstractComponentContextImp
 	}
 
 	@SuppressWarnings("unchecked")
-	private BlockComponentContextImpl  prepare(DeviceComponentTypeImpl componentType, World world, BlockPos pos, BlockState blockState) {
+	private BlockComponentContextImpl  prepare(DeviceComponentTypeImpl componentType, Level world, BlockPos pos, BlockState blockState) {
 		this.componentType = componentType;
 		this.world = world;
 		this.pos = pos;
@@ -99,7 +98,7 @@ public final class BlockComponentContextImpl extends AbstractComponentContextImp
 		world = null;
 		pos = null;
 		this.blockEntity = blockEntity;
-		blockState = blockEntity.getCachedState();
+		blockState = blockEntity.getBlockState();
 		block = blockState.getBlock();
 		mapping = componentType.getMapping(block);
 		return this;
@@ -107,11 +106,11 @@ public final class BlockComponentContextImpl extends AbstractComponentContextImp
 
 	private static final ThreadLocal<BlockComponentContextImpl> POOL = ThreadLocal.withInitial(BlockComponentContextImpl::new);
 
-	static BlockComponentContextImpl get(DeviceComponentTypeImpl componentType, World world, BlockPos pos) {
+	static BlockComponentContextImpl get(DeviceComponentTypeImpl componentType, Level world, BlockPos pos) {
 		return POOL.get().prepare(componentType, world, pos);
 	}
 
-	static BlockComponentContextImpl  get(DeviceComponentTypeImpl componentType, World world, BlockPos pos, BlockState blockState) {
+	static BlockComponentContextImpl  get(DeviceComponentTypeImpl componentType, Level world, BlockPos pos, BlockState blockState) {
 		return POOL.get().prepare(componentType, world, pos, blockState);
 	}
 

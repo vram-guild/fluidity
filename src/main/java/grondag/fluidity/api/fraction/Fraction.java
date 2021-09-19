@@ -16,11 +16,10 @@
 package grondag.fluidity.api.fraction;
 
 import it.unimi.dsi.fastutil.HashCommon;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.network.PacketByteBuf;
 
 /**
  * Immutable, full-resolution rational number representation.
@@ -61,16 +60,16 @@ public class Fraction implements Comparable<Fraction> {
 	 *
 	 * @param tag NBT tag previously returned by {@link #toTag()
 	 */
-	public Fraction(NbtElement tag) {
-		readTagInner((NbtCompound) tag);
+	public Fraction(Tag tag) {
+		readTagInner((CompoundTag) tag);
 	}
 
 	/**
-	 * Deserializes a new instance from previously encoded to a packet buffer by {@link #writeBuffer(PacketByteBuf)}
+	 * Deserializes a new instance from previously encoded to a packet buffer by {@link #writeBuffer(FriendlyByteBuf)}
 	 *
-	 * @param buf packet buffer containing data encoded by {@link #writeBuffer(PacketByteBuf)}
+	 * @param buf packet buffer containing data encoded by {@link #writeBuffer(FriendlyByteBuf)}
 	 */
-	public Fraction(PacketByteBuf buf) {
+	public Fraction(FriendlyByteBuf buf) {
 		readBufferInner(buf);
 	}
 
@@ -126,7 +125,7 @@ public class Fraction implements Comparable<Fraction> {
 	 *
 	 * @param buffer packet buffer to receive serialized data
 	 */
-	public final void writeBuffer(PacketByteBuf buffer) {
+	public final void writeBuffer(FriendlyByteBuf buffer) {
 		buffer.writeVarLong(whole);
 		buffer.writeVarLong(numerator);
 		buffer.writeVarLong(divisor);
@@ -139,7 +138,7 @@ public class Fraction implements Comparable<Fraction> {
 	 *
 	 * @param tag NBT tag to contain serialized data
 	 */
-	public final void writeTag(NbtCompound tag) {
+	public final void writeTag(CompoundTag tag) {
 		tag.putLong("whole", whole);
 		tag.putLong("numerator", numerator);
 		tag.putLong("denominator", divisor);
@@ -150,20 +149,20 @@ public class Fraction implements Comparable<Fraction> {
 	 *
 	 * @return new tag instance containing serialized data
 	 */
-	public final NbtElement toTag() {
-		final NbtCompound result = new NbtCompound();
+	public final Tag toTag() {
+		final CompoundTag result = new CompoundTag();
 		writeTag(result);
 		return result;
 	}
 
-	protected final void readBufferInner(PacketByteBuf buf) {
+	protected final void readBufferInner(FriendlyByteBuf buf) {
 		whole = buf.readVarLong();
 		numerator = buf.readVarLong();
 		divisor = buf.readVarLong();
 		normalize();
 	}
 
-	protected final void readTagInner(NbtCompound tag) {
+	protected final void readTagInner(CompoundTag tag) {
 		whole = tag.getLong("whole");
 		numerator = tag.getLong("numerator");
 		divisor = Math.max(1, tag.getLong("denominator"));

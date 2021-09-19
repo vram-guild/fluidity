@@ -16,13 +16,11 @@
 package grondag.fluidity.impl.storage;
 
 import org.jetbrains.annotations.ApiStatus.Internal;
-
-import net.minecraft.nbt.NbtCompound;
-
 import grondag.fluidity.api.article.StoredArticleView;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.FixedStore;
 import grondag.fluidity.api.storage.StorageEventStream;
+import net.minecraft.nbt.CompoundTag;
 
 @Internal
 public final class EmptyStore implements FixedStore {
@@ -76,12 +74,12 @@ public final class EmptyStore implements FixedStore {
 	}
 
 	@Override
-	public NbtCompound writeTag() {
-		return new NbtCompound();
+	public CompoundTag writeTag() {
+		return new CompoundTag();
 	}
 
 	@Override
-	public void readTag(NbtCompound tag) {
+	public void readTag(CompoundTag tag) {
 		// NOOP
 	}
 

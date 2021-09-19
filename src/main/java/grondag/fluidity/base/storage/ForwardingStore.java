@@ -16,11 +16,8 @@
 package grondag.fluidity.base.storage;
 
 import java.util.function.Predicate;
-
+import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.ApiStatus.Experimental;
-
-import net.minecraft.nbt.NbtCompound;
-
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.article.StoredArticleView;
@@ -108,12 +105,12 @@ public class ForwardingStore implements Store {
 	}
 
 	@Override
-	public NbtCompound writeTag() {
+	public CompoundTag writeTag() {
 		return wrapped.writeTag();
 	}
 
 	@Override
-	public void readTag(NbtCompound tag) {
+	public void readTag(CompoundTag tag) {
 		wrapped.readTag(tag);
 	}
 
