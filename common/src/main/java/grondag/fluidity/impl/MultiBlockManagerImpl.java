@@ -30,6 +30,7 @@ import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
@@ -41,7 +42,7 @@ import grondag.fluidity.api.multiblock.MultiBlockMember;
 @Experimental
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U, V>, U extends MultiBlock<T, U, V>, V> implements MultiBlockManager<T, U, V> {
-
+	@SuppressWarnings("serial")
 	private class WorldHandler extends Long2ObjectOpenHashMap<T> {
 
 		private final Object2LongOpenHashMap<T> reverseMap = new Object2LongOpenHashMap<>();
@@ -140,8 +141,6 @@ public class MultiBlockManagerImpl<T extends MultiBlockMember<T, U, V>, U extend
 				if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {
 					Fluidity.trace("Device connection ignored: %s already associated with %s @ %s", fromOwner.toString(), fromDevice.toString(), fromDevice.getBlockPos().toString());
 				}
-
-				return;
 			} else if (toOwner == null) {
 				// to device joins from device compound
 				if(FluidityConfig.TRACE_DEVICE_CONNECTIONS) {

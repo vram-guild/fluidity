@@ -33,7 +33,7 @@ public final class ArticleTypeRegistryImpl implements ArticleTypeRegistry {
 
 	}
 
-	public static void init() {}
+	public static void initialize() {}
 
 	public static ArticleTypeRegistryImpl INSTANCE = new ArticleTypeRegistryImpl();
 
