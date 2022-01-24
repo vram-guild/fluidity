@@ -1,18 +1,23 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.base.storage.discrete;
 
 import com.google.common.base.Preconditions;
@@ -35,7 +40,7 @@ import grondag.fluidity.impl.article.ArticleImpl;
 import grondag.fluidity.impl.article.StackHelper;
 
 @Experimental
-public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredDiscreteArticle,  SingleStackInventoryStore> implements DiscreteStore, InventoryStore {
+public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredDiscreteArticle, SingleStackInventoryStore> implements DiscreteStore, InventoryStore {
 	protected ItemStack stack = ItemStack.EMPTY;
 	protected ItemStack cleanStack = ItemStack.EMPTY;
 	protected final StoredDiscreteArticle view = new StoredDiscreteArticle();
@@ -70,40 +75,39 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 	protected class Consumer implements FixedDiscreteArticleFunction {
 		@Override
 		public long apply(Article article, long count, boolean simulate) {
-
-			if(article.isNothing()) {
+			if (article.isNothing()) {
 				return 0;
 			}
 
 			final int maxCount = article.toItem().getMaxStackSize();
 
-			if(stack.isEmpty()) {
+			if (stack.isEmpty()) {
 				final int n = (int) Math.min(count, maxCount);
 
-				if(!simulate) {
+				if (!simulate) {
 					rollbackHandler.prepareIfNeeded();
 					stack = article.toStack(n);
 					cleanStack = stack.copy();
 
-					if(!listeners.isEmpty()) {
+					if (!listeners.isEmpty()) {
 						notifier.notifyAccept(article, 0, n, n);
 
-						if(maxCount != 64) {
+						if (maxCount != 64) {
 							notifier.notifyCapacityChange(maxCount - 64);
 						}
 					}
 				}
 
 				return n;
-			} else if(article.matches(stack)) {
+			} else if (article.matches(stack)) {
 				final int n = (int) Math.min(count, article.toItem().getMaxStackSize() - stack.getCount());
 
-				if(!simulate) {
+				if (!simulate) {
 					rollbackHandler.prepareIfNeeded();
 					stack.grow(n);
 					cleanStack = stack.copy();
 
-					if(!listeners.isEmpty()) {
+					if (!listeners.isEmpty()) {
 						notifier.notifyAccept(article, 0, n, stack.getCount());
 					}
 				}
@@ -140,23 +144,23 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 	protected class Supplier implements FixedDiscreteArticleFunction {
 		@Override
 		public long apply(Article article, long count, boolean simulate) {
-			if(article.isNothing() || stack.isEmpty() || !article.matches(stack)) {
+			if (article.isNothing() || stack.isEmpty() || !article.matches(stack)) {
 				return 0;
 			}
 
 			final int n = (int) Math.min(count, stack.getCount());
 
-			if(!simulate) {
+			if (!simulate) {
 				final int oldMax = stack.getMaxStackSize();
 
 				rollbackHandler.prepareIfNeeded();
 				stack.shrink(n);
 				cleanStack = stack.copy();
 
-				if(!listeners.isEmpty()) {
+				if (!listeners.isEmpty()) {
 					notifier.notifySupply(article, 0, n, stack.getCount());
 
-					if(stack.isEmpty() && oldMax != 64) {
+					if (stack.isEmpty() && oldMax != 64) {
 						notifier.notifyCapacityChange(64 - oldMax);
 					}
 				}
@@ -221,7 +225,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 		rollbackHandler.prepareIfNeeded();
 		final int n = Math.min(count, stack.getCount());
 
-		if(!listeners.isEmpty()) {
+		if (!listeners.isEmpty()) {
 			notifier.notifySupply(ArticleImpl.of(stack), 0, n, stack.getCount() - n);
 		}
 
@@ -241,7 +245,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 
 		rollbackHandler.prepareIfNeeded();
 
-		if(!listeners.isEmpty()) {
+		if (!listeners.isEmpty()) {
 			notifier.notifySupply(ArticleImpl.of(stack), 0, stack.getCount(), 0);
 		}
 
@@ -257,13 +261,13 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 		Preconditions.checkElementIndex(slot, 1, "Invalid slot number");
 
 		if (StackHelper.areItemsEqual(newStack, stack)) {
-			if(newStack.getCount() == stack.getCount()) {
+			if (newStack.getCount() == stack.getCount()) {
 				return;
 			} else {
 				final int delta = newStack.getCount() - stack.getCount();
 
-				if(!listeners.isEmpty()) {
-					if(delta > 0) {
+				if (!listeners.isEmpty()) {
+					if (delta > 0) {
 						notifier.notifyAccept(ArticleImpl.of(stack), 0, delta, newStack.getCount());
 					} else {
 						notifier.notifySupply(ArticleImpl.of(stack), 0, -delta, newStack.getCount());
@@ -271,7 +275,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 				}
 			}
 		} else {
-			if(!listeners.isEmpty()) {
+			if (!listeners.isEmpty()) {
 				notifier.notifySupply(ArticleImpl.of(stack), 0, stack.getCount(), 0);
 				notifier.notifyAccept(ArticleImpl.of(newStack), 0, newStack.getCount(), newStack.getCount());
 			}
@@ -287,7 +291,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 		if (!stack.isEmpty()) {
 			rollbackHandler.prepareIfNeeded();
 
-			if(!listeners.isEmpty()) {
+			if (!listeners.isEmpty()) {
 				notifier.notifySupply(ArticleImpl.of(stack), 0, stack.getCount(), 0);
 			}
 
@@ -308,7 +312,7 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 
 	@Override
 	protected void applyRollbackState(Object state, boolean isCommitted) {
-		if(!isCommitted) {
+		if (!isCommitted) {
 			stack = (ItemStack) state;
 			cleanStack = stack.copy();
 		}
@@ -355,20 +359,20 @@ public class SingleStackInventoryStore extends AbstractLazyRollbackStore<StoredD
 	@Override
 	public void setChanged() {
 		if (StackHelper.areItemsEqual(stack, cleanStack)) {
-			if(stack.getCount() == cleanStack.getCount()) {
+			if (stack.getCount() == cleanStack.getCount()) {
 				return;
 			} else {
 				final int delta = stack.getCount() - cleanStack.getCount();
 
-				if(!listeners.isEmpty()) {
-					if(delta > 0) {
+				if (!listeners.isEmpty()) {
+					if (delta > 0) {
 						notifier.notifyAccept(ArticleImpl.of(stack), 0, delta, stack.getCount());
 					} else {
 						notifier.notifySupply(ArticleImpl.of(stack), 0, -delta, stack.getCount());
 					}
 				}
 			}
-		} else if  (!listeners.isEmpty()) {
+		} else if (!listeners.isEmpty()) {
 			notifier.notifySupply(ArticleImpl.of(cleanStack), 0, cleanStack.getCount(), 0);
 			notifier.notifyAccept(ArticleImpl.of(stack), 0, stack.getCount(), stack.getCount());
 		}

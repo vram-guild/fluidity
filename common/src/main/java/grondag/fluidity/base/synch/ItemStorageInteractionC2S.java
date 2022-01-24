@@ -1,18 +1,23 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.base.synch;
 
 import dev.architectury.networking.NetworkManager.PacketContext;
@@ -48,73 +53,74 @@ public class ItemStorageInteractionC2S {
 
 		final Store storage = ((StorageContainer) player.containerMenu).getStorage();
 
-		if(storage == null || !storage.isValid()) {
+		if (storage == null || !storage.isValid()) {
 			return;
 		}
 
 		final Article targetResource = handle == -1 ? null : storage.view(handle).article();
 
 		switch (action) {
-		case PUT_ALL_HELD:
-			doPut(false, player, storage);
-			return;
+			case PUT_ALL_HELD:
+				doPut(false, player, storage);
+				return;
 
-		case PUT_ONE_HELD:
-			doPut(true, player, storage);
-			return;
+			case PUT_ONE_HELD:
+				doPut(true, player, storage);
+				return;
 
-		case QUICK_MOVE_HALF: {
-			if (targetResource == null) {
+			case QUICK_MOVE_HALF: {
+				if (targetResource == null) {
+					return;
+				}
+
+				final int toMove = (int) Math.max(1, Math.min(targetResource.toItem().getMaxStackSize() / 2, storage.countOf(targetResource)) / 2);
+				doQuickMove(toMove, player, targetResource, storage);
 				return;
 			}
 
-			final int toMove = (int) Math.max(1, Math.min(targetResource.toItem().getMaxStackSize() / 2, storage.countOf(targetResource)) / 2);
-			doQuickMove(toMove, player, targetResource, storage);
-			return;
-		}
+			case QUICK_MOVE_ONE:
+				if (targetResource == null) {
+					return;
+				}
 
-		case QUICK_MOVE_ONE:
-			if (targetResource == null) {
+				doQuickMove(1, player, targetResource, storage);
 				return;
-			}
-			doQuickMove(1, player, targetResource, storage);
-			return;
 
-		case QUICK_MOVE_STACK: {
-			if (targetResource == null) {
-				return;
-			}
+			case QUICK_MOVE_STACK: {
+				if (targetResource == null) {
+					return;
+				}
 
-			final int toMove = (int) Math.min(targetResource.toItem().getMaxStackSize(), storage.countOf(targetResource));
-			doQuickMove(toMove, player, targetResource, storage);
-			return;
-		}
-
-		case TAKE_ONE:
-			doTake(1, player, targetResource, storage);
-			return;
-
-		case TAKE_HALF: {
-			if (targetResource == null) {
+				final int toMove = (int) Math.min(targetResource.toItem().getMaxStackSize(), storage.countOf(targetResource));
+				doQuickMove(toMove, player, targetResource, storage);
 				return;
 			}
 
-			final int toTake = (int) Math.max(1, Math.min(targetResource.toItem().getMaxStackSize() / 2, storage.countOf(targetResource) / 2));
-			doTake(toTake, player, targetResource, storage);
-			return;
-		}
+			case TAKE_ONE:
+				doTake(1, player, targetResource, storage);
+				return;
 
-		case TAKE_STACK: {
-			if (targetResource == null) {
+			case TAKE_HALF: {
+				if (targetResource == null) {
+					return;
+				}
+
+				final int toTake = (int) Math.max(1, Math.min(targetResource.toItem().getMaxStackSize() / 2, storage.countOf(targetResource) / 2));
+				doTake(toTake, player, targetResource, storage);
 				return;
 			}
 
-			final int toTake = (int) Math.min(targetResource.toItem().getMaxStackSize(), storage.countOf(targetResource));
-			doTake(toTake, player, targetResource, storage);
-			return;
-		}
+			case TAKE_STACK: {
+				if (targetResource == null) {
+					return;
+				}
 
-		default:
+				final int toTake = (int) Math.min(targetResource.toItem().getMaxStackSize(), storage.countOf(targetResource));
+				doTake(toTake, player, targetResource, storage);
+				return;
+			}
+
+			default:
 		}
 	}
 
@@ -124,7 +130,7 @@ public class ItemStorageInteractionC2S {
 		if (cursorStack != null && !cursorStack.isEmpty()) {
 			final int added = (int) container.getConsumer().apply(cursorStack, single ? 1 : cursorStack.getCount(), false);
 
-			if (added > 0){
+			if (added > 0) {
 				cursorStack.shrink(added);
 				player.containerMenu.setCarried(cursorStack);
 				player.getInventory().setChanged();
@@ -185,6 +191,5 @@ public class ItemStorageInteractionC2S {
 			player.getInventory().setChanged();
 			player.containerMenu.sendAllDataToRemote();
 		}
-
 	}
 }

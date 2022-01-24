@@ -1,18 +1,23 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.api.transact;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
@@ -23,9 +28,9 @@ import grondag.fluidity.impl.TransactionImpl;
 /**
  * Represents a aggregate operation involving one or
  * more participants in which participants guarantee the
- * entire operation will be atomic.<p>
+ * entire operation will be atomic.
  *
- * Changes in participant state are immediately effective and
+ * <p>Changes in participant state are immediately effective and
  * visible as they happen, but all participants will roll back
  * all changes that happened after this transaction started if the
  * transaction is closed without calling {@link #commit()}.
@@ -55,7 +60,7 @@ public interface Transaction extends AutoCloseable {
 	 * @return the participant
 	 */
 	default <T extends TransactionParticipant> T enlist(T participant) {
-		if(!participant.isSelfEnlisting()) {
+		if (!participant.isSelfEnlisting()) {
 			return enlistSelf(participant);
 		} else {
 			return participant;
@@ -63,9 +68,9 @@ public interface Transaction extends AutoCloseable {
 	}
 
 	/**
-	 * Add the participant to this transaction if it is not already enlisted.<p>
+	 * Add the participant to this transaction if it is not already enlisted.
 	 *
-	 * Should only be called by participants that are self-enrolling!
+	 * <p>Should only be called by participants that are self-enrolling!
 	 *
 	 * @param <T> identifies the specific type of the participant
 	 * @param participant  the participant to be enrolled
@@ -82,21 +87,20 @@ public interface Transaction extends AutoCloseable {
 	void close();
 
 	/**
-	 * Creates a new transaction.  Should always be called from a try-with-resource block.<p>
+	 * Creates a new transaction.  Should always be called from a try-with-resource block.
 	 *
-	 * If a transaction is already open, the behavior of this call varies depending on the thread:
+	 * <p>If a transaction is already open, the behavior of this call varies depending on the thread:
 	 *
-	 * If called from the same thread that opened the current transaction, the new transaction
+	 * <p>If called from the same thread that opened the current transaction, the new transaction
 	 * will be "nested" or enclosed in the existing transaction.  A nested transaction will
 	 * be rolled back if the enclosing transaction is rolled back, even if the nested transaction
-	 * was successfully committed. <p>
+	 * was successfully committed.
 	 *
-	 *
-	 * When a nested transaction is closed, the enclosing transaction will again become the "current"
+	 * <p>When a nested transaction is closed, the enclosing transaction will again become the "current"
 	 * transaction and if the nested transaction was rolled back the state of the enclosing
-	 * transaction will be the same as it was prior to opening the nested transaction.<p>
+	 * transaction will be the same as it was prior to opening the nested transaction.
 	 *
-	 * If called from a different thread than the current transaction, this method will block
+	 * <p>If called from a different thread than the current transaction, this method will block
 	 * until all current transactions on the other thread are closed, and then return a new,
 	 * root-level transaction.
 	 *
@@ -126,11 +130,10 @@ public interface Transaction extends AutoCloseable {
 	static void enlistIfOpen(TransactionParticipant participant) {
 		final Transaction tx = current();
 
-		if(tx != null) {
+		if (tx != null) {
 			tx.enlist(participant);
 		}
 	}
-
 
 	/**
 	 * Self-enlists the given participant in the current open transaction if there is one,
@@ -142,7 +145,7 @@ public interface Transaction extends AutoCloseable {
 	static void selfEnlistIfOpen(TransactionParticipant participant) {
 		final Transaction tx = current();
 
-		if(tx != null) {
+		if (tx != null) {
 			tx.enlistSelf(participant);
 		}
 	}

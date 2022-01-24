@@ -1,25 +1,31 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.api.fraction;
 
 import it.unimi.dsi.fastutil.HashCommon;
+import org.jetbrains.annotations.ApiStatus.Experimental;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
-import org.jetbrains.annotations.ApiStatus.Experimental;
 
 /**
  * Immutable, full-resolution rational number representation.
@@ -37,7 +43,6 @@ public class Fraction implements Comparable<Fraction> {
 	public Fraction() {
 		this(0, 0, 1);
 	}
-
 
 	public Fraction(long whole, long numerator, long divisor) {
 		validate(whole, numerator, divisor);
@@ -58,14 +63,14 @@ public class Fraction implements Comparable<Fraction> {
 	/**
 	 * Deserializes an new instance from an NBT tag previously returned by {@link #toTag()}.
 	 *
-	 * @param tag NBT tag previously returned by {@link #toTag()
+	 * @param tag NBT tag previously returned by {@link #toTag()}
 	 */
 	public Fraction(Tag tag) {
 		readTagInner((CompoundTag) tag);
 	}
 
 	/**
-	 * Deserializes a new instance from previously encoded to a packet buffer by {@link #writeBuffer(FriendlyByteBuf)}
+	 * Deserializes a new instance from previously encoded to a packet buffer by {@link #writeBuffer(FriendlyByteBuf)}.
 	 *
 	 * @param buf packet buffer containing data encoded by {@link #writeBuffer(FriendlyByteBuf)}
 	 */
@@ -84,7 +89,7 @@ public class Fraction implements Comparable<Fraction> {
 	/**
 	 * The whole-number portion of this fraction.
 	 *
-	 * If this fraction is negative, both {@link #whole()} and {@link #numerator()}
+	 * <p>If this fraction is negative, both {@link #whole()} and {@link #numerator()}
 	 * will be zero or negative.
 	 *
 	 * @return The whole-number portion of this fraction
@@ -95,12 +100,12 @@ public class Fraction implements Comparable<Fraction> {
 
 	/**
 	 * The fractional portion of this fraction, or zero if the fraction
-	 * represents a whole number.<p>
+	 * represents a whole number.
 	 *
-	 * If this fraction is negative, both {@link #whole()} and {@link #numerator()}
-	 * will be zero or negative.<p>
+	 * <p>If this fraction is negative, both {@link #whole()} and {@link #numerator()}
+	 * will be zero or negative.
 	 *
-	 * The absolute values of {@link #numerator()} will always be zero
+	 * <p>The absolute values of {@link #numerator()} will always be zero
 	 * or less than the value of {@link #divisor()}. Whole numbers are
 	 * always fully represented in {@link #whole()}.
 	 *
@@ -381,7 +386,7 @@ public class Fraction implements Comparable<Fraction> {
 	/**
 	 * Returns a new value equal to this value less the given parameter.
 	 *
-	 * This method is allocating and for frequent and repetitive operations
+	 * <p>This method is allocating and for frequent and repetitive operations
 	 * it will be preferable to use a mutable fraction instance.
 	 *
 	 * @param diff value to be subtracted from this value
@@ -396,7 +401,7 @@ public class Fraction implements Comparable<Fraction> {
 	/**
 	 * Returns a new value equal to this value plus the given parameter.
 	 *
-	 * This method is allocating and for frequent and repetitive operations
+	 * <p>This method is allocating and for frequent and repetitive operations
 	 * it will be preferable to use a mutable fraction instance.
 	 *
 	 * @param diff value to be added to this value

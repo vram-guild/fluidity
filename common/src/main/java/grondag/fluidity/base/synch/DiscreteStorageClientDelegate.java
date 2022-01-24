@@ -1,18 +1,23 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.base.synch;
 
 import dev.architectury.networking.NetworkManager.PacketContext;
@@ -24,7 +29,7 @@ import grondag.fluidity.api.article.Article;
 
 @Experimental
 public class DiscreteStorageClientDelegate extends AbstractStorageClientDelegate<DiscreteDisplayDelegate> {
-	public static final DiscreteStorageClientDelegate INSTANCE = new  DiscreteStorageClientDelegate();
+	public static final DiscreteStorageClientDelegate INSTANCE = new DiscreteStorageClientDelegate();
 
 	protected long capacity;
 	protected long usedCapacity;
@@ -33,8 +38,6 @@ public class DiscreteStorageClientDelegate extends AbstractStorageClientDelegate
 	 * Incorporates changes and updates sort order. Returns true if a refresh was
 	 * performed.
 	 */
-
-
 	protected DiscreteDisplayDelegate[] readItems(FriendlyByteBuf buf) {
 		final int limit = buf.readInt();
 		final DiscreteDisplayDelegate[] items = new DiscreteDisplayDelegate[limit];
@@ -77,7 +80,7 @@ public class DiscreteStorageClientDelegate extends AbstractStorageClientDelegate
 		for (int i = 0; i < limit; i++) {
 			final DiscreteDisplayDelegate item = items[i];
 
-			if(item.getCount() > 0) {
+			if (item.getCount() > 0) {
 				MAP.put(item.handle(), item);
 				addToListIfIncluded(item);
 				usedCapacity += item.getCount();
@@ -90,7 +93,7 @@ public class DiscreteStorageClientDelegate extends AbstractStorageClientDelegate
 	protected void handleUpdateInner(DiscreteDisplayDelegate[] items, long newCapacity) {
 		final int limit = items.length;
 
-		if(newCapacity >= 0) {
+		if (newCapacity >= 0) {
 			capacity = newCapacity;
 		}
 
@@ -101,7 +104,7 @@ public class DiscreteStorageClientDelegate extends AbstractStorageClientDelegate
 			assert update.getCount() >= 0;
 
 			if (prior == null) {
-				if(update.getCount() > 0) {
+				if (update.getCount() > 0) {
 					MAP.put(update.handle(), update);
 					addToListIfIncluded(update);
 					usedCapacity += update.getCount();

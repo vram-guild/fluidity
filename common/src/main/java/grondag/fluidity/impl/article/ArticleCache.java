@@ -1,27 +1,34 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.impl.article;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import net.minecraft.nbt.CompoundTag;
+
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.jetbrains.annotations.ApiStatus.Internal;
+
+import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -39,13 +46,11 @@ public class ArticleCache {
 			this.resource = resource;
 			hashCode = type.hashCode() ^ resource.hashCode();
 			return this;
-
 		}
 
 		@Override
 		public boolean equals(Object obj) {
-			if(obj instanceof ArticleKey ) {
-				final ArticleKey other = (ArticleKey) obj;
+			if (obj instanceof final ArticleKey other) {
 				return type == other.type && resource == other.resource;
 			} else {
 				return false;
@@ -64,7 +69,6 @@ public class ArticleCache {
 		private int hashCode;
 		public CompoundTag tag;
 
-
 		FatArticleKey set (ArticleType<?> type, Object resource, CompoundTag tag) {
 			this.type = type;
 			this.resource = resource;
@@ -73,11 +77,9 @@ public class ArticleCache {
 			return this;
 		}
 
-
 		@Override
 		public boolean equals(Object obj) {
-			if(obj instanceof FatArticleKey ) {
-				final FatArticleKey other = (FatArticleKey) obj;
+			if (obj instanceof final FatArticleKey other) {
 				return type == other.type && resource == other.resource && tag.equals(other.tag);
 			} else {
 				return false;
@@ -96,22 +98,22 @@ public class ArticleCache {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static final LoadingCache<FatArticleKey, ArticleImpl<?>> TAGGED = CacheBuilder
-	.newBuilder()
-	.maximumSize(0x10000)
-	.build(CacheLoader.from(k -> {
-		FAT_KEYS.set(new FatArticleKey());
-		return new ArticleImpl(k.type, k.resource, k.tag);
-	}));
+		.newBuilder()
+		.maximumSize(0x10000)
+		.build(CacheLoader.from(k -> {
+			FAT_KEYS.set(new FatArticleKey());
+			return new ArticleImpl(k.type, k.resource, k.tag);
+		}));
 
 	private static boolean warnOnTaggedFailure = true;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	static Article getArticle(ArticleType type, Object resource, CompoundTag tag) {
-		if(type == ArticleType.NOTHING) {
+		if (type == ArticleType.NOTHING) {
 			return Article.NOTHING;
 		}
 
-		if(tag == null) {
+		if (tag == null) {
 			final ArticleKey key = KEYS.get().set(type, resource);
 			return UNIQUES.computeIfAbsent(key, k -> {
 				KEYS.set(new ArticleKey());
@@ -119,10 +121,11 @@ public class ArticleCache {
 			});
 		} else {
 			final FatArticleKey key = FAT_KEYS.get().set(type, resource, tag);
+
 			try {
 				return TAGGED.get(key);
 			} catch (final ExecutionException e) {
-				if(warnOnTaggedFailure) {
+				if (warnOnTaggedFailure) {
 					Fluidity.LOG.warn("Cache load failure for tagged article.  Subsequent warnings are suppressed.", e);
 					warnOnTaggedFailure = false;
 				}

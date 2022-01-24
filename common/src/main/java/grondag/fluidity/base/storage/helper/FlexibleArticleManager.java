@@ -1,25 +1,33 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.base.storage.helper;
 
 import java.lang.reflect.Array;
 import java.util.function.Supplier;
-import net.minecraft.util.Mth;
+
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.ApiStatus.Experimental;
+
+import net.minecraft.util.Mth;
+
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.base.article.StoredArticle;
 
@@ -31,15 +39,13 @@ public class FlexibleArticleManager<V extends StoredArticle> extends AbstractArt
 	protected int nextUnusedHandle = 0;
 	protected V[] handles;
 
-
 	public FlexibleArticleManager(int startingHandleCount, Supplier<V> articleFactory) {
 		super(articleFactory);
-
 
 		startingHandleCount = Mth.smallestEncompassingPowerOfTwo(startingHandleCount);
 		final V[] handles = (V[]) Array.newInstance(articleFactory.get().getClass(), startingHandleCount);
 
-		for(int i = 0; i < startingHandleCount; i++) {
+		for (int i = 0; i < startingHandleCount; i++) {
 			final V a = articleFactory.get();
 			a.setHandle(i);
 			handles[i] = a;
@@ -52,7 +58,7 @@ public class FlexibleArticleManager<V extends StoredArticle> extends AbstractArt
 	public V findOrCreateArticle(Article key) {
 		V candidate = articles.get(key);
 
-		if(candidate == null) {
+		if (candidate == null) {
 			candidate = getEmptyArticle();
 			candidate.setArticle(key);
 			articles.put(key, candidate);
@@ -71,7 +77,7 @@ public class FlexibleArticleManager<V extends StoredArticle> extends AbstractArt
 		final int handleCount = handles.length;
 		final int result = nextUnusedHandle++;
 
-		if(result < handleCount) {
+		if (result < handleCount) {
 			return result;
 		}
 
@@ -80,7 +86,7 @@ public class FlexibleArticleManager<V extends StoredArticle> extends AbstractArt
 		final V[] newHandles = (V[]) Array.newInstance(articleFactory.get().getClass(), newCount);
 		System.arraycopy(handles, 0, newHandles, 0, handleCount);
 
-		for(int i = handleCount; i < newCount; i++) {
+		for (int i = handleCount; i < newCount; i++) {
 			final V a = articleFactory.get();
 			a.setHandle(i);
 			newHandles[i] = a;
@@ -96,7 +102,7 @@ public class FlexibleArticleManager<V extends StoredArticle> extends AbstractArt
 		for (int i = nextUnusedHandle - 1; i > 0; --i) {
 			final V a = handles[i];
 
-			if(a.isEmpty()) {
+			if (a.isEmpty()) {
 				final int target = nextUnusedHandle - 1;
 
 				if (i == target) {

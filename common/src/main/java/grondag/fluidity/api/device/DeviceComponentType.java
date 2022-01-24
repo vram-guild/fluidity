@@ -1,18 +1,23 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.api.device;
 
 import java.util.function.BiPredicate;
@@ -20,6 +25,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import org.jetbrains.annotations.ApiStatus.Experimental;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -31,14 +39,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.ApiStatus.Experimental;
 
 /**
  * Describes and provides access to "device component" instances that may be retrieved
- * for blocks or items in the world. <p>
+ * for blocks or items in the world.
  *
- * This interface should never be implemented by mod authors. Create new instances
- * using {@link DeviceComponentRegistry#createComponent(net.minecraft.resources.ResourceLocation, Object)}.<p>
+ * <p>This interface should never be implemented by mod authors. Create new instances
+ * using {@link DeviceComponentRegistry#createComponent(net.minecraft.resources.ResourceLocation, Object)}.
  *
  * @param <T> Type parameter identifying the {@code Class} of component instances of this component type
  *
@@ -76,13 +83,13 @@ public interface DeviceComponentType<T> {
 
 	/**
 	 * Retrieves a {@code DeviceComponentAccess} to access device components of this type
-	 * that may be present at the given location. <p>
+	 * that may be present at the given location.
 	 *
-	 * The instance that is returned may be thread-local and should never be retained.<p>
+	 * <p>The instance that is returned may be thread-local and should never be retained.
 	 *
-	 * Note that {@link #getAccess(Level, BlockPos, BlockState)} may be more performant
+	 * <p>Note that {@link #getAccess(Level, BlockPos, BlockState)} may be more performant
 	 * if 1) you know this component type requires block state and 2) the block state
-	 * and the given position is already on the call stack.<p>
+	 * and the given position is already on the call stack.
 	 *
 	 * @param world the server world where the device component may be located
 	 * @param pos the block position where the device component may be located
@@ -93,9 +100,9 @@ public interface DeviceComponentType<T> {
 
 	/**
 	 * Retrieves a {@code DeviceComponentAccess} to access device components of this type
-	 * that may be present at the given location. <p>
+	 * that may be present at the given location.
 	 *
-	 * The instance that is returned may be thread-local and should never be retained.
+	 * <p>The instance that is returned may be thread-local and should never be retained.
 	 *
 	 * @param world the server world where the device component may be located
 	 * @param pos the block position where the device component may be located
@@ -103,13 +110,13 @@ public interface DeviceComponentType<T> {
 	 * @return a {@code DeviceComponentAccess} to access device components of this type
 	 * that may be present at the given location
 	 */
-	DeviceComponentAccess<T>  getAccess(Level world, BlockPos pos, BlockState blockState);
+	DeviceComponentAccess<T> getAccess(Level world, BlockPos pos, BlockState blockState);
 
 	/**
 	 * Retrieves a {@code DeviceComponentAccess} to access device components of this type
-	 * that may be present at the given location. <p>
+	 * that may be present at the given location.
 	 *
-	 * The instance that is returned may be thread-local and should never be retained.
+	 * <p>The instance that is returned may be thread-local and should never be retained.
 	 *
 	 * @param world the server world where the device component may be located
 	 * @param pos the block position where the device component may be located
@@ -121,9 +128,9 @@ public interface DeviceComponentType<T> {
 
 	/**
 	 * Retrieves a {@code DeviceComponentAccess} to access device components of this type
-	 * that may be present in the given entity.<p>
+	 * that may be present in the given entity.
 	 *
-	 * The instance that is returned may be thread-local and should never be retained.
+	 * <p>The instance that is returned may be thread-local and should never be retained.
 	 *
 	 * @param <E>  concrete type of the entity
 	 * @param entity entity to provide component access if available
@@ -134,9 +141,9 @@ public interface DeviceComponentType<T> {
 
 	/**
 	 * Retrieves a {@code DeviceComponentAccess} to access device components of this type
-	 * that may be present in the held in the main hand of the given player. <p>
+	 * that may be present in the held in the main hand of the given player.
 	 *
-	 * The instance that is returned may be thread-local and should never be retained.
+	 * <p>The instance that is returned may be thread-local and should never be retained.
 	 *
 	 * @param player the player that may be holding an item containing a device component of this type
 	 * @return a {@code DeviceComponentAccess} to access device components of this type
@@ -148,9 +155,9 @@ public interface DeviceComponentType<T> {
 
 	/**
 	 * Retrieves a {@code DeviceComponentAccess} to access device components of this type
-	 * that may be present in an item stack held by a player. <p>
+	 * that may be present in an item stack held by a player.
 	 *
-	 * The instance that is returned may be thread-local and should never be retained.
+	 * <p>The instance that is returned may be thread-local and should never be retained.
 	 *
 	 * @param stackGetter function that will be be used to retrieve item stack for component state
 	 * @param stackSetter function that will be be used to persist item stack for component state
@@ -162,9 +169,9 @@ public interface DeviceComponentType<T> {
 
 	/**
 	 * Retrieves a {@code DeviceComponentAccess} to access device components of this type
-	 * that may be present in an item stack not held by a player. <p>
+	 * that may be present in an item stack not held by a player.
 	 *
-	 * The instance that is returned may be thread-local and should never be retained.
+	 * <p>The instance that is returned may be thread-local and should never be retained.
 	 *
 	 * @param stackGetter function that will be be used to retrieve item stack for component state
 	 * @param stackSetter function that will be be used to persist item stack for component state
@@ -204,9 +211,9 @@ public interface DeviceComponentType<T> {
 
 	/**
 	 * Applies registered item actions to a component instance of this type until one is successful.
-	 * Returns true if one action was successful, false if no actions were found or none succeeded.<p>
+	 * Returns true if one action was successful, false if no actions were found or none succeeded.
 	 *
-	 * This version is used when the item stack is not held by a player.
+	 * <p>This version is used when the item stack is not held by a player.
 	 *
 	 * @param target the component instance to which actions will be applied
 	 * @param stackGetter function to retrieve the item stack that is being used
@@ -221,9 +228,9 @@ public interface DeviceComponentType<T> {
 	/**
 	 * Causes the given blocks to provide device component instances of this type
 	 * by application of the given mapping function. Use this version for blocks that
-	 * may provide a component without the presence of a {@code BlockEntity}.<p>
+	 * may provide a component without the presence of a {@code BlockEntity}.
 	 *
-	 * The mapping function should return {@link #absent()} if no component is available.<p>
+	 * <p>The mapping function should return {@link #absent()} if no component is available.
 	 *
 	 * @param mapping function that derives a component instance from an access context
 	 * @param blocks one or more blocks for which the function will apply
@@ -232,9 +239,9 @@ public interface DeviceComponentType<T> {
 
 	/**
 	 * Causes the given blocks to provide device component instances of this type
-	 * via block entities associated with the given blocks.<p>
+	 * via block entities associated with the given blocks.
 	 *
-	 * Use this version for blocks where the {@code BlockEntity} *is* the component instance.<p>
+	 * <p>Use this version for blocks where the {@code BlockEntity} *is* the component instance.
 	 *
 	 * @param blocks one or more blocks that will provide components in this way
 	 */
@@ -245,11 +252,11 @@ public interface DeviceComponentType<T> {
 
 	/**
 	 * Causes the given entity types to provide device component instances of this type
-	 * by application of the given mapping function.<p>
+	 * by application of the given mapping function.
 	 *
-	 * This will override any previous mapping of the same component type and only one
+	 * <p>This will override any previous mapping of the same component type and only one
 	 * result per entity is possible.  For the reason, mod authors are advised to create
-	 * distinct component types for their use cases instead of using standard component types.<p>
+	 * distinct component types for their use cases instead of using standard component types.
 	 *
 	 * @param mapping mapping function that derives a component instance from an access context
 	 * @param entities one or more entities for which the function will apply
@@ -259,11 +266,11 @@ public interface DeviceComponentType<T> {
 	/**
 	 * Same as {@link #registerProvider(Function, EntityType...)} but matches all entities that
 	 * match the given predicate instead of providing specific entity types.  Use this to register
-	 * a provider for all entities that implement {@code LivingEntity}, for example. <p>
+	 * a provider for all entities that implement {@code LivingEntity}, for example.
 	 *
-	 * This method may be called at any point during mod initialization (and not after) but the
+	 * <p>This method may be called at any point during mod initialization (and not after) but the
 	 * predicate will only be applied after all registration is complete. Mod registration
-	 * order does not matter.<p>
+	 * order does not matter.
 	 *
 	 * @param mapping mapping function that derives a component instance from an access context
 	 * @param predicate Mapping will apply to all entity types that match this test
@@ -272,9 +279,9 @@ public interface DeviceComponentType<T> {
 
 	/**
 	 * Causes the given items to provide device component instances of this type
-	 * by application of the given mapping function to item stacks having the given items.<p>
+	 * by application of the given mapping function to item stacks having the given items.
 	 *
-	 * The mapping function should return {@link #absent()} if no component is available.
+	 * <p>The mapping function should return {@link #absent()} if no component is available.
 	 *
 	 * @param mapping mapping function that derives a component instance from an access context
 	 * @param items one or more items for which the function will apply

@@ -1,23 +1,32 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.base.storage.bulk;
 
 import com.google.common.base.Preconditions;
-import com.mojang.datafixers.util.Pair;
 import org.jetbrains.annotations.ApiStatus.Experimental;
+
+import com.mojang.datafixers.util.Pair;
+
+import net.minecraft.nbt.CompoundTag;
+
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.article.StoredArticleView;
@@ -28,7 +37,6 @@ import grondag.fluidity.api.storage.StorageListener;
 import grondag.fluidity.base.article.StoredBulkArticle;
 import grondag.fluidity.base.article.StoredBulkArticleView;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStore;
-import net.minecraft.nbt.CompoundTag;
 
 @Experimental
 public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, SimpleTank> implements BulkStore {
@@ -79,13 +87,12 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 
 	@Override
 	public StoredArticleView view(int handle) {
-		return  handle == 0 ? view : StoredArticleView.EMPTY;
+		return handle == 0 ? view : StoredArticleView.EMPTY;
 	}
 
 	protected final Supplier supplier = new Supplier();
 
 	protected class Supplier implements BulkArticleFunction {
-
 		@Override
 		public Fraction apply(Article item, Fraction volume, boolean simulate) {
 			Preconditions.checkArgument(!volume.isNegative(), "Request to supply negative volume. (%s)", volume);
@@ -102,7 +109,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 				dirtyNotifier.run();
 				listeners.forEach(l -> l.onSupply(SimpleTank.this, 0, article, calc, quantity));
 
-				if(quantity.isZero()) {
+				if (quantity.isZero()) {
 					article = Article.NOTHING;
 				}
 			}
@@ -137,12 +144,12 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 				quantity.subtract(result, divisor);
 				dirtyNotifier.run();
 
-				if(!listeners.isEmpty()) {
+				if (!listeners.isEmpty()) {
 					calc.set(result, divisor);
 					listeners.forEach(l -> l.onAccept(SimpleTank.this, 0, item, calc, quantity));
 				}
 
-				if(quantity.isZero()) {
+				if (quantity.isZero()) {
 					article = Article.NOTHING;
 				}
 			}
@@ -164,16 +171,15 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 	protected final Consumer consumer = new Consumer();
 
 	protected class Consumer implements BulkArticleFunction {
-
 		@Override
 		public Fraction apply(Article item, Fraction volume, boolean simulate) {
 			Preconditions.checkArgument(!volume.isNegative(), "Request to accept negative volume. (%s)", volume);
 
-			if (item == Article.NOTHING || volume.isZero()|| (!item.equals(article) && article != Article.NOTHING) || !filter.test(item)) {
+			if (item == Article.NOTHING || volume.isZero() || (!item.equals(article) && article != Article.NOTHING) || !filter.test(item)) {
 				return Fraction.ZERO;
 			}
 
-			if(article.isNothing()) {
+			if (article.isNothing()) {
 				article = item;
 			}
 
@@ -210,7 +216,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 				return 0;
 			}
 
-			if(article.isNothing()) {
+			if (article.isNothing()) {
 				article = item;
 			}
 
@@ -235,7 +241,7 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 				quantity.add(result, divisor);
 				dirtyNotifier.run();
 
-				if(!listeners.isEmpty()) {
+				if (!listeners.isEmpty()) {
 					calc.set(result, divisor);
 					listeners.forEach(l -> l.onAccept(SimpleTank.this, 0, item, calc, quantity));
 				}
@@ -256,8 +262,8 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 	}
 
 	public void writeTag(CompoundTag tag) {
-		tag.put("capacity",capacity.toTag());
-		tag.put("quantity",quantity.toTag());
+		tag.put("capacity", capacity.toTag());
+		tag.put("quantity", quantity.toTag());
 		tag.put("art", article.toTag());
 	}
 
@@ -304,14 +310,14 @@ public class SimpleTank extends AbstractLazyRollbackStore<StoredBulkArticle, Sim
 
 	@Override
 	protected void applyRollbackState(Object state, boolean isCommitted) {
-		if(!isCommitted) {
+		if (!isCommitted) {
 			@SuppressWarnings("unchecked")
 			final Pair<Article, Fraction> pair = (Pair<Article, Fraction>) state;
 			final Article bulkItem = pair.getFirst();
 			final Fraction newContent = pair.getSecond();
 
-			if(bulkItem == article) {
-				if(newContent.isGreaterThan(quantity)) {
+			if (bulkItem == article) {
+				if (newContent.isGreaterThan(quantity)) {
 					calc.set(newContent);
 					calc.subtract(quantity);
 					consumer.apply(bulkItem, calc, false);

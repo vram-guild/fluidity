@@ -1,16 +1,38 @@
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.api.device;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
-import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.fraction.Fraction;
-import grondag.fluidity.api.storage.Store;
-import grondag.fluidity.api.transact.Transaction;
+
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.material.Fluid;
+
+import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.fraction.Fraction;
+import grondag.fluidity.api.storage.Store;
+import grondag.fluidity.api.transact.Transaction;
 
 /**
  * Helper methods for registering common item actions.
@@ -24,9 +46,9 @@ public interface ItemActionHelper {
 	/**
 	 * Adds an action to fill bottles from a component of type {@link Store#STORAGE_COMPONENT}.
 	 * Use this method instead of {@link #addItemFillAction(Fluid, Item, Item)} for fluids that
-	 * fill bottles as potions instead of having a distinct fluid bottle.<p>
+	 * fill bottles as potions instead of having a distinct fluid bottle.
 	 *
-	 * The version assumes each bottle holds 1/3 of a block of fluid.
+	 * <p>The version assumes each bottle holds 1/3 of a block of fluid.
 	 *
 	 * @param fluid the {@code Fluid} instance for which this action should apply if present in the {@code Store}
 	 * @param potion the {@code Potion} type the resulting bottle will have
@@ -38,7 +60,7 @@ public interface ItemActionHelper {
 	/**
 	 * Adds an action to fill bottles from a component of type {@link Store#STORAGE_COMPONENT}.
 	 * Use this method instead of {@link #addItemFillAction(Fluid, Item, Item, Fraction)} for fluids that
-	 * fill bottles as potions instead of having a distinct fluid bottle.<p>
+	 * fill bottles as potions instead of having a distinct fluid bottle.
 	 *
 	 * @param fluid the {@code Fluid} instance for which this action should apply if present in the {@code Store}
 	 * @param potion the {@code Potion} type the resulting bottle will have
@@ -46,14 +68,14 @@ public interface ItemActionHelper {
 	 */
 	static void addPotionFillAction(Fluid fluid, Potion potion, long denominator) {
 		Store.STORAGE_COMPONENT.registerAction((ctx, store) -> {
-			if(store.hasSupplier() && ctx.player() != null) {
-				try(Transaction tx = Transaction.open()) {
+			if (store.hasSupplier() && ctx.player() != null) {
+				try (Transaction tx = Transaction.open()) {
 					tx.enlist(store);
 
-					if(store.getSupplier().apply(Article.of(fluid), 1, denominator, false) == 1) {
+					if (store.getSupplier().apply(Article.of(fluid), 1, denominator, false) == 1) {
 						final ItemStack stack = ctx.stackGetter().get();
 
-						if(stack.getCount() == 1) {
+						if (stack.getCount() == 1) {
 							ctx.stackSetter().accept(PotionUtils.setPotion(new ItemStack(Items.POTION), potion));
 						} else {
 							ctx.player().getInventory().placeItemBackInInventory(PotionUtils.setPotion(new ItemStack(Items.POTION), potion));
@@ -74,9 +96,9 @@ public interface ItemActionHelper {
 	/**
 	 * Adds an action to drain full bottles into a component of type {@link Store#STORAGE_COMPONENT}.
 	 * Use this method instead of {@link #addItemDrainAction(Fluid, Item, Item)} for fluids that
-	 * fill bottles as potions instead of having a distinct fluid bottle.<p>
+	 * fill bottles as potions instead of having a distinct fluid bottle.
 	 *
-	 * The version assumes each bottle holds 1/3 of a block of fluid.
+	 * <p>The version assumes each bottle holds 1/3 of a block of fluid.
 	 *
 	 * @param fluid the {@code Fluid} instance that will be added to the {@code Store} when the action is applied
 	 * @param potion the {@code Potion} type for which this action should apply
@@ -88,7 +110,7 @@ public interface ItemActionHelper {
 	/**
 	 * Adds an action to drain full bottles into a component of type {@link Store#STORAGE_COMPONENT}.
 	 * Use this method instead of {@link #addItemDrainAction(Fluid, Item, Item, Fraction)} for fluids that
-	 * fill bottles as potions instead of having a distinct fluid bottle.<p>
+	 * fill bottles as potions instead of having a distinct fluid bottle.
 	 *
 	 * @param fluid the {@code Fluid} instance that will be added to the {@code Store} when the action is applied
 	 * @param potion the {@code Potion} type for which this action should apply
@@ -96,11 +118,11 @@ public interface ItemActionHelper {
 	 */
 	static void addPotionDrainAction(Fluid fluid, Potion potion, long denominator) {
 		Store.STORAGE_COMPONENT.registerAction((ctx, store) -> {
-			if(store.hasConsumer() && ctx.player() != null && PotionUtils.getPotion(ctx.stackGetter().get()) == potion) {
-				try(Transaction tx = Transaction.open()) {
+			if (store.hasConsumer() && ctx.player() != null && PotionUtils.getPotion(ctx.stackGetter().get()) == potion) {
+				try (Transaction tx = Transaction.open()) {
 					tx.enlist(store);
 
-					if(store.getConsumer().apply(Article.of(fluid), 1, denominator, false) == 1) {
+					if (store.getConsumer().apply(Article.of(fluid), 1, denominator, false) == 1) {
 						ctx.stackSetter().accept(new ItemStack(Items.GLASS_BOTTLE));
 						tx.commit();
 						return true;
@@ -139,7 +161,7 @@ public interface ItemActionHelper {
 	/**
 	 * Adds an action to fill empty items from a component of type {@link Store#STORAGE_COMPONENT}.
 	 *
-	 * The version assumes the full item holds one block of fluid.
+	 * <p>The version assumes the full item holds one block of fluid.
 	 *
 	 * @param fluid the {@code Fluid} instance for which this action should apply if present in the {@code Store}
 	 * @param emptyItem the empty item that will be filled when used on a store containing the fluid
@@ -152,7 +174,7 @@ public interface ItemActionHelper {
 	/**
 	 * Adds an action to fill empty items from a component of type {@link Store#STORAGE_COMPONENT}.
 	 *
-	 * Use this version when the full item holds some amount other than one block of fluid.
+	 * <p>Use this version when the full item holds some amount other than one block of fluid.
 	 *
 	 * @param fluid the {@code Fluid} instance for which this action should apply if present in the {@code Store}
 	 * @param emptyItem the empty item that will be filled when used on a store containing the fluid
@@ -161,14 +183,14 @@ public interface ItemActionHelper {
 	 */
 	static void addItemFillAction(Fluid fluid, Item emptyItem, Item fullItem, Fraction amount) {
 		Store.STORAGE_COMPONENT.registerAction((ctx, store) -> {
-			if(store.hasSupplier() && ctx.player() != null) {
-				try(Transaction tx = Transaction.open()) {
+			if (store.hasSupplier() && ctx.player() != null) {
+				try (Transaction tx = Transaction.open()) {
 					tx.enlist(store);
 
-					if(store.getSupplier().apply(Article.of(fluid), amount, false).equals(amount)) {
+					if (store.getSupplier().apply(Article.of(fluid), amount, false).equals(amount)) {
 						final ItemStack stack = ctx.stackGetter().get();
 
-						if(stack.getCount() == 1) {
+						if (stack.getCount() == 1) {
 							ctx.stackSetter().accept(new ItemStack(fullItem));
 						} else {
 							ctx.player().getInventory().placeItemBackInInventory(new ItemStack(fullItem));
@@ -193,7 +215,7 @@ public interface ItemActionHelper {
 	/**
 	 * Adds an action to drain full items into a component of type {@link Store#STORAGE_COMPONENT}.
 	 *
-	 * The version assumes the full item holds one block of fluid.
+	 * <p>The version assumes the full item holds one block of fluid.
 	 *
 	 * @param fluid the {@code Fluid} that will be added to the {@code Store} on which the full item was used
 	 * @param emptyItem the item that will replace the filled item if the action is successful
@@ -206,7 +228,7 @@ public interface ItemActionHelper {
 	/**
 	 * Adds an action to drain full items into a component of type {@link Store#STORAGE_COMPONENT}.
 	 *
-	 * Use this version when the full item holds some amount other than one block of fluid.
+	 * <p>Use this version when the full item holds some amount other than one block of fluid.
 	 *
 	 * @param fluid the {@code Fluid} that will be added to the {@code Store} on which the full item was used
 	 * @param emptyItem the item that will replace the filled item if the action is successful
@@ -215,14 +237,14 @@ public interface ItemActionHelper {
 	 */
 	static void addItemDrainAction(Fluid fluid, Item emptyItem, Item fullItem, Fraction amount) {
 		Store.STORAGE_COMPONENT.registerAction((ctx, store) -> {
-			if(store.hasConsumer() && ctx.player() != null && ctx.stackGetter().get().getItem() == fullItem) {
-				try(Transaction tx = Transaction.open()) {
+			if (store.hasConsumer() && ctx.player() != null && ctx.stackGetter().get().getItem() == fullItem) {
+				try (Transaction tx = Transaction.open()) {
 					tx.enlist(store);
 
-					if(store.getConsumer().apply(Article.of(fluid), amount, false).equals(amount)) {
+					if (store.getConsumer().apply(Article.of(fluid), amount, false).equals(amount)) {
 						final ItemStack stack = ctx.stackGetter().get();
 
-						if(stack.getCount() == 1) {
+						if (stack.getCount() == 1) {
 							ctx.stackSetter().accept(new ItemStack(emptyItem));
 						} else {
 							ctx.player().getInventory().placeItemBackInInventory(new ItemStack(emptyItem));

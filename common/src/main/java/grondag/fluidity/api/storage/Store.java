@@ -1,25 +1,32 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.api.storage;
 
 import java.util.function.Predicate;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+
 import com.google.common.base.Predicates;
 import org.jetbrains.annotations.ApiStatus.Experimental;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -61,7 +68,7 @@ public interface Store extends TransactionParticipant {
 	int handleCount();
 
 	default boolean isHandleValid(int handle) {
-		return handle >=0  && handle < handleCount();
+		return handle >= 0 && handle < handleCount();
 	}
 
 	/**
@@ -141,13 +148,13 @@ public interface Store extends TransactionParticipant {
 
 	long count();
 
-	default long countOf(Article item)  {
+	default long countOf(Article item) {
 		return getSupplier().apply(item, Long.MAX_VALUE, true);
 	}
 
 	Fraction amount();
 
-	default Fraction amountOf(Article item)  {
+	default Fraction amountOf(Article item) {
 		return getSupplier().apply(item, Fraction.MAX_VALUE, true);
 	}
 
@@ -223,7 +230,7 @@ public interface Store extends TransactionParticipant {
 
 	void readTag(CompoundTag tag);
 
-	Predicate <? super StoredArticleView> NOT_EMPTY = a -> !a.isEmpty();
+	Predicate<? super StoredArticleView> NOT_EMPTY = a -> !a.isEmpty();
 
 	Store EMPTY = EmptyStore.INSTANCE;
 	Store VOID = VoidStore.INSTANCE;

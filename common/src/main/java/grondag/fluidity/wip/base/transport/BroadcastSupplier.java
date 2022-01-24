@@ -1,18 +1,23 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.wip.base.transport;
 
 import grondag.fluidity.api.article.Article;
@@ -37,7 +42,7 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 
 		final int nodeCount = carrier.nodeCount();
 
-		if(nodeCount <= 1) {
+		if (nodeCount <= 1) {
 			return 0;
 		}
 
@@ -49,19 +54,19 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 			for (int i = 0; i < nodeCount; ++i) {
 				final CarrierNode n = carrier.nodeByIndex(i);
 
-				if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
+				if (n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
 					final ArticleFunction s = n.getComponent(ArticleFunction.SUPPLIER_COMPONENT).get();
 					tx.enlist(s); // allow for implementations that do not self-enlist
 					result += s.apply(item, count - result, simulate);
 
-					if(result >= count) {
+					if (result >= count) {
 						break;
 					}
 				}
 			}
 
 			return result;
-		} catch(final Exception e) {
+		} catch (final Exception e) {
 			Fluidity.LOG.warn("Unlable to complete carrier broadcast supply request due to exception.", e);
 			return 0;
 		}
@@ -76,7 +81,7 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 
 		final int nodeCount = carrier.nodeCount();
 
-		if(nodeCount <= 1) {
+		if (nodeCount <= 1) {
 			return Fraction.ZERO;
 		}
 
@@ -90,16 +95,16 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 			for (int i = 0; i < nodeCount; ++i) {
 				final CarrierNode n = carrier.nodeByIndex(i);
 
-				if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
+				if (n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
 					final ArticleFunction s = n.getComponent(ArticleFunction.SUPPLIER_COMPONENT).get();
 					tx.enlist(s); // allow for implementations that do not self-enlist
 					final Fraction amt = s.apply(item, calc, simulate);
 
-					if(!amt.isZero()) {
+					if (!amt.isZero()) {
 						result.add(amt);
 						calc.subtract(amt);
 
-						if(result.isGreaterThanOrEqual(volume)) {
+						if (result.isGreaterThanOrEqual(volume)) {
 							break;
 						}
 					}
@@ -108,7 +113,7 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 
 			tx.commit();
 			return result;
-		} catch(final Exception e) {
+		} catch (final Exception e) {
 			Fluidity.LOG.warn("Unlable to complete carrier broadcast supply request due to exception.", e);
 			return Fraction.ZERO;
 		}
@@ -120,7 +125,7 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 
 		final int nodeCount = carrier.nodeCount();
 
-		if(nodeCount <= 1) {
+		if (nodeCount <= 1) {
 			return 0;
 		}
 
@@ -133,12 +138,12 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 			for (int i = 0; i < nodeCount; ++i) {
 				final CarrierNode n = carrier.nodeByIndex(i);
 
-				if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
+				if (n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
 					final ArticleFunction s = n.getComponent(ArticleFunction.SUPPLIER_COMPONENT).get();
 					tx.enlist(s); // allow for implementations that do not self-enlist
 					result += s.apply(item, numerator - result, divisor, simulate);
 
-					if(result >= numerator) {
+					if (result >= numerator) {
 						break;
 					}
 				}
@@ -146,7 +151,7 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 
 			tx.commit();
 			return result;
-		} catch(final Exception e) {
+		} catch (final Exception e) {
 			Fluidity.LOG.warn("Unlable to complete carrier broadcast supply request due to exception.", e);
 			return 0;
 		}
@@ -156,7 +161,7 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 	@Override
 	public TransactionDelegate getTransactionDelegate() {
 		assert false : "getTransactionDelegate called for BroadcastSupplier";
-	return TransactionDelegate.IGNORE;
+		return TransactionDelegate.IGNORE;
 	}
 
 	@Override
@@ -170,14 +175,14 @@ public class BroadcastSupplier<T extends CarrierCostFunction> implements Article
 
 		final int nodeCount = carrier.nodeCount();
 
-		if(nodeCount <= 1) {
+		if (nodeCount <= 1) {
 			return Article.NOTHING;
 		}
 
 		for (int i = 0; i < nodeCount; ++i) {
 			final CarrierNode n = carrier.nodeByIndex(i);
 
-			if(n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
+			if (n != fromNode && n.hasFlag(CarrierNode.FLAG_ACCEPT_SUPPLIER_BROADCASTS)) {
 				final ArticleFunction c = n.getComponent(ArticleFunction.SUPPLIER_COMPONENT).get();
 				final Article a = c.suggestArticle(type);
 

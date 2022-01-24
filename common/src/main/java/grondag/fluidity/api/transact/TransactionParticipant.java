@@ -1,32 +1,21 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
 /*
- * Copyright (c) 2016, 2017, 2018, 2019 FabricMC
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package grondag.fluidity.api.transact;
@@ -69,9 +58,9 @@ public interface TransactionParticipant {
 		/**
 		 * Called on enlisting to signal saving of rollback state or whatever
 		 * preparation is appropriate for the participating implementation.
-		 * Will be called only once per transaction (including nested transactions).<p>
+		 * Will be called only once per transaction (including nested transactions).
 		 *
-		 * Consumer is called for both commit and rollback events just in case some
+		 * <p>Consumer is called for both commit and rollback events just in case some
 		 * implementations need to lock or store resources internally during a
 		 * transaction and need notification when one ends.
 		 *
@@ -84,6 +73,6 @@ public interface TransactionParticipant {
 		 * Specialized transaction delegate that does nothing. Use as the delegate
 		 * for participants without any internal state to be rolled back.
 		 */
-		TransactionDelegate IGNORE = c0 -> c1 -> {};
+		TransactionDelegate IGNORE = c0 -> c1 -> { };
 	}
 }

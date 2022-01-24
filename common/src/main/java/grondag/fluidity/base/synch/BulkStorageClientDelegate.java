@@ -1,18 +1,23 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.base.synch;
 
 import dev.architectury.networking.NetworkManager.PacketContext;
@@ -35,8 +40,6 @@ public class BulkStorageClientDelegate extends AbstractStorageClientDelegate<Bul
 	 * Incorporates changes and updates sort order. Returns true if a refresh was
 	 * performed.
 	 */
-
-
 	protected BulkDisplayDelegate[] readItems(FriendlyByteBuf buf) {
 		final int limit = buf.readInt();
 		final BulkDisplayDelegate[] items = new BulkDisplayDelegate[limit];
@@ -79,7 +82,7 @@ public class BulkStorageClientDelegate extends AbstractStorageClientDelegate<Bul
 		for (int i = 0; i < limit; i++) {
 			final BulkDisplayDelegate item = items[i];
 
-			if(!item.getAmount().isZero()) {
+			if (!item.getAmount().isZero()) {
 				MAP.put(item.handle(), item);
 				LIST.add(item);
 				usedCapacity.add(item.getAmount());
@@ -92,7 +95,7 @@ public class BulkStorageClientDelegate extends AbstractStorageClientDelegate<Bul
 	protected void handleUpdateInner(BulkDisplayDelegate[] items, Fraction newCapacity) {
 		final int limit = items.length;
 
-		if(newCapacity != null) {
+		if (newCapacity != null) {
 			capacity.set(newCapacity);
 		}
 
@@ -103,7 +106,7 @@ public class BulkStorageClientDelegate extends AbstractStorageClientDelegate<Bul
 			assert !update.getAmount().isNegative();
 
 			if (prior == null) {
-				if(!update.getAmount().isZero()) {
+				if (!update.getAmount().isZero()) {
 					MAP.put(update.handle(), update);
 					addToListIfIncluded(update);
 					usedCapacity.add(update.getAmount());

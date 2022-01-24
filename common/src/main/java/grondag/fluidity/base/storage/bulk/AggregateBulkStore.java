@@ -1,26 +1,33 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.base.storage.bulk;
 
 import java.util.Set;
-import net.minecraft.nbt.CompoundTag;
+
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.ApiStatus.Experimental;
+
+import net.minecraft.nbt.CompoundTag;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -95,10 +102,10 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 				return Fraction.ZERO;
 			}
 
-			if(simulate) {
+			if (simulate) {
 				return acceptInner(item, volume, true).toImmutable();
 			} else {
-				try(Transaction tx = Transaction.open()) {
+				try (Transaction tx = Transaction.open()) {
 					final Fraction result = acceptInner(item, volume, false).toImmutable();
 					tx.commit();
 					return result;
@@ -116,10 +123,10 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 				return 0;
 			}
 
-			if(simulate) {
+			if (simulate) {
 				return acceptInner(item, numerator, divisor, true);
 			} else {
-				try(Transaction tx = Transaction.open()) {
+				try (Transaction tx = Transaction.open()) {
 					final long result = acceptInner(item, numerator, divisor, false);
 					tx.commit();
 					return result;
@@ -149,10 +156,10 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 				return Fraction.ZERO;
 			}
 
-			if(simulate) {
+			if (simulate) {
 				return supplyInner(item, volume, true).toImmutable();
 			} else {
-				try(Transaction tx = Transaction.open()) {
+				try (Transaction tx = Transaction.open()) {
 					final Fraction result = supplyInner(item, volume, false).toImmutable();
 					tx.commit();
 					return result;
@@ -170,10 +177,10 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 				return 0;
 			}
 
-			if(simulate) {
+			if (simulate) {
 				return supplyInner(item, numerator, divisor, true);
 			} else {
-				try(Transaction tx = Transaction.open()) {
+				try (Transaction tx = Transaction.open()) {
 					final long result = supplyInner(item, numerator, divisor, false);
 					tx.commit();
 					return result;
@@ -195,14 +202,13 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 		// Try stores that already have article first
 		final Set<Store> existing = article.stores();
 
-		if(!existing.isEmpty()) {
+		if (!existing.isEmpty()) {
 			// save non-existing stores here in case existing have insufficient capacity
 			searchList.clear();
 
 			for (final Store store : stores) {
-				if(store.hasConsumer() && !store.isFull()) {
-
-					if(existing.contains(store)) {
+				if (store.hasConsumer() && !store.isFull()) {
+					if (existing.contains(store)) {
 						result.add(store.getConsumer().apply(item, delta.set(volume).subtract(result), simulate));
 
 						if (result.equals(volume)) {
@@ -218,11 +224,11 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 				for (final Store store : searchList) {
 					final Fraction f = store.getConsumer().apply(item, delta.set(volume).subtract(result), simulate);
 
-					if(!f.isZero()) {
+					if (!f.isZero()) {
 						result.add(f);
 
 						// add new stores to per-article tracking
-						if(!simulate) {
+						if (!simulate) {
 							existing.add(store);
 						}
 
@@ -232,17 +238,16 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 					}
 				}
 			}
-
 		} else {
 			for (final Store store : stores) {
-				if(store.hasConsumer() && !store.isFull()) {
+				if (store.hasConsumer() && !store.isFull()) {
 					final Fraction f = store.getConsumer().apply(item, delta.set(volume).subtract(result), simulate);
 
-					if(!f.isZero()) {
+					if (!f.isZero()) {
 						result.add(f);
 
 						// add new stores to per-article tracking
-						if(!simulate) {
+						if (!simulate) {
 							existing.add(store);
 						}
 
@@ -265,14 +270,13 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 		// Try stores that already have article first
 		final Set<Store> existing = article.stores();
 
-		if(!existing.isEmpty()) {
+		if (!existing.isEmpty()) {
 			// save non-existing stores here in case existing have insufficient capacity
 			searchList.clear();
 
 			for (final Store store : stores) {
-				if(store.hasConsumer() && !store.isFull()) {
-
-					if(existing.contains(store)) {
+				if (store.hasConsumer() && !store.isFull()) {
+					if (existing.contains(store)) {
 						result += store.getConsumer().apply(item, numerator - result, denominator, simulate);
 
 						if (result == numerator) {
@@ -288,11 +292,11 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 				for (final Store store : searchList) {
 					final long delta = store.getConsumer().apply(item, numerator - result, denominator, simulate);
 
-					if(delta != 0) {
+					if (delta != 0) {
 						result += delta;
 
 						// add new stores to per-article tracking
-						if(!simulate) {
+						if (!simulate) {
 							existing.add(store);
 						}
 
@@ -302,17 +306,16 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 					}
 				}
 			}
-
 		} else {
 			for (final Store store : stores) {
-				if(store.hasConsumer() && !store.isFull()) {
+				if (store.hasConsumer() && !store.isFull()) {
 					final long delta = store.getConsumer().apply(item, numerator - result, denominator, simulate);
 
-					if(delta != 0) {
+					if (delta != 0) {
 						result += delta;
 
 						// add new stores to per-article tracking
-						if(!simulate) {
+						if (!simulate) {
 							existing.add(store);
 						}
 
@@ -330,7 +333,7 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 	protected Fraction supplyInner(Article item, Fraction volume, boolean simulate) {
 		final AggregateBulkStoredArticle article = articles.get(item);
 
-		if(article == null || article.isEmpty()) {
+		if (article == null || article.isEmpty()) {
 			return Fraction.ZERO;
 		}
 
@@ -339,14 +342,14 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 		final Set<Store> existing = article.stores();
 
 		for (final Store store : existing) {
-			if(store.hasSupplier()) {
+			if (store.hasSupplier()) {
 				final Fraction f = store.getSupplier().apply(item, delta.set(volume).subtract(result), simulate);
 
-				if(!f.isZero()) {
+				if (!f.isZero()) {
 					result.add(f);
 
 					// remove from per-article tracking if store no longer contains
-					if(!simulate && store.amountOf(item).isZero()) {
+					if (!simulate && store.amountOf(item).isZero()) {
 						existing.remove(store);
 					}
 
@@ -363,7 +366,7 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 	protected long supplyInner(Article item, long numerator, long denominator, boolean simulate) {
 		final AggregateBulkStoredArticle article = articles.get(item);
 
-		if(article == null || article.isEmpty()) {
+		if (article == null || article.isEmpty()) {
 			return 0;
 		}
 
@@ -372,14 +375,14 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 		final Set<Store> existing = article.stores();
 
 		for (final Store store : existing) {
-			if(store.hasSupplier()) {
+			if (store.hasSupplier()) {
 				final long delta = store.getSupplier().apply(item, numerator - result, denominator, simulate);
 
-				if(delta != 0) {
+				if (delta != 0) {
 					result += delta;
 
 					// remove from per-article tracking if store no longer contains
-					if(!simulate && store.amountOf(item).isZero()) {
+					if (!simulate && store.amountOf(item).isZero()) {
 						existing.remove(store);
 					}
 
@@ -443,8 +446,8 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 	public void onSupply(Store storage, int slot, Article item, Fraction delta, Fraction newVolume) {
 		final AggregateBulkStoredArticle article = articles.get(item);
 
-		if(article == null) {
-			if(warnIgnore) {
+		if (article == null) {
+			if (warnIgnore) {
 				Fluidity.LOG.warn("AggregateStorage ignored notification of supply for non-tracked article.");
 				Fluidity.LOG.warn("This probably indicates a bug in a mod using Fludity. Warnings for subsequent events are suppressed.");
 				warnIgnore = false;
@@ -453,8 +456,8 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 			return;
 		}
 
-		if(delta.isGreaterThan(article.amount())) {
-			if(warnPartialIgnore) {
+		if (delta.isGreaterThan(article.amount())) {
+			if (warnPartialIgnore) {
 				Fluidity.LOG.warn("AggregateStorage partially ignored notification of supply for article with mimatched amount.");
 				Fluidity.LOG.warn("This probably indicates a bug in a mod using Fludity. Warnings for subsequent events are suppressed.");
 				warnPartialIgnore = false;
@@ -463,7 +466,7 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 			delta = article.amount().toImmutable();
 		}
 
-		if(newVolume.isZero()) {
+		if (newVolume.isZero()) {
 			article.stores().remove(storage);
 		}
 
@@ -476,14 +479,14 @@ public class AggregateBulkStore extends AbstractAggregateStore<AggregateBulkStor
 		notifier.addToCapacity(capacityDelta);
 	}
 
-	/** Removes all stores, not the underlying storages */
+	/** Removes all stores, not the underlying storages. */
 	@Override
 	public void clear() {
-		if(stores.isEmpty()) {
+		if (stores.isEmpty()) {
 			return;
 		}
 
-		for(final Store store : stores.toArray(new Store[stores.size()])) {
+		for (final Store store : stores.toArray(new Store[stores.size()])) {
 			removeStore(store);
 		}
 	}

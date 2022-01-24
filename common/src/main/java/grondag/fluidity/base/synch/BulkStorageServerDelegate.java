@@ -1,28 +1,35 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.base.synch;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
+
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.fraction.Fraction;
 import grondag.fluidity.api.storage.Store;
 import grondag.fluidity.base.article.StoredBulkArticle;
 import grondag.fluidity.base.storage.bulk.BulkStorageListener;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
 
 @Experimental
 public class BulkStorageServerDelegate extends AbstractStorageServerDelegate<StoredBulkArticle> implements BulkStorageListener {
@@ -34,10 +41,10 @@ public class BulkStorageServerDelegate extends AbstractStorageServerDelegate<Sto
 	public void onAccept(Store storage, int handle, Article item, Fraction delta, Fraction newVolume) {
 		assert !newVolume.isNegative();
 
-		if(storage != null) {
+		if (storage != null) {
 			final StoredBulkArticle update = updates.get(handle);
 
-			if(update == null) {
+			if (update == null) {
 				updates.put(handle, StoredBulkArticle.of(item, newVolume, handle));
 			} else {
 				update.prepare(item, newVolume, handle);
@@ -54,24 +61,24 @@ public class BulkStorageServerDelegate extends AbstractStorageServerDelegate<Sto
 
 	@Override
 	public void onCapacityChange(Store storage, Fraction capacityDelta) {
-		if(storage != null) {
+		if (storage != null) {
 			capacityChange = true;
 		}
 	}
 
 	@Override
 	public void sendUpdates() {
-		if(updates.isEmpty() && !(isFirstUpdate || capacityChange)) {
+		if (updates.isEmpty() && !(isFirstUpdate || capacityChange)) {
 			return;
 		}
 
 		final FriendlyByteBuf buf = BulkStorageUpdateS2C.begin(updates.size());
 
-		for(final StoredBulkArticle a : updates.values()) {
+		for (final StoredBulkArticle a : updates.values()) {
 			BulkStorageUpdateS2C.append(buf, a.article(), a.amount(), a.handle());
 		}
 
-		if(isFirstUpdate) {
+		if (isFirstUpdate) {
 			// UGLY: find way to avoid unreliable cast here and in next block
 			BulkStorageUpdateS2C.sendFullRefresh(player, buf, storage.volume());
 			isFirstUpdate = false;

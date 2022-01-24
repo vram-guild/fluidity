@@ -1,26 +1,34 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.base.synch;
 
 import java.util.Comparator;
+
+import org.jetbrains.annotations.ApiStatus.Experimental;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import org.jetbrains.annotations.ApiStatus.Experimental;
-import org.jetbrains.annotations.Nullable;
+
 import grondag.fluidity.api.article.Article;
 
 /**
@@ -56,13 +64,14 @@ public interface DisplayDelegate {
 	// SORTING UTILITIES
 	/////////////////////////////////////////
 
-	Comparator<DisplayDelegate> SORT_BY_NAME_ASC = new Comparator<DisplayDelegate>() {
+	Comparator<DisplayDelegate> SORT_BY_NAME_ASC = new Comparator<>() {
 		@Override
 		public int compare(@Nullable DisplayDelegate o1, @Nullable DisplayDelegate o2) {
 			if (o1 == null) {
 				if (o2 == null) {
 					return 0;
 				}
+
 				return 1;
 			} else if (o2 == null) {
 				return -1;
@@ -74,35 +83,37 @@ public interface DisplayDelegate {
 		}
 	};
 
-	Comparator<DisplayDelegate> SORT_BY_NAME_DESC = new Comparator<DisplayDelegate>() {
+	Comparator<DisplayDelegate> SORT_BY_NAME_DESC = new Comparator<>() {
 		@Override
 		public int compare(@Nullable DisplayDelegate o1, @Nullable DisplayDelegate o2) {
 			return SORT_BY_NAME_ASC.compare(o2, o1);
 		}
 	};
 
-	Comparator<DisplayDelegate> SORT_BY_QTY_ASC = new Comparator<DisplayDelegate>() {
+	Comparator<DisplayDelegate> SORT_BY_QTY_ASC = new Comparator<>() {
 		@Override
 		public int compare(@Nullable DisplayDelegate o1, @Nullable DisplayDelegate o2) {
 			if (o1 == null) {
 				if (o2 == null) {
 					return 0;
 				}
+
 				return 1;
 			} else if (o2 == null) {
 				return -1;
 			}
+
 			int result = Long.compare(o1.getCount(), o2.getCount());
 
-			if(result == 0) {
-				result =  Long.compare(o1.numerator() * o2.divisor(), o2.numerator() * o1.divisor());
+			if (result == 0) {
+				result = Long.compare(o1.numerator() * o2.divisor(), o2.numerator() * o1.divisor());
 			}
 
 			return result == 0 ? SORT_BY_NAME_ASC.compare(o1, o2) : result;
 		}
 	};
 
-	Comparator<DisplayDelegate> SORT_BY_QTY_DESC = new Comparator<DisplayDelegate>() {
+	Comparator<DisplayDelegate> SORT_BY_QTY_DESC = new Comparator<>() {
 		@Override
 		public int compare(@Nullable DisplayDelegate o1, @Nullable DisplayDelegate o2) {
 			return SORT_BY_QTY_ASC.compare(o2, o1);
@@ -110,7 +121,7 @@ public interface DisplayDelegate {
 	};
 
 	static Comparator<DisplayDelegate> getSort(int sortIndex) {
-		switch(sortIndex % SORT_COUNT) {
+		switch (sortIndex % SORT_COUNT) {
 			case 0:
 			default:
 				return SORT_BY_NAME_ASC;
@@ -129,7 +140,7 @@ public interface DisplayDelegate {
 	int SORT_COUNT = 4;
 
 	static String getSortTranslactionKey(int sortIndex) {
-		switch(sortIndex % SORT_COUNT) {
+		switch (sortIndex % SORT_COUNT) {
 			case 0:
 			default:
 				return "label.fluidity.sort_by_name_asc";

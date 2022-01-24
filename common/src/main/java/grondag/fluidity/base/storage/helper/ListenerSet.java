@@ -1,18 +1,23 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.base.storage.helper;
 
 import java.lang.ref.WeakReference;
@@ -30,11 +35,11 @@ public class ListenerSet<L> implements Iterable<L>, Iterator<L> {
 	protected L next = null;
 	protected boolean hasMissing = false;
 
-	protected final Consumer<L>  additionHandler;
-	protected final Consumer<L>  removalHandler;
+	protected final Consumer<L> additionHandler;
+	protected final Consumer<L> removalHandler;
 	protected final @Nullable Runnable onEmptyCallback;
 
-	public ListenerSet(Consumer<L>  additionHandler, Consumer<L> removalHandler, @Nullable Runnable onEmptyCallback) {
+	public ListenerSet(Consumer<L> additionHandler, Consumer<L> removalHandler, @Nullable Runnable onEmptyCallback) {
 		this.additionHandler = additionHandler;
 		this.removalHandler = removalHandler;
 		this.onEmptyCallback = onEmptyCallback;
@@ -43,24 +48,24 @@ public class ListenerSet<L> implements Iterable<L>, Iterator<L> {
 	public void startListening(L listener, boolean sendNotifications) {
 		listeners.add(new WeakReference<>(listener));
 
-		if(sendNotifications) {
+		if (sendNotifications) {
 			additionHandler.accept(listener);
 		}
 	}
 
 	protected void cleanMissing() {
-		if(hasMissing) {
+		if (hasMissing) {
 			final int limit = listeners.size();
 
-			for(int i = limit - 1; i >= 0; i--) {
-				if(listeners.get(i).get() ==null) {
+			for (int i = limit - 1; i >= 0; i--) {
+				if (listeners.get(i).get() == null) {
 					listeners.remove(i);
 				}
 			}
 
 			hasMissing = false;
 
-			if(listeners.isEmpty() && onEmptyCallback != null) {
+			if (listeners.isEmpty() && onEmptyCallback != null) {
 				onEmptyCallback.run();
 			}
 		}
@@ -70,13 +75,13 @@ public class ListenerSet<L> implements Iterable<L>, Iterator<L> {
 		final int limit = listeners.size();
 
 		if (limit > 0) {
-			for(int i = limit - 1; i >= 0; i--) {
+			for (int i = limit - 1; i >= 0; i--) {
 				final L l = listeners.get(i).get();
 
-				if(l ==null) {
+				if (l == null) {
 					listeners.remove(i);
-				} else if(l == listener) {
-					if(sendNotifications) {
+				} else if (l == listener) {
+					if (sendNotifications) {
 						removalHandler.accept(listener);
 					}
 
@@ -85,7 +90,7 @@ public class ListenerSet<L> implements Iterable<L>, Iterator<L> {
 				}
 			}
 
-			if(listeners.isEmpty() && onEmptyCallback != null) {
+			if (listeners.isEmpty() && onEmptyCallback != null) {
 				onEmptyCallback.run();
 			}
 		}
@@ -114,10 +119,11 @@ public class ListenerSet<L> implements Iterable<L>, Iterator<L> {
 	protected void moveNext() {
 		next = null;
 		final int limit = listeners.size();
-		while(++index < limit && next == null) {
+
+		while (++index < limit && next == null) {
 			next = listeners.get(index).get();
 
-			if(next == null) {
+			if (next == null) {
 				hasMissing = true;
 			}
 		}

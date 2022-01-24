@@ -1,22 +1,32 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.api.storage;
 
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
@@ -27,10 +37,6 @@ import grondag.fluidity.api.transact.TransactionParticipant;
 import grondag.fluidity.impl.Fluidity;
 import grondag.fluidity.impl.storage.AlwaysReturnRequestedImpl;
 import grondag.fluidity.impl.storage.AlwaysReturnZeroImpl;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 
 /**
  * Flexible storage interface for tanks, containers.
@@ -89,9 +95,9 @@ public interface ArticleFunction extends TransactionParticipant {
 	 * returns the number of units added or removed.  The denominator of the result *may*
 	 * be different from the denominator of the input fraction.
 	 *
-	 * Storage containers or pipes that only deal in certain units (for example,
+	 * <p>Storage containers or pipes that only deal in certain units (for example,
 	 * the vanilla cauldron) should return zero or a lesser amount for requests
-	 * that would result in an invalid state.<p>
+	 * that would result in an invalid state.
 	 *
 	 * @param article  The stuff to add or remove
 	 * @param volume How much to add or remove
@@ -104,11 +110,11 @@ public interface ArticleFunction extends TransactionParticipant {
 	 * As with {@link #accept(BulkItem, FractionView, boolean)} BUT the result
 	 * will always be an even multiple of the input denominator.  So, for example,
 	 * if you call with {@link FractionView#BOTTLE} as the denominator, you will
-	 * only get whole bottles as the result.<p>
+	 * only get whole bottles as the result.
 	 *
-	 * Storage containers or pipes that only deal in certain units (for example,
+	 * <p>Storage containers or pipes that only deal in certain units (for example,
 	 * the vanilla cauldron) should return zero or a lesser amount for requests
-	 * that would result in an invalid state.<p>
+	 * that would result in an invalid state.
 	 *
 	 * @param article The stuff to add or remove
 	 * @param numerator Fractional units to add or remove. Can be zero.

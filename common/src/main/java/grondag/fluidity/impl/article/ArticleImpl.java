@@ -1,24 +1,28 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.impl.article;
 
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
-import grondag.fluidity.api.article.Article;
-import grondag.fluidity.api.article.ArticleType;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -27,6 +31,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+
+import grondag.fluidity.api.article.Article;
+import grondag.fluidity.api.article.ArticleType;
 
 @Internal
 public class ArticleImpl<T> implements Article {
@@ -43,7 +50,7 @@ public class ArticleImpl<T> implements Article {
 
 		int hashCode = resource == null ? 0 : resource.hashCode();
 
-		if(tag != null) {
+		if (tag != null) {
 			hashCode += tag.hashCode();
 		}
 
@@ -81,7 +88,7 @@ public class ArticleImpl<T> implements Article {
 	public final boolean equals(Object obj) {
 		if (obj == this) {
 			return true;
-		} else if(obj instanceof ArticleImpl) {
+		} else if (obj instanceof ArticleImpl) {
 			final ArticleImpl<?> other = (ArticleImpl<?>) obj;
 			return other.resource == resource && other.type == type && doesTagMatch(other.tag);
 		} else {
@@ -100,10 +107,12 @@ public class ArticleImpl<T> implements Article {
 	public Tag toTag() {
 		final CompoundTag result = new CompoundTag();
 		result.put("type", type.toTag());
-		result.put("res",type.tagWriter.apply(resource));
-		if(this.tag != null) {
+		result.put("res", type.tagWriter.apply(resource));
+
+		if (this.tag != null) {
 			result.put("tag", tag.copy());
 		}
+
 		return result;
 	}
 
@@ -116,7 +125,7 @@ public class ArticleImpl<T> implements Article {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Article fromTag(Tag tag) {
-		if(tag == null) {
+		if (tag == null) {
 			return Article.NOTHING;
 		}
 
@@ -148,7 +157,7 @@ public class ArticleImpl<T> implements Article {
 	}
 
 	public static Article of(Item item, @Nullable CompoundTag tag) {
-		if(item == Items.AIR || item == null) {
+		if (item == Items.AIR || item == null) {
 			return NOTHING;
 		} else {
 			return ArticleCache.getArticle(ArticleType.ITEM, item, tag);
@@ -163,9 +172,9 @@ public class ArticleImpl<T> implements Article {
 	public String getTranslationKey() {
 		String result = translationKey;
 
-		if(result == null) {
+		if (result == null) {
 			result = type.keyFunction.apply(resource);
-			translationKey =  result;
+			translationKey = result;
 		}
 
 		return result;

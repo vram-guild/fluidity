@@ -1,23 +1,31 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.base.storage.discrete;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.ApiStatus.Experimental;
+
+import net.minecraft.nbt.CompoundTag;
+
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.article.ArticleType;
 import grondag.fluidity.api.article.StoredArticleView;
@@ -27,10 +35,9 @@ import grondag.fluidity.base.article.StoredDiscreteArticle;
 import grondag.fluidity.base.storage.AbstractLazyRollbackStore;
 import grondag.fluidity.base.storage.discrete.FixedDiscreteStore.FixedDiscreteArticleFunction;
 import grondag.fluidity.base.storage.discrete.helper.DiscreteNotifier;
-import net.minecraft.nbt.CompoundTag;
 
 @Experimental
-public class SingleArticleStore extends AbstractLazyRollbackStore<StoredDiscreteArticle,  SingleArticleStore> implements DiscreteStore {
+public class SingleArticleStore extends AbstractLazyRollbackStore<StoredDiscreteArticle, SingleArticleStore> implements DiscreteStore {
 	protected final StoredDiscreteArticle view = new StoredDiscreteArticle();
 	protected final DiscreteNotifier notifier = new DiscreteNotifier(this);
 	protected long capacity;
@@ -70,35 +77,34 @@ public class SingleArticleStore extends AbstractLazyRollbackStore<StoredDiscrete
 	protected class Consumer implements FixedDiscreteArticleFunction {
 		@Override
 		public long apply(Article article, long count, boolean simulate) {
-
-			if(article.isNothing()) {
+			if (article.isNothing()) {
 				return 0;
 			}
 
-			if(quantity == 0) {
+			if (quantity == 0) {
 				final int n = (int) Math.min(count, capacity);
 
-				if(!simulate) {
+				if (!simulate) {
 					rollbackHandler.prepareIfNeeded();
 					storedArticle = article;
 					quantity = n;
 					dirtyNotifier.run();
 
-					if(!listeners.isEmpty()) {
+					if (!listeners.isEmpty()) {
 						notifier.notifyAccept(article, 0, n, n);
 					}
 				}
 
 				return n;
-			} else if(article.equals(storedArticle)) {
+			} else if (article.equals(storedArticle)) {
 				final int n = (int) Math.min(count, capacity - quantity);
 
-				if(!simulate) {
+				if (!simulate) {
 					rollbackHandler.prepareIfNeeded();
 					quantity += n;
 					dirtyNotifier.run();
 
-					if(!listeners.isEmpty()) {
+					if (!listeners.isEmpty()) {
 						notifier.notifyAccept(article, 0, n, quantity);
 					}
 				}
@@ -116,7 +122,7 @@ public class SingleArticleStore extends AbstractLazyRollbackStore<StoredDiscrete
 
 		@Override
 		public long apply(int handle, Article article, long count, boolean simulate) {
-			if(handle == 0 && article != null) {
+			if (handle == 0 && article != null) {
 				return apply(article, count, simulate);
 			} else {
 				return 0;
@@ -138,18 +144,18 @@ public class SingleArticleStore extends AbstractLazyRollbackStore<StoredDiscrete
 	protected class Supplier implements FixedDiscreteArticleFunction {
 		@Override
 		public long apply(Article article, long count, boolean simulate) {
-			if(article.isNothing() || quantity == 0 || !article.equals(storedArticle)) {
+			if (article.isNothing() || quantity == 0 || !article.equals(storedArticle)) {
 				return 0;
 			}
 
 			final int n = (int) Math.min(count, quantity);
 
-			if(!simulate) {
+			if (!simulate) {
 				rollbackHandler.prepareIfNeeded();
 				quantity -= n;
 				dirtyNotifier.run();
 
-				if(!listeners.isEmpty()) {
+				if (!listeners.isEmpty()) {
 					notifier.notifySupply(article, 0, n, quantity);
 				}
 			}
@@ -164,7 +170,7 @@ public class SingleArticleStore extends AbstractLazyRollbackStore<StoredDiscrete
 
 		@Override
 		public long apply(int handle, Article article, long count, boolean simulate) {
-			if(handle == 0 && article != null && article.equals(storedArticle)) {
+			if (handle == 0 && article != null && article.equals(storedArticle)) {
 				return apply(article, count, simulate);
 			} else {
 				return 0;
@@ -197,13 +203,12 @@ public class SingleArticleStore extends AbstractLazyRollbackStore<StoredDiscrete
 		return quantity >= capacity;
 	}
 
-
 	@Override
 	public void clear() {
 		if (quantity != 0) {
 			rollbackHandler.prepareIfNeeded();
 
-			if(!listeners.isEmpty()) {
+			if (!listeners.isEmpty()) {
 				notifier.notifySupply(storedArticle, 0, quantity, 0);
 			}
 
@@ -219,7 +224,7 @@ public class SingleArticleStore extends AbstractLazyRollbackStore<StoredDiscrete
 
 	@Override
 	protected void applyRollbackState(Object state, boolean isCommitted) {
-		if(!isCommitted) {
+		if (!isCommitted) {
 			@SuppressWarnings("unchecked")
 			final Triple<Article, Long, Long> triple = (Triple<Article, Long, Long>) state;
 			storedArticle = triple.getLeft();

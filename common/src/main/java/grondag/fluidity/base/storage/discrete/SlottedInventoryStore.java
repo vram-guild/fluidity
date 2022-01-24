@@ -1,25 +1,33 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.base.storage.discrete;
 
 import java.util.Arrays;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.ItemStack;
+
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.ApiStatus.Experimental;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
+
 import grondag.fluidity.api.article.Article;
 import grondag.fluidity.api.storage.InventoryStore;
 import grondag.fluidity.base.article.StoredDiscreteArticle;
@@ -30,7 +38,6 @@ import grondag.fluidity.impl.article.ArticleImpl;
 import grondag.fluidity.impl.article.StackHelper;
 
 /**
- *
  * The naive, copy-all-the-stacks approach used here for transaction support is
  * heavy on allocation and could be problematic for very large inventories or very
  * large transaction. A journaling approach that captures changes as they are made
@@ -79,13 +86,13 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 		rollbackHandler.prepareIfNeeded();
 
 		if (ItemStack.isSameIgnoreDurability(newStack, currentStack)) {
-			if(newStack.getCount() == currentStack.getCount()) {
+			if (newStack.getCount() == currentStack.getCount()) {
 				return;
 			} else {
 				final int delta = newStack.getCount() - currentStack.getCount();
 				needAcceptNotify = false;
 
-				if(delta > 0) {
+				if (delta > 0) {
 					notifyAccept(newStack, delta);
 				} else {
 					notifySupply(newStack, -delta);
@@ -100,7 +107,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 		synchCleanStack(slot);
 		dirtyNotifier.run();
 
-		if(needAcceptNotify) {
+		if (needAcceptNotify) {
 			notifyAccept(newStack, newStack.getCount());
 		}
 	}
@@ -148,10 +155,10 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 
 	@Override
 	public void clearContent() {
-		if(!isEmpty()) {
+		if (!isEmpty()) {
 			rollbackHandler.prepareIfNeeded();
 
-			for(int i = 0 ; i < slotCount; i++) {
+			for (int i = 0; i < slotCount; i++) {
 				final ItemStack stack = stacks[i];
 
 				if (!stack.isEmpty()) {
@@ -174,7 +181,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 
 	@Override
 	protected void applyRollbackState(Object state, boolean isCommitted) {
-		if(!isCommitted) {
+		if (!isCommitted) {
 			TransactionHelper.applyInventoryRollbackState(state, this);
 		}
 	}
@@ -189,21 +196,21 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 		public long apply(Article article, long count, boolean simulate) {
 			Preconditions.checkArgument(count >= 0, "Request to accept negative items. (%s)", count);
 
-			if(article.isNothing() || count == 0 || !filter.test(article)) {
+			if (article.isNothing() || count == 0 || !filter.test(article)) {
 				return 0;
 			}
 
 			int result = 0;
 			boolean needsRollback = true;
 
-			for(int slot = 0 ; slot < slotCount; slot++) {
+			for (int slot = 0; slot < slotCount; slot++) {
 				final ItemStack stack = stacks[slot];
 
-				if(stack.isEmpty()) {
+				if (stack.isEmpty()) {
 					final int n = (int) Math.min(count - result, article.toItem().getMaxStackSize());
 
-					if(!simulate) {
-						if(needsRollback) {
+					if (!simulate) {
+						if (needsRollback) {
 							rollbackHandler.prepareIfNeeded();
 							needsRollback = false;
 						}
@@ -216,11 +223,11 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 					}
 
 					result += n;
-				} else if(article.matches(stack)) {
+				} else if (article.matches(stack)) {
 					final int n = (int) Math.min(count - result, article.toItem().getMaxStackSize() - stack.getCount());
 
-					if(!simulate) {
-						if(needsRollback) {
+					if (!simulate) {
+						if (needsRollback) {
 							rollbackHandler.prepareIfNeeded();
 							needsRollback = false;
 						}
@@ -251,21 +258,21 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	protected class Supplier extends AbstractDiscreteStore<DividedDiscreteStore>.Supplier {
 		@Override
 		public long apply(Article article, long count, boolean simulate) {
-			if(article.isNothing() || count == 0) {
+			if (article.isNothing() || count == 0) {
 				return 0;
 			}
 
 			int result = 0;
 			boolean needsRollback = true;
 
-			for (int slot = 0 ; slot < slotCount; slot++) {
+			for (int slot = 0; slot < slotCount; slot++) {
 				final ItemStack stack = stacks[slot];
 
-				if(article.matches(stack) && !stack.isEmpty()) {
+				if (article.matches(stack) && !stack.isEmpty()) {
 					final int n = (int) Math.min(count - result, stack.getCount());
 
-					if(!simulate) {
-						if(needsRollback) {
+					if (!simulate) {
+						if (needsRollback) {
 							rollbackHandler.prepareIfNeeded();
 							needsRollback = false;
 						}
@@ -296,7 +303,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	protected void notifySupply(ItemStack stack, int count) {
 		final boolean isEmpty = stack.getCount() == count;
 
-		if(isEmpty && stack.getMaxStackSize() != 64) {
+		if (isEmpty && stack.getMaxStackSize() != 64) {
 			notifier.addToCapacity(64 - stack.getMaxStackSize());
 		}
 
@@ -308,7 +315,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	protected void notifyAccept(ItemStack stack, int count) {
 		final int newCount = stack.getCount();
 
-		if(newCount == count && stack.getMaxStackSize() != 64) {
+		if (newCount == count && stack.getMaxStackSize() != 64) {
 			notifier.addToCapacity(stack.getMaxStackSize() - 64);
 		}
 
@@ -325,17 +332,15 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	@Override
 	public void setChanged() {
 		for (int slot = 0; slot < slotCount; ++slot) {
-
 			final ItemStack stack = stacks[slot];
 			final ItemStack cleanStack = cleanStacks[slot];
 
 			if (StackHelper.areItemsEqual(stack, cleanStack)) {
-				if(stack.getCount() == cleanStack.getCount()) {
-					continue;
+				if (stack.getCount() == cleanStack.getCount()) {
 				} else {
 					final int delta = stack.getCount() - cleanStack.getCount();
 
-					if(delta > 0) {
+					if (delta > 0) {
 						notifyAccept(stack, delta);
 					} else {
 						notifySupply(cleanStack, -delta);
@@ -348,7 +353,6 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 				notifyAccept(stack, stack.getCount());
 				cleanStacks[slot] = stack.copy();
 			}
-
 		}
 	}
 
@@ -356,7 +360,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 	public void readTag(CompoundTag tag) {
 		super.readTag(tag);
 
-		for (int slot = 0 ; slot < slotCount; slot++) {
+		for (int slot = 0; slot < slotCount; slot++) {
 			cleanStacks[slot] = stacks[slot].copy();
 		}
 	}

@@ -1,18 +1,23 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package grondag.fluidity.impl.device;
 
 import java.util.IdentityHashMap;
@@ -21,6 +26,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.apache.commons.lang3.tuple.Pair;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,15 +41,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.apache.commons.lang3.tuple.Pair;
+
 import grondag.fluidity.api.device.BlockComponentContext;
 import grondag.fluidity.api.device.DeviceComponentAccess;
 import grondag.fluidity.api.device.DeviceComponentType;
 import grondag.fluidity.api.device.EntityComponentContext;
 import grondag.fluidity.api.device.ItemComponentContext;
 
-public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
+public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T> {
 	private final T absent;
 	private final Function<BlockComponentContext, ?> defaultBlockMapping;
 	private final Function<ItemComponentContext, ?> defaultItemMapping;
@@ -74,7 +82,7 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 
 	@Override
 	public void registerProvider(Function<BlockComponentContext, T> mapping, Block... blocks) {
-		for(final Block b : blocks) {
+		for (final Block b : blocks) {
 			blockMappings.put(b, mapping);
 		}
 	}
@@ -85,7 +93,7 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 
 	@Override
 	public void registerProvider(Function<EntityComponentContext, T> mapping, EntityType<?>... entities) {
-		for(final EntityType<?> e : entities) {
+		for (final EntityType<?> e : entities) {
 			entityMappings.put(e, mapping);
 		}
 	}
@@ -96,17 +104,17 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 
 	@Override
 	public void registerProvider(Function<ItemComponentContext, T> mapping, Item... items) {
-		for(final Item i : items) {
+		for (final Item i : items) {
 			itemMappings.put(i, mapping);
 		}
 	}
 
 	@Override
 	public void registerAction(BiPredicate<ItemComponentContext, T> action, Item... items) {
-		for(final Item i : items) {
+		for (final Item i : items) {
 			ObjectArrayList<BiPredicate<ItemComponentContext, T>> list = itemActions.get(i);
 
-			if(list == null) {
+			if (list == null) {
 				list = new ObjectArrayList<>(4);
 				itemActions.put(i, list);
 			}
@@ -161,7 +169,7 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 	public boolean applyActions(T target, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, ServerPlayer player) {
 		final ObjectArrayList<BiPredicate<ItemComponentContext, T>> actions = itemActions.get(stackGetter.get().getItem());
 
-		if(actions != null && !actions.isEmpty()) {
+		if (actions != null && !actions.isEmpty()) {
 			return applyActions(target, actions, ItemComponentContextImpl.get(this, stackGetter, stackSetter, player));
 		}
 
@@ -172,7 +180,7 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 	public boolean applyActions(T target, Supplier<ItemStack> stackGetter, Consumer<ItemStack> stackSetter, Level world) {
 		final ObjectArrayList<BiPredicate<ItemComponentContext, T>> actions = itemActions.get(stackGetter.get().getItem());
 
-		if(actions != null && !actions.isEmpty()) {
+		if (actions != null && !actions.isEmpty()) {
 			return applyActions(target, actions, ItemComponentContextImpl.get(this, stackGetter, stackSetter, world));
 		}
 
@@ -180,8 +188,8 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 	}
 
 	private boolean applyActions(T target, ObjectArrayList<BiPredicate<ItemComponentContext, T>> actions, ItemComponentContext ctx) {
-		for(final BiPredicate<ItemComponentContext, T> action : actions) {
-			if(action.test(ctx, target)) {
+		for (final BiPredicate<ItemComponentContext, T> action : actions) {
+			if (action.test(ctx, target)) {
 				return true;
 			}
 		}
@@ -191,7 +199,7 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 
 	@Override
 	public void registerProvider(Function<EntityComponentContext, T> mapping, Predicate<EntityType<?>> predicate) {
-		if(deferedEntityMappings == null) {
+		if (deferedEntityMappings == null) {
 			deferedEntityMappings = new ObjectArrayList<>();
 		}
 
@@ -199,10 +207,10 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T>{
 	}
 
 	private void applyDeferredEntityRegistrations() {
-		if(deferedEntityMappings != null) {
-			for(final Pair<Function<EntityComponentContext, T>, Predicate<EntityType<?>>> pair : deferedEntityMappings) {
+		if (deferedEntityMappings != null) {
+			for (final Pair<Function<EntityComponentContext, T>, Predicate<EntityType<?>>> pair : deferedEntityMappings) {
 				Registry.ENTITY_TYPE.forEach(e -> {
-					if(pair.getRight().test(e)) {
+					if (pair.getRight().test(e)) {
 						registerProvider(pair.getLeft(), e);
 					}
 				});

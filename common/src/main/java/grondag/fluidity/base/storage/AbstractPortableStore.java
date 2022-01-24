@@ -1,87 +1,93 @@
-/*******************************************************************************
- * Copyright 2019, 2020 grondag
+/*
+ * This file is part of Fluidity and is licensed to the project under
+ * terms that are compatible with the GNU Lesser General Public License.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership and licensing.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License.  You may obtain a copy
- * of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the specific language governing permissions and limitations under
- * the License.
- ******************************************************************************/package grondag.fluidity.base.storage;
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
- import com.google.common.util.concurrent.Runnables;
-import grondag.fluidity.api.device.ItemComponentContext;
-import grondag.fluidity.api.storage.Store;
+package grondag.fluidity.base.storage;
+
+import com.google.common.util.concurrent.Runnables;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 
- /**
-  * Forwarding store that causes changes to be serialized to an item stack.
-  * For Item-based storage.  Wrapped store must extend {@code AbstractStore}
-  */
- public abstract class AbstractPortableStore extends ForwardingStore {
-	 protected final java.util.function.Supplier<ItemStack> stackGetter;
-	 protected final java.util.function.Consumer<ItemStack> stackSetter;
-	 protected Runnable dirtyNotifier = Runnables.doNothing();
+import grondag.fluidity.api.device.ItemComponentContext;
+import grondag.fluidity.api.storage.Store;
 
-	 /**
-	  * Use this version for client-side display instance - will never save anything.
-	  * Call {@link #readFromStack(ItemStack)} each time before using.
-	  */
-	 public AbstractPortableStore(Store wrapped) {
-		 stackGetter = () -> ItemStack.EMPTY;
-		 stackSetter = s -> {};
-		 setWrapped(wrapped);
-	 }
+/**
+ * Forwarding store that causes changes to be serialized to an item stack.
+ * For Item-based storage.  Wrapped store must extend {@code AbstractStore}.
+ */
+public abstract class AbstractPortableStore extends ForwardingStore {
+	protected final java.util.function.Supplier<ItemStack> stackGetter;
+	protected final java.util.function.Consumer<ItemStack> stackSetter;
+	protected Runnable dirtyNotifier = Runnables.doNothing();
 
-	 public AbstractPortableStore(Store wrapped, ItemComponentContext ctx) {
-		 this(wrapped, ctx.stackGetter(), ctx.stackSetter());
-	 }
+	/**
+	 * Use this version for client-side display instance - will never save anything.
+	 * Call {@link #readFromStack(ItemStack)} each time before using.
+	 */
+	public AbstractPortableStore(Store wrapped) {
+		stackGetter = () -> ItemStack.EMPTY;
+		stackSetter = s -> { };
+		setWrapped(wrapped);
+	}
 
-	 public AbstractPortableStore(Store wrapped, java.util.function.Supplier<ItemStack> stackGetter, java.util.function.Consumer<ItemStack> stackSetter) {
-		 this.stackGetter = stackGetter;
-		 this.stackSetter = stackSetter;
-		 dirtyNotifier = () -> saveToStack();
-		 setWrapped(wrapped);
+	public AbstractPortableStore(Store wrapped, ItemComponentContext ctx) {
+		this(wrapped, ctx.stackGetter(), ctx.stackSetter());
+	}
 
-		 final CompoundTag tag = readTagFromStack(stackGetter.get());
+	public AbstractPortableStore(Store wrapped, java.util.function.Supplier<ItemStack> stackGetter, java.util.function.Consumer<ItemStack> stackSetter) {
+		this.stackGetter = stackGetter;
+		this.stackSetter = stackSetter;
+		dirtyNotifier = () -> saveToStack();
+		setWrapped(wrapped);
 
-		 if(tag != null && !tag.isEmpty()) {
-			 readTag(tag);
-		 }
-	 }
+		final CompoundTag tag = readTagFromStack(stackGetter.get());
 
-	 /**
-	  * Override if tag isn't at root (for block entities, for example)
-	  */
-	 protected abstract CompoundTag readTagFromStack(ItemStack stack);
+		if (tag != null && !tag.isEmpty()) {
+			readTag(tag);
+		}
+	}
 
-	 protected abstract void  writeTagToStack(ItemStack stack, CompoundTag tag);
+	/**
+	 * Override if tag isn't at root (for block entities, for example).
+	 */
+	protected abstract CompoundTag readTagFromStack(ItemStack stack);
 
-	 /**
-	  * For client-side display, create and retain a static reference and call this each frame.
-	  */
-	 public void readFromStack(ItemStack stack) {
-		 readTag(readTagFromStack(stack));
-	 }
+	protected abstract void writeTagToStack(ItemStack stack, CompoundTag tag);
 
-	 protected void saveToStack() {
-		 final ItemStack stack = stackGetter.get();
-		 writeTagToStack(stack, writeTag());
-		 stackSetter.accept(stack);
-	 }
+	/**
+	 * For client-side display, create and retain a static reference and call this each frame.
+	 */
+	public void readFromStack(ItemStack stack) {
+		readTag(readTagFromStack(stack));
+	}
 
-	 @SuppressWarnings("rawtypes")
-	 @Override
-	 public void setWrapped(Store wrapped) {
-		 super.setWrapped(wrapped);
-		 ((AbstractStore) wrapped).onDirty(dirtyNotifier);
-	 }
+	protected void saveToStack() {
+		final ItemStack stack = stackGetter.get();
+		writeTagToStack(stack, writeTag());
+		stackSetter.accept(stack);
+	}
 
-
- }
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void setWrapped(Store wrapped) {
+		super.setWrapped(wrapped);
+		((AbstractStore) wrapped).onDirty(dirtyNotifier);
+	}
+}
