@@ -51,7 +51,7 @@ public abstract class Fluidity {
 		TickEvent.SERVER_POST.register(MultiBlockManagerImpl::tick);
 
 		LifecycleEvent.SERVER_STARTED.register(s -> {
-			TransactionImpl.setServerThread(s);
+			TransactionImpl.setServerThread(s.getRunningThread());
 			MultiBlockManagerImpl.start(s);
 		});
 

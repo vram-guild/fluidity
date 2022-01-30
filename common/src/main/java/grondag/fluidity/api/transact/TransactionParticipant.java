@@ -49,6 +49,10 @@ public interface TransactionParticipant {
 	 * If the same delegate is enlisted more than once, it will only be asked to prepare
 	 * rollback the first time.
 	 *
+	 * <p>The delegate uniquely identifies a participant (or a group of participants that share
+	 * rollback state). A participant (or group of them) must have exactly one delegate that is
+	 * used in all transactions at any level of nesting.
+	 *
 	 * @return the transaction delegate for this participant
 	 */
 	TransactionDelegate getTransactionDelegate();
@@ -63,6 +67,12 @@ public interface TransactionParticipant {
 		 * <p>Consumer is called for both commit and rollback events just in case some
 		 * implementations need to lock or store resources internally during a
 		 * transaction and need notification when one ends.
+		 *
+		 * <p>If a nested transaction is commited and the participant owning this delegate
+		 * does not already have a delegate in the outer transaction, then the participant
+		 * and it's delegate will be moved to the outer tranaction and calls to the consumer
+		 * will be deferred until there are no more unresolved outer transactions or another
+		 * delegate is available in an outer transaction.
 		 *
 		 * @param The transaction context - use to store and retrieve transaction state and query status at close
 		 * @return The action (as a {@code Consumer}) to be run when the transaction is closed

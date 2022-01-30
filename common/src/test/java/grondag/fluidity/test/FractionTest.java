@@ -5,10 +5,8 @@ import org.junit.jupiter.api.Test;
 import grondag.fluidity.api.fraction.MutableFraction;
 
 class FractionTest {
-
 	@Test
 	void test() {
-
 		final MutableFraction f = MutableFraction.of(10);
 
 		assert f.whole() == 10;
@@ -37,8 +35,6 @@ class FractionTest {
 
 		assert f.isZero();
 
-
-
 		f.set(3, 1, 2);
 		f.multiply(2);
 		assert f.whole() == 7;
@@ -51,5 +47,4 @@ class FractionTest {
 		assert f.numerator() == -67;
 		assert f.divisor() == 80;
 	}
-
 }

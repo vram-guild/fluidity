@@ -47,7 +47,9 @@ public interface Transaction extends AutoCloseable {
 
 	/**
 	 * Close the transaction and notify all participants to retain all state changes
-	 * that happened after this transaction was opened.
+	 * that happened after this transaction was opened.  If the transaction is nested
+	 * then participants without a checkpoint on the outer transaction will not receive
+	 * a commit notification until the outer transaction is committed.
 	 */
 	void commit();
 

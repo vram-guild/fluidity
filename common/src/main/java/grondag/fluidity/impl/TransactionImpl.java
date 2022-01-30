@@ -28,8 +28,6 @@ import java.util.function.Consumer;
 
 import org.jetbrains.annotations.ApiStatus.Internal;
 
-import net.minecraft.server.MinecraftServer;
-
 import grondag.fluidity.api.transact.Transaction;
 import grondag.fluidity.api.transact.TransactionContext;
 import grondag.fluidity.api.transact.TransactionParticipant;
@@ -64,8 +62,7 @@ public final class TransactionImpl implements Transaction {
 	private final IdentityHashMap<TransactionDelegate, Object> stateStorage = new IdentityHashMap<>();
 	private TransactionDelegate contextDelegate;
 
-	private TransactionImpl() {
-	}
+	private TransactionImpl() { }
 
 	@Override
 	public void close() {
@@ -74,12 +71,25 @@ public final class TransactionImpl implements Transaction {
 		}
 	}
 
-	private void clear() {
-		participants.clear();
-		stateStorage.clear();
-		contextDelegate = null;
-		isOpen = false;
-		isCommited = false;
+	@Override
+	public void rollback() {
+		validate();
+		this.isCommited = false;
+		handleClosing();
+	}
+
+	@Override
+	public void commit() {
+		validate();
+		this.isCommited = true;
+		elevateLocalDelegates();
+		handleClosing();
+	}
+
+	private void handleClosing() {
+		notifyParticipantsOfClose();
+		clear();
+		popCurrenTransaction();
 	}
 
 	private void validate() {
@@ -96,41 +106,60 @@ public final class TransactionImpl implements Transaction {
 		}
 	}
 
-	@Override
-	public void rollback() {
-		close(false);
+	/**
+	 * Must be called on commit before participants are notified. Does nothing for root transaction.
+	 *
+	 * <p>Because we allow lazy enrollment, we could have delegates in this transaction
+	 * that might need to roll back with an outer transaction but don't exist there. To
+	 * handle this, we move those delegates and their state to the outer transaction
+	 * before participants are notified (and so their notification is deferred) but only if
+	 * they do not already have a delegate in the outer transaction.
+	 */
+	private void elevateLocalDelegates() {
+		if (isCurrentRoot()) {
+			// no outer transaction will remain open to accept delegates - nothing to do
+			return;
+		}
+
+		final var prior = STACK.get(stackPointer - 1);
+
+		final var it = participants.entrySet().iterator();
+
+		while (it.hasNext()) {
+			final var entry = it.next();
+			final var delegate = entry.getKey();
+
+			if (prior.participants.containsKey(delegate)) {
+				// participant has a checkpoint in enclosing transaction that must
+				// by definition precede this one - need to move it
+				continue;
+			}
+
+			prior.participants.put(delegate, entry.getValue());
+			final var state = stateStorage.get(delegate);
+
+			if (state != null) {
+				prior.stateStorage.put(delegate, state);
+			}
+
+			it.remove();
+			stateStorage.remove(delegate);
+		}
 	}
 
-	@Override
-	public void commit() {
-		close(true);
-	}
-
-	private void close(boolean isCommited) {
-		validate();
-		this.isCommited = isCommited;
-
+	private void notifyParticipantsOfClose() {
 		participants.forEach((c, r) -> {
 			contextDelegate = c;
 			r.accept(context);
 		});
+	}
 
-		clear();
-
-		final boolean root = --stackPointer == -1;
-
-		innerLock.unlock();
-
-		// non-server threads have an additional lock we must release.
-		if (Thread.currentThread() != serverThread) {
-			outerLock.unlock();
-
-			if (root) {
-				// Give other threads (like the server thread) that want to do transactions a
-				// chance to jump in.
-				Thread.yield();
-			}
-		}
+	private void clear() {
+		participants.clear();
+		stateStorage.clear();
+		contextDelegate = null;
+		isOpen = false;
+		isCommited = false;
 	}
 
 	@Override
@@ -153,8 +182,8 @@ public final class TransactionImpl implements Transaction {
 
 	///// STATIC MEMBERS FOLLOW /////
 
-	public static void setServerThread(MinecraftServer server) {
-		serverThread = Thread.currentThread();
+	public static void setServerThread(Thread thread) {
+		serverThread = thread;
 	}
 
 	private static Thread serverThread;
@@ -191,6 +220,27 @@ public final class TransactionImpl implements Transaction {
 		}
 
 		return result;
+	}
+
+	private static void popCurrenTransaction() {
+		final boolean root = --stackPointer == -1;
+
+		innerLock.unlock();
+
+		// non-server threads have an additional lock we must release.
+		if (Thread.currentThread() != serverThread) {
+			outerLock.unlock();
+
+			if (root) {
+				// Give other threads (like the server thread) that want to do transactions a
+				// chance to jump in.
+				Thread.yield();
+			}
+		}
+	}
+
+	private static boolean isCurrentRoot() {
+		return stackPointer == 0;
 	}
 
 	public static TransactionImpl current() {

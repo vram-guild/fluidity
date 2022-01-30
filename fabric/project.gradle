@@ -18,6 +18,7 @@ sourceSets {
 	}
 	test {
 			java {
+				srcDirs = ['../common/src/test/java']
 				exclude '**/*'
 			}
 	}
