@@ -49,7 +49,7 @@ public final class ArticleTypeRegistryImpl implements ArticleTypeRegistry {
 
 	static {
 		ARTICLE_REGISTRY = (WritableRegistry<ArticleTypeImpl>) ((WritableRegistry) Registry.REGISTRY).register(REGISTRY_KEY,
-				new DefaultedRegistry("fluidity:nothing", REGISTRY_KEY, Lifecycle.stable()), Lifecycle.stable());
+				new DefaultedRegistry("fluidity:nothing", REGISTRY_KEY, Lifecycle.stable(), null), Lifecycle.stable()).value();
 	}
 
 	@Override
@@ -84,7 +84,8 @@ public final class ArticleTypeRegistryImpl implements ArticleTypeRegistry {
 
 	@Override
 	public ArticleType add(ResourceLocation id, ArticleType articleType) {
-		return ARTICLE_REGISTRY.register(ResourceKey.create(REGISTRY_KEY, id), (ArticleTypeImpl) articleType, Lifecycle.stable());
+		ARTICLE_REGISTRY.register(ResourceKey.create(REGISTRY_KEY, id), (ArticleTypeImpl) articleType, Lifecycle.stable());
+		return articleType;
 	}
 
 	@Override
