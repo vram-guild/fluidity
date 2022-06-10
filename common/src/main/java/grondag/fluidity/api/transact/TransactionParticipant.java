@@ -58,7 +58,7 @@ public interface TransactionParticipant {
 	TransactionDelegate getTransactionDelegate();
 
 	@FunctionalInterface
-	public interface TransactionDelegate {
+	interface TransactionDelegate {
 		/**
 		 * Called on enlisting to signal saving of rollback state or whatever
 		 * preparation is appropriate for the participating implementation.

@@ -28,7 +28,7 @@ import grondag.fluidity.api.storage.FixedStore;
 
 @Experimental
 public interface FixedBulkStore extends BulkStore, FixedStore {
-	public interface FixedBulkArticleSupplier extends BulkArticleFunction, FixedArticleFunction {
+	interface FixedBulkArticleSupplier extends BulkArticleFunction, FixedArticleFunction {
 		@Override
 		default long apply(int handle, Article item, long count, boolean simulate) {
 			return apply(handle, item, count, 1, simulate);

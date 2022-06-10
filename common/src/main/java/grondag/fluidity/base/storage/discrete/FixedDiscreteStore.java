@@ -29,7 +29,7 @@ import grondag.fluidity.api.storage.FixedStore;
 
 @Experimental
 public interface FixedDiscreteStore extends DiscreteStore, FixedStore {
-	public interface FixedDiscreteArticleFunction extends DiscreteStore.DiscreteArticleFunction, FixedArticleFunction {
+	interface FixedDiscreteArticleFunction extends DiscreteStore.DiscreteArticleFunction, FixedArticleFunction {
 		@Override
 		default Fraction apply(int handle, Article item, Fraction volume, boolean simulate) {
 			return Fraction.of(apply(handle, item, volume.whole(), simulate));

@@ -45,7 +45,7 @@ public interface DiscreteStore extends Store {
 		return cap > 0 ? count() / cap : 0;
 	}
 
-	public interface DiscreteArticleFunction extends ArticleFunction {
+	interface DiscreteArticleFunction extends ArticleFunction {
 		@Override
 		default Fraction apply(Article item, Fraction volume, boolean simulate) {
 			return volume.whole() == 0 ? Fraction.ZERO : Fraction.of(apply(item, volume.whole(), simulate));

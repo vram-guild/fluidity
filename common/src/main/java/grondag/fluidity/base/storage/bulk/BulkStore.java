@@ -45,7 +45,7 @@ public interface BulkStore extends Store {
 		return cap.isZero() ? 0 : amount().toDouble() / volume().toDouble();
 	}
 
-	public interface BulkArticleFunction extends ArticleFunction {
+	interface BulkArticleFunction extends ArticleFunction {
 		@Override
 		default long apply(Article item, long count, boolean simulate) {
 			return apply(item, count, 1, simulate);

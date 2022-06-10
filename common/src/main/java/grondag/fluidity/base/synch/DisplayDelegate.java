@@ -27,7 +27,6 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import grondag.fluidity.api.article.Article;
 
@@ -162,6 +161,6 @@ public interface DisplayDelegate {
 	}
 
 	static Component getSortText(int sortIndex) {
-		return new TranslatableComponent(getSortTranslactionKey(sortIndex));
+		return Component.translatable(getSortTranslactionKey(sortIndex));
 	}
 }
