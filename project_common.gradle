@@ -13,5 +13,5 @@ ext.github_repository = 'fluidity'
 //ext.release_type = 'beta'
 
 ext.build_fat_jar = false
-ext.build_forge = true
+ext.build_forge = false
 //ext.accesswidener = 'src/main/resources/tdnf.accesswidener'
