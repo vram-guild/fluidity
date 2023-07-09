@@ -1,6 +1,6 @@
 dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modApi "dev.architectury:architectury-fabric:6.2.43"
+	modApi "dev.architectury:architectury-fabric:9.0.5"
 }
 
 sourceSets {

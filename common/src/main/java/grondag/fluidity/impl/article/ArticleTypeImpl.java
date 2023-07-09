@@ -27,7 +27,7 @@ import java.util.function.Predicate;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
@@ -178,19 +178,19 @@ public class ArticleTypeImpl<T> implements ArticleType<T> {
 	public static final ArticleType<Item> ITEM = ArticleTypeRegistryImpl.INSTANCE.add("fluidity:item",
 			builder(Item.class)
 			.bulk(false)
-			.resourceTagWriter(r -> StringTag.valueOf(Registry.ITEM.getKey(r).toString()))
-			.resourceTagReader(t -> Registry.ITEM.get(new ResourceLocation(t.getAsString())))
-			.resourcePacketWriter((r, p) -> p.writeVarInt(Registry.ITEM.getId(r)))
-			.resourcePacketReader(p -> Registry.ITEM.byId(p.readVarInt()))
+			.resourceTagWriter(r -> StringTag.valueOf(BuiltInRegistries.ITEM.getKey(r).toString()))
+			.resourceTagReader(t -> BuiltInRegistries.ITEM.get(new ResourceLocation(t.getAsString())))
+			.resourcePacketWriter((r, p) -> p.writeVarInt(BuiltInRegistries.ITEM.getId(r)))
+			.resourcePacketReader(p -> BuiltInRegistries.ITEM.byId(p.readVarInt()))
 			.translationKeyFunction(i -> i.getDescriptionId())
 			.build());
 
 	public static final ArticleType<Fluid> FLUID = ArticleTypeRegistryImpl.INSTANCE.add("fluidity:fluid", builder(Fluid.class)
 			.bulk(true)
-			.resourceTagWriter(r -> StringTag.valueOf(Registry.FLUID.getKey(r).toString()))
-			.resourceTagReader(t -> Registry.FLUID.get(new ResourceLocation(t.getAsString())))
-			.resourcePacketWriter((r, p) -> p.writeVarInt(Registry.FLUID.getId(r)))
-			.resourcePacketReader(p -> Registry.FLUID.byId(p.readVarInt()))
+			.resourceTagWriter(r -> StringTag.valueOf(BuiltInRegistries.FLUID.getKey(r).toString()))
+			.resourceTagReader(t -> BuiltInRegistries.FLUID.get(new ResourceLocation(t.getAsString())))
+			.resourcePacketWriter((r, p) -> p.writeVarInt(BuiltInRegistries.FLUID.getId(r)))
+			.resourcePacketReader(p -> BuiltInRegistries.FLUID.byId(p.readVarInt()))
 			.translationKeyFunction(f -> f.defaultFluidState().createLegacyBlock().getBlock().getDescriptionId())
 			.build());
 

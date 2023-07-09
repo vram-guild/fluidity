@@ -37,7 +37,7 @@ public final class EntityComponentContextImpl extends AbstractComponentContextIm
 
 	@Override
 	protected Level getWorldLazily() {
-		return entity.level;
+		return entity.level();
 	}
 
 	@SuppressWarnings("unchecked")

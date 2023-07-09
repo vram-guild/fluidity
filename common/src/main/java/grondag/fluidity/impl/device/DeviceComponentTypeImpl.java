@@ -31,7 +31,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -209,7 +209,7 @@ public final class DeviceComponentTypeImpl<T> implements DeviceComponentType<T> 
 	private void applyDeferredEntityRegistrations() {
 		if (deferedEntityMappings != null) {
 			for (final Pair<Function<EntityComponentContext, T>, Predicate<EntityType<?>>> pair : deferedEntityMappings) {
-				Registry.ENTITY_TYPE.forEach(e -> {
+				BuiltInRegistries.ENTITY_TYPE.forEach(e -> {
 					if (pair.getRight().test(e)) {
 						registerProvider(pair.getLeft(), e);
 					}

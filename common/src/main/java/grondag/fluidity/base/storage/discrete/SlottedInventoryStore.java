@@ -85,7 +85,7 @@ public class SlottedInventoryStore extends AbstractDiscreteStore<SlottedInventor
 
 		rollbackHandler.prepareIfNeeded();
 
-		if (ItemStack.isSameIgnoreDurability(newStack, currentStack)) {
+		if (ItemStack.isSameItemSameTags(newStack, currentStack)) {
 			if (newStack.getCount() == currentStack.getCount()) {
 				return;
 			} else {

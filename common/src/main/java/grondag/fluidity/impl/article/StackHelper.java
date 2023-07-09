@@ -72,7 +72,7 @@ public class StackHelper {
 			return true;
 		}
 
-		if (stackA.sameItemStackIgnoreDurability(stackB) && stackA.getCount() == stackB.getCount()) {
+		if (ItemStack.isSameItemSameTags(stackA, stackB) && stackA.getCount() == stackB.getCount()) {
 			return true;
 		}
 

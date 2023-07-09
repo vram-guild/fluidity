@@ -26,9 +26,9 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 
 import com.mojang.serialization.Lifecycle;
 
-import net.minecraft.core.DefaultedRegistry;
-import net.minecraft.core.Registry;
+import net.minecraft.core.DefaultedMappedRegistry;
 import net.minecraft.core.WritableRegistry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
@@ -48,8 +48,8 @@ public final class ArticleTypeRegistryImpl implements ArticleTypeRegistry {
 	private static final WritableRegistry<ArticleTypeImpl> ARTICLE_REGISTRY;
 
 	static {
-		ARTICLE_REGISTRY = (WritableRegistry<ArticleTypeImpl>) ((WritableRegistry) Registry.REGISTRY).register(REGISTRY_KEY,
-				new DefaultedRegistry("fluidity:nothing", REGISTRY_KEY, Lifecycle.stable(), null), Lifecycle.stable()).value();
+		ARTICLE_REGISTRY = (WritableRegistry<ArticleTypeImpl>) ((WritableRegistry) BuiltInRegistries.REGISTRY).register(REGISTRY_KEY,
+				new DefaultedMappedRegistry("fluidity:nothing", REGISTRY_KEY, Lifecycle.stable(), false), Lifecycle.stable()).value();
 	}
 
 	@Override

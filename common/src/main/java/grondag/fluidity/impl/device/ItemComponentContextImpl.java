@@ -52,7 +52,7 @@ public final class ItemComponentContextImpl extends AbstractComponentContextImpl
 
 	@Override
 	protected Level getWorldLazily() {
-		return player == null ? null : player.level;
+		return player == null ? null : player.level();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -72,7 +72,7 @@ public final class ItemComponentContextImpl extends AbstractComponentContextImpl
 		this.stackSetter = stackSetter;
 		this.stackGetter = stackGetter;
 		this.player = player;
-		world = player.level;
+		world = player.level();
 		mapping = componentType.getMapping(stackGetter.get().getItem());
 		return this;
 	}
